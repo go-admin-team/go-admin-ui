@@ -1,10 +1,9 @@
 # go-admin-ui
 
-<p align="center">
   <a href="https://github.com/wenjianzhang/go-admin-ui/blob/master/LICENSE">
     <img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="license">
   </a>
-</p>
+
 
 ## 简介
 
