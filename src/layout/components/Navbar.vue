@@ -27,10 +27,13 @@
           <router-link to="/profile/index">
             <el-dropdown-item>个人中心</el-dropdown-item>
           </router-link>
-          <a target="_blank" href="https://github.com/PanJiaChen/vue-element-admin/">
-            <el-dropdown-item>Github</el-dropdown-item>
+          <a target="_blank" href="https://github.com/wenjianzhang/go-admin">
+            <el-dropdown-item>Github go-admin</el-dropdown-item>
           </a>
-          <a target="_blank" href="https://panjiachen.github.io/vue-element-admin-site/#/">
+          <a target="_blank" href="https://github.com/wenjianzhang/go-admin-ui">
+            <el-dropdown-item>Github go-admin-ui</el-dropdown-item>
+          </a>
+          <a target="_blank" href="https://github.com/wenjianzhang/go-admin/wiki">
             <el-dropdown-item>文档</el-dropdown-item>
           </a>
           <el-dropdown-item divided>
