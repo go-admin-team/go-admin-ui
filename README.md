@@ -94,7 +94,7 @@ npm run lint -- --fix
 
 ## 在线预览
 
-[在线 Demo](https://www.zhangwj.com)
+[在线 Demo](http://www.zhangwj.com/#/login)
 
 
 ## License
