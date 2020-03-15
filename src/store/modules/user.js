@@ -22,7 +22,7 @@ const mutations = {
     state.name = name
   },
   SET_AVATAR: (state, avatar) => {
-    state.avatar = avatar
+    state.avatar = process.env.VUE_APP_BASE_API + avatar
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
@@ -51,11 +51,11 @@ const actions = {
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       getInfo().then(response => {
-        // const { data } = response
-
-        // if (!data) {
-        //   reject('Verification failed, please Login again.')
-        // }
+        if (!response || !response.data) {
+          commit('SET_TOKEN', '')
+          removeToken()
+          resolve()
+        }
 
         const { roles, name, avatar, introduction, permissions } = response.data
 
