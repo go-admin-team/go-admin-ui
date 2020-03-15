@@ -109,16 +109,16 @@ export function updateUserPwd(oldPassword, newPassword) {
     newPassword
   }
   return request({
-    url: '/api/v1/sysUser/profile/updatePwd',
+    url: '/api/v1/user/pwd',
     method: 'put',
-    params: data
+    data: data
   })
 }
 
 // 用户头像上传
 export function uploadAvatar(data) {
   return request({
-    url: '/api/v1/sysUser/profile/avatar',
+    url: '/api/v1/user/avatar',
     method: 'post',
     data: data
   })
