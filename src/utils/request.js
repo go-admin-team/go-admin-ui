@@ -7,7 +7,7 @@ import { getToken } from '@/utils/auth'
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 5000 // request timeout
+  timeout: 10000 // request timeout
 })
 
 // request interceptor
@@ -55,11 +55,10 @@ service.interceptors.response.use(
           type: 'warning'
         }
       ).then(() => {
-        store.dispatch('user/resetToken').then(() => {
+        store.dispatch('user/LogOut').then(() => {
           location.reload() // 为了重新实例化vue-router对象 避免bug
         })
       })
-      return false
     } else if (code === 400) {
       Message({
         message: response.data.msg,
