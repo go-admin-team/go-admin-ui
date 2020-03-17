@@ -46,6 +46,7 @@ service.interceptors.response.use(
     const code = response.data.code
 
     if (code === 401) {
+      store.dispatch('user/resetToken')
       MessageBox.confirm(
         '登录状态已过期，您可以继续留在该页面，或者重新登录',
         '系统提示',
