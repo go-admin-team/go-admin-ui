@@ -55,7 +55,7 @@ export function exportType(query) {
 // 获取字典选择框列表
 export function optionselect() {
   return request({
-    url: '/api/v1/dict/type/optionselect',
+    url: '/api/v1/dict/typeoptionselect',
     method: 'get'
   })
 }
