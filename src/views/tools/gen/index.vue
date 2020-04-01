@@ -39,13 +39,12 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button
-
+        <!-- <el-button
           type="primary"
           icon="el-icon-download"
           size="mini"
           @click="handleGenTable"
-        >生成</el-button>
+        >生成</el-button> -->
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -127,13 +126,13 @@
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
           >删除</el-button>
-          <el-button
+          <!-- <el-button
 
             type="text"
             size="small"
             icon="el-icon-download"
             @click="handleGenTable(scope.row)"
-          >生成代码</el-button>
+          >生成代码</el-button> -->
         </template>
       </el-table-column>
     </el-table>
@@ -150,8 +149,8 @@
         <el-tab-pane
           v-for="(value, key) in preview.data"
           :key="key"
-          :label="key.substring(key.lastIndexOf('/')+1,key.indexOf('.vm'))"
-          :name="key.substring(key.lastIndexOf('/')+1,key.indexOf('.vm'))"
+          :label="key.substring(key.lastIndexOf('/')+1,key.indexOf('.template'))"
+          :name="key.substring(key.lastIndexOf('/')+1,key.indexOf('.template'))"
         >
           <pre>{{ value }}</pre>
         </el-tab-pane>

@@ -6,7 +6,7 @@
           <span slot="label">生成模板</span>
           <el-select v-model="info.tplCategory">
             <el-option label="单表（增删改查）" value="crud" />
-            <el-option label="树表（增删改查）" value="tree" />
+            <!-- <el-option label="树表（增删改查）" value="tree" /> -->
           </el-select>
         </el-form-item>
       </el-col>
@@ -15,7 +15,7 @@
         <el-form-item prop="packageName">
           <span slot="label">
             生成包路径
-            <el-tooltip content="生成在哪个java包下，例如 com.ruoyi.system" placement="top">
+            <el-tooltip content="文件夹路径名，例如 user" placement="top">
               <i class="el-icon-question" />
             </el-tooltip>
           </span>

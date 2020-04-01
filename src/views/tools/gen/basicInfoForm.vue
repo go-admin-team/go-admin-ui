@@ -23,11 +23,19 @@
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="是否逻辑删除" prop="isLogicalDelete">
+        <el-form-item prop="isLogicalDelete">
+          <span slot="label">
+            是否逻辑删除
+            <el-tooltip content="目前只支持逻辑删除" placement="top">
+              <i class="el-icon-question" />
+            </el-tooltip>
+          </span>
+
           <el-radio-group v-model="info.isLogicalDelete">
             <el-radio label="1">是</el-radio>
             <el-radio label="0">否</el-radio>
           </el-radio-group>
+
         </el-form-item>
       </el-col>
       <el-col :span="12">
