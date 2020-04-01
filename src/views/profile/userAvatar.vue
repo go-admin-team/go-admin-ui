@@ -59,9 +59,8 @@ import { uploadAvatar } from '@/api/system/sysuser'
 export default {
   components: { VueCropper },
   props: {
-    user: {
-      type: Object
-    }
+    // eslint-disable-next-line vue/require-default-prop
+    user: { type: Object }
   },
   data() {
     return {

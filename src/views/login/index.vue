@@ -60,7 +60,7 @@
           @keyup.enter.native="handleLogin"
         />
       </el-form-item>
-      <div class="login-code" style=" width: 38%;height: 48px;float: right;">
+      <div class="login-code" style=" width: 38%;height: 48px;float: right;background-color: darkgray;">
         <img style="height: 48px;width: 100%;" :src="codeUrl" @click="getCode">
       </div>
 
