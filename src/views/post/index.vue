@@ -133,7 +133,7 @@
           <el-input v-model="form.postCode" placeholder="请输入编码名称" />
         </el-form-item>
         <el-form-item label="岗位顺序" prop="sort">
-          <el-input-number v-model="form.Sort" controls-position="right" :min="0" />
+          <el-input-number v-model="form.sort" controls-position="right" :min="0" />
         </el-form-item>
         <el-form-item label="岗位状态" prop="status">
           <el-radio-group v-model="form.status">
@@ -200,7 +200,7 @@ export default {
         postCode: [
           { required: true, message: '岗位编码不能为空', trigger: 'blur' }
         ],
-        postSort: [
+        sort: [
           { required: true, message: '岗位顺序不能为空', trigger: 'blur' }
         ]
       }
