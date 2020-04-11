@@ -90,9 +90,9 @@
           >{{ statusFormat(scope.row) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+      <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
         <template slot-scope="scope">
-          <span>{{ scope.row.createTime }}</span>
+          <span>{{ scope.row.createdAt }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -329,7 +329,7 @@ export default {
         this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
         const tHeader = ['岗位编号', '岗位编码', '岗位名称', '排序', '创建时间']
-        const filterVal = ['postId', 'postCode', 'postName', 'sort', 'createTime']
+        const filterVal = ['postId', 'postCode', 'postName', 'sort', 'createdAt']
         const list = this.postList
         const data = this.formatJson(filterVal, list)
         excel.export_json_to_excel({

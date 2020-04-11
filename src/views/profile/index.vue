@@ -25,7 +25,7 @@
               </li>
               <li class="list-group-item">
                 <svg-icon icon-class="tree" />所属部门
-                <div v-if="user.dept" class="pull-right">{{ user.dept.deptname }} / {{ postGroup }}</div>
+                <div v-if="user.dept" class="pull-right">{{ user.dept.deptName }} / {{ postGroup }}</div>
               </li>
               <li class="list-group-item">
                 <svg-icon icon-class="peoples" />所属角色
@@ -33,7 +33,7 @@
               </li>
               <li class="list-group-item">
                 <svg-icon icon-class="date" />创建日期
-                <div class="pull-right">{{ user.createTime }}</div>
+                <div class="pull-right">{{ user.createdAt }}</div>
               </li>
             </ul>
           </div>

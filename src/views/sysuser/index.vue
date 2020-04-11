@@ -153,9 +153,9 @@
               />
             </template>
           </el-table-column>
-          <el-table-column label="创建时间" align="center" prop="createTime" width="160">
+          <el-table-column label="创建时间" align="center" prop="createdAt" width="160">
             <template slot-scope="scope">
-              <span>{{ parseTime(scope.row.createTime) }}</span>
+              <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -384,7 +384,7 @@ export default {
       form: {},
       defaultProps: {
         children: 'children',
-        label: 'deptname'
+        label: 'deptName'
       },
       // 用户导入参数
       upload: {
@@ -496,7 +496,7 @@ export default {
       }
       return {
         id: node.deptId,
-        label: node.deptname,
+        label: node.deptName,
         children: node.children
       }
     },

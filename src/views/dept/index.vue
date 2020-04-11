@@ -46,7 +46,7 @@
       default-expand-all
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
     >
-      <el-table-column prop="deptname" label="部门名称" />
+      <el-table-column prop="deptName" label="部门名称" />
       <el-table-column prop="sort" label="排序" width="200" />
       <el-table-column prop="status" label="状态" :formatter="statusFormat" width="100">
         <template slot-scope="scope">
@@ -56,7 +56,7 @@
           >{{ statusFormat(scope.row) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="200" />
+      <el-table-column label="创建时间" align="center" prop="createdAt" width="200" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -102,7 +102,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="部门名称" prop="deptName">
-              <el-input v-model="form.deptname" placeholder="请输入部门名称" />
+              <el-input v-model="form.deptName" placeholder="请输入部门名称" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -170,7 +170,7 @@ export default {
       statusOptions: [],
       // 查询参数
       queryParams: {
-        deptname: undefined,
+        deptName: undefined,
         status: undefined
       },
       // 表单参数
@@ -180,7 +180,7 @@ export default {
         parent_id: [
           { required: true, message: '上级部门不能为空', trigger: 'blur' }
         ],
-        deptname: [
+        deptName: [
           { required: true, message: '部门名称不能为空', trigger: 'blur' }
         ],
         sort: [
@@ -225,7 +225,7 @@ export default {
       }
       return {
         id: node.deptId,
-        label: node.deptname,
+        label: node.deptName,
         children: node.children
       }
     },
@@ -233,7 +233,7 @@ export default {
     getTreeselect() {
       getDeptList().then(response => {
         this.deptOptions = []
-        const dept = { deptId: 0, deptname: '主类目', children: [] }
+        const dept = { deptId: 0, deptName: '主类目', children: [] }
         dept.children = response.data
         this.deptOptions.push(dept)
       })
@@ -252,7 +252,7 @@ export default {
       this.form = {
         deptId: undefined,
         parent_id: undefined,
-        deptname: undefined,
+        deptName: undefined,
         sorc: undefined,
         leader: undefined,
         phone: undefined,
@@ -316,7 +316,7 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       this.$confirm(
-        '是否确认删除名称为"' + row.deptname + '"的数据项?',
+        '是否确认删除名称为"' + row.deptName + '"的数据项?',
         '警告',
         {
           confirmButtonText: '确定',
