@@ -77,8 +77,8 @@
 
     <el-table v-loading="loading" :data="list" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="编号" width="55" align="center" prop="infoId" />
-      <el-table-column label="用户名称" width="85" align="center" prop="userName" />
+      <el-table-column label="编号" width="70" align="center" prop="infoId" />
+      <el-table-column label="用户名称" width="85" align="center" prop="username" />
       <el-table-column label="登录地址" align="center" prop="ipaddr" width="130" :show-overflow-tooltip="true" />
       <el-table-column label="登录地点" align="center" prop="loginLocation" />
       <el-table-column label="浏览器" align="center" prop="browser" />

@@ -60,9 +60,9 @@
           >{{ visibleFormat(scope.row) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+      <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createTime) }}</span>
+          <span>{{ parseTime(scope.row.createdAt) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="180">
@@ -160,10 +160,24 @@
               </el-popover>
             </el-form-item>
           </el-col>
-
           <el-col :span="12">
             <el-form-item v-if="form.menuType == 'M' || form.menuType == 'C'" label="路由名称" prop="menuName">
               <el-input v-model="form.menuName" placeholder="请输入路由名称" />
+            </el-form-item>
+          </el-col>
+
+          <el-col v-if="form.menuType == 'M' || form.menuType == 'C'" :span="12">
+            <el-form-item label="组件路径" prop="component">
+              <el-input v-model="form.component" placeholder="请输入组件路径" />
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item v-if="form.menuType == 'M' || form.menuType == 'C'" label="是否外链">
+              <el-radio-group v-model="form.isFrame">
+                <el-radio label="0">是</el-radio>
+                <el-radio label="1">否</el-radio>
+              </el-radio-group>
             </el-form-item>
           </el-col>
 
@@ -172,11 +186,7 @@
               <el-input v-model="form.path" placeholder="请输入路由地址" />
             </el-form-item>
           </el-col>
-          <el-col v-if="form.menuType == 'M' || form.menuType == 'C'" :span="12">
-            <el-form-item label="组件路径" prop="component">
-              <el-input v-model="form.component" placeholder="请输入组件路径" />
-            </el-form-item>
-          </el-col>
+
           <el-col :span="12">
             <el-form-item v-if="form.menuType == 'F' || form.menuType == 'C'" label="权限标识">
               <el-input v-model="form.permission" placeholder="请权限标识" maxlength="50" />
