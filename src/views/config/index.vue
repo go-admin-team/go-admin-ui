@@ -154,6 +154,7 @@
 
 <script>
 import { listConfig, getConfig, delConfig, addConfig, updateConfig, exportConfig } from '@/api/system/config'
+import { parseTime,formatJson } from '@/utils'
 
 export default {
   name: 'Config',
@@ -323,11 +324,23 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(function() {
-        return exportConfig(queryParams)
-      }).then(response => {
-        this.download(response.msg)
-      }).catch(function() {})
+      }).then( () => {
+        this.downloadLoading = true
+        import('@/vendor/Export2Excel').then(excel => {
+          const tHeader = ['参数主键', '参数名称', '参数键名', '参数键值','备注','创建时间']
+          const filterVal = ['configId', 'configName', 'configKey', 'configValue','remark', 'createdAt']
+          const list = this.configList
+          const data = formatJson(filterVal, list)
+          excel.export_json_to_excel({
+            header: tHeader,
+            data,
+            filename: "参数设置",
+            autoWidth: true, // Optional
+            bookType: 'xlsx' // Optional
+          })
+          this.downloadLoading = false
+        })
+      })
     }
   }
 }

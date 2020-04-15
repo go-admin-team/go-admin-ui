@@ -346,3 +346,17 @@ export function removeClass(ele, cls) {
   }
 }
 
+/**
+ * @param {Array} filterVal
+ * @param {Object} jsonData
+ * @returns {string}
+ */
+export function formatJson(filterVal, jsonData) {
+  return jsonData.map(v => filterVal.map(j => {
+    if (j === 'timestamp') {
+      return parseTime(v[j])
+    } else {
+      return v[j]
+    }
+  }))
+}
