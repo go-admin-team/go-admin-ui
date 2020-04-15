@@ -104,6 +104,7 @@
 
 <script>
 import { list, delLogininfor, cleanLogininfor, exportLogininfor } from '@/api/system/loginlog'
+import { parseTime,formatJson } from '@/utils'
 
 export default {
   name: 'Logininfor',
@@ -204,11 +205,23 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(function() {
-        return exportLogininfor(queryParams)
-      }).then(response => {
-        this.download(response.msg)
-      }).catch(function() {})
+      }).then( () => {
+        this.downloadLoading = true
+        import('@/vendor/Export2Excel').then(excel => {
+          const tHeader = ['编号', '用户名称', '登陆地址', '登陆地点', '浏览器','操作系统','登陆状态','操作信息','登陆日期']
+          const filterVal = ['infoId', 'username', 'ipaddr', 'loginLocation', 'browser','os','status','msg','loginTime']
+          const list = this.list
+          const data = formatJson(filterVal, list)
+          excel.export_json_to_excel({
+            header: tHeader,
+            data,
+            filename: "登陆日志",
+            autoWidth: true, // Optional
+            bookType: 'xlsx' // Optional
+          })
+          this.downloadLoading = false
+        })
+      })
     }
   }
 }

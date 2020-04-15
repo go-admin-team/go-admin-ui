@@ -236,6 +236,7 @@
 import { listRole, getRole, delRole, addRole, updateRole, exportRole, dataScope, changeRoleStatus } from '@/api/system/role'
 import { treeselect as menuTreeselect, roleMenuTreeselect } from '@/api/system/menu'
 import { treeselect as deptTreeselect, roleDeptTreeselect } from '@/api/system/dept'
+import { parseTime,formatJson } from '@/utils'
 
 export default {
   name: 'Role',
@@ -538,16 +539,27 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      const queryParams = this.queryParams
       this.$confirm('是否确认导出所有角色数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(function() {
-        return exportRole(queryParams)
-      }).then(response => {
-        this.download(response.msg)
-      }).catch(function() {})
+      }).then( () => {
+        this.downloadLoading = true
+        import('@/vendor/Export2Excel').then(excel => {
+          const tHeader = ['角色编号', '角色名称', '权限字符', '显示顺序', '状态','创建时间']
+          const filterVal = ['roleId', 'roleName', 'roleKey', 'roleSort', 'status','createdAt']
+          const list = this.roleList
+          const data = formatJson(filterVal, list)
+          excel.export_json_to_excel({
+            header: tHeader,
+            data,
+            filename: "角色管理",
+            autoWidth: true, // Optional
+            bookType: 'xlsx' // Optional
+          })
+          this.downloadLoading = false
+        })
+      })
     }
   }
 }

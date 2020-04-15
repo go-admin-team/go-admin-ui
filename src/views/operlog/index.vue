@@ -175,6 +175,7 @@
 
 <script>
 import { list, delOperlog, cleanOperlog, exportOperlog } from '@/api/system/operlog'
+import { parseTime,formatJson } from '@/utils'
 
 export default {
   name: 'Operlog',
@@ -294,11 +295,23 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(function() {
-        return exportOperlog(queryParams)
-      }).then(response => {
-        this.download(response.msg)
-      }).catch(function() {})
+      }).then( () => {
+        this.downloadLoading = true
+        import('@/vendor/Export2Excel').then(excel => {
+          const tHeader = ['日志编号', '系统模块', '操作类型', '请求方式', '操作人员','主机','操作地点','操作状态','操作url','操作日期']
+          const filterVal = ['operId', 'title', 'businessType', 'method', 'operName', 'operIp','operLocation','status','operUrl','operTime']
+          const list = this.list
+          const data = formatJson(filterVal, list)
+          excel.export_json_to_excel({
+            header: tHeader,
+            data,
+            filename: "操作日志",
+            autoWidth: true, // Optional
+            bookType: 'xlsx' // Optional
+          })
+          this.downloadLoading = false
+        })
+      })
     }
   }
 }
