@@ -162,7 +162,8 @@
 </template>
 
 <script>
-import { listType, getType, delType, addType, updateType, exportType } from '@/api/system/dict/type'
+import { listType, getType, delType, addType, updateType } from '@/api/system/dict/type'
+import { formatJson } from '@/utils'
 
 export default {
   name: 'Dict',
@@ -323,16 +324,28 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      const queryParams = this.queryParams
+      // const queryParams = this.queryParams
       this.$confirm('是否确认导出所有类型数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(function() {
-        return exportType(queryParams)
-      }).then(response => {
-        this.download(response.msg)
-      }).catch(function() {})
+      }).then(() => {
+        this.downloadLoading = true
+        import('@/vendor/Export2Excel').then(excel => {
+          const tHeader = ['字典编号', '字典名称', '字典类型', '状态', '备注']
+          const filterVal = ['dictId', 'dictName', 'dictType', 'status', 'remark']
+          const list = this.typeList
+          const data = formatJson(filterVal, list)
+          excel.export_json_to_excel({
+            header: tHeader,
+            data,
+            filename: '字典管理',
+            autoWidth: true, // Optional
+            bookType: 'xlsx' // Optional
+          })
+          this.downloadLoading = false
+        })
+      })
     }
   }
 }

@@ -37,10 +37,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PanJiaChen/vue-element-admin.git"
+    "url": "git+https://github.com/wenjianzhang/go-admin.git"
   },
   "bugs": {
-    "url": "https://github.com/PanJiaChen/vue-element-admin/issues"
+    "url": "https://github.com/wenjianzhang/go-admin/issues"
   },
   "dependencies": {
     "@riophae/vue-treeselect": "0.4.0",

@@ -158,8 +158,8 @@
 
 <script>
 import { listPost, getPost, delPost, addPost, updatePost } from '@/api/system/post'
+import { formatJson } from '@/utils'
 
-import { parseTime } from '@/utils'
 export default {
   name: 'Post',
   data() {
@@ -325,34 +325,24 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(function() {
+      }).then(() => {
         this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
         const tHeader = ['岗位编号', '岗位编码', '岗位名称', '排序', '创建时间']
         const filterVal = ['postId', 'postCode', 'postName', 'sort', 'createdAt']
         const list = this.postList
-        const data = this.formatJson(filterVal, list)
+        const data = formatJson(filterVal, list)
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: this.filename,
+          filename: '岗位管理',
           autoWidth: true, // Optional
           bookType: 'xlsx' // Optional
         })
         this.downloadLoading = false
       })
       }).catch(function() {})
-    },
-    formatJson(filterVal, jsonData) {
-      return jsonData.map(v => filterVal.map(j => {
-        if (j === 'timestamp') {
-          return parseTime(v[j])
-        } else {
-          return v[j]
-        }
-      }))
     }
-
   }
 }
 </script>

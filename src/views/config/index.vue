@@ -153,7 +153,8 @@
 </template>
 
 <script>
-import { listConfig, getConfig, delConfig, addConfig, updateConfig, exportConfig } from '@/api/system/config'
+import { listConfig, getConfig, delConfig, addConfig, updateConfig } from '@/api/system/config'
+import { formatJson } from '@/utils'
 
 export default {
   name: 'Config',
@@ -318,16 +319,28 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      const queryParams = this.queryParams
+      // const queryParams = this.queryParams
       this.$confirm('是否确认导出所有参数数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(function() {
-        return exportConfig(queryParams)
-      }).then(response => {
-        this.download(response.msg)
-      }).catch(function() {})
+      }).then(() => {
+        this.downloadLoading = true
+        import('@/vendor/Export2Excel').then(excel => {
+          const tHeader = ['参数主键', '参数名称', '参数键名', '参数键值', '备注', '创建时间']
+          const filterVal = ['configId', 'configName', 'configKey', 'configValue', 'remark', 'createdAt']
+          const list = this.configList
+          const data = formatJson(filterVal, list)
+          excel.export_json_to_excel({
+            header: tHeader,
+            data,
+            filename: '参数设置',
+            autoWidth: true, // Optional
+            bookType: 'xlsx' // Optional
+          })
+          this.downloadLoading = false
+        })
+      })
     }
   }
 }
