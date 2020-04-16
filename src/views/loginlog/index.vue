@@ -103,8 +103,8 @@
 </template>
 
 <script>
-import { list, delLogininfor, cleanLogininfor, exportLogininfor } from '@/api/system/loginlog'
-import { parseTime,formatJson } from '@/utils'
+import { list, delLogininfor, cleanLogininfor } from '@/api/system/loginlog'
+import { formatJson } from '@/utils'
 
 export default {
   name: 'Logininfor',
@@ -200,22 +200,22 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      const queryParams = this.queryParams
+      // const queryParams = this.queryParams
       this.$confirm('是否确认导出所有操作日志数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then( () => {
+      }).then(() => {
         this.downloadLoading = true
         import('@/vendor/Export2Excel').then(excel => {
-          const tHeader = ['编号', '用户名称', '登陆地址', '登陆地点', '浏览器','操作系统','登陆状态','操作信息','登陆日期']
-          const filterVal = ['infoId', 'username', 'ipaddr', 'loginLocation', 'browser','os','status','msg','loginTime']
+          const tHeader = ['编号', '用户名称', '登陆地址', '登陆地点', '浏览器', '操作系统', '登陆状态', '操作信息', '登陆日期']
+          const filterVal = ['infoId', 'username', 'ipaddr', 'loginLocation', 'browser', 'os', 'status', 'msg', 'loginTime']
           const list = this.list
           const data = formatJson(filterVal, list)
           excel.export_json_to_excel({
             header: tHeader,
             data,
-            filename: "登陆日志",
+            filename: '登陆日志',
             autoWidth: true, // Optional
             bookType: 'xlsx' // Optional
           })

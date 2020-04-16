@@ -158,7 +158,7 @@
 
 <script>
 import { listPost, getPost, delPost, addPost, updatePost } from '@/api/system/post'
-import { parseTime,formatJson } from '@/utils'
+import { formatJson } from '@/utils'
 
 export default {
   name: 'Post',
@@ -325,7 +325,7 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then( () => {
+      }).then(() => {
         this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
         const tHeader = ['岗位编号', '岗位编码', '岗位名称', '排序', '创建时间']

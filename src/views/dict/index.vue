@@ -162,8 +162,8 @@
 </template>
 
 <script>
-import { listType, getType, delType, addType, updateType, exportType } from '@/api/system/dict/type'
-import { parseTime,formatJson } from '@/utils'
+import { listType, getType, delType, addType, updateType } from '@/api/system/dict/type'
+import { formatJson } from '@/utils'
 
 export default {
   name: 'Dict',
@@ -324,12 +324,12 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      const queryParams = this.queryParams
+      // const queryParams = this.queryParams
       this.$confirm('是否确认导出所有类型数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then( () => {
+      }).then(() => {
         this.downloadLoading = true
         import('@/vendor/Export2Excel').then(excel => {
           const tHeader = ['字典编号', '字典名称', '字典类型', '状态', '备注']
@@ -339,7 +339,7 @@ export default {
           excel.export_json_to_excel({
             header: tHeader,
             data,
-            filename: "字典管理",
+            filename: '字典管理',
             autoWidth: true, // Optional
             bookType: 'xlsx' // Optional
           })

@@ -174,8 +174,8 @@
 </template>
 
 <script>
-import { list, delOperlog, cleanOperlog, exportOperlog } from '@/api/system/operlog'
-import { parseTime,formatJson } from '@/utils'
+import { list, delOperlog, cleanOperlog } from '@/api/system/operlog'
+import { formatJson } from '@/utils'
 
 export default {
   name: 'Operlog',
@@ -290,22 +290,22 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      const queryParams = this.queryParams
+      // const queryParams = this.queryParams
       this.$confirm('是否确认导出所有操作日志数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then( () => {
+      }).then(() => {
         this.downloadLoading = true
         import('@/vendor/Export2Excel').then(excel => {
-          const tHeader = ['日志编号', '系统模块', '操作类型', '请求方式', '操作人员','主机','操作地点','操作状态','操作url','操作日期']
-          const filterVal = ['operId', 'title', 'businessType', 'method', 'operName', 'operIp','operLocation','status','operUrl','operTime']
+          const tHeader = ['日志编号', '系统模块', '操作类型', '请求方式', '操作人员', '主机', '操作地点', '操作状态', '操作url', '操作日期']
+          const filterVal = ['operId', 'title', 'businessType', 'method', 'operName', 'operIp', 'operLocation', 'status', 'operUrl', 'operTime']
           const list = this.list
           const data = formatJson(filterVal, list)
           excel.export_json_to_excel({
             header: tHeader,
             data,
-            filename: "操作日志",
+            filename: '操作日志',
             autoWidth: true, // Optional
             bookType: 'xlsx' // Optional
           })
