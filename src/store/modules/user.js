@@ -22,7 +22,11 @@ const mutations = {
     state.name = name
   },
   SET_AVATAR: (state, avatar) => {
-    state.avatar = process.env.VUE_APP_BASE_API + avatar
+    if (avatar.indexOf('http') !== -1) {
+      state.avatar = avatar
+    } else {
+      state.avatar = process.env.VUE_APP_BASE_API + avatar
+    }
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
