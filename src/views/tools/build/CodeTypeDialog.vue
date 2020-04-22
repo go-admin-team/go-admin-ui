@@ -51,6 +51,7 @@
 <script>
 export default {
   inheritAttrs: false,
+  // eslint-disable-next-line
   props: ['showFileName'],
   data() {
     return {

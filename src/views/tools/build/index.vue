@@ -156,9 +156,8 @@ import {
   layoutComponents,
   formConf
 } from '@/utils/generator/config'
-import {
-  exportDefault, beautifierConf, isNumberStr, titleCase
-} from '@/utils/generator/index'
+// eslint-disable-next-line
+import {exportDefault, beautifierConf, isNumberStr, titleCase} from '@/utils/generator/index'
 import {
   makeUpHtml, vueTemplate, vueScript, cssStyle
 } from '@/utils/generator/html'
@@ -169,13 +168,16 @@ import logo from '@/assets/logo/logo.png'
 import CodeTypeDialog from './CodeTypeDialog'
 import DraggableItem from './DraggableItem'
 
+// eslint-disable-next-line
 const emptyActiveData = { style: {}, autosize: {}}
+
 let oldActiveId
 let tempActiveData
 
 export default {
   components: {
     draggable,
+    // eslint-disable-next-line
     render,
     RightPanel,
     CodeTypeDialog,
