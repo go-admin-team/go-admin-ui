@@ -44,7 +44,7 @@ service.interceptors.response.use(
    */
   response => {
     const code = response.data.code
-
+    debugger
     if (code === 401) {
       store.dispatch('user/resetToken')
       if (URL.indexOf('login') !== -1) {
@@ -92,20 +92,16 @@ service.interceptors.response.use(
     }
   },
   error => {
+    if (error.message === 'Network Error') {
+      Message({
+        message: '服务器连接异常，请检查服务器！',
+        type: 'error',
+        duration: 5 * 1000
+      })
+      return
+    }
     console.log('err' + error) // for debug
 
-    // if (error.message.includes('401')) {
-    //   // to re-login
-    //   MessageBox.confirm('登录状态已过期，您可以继续留在该页面，或者重新登录！', '提示消息', {
-    //     confirmButtonText: '重新登陆',
-    //     cancelButtonText: '取消',
-    //     type: 'warning'
-    //   }).then(() => {
-    //     store.dispatch('user/resetToken').then(() => {
-    //       location.reload()
-    //     })
-    //   })
-    // }
     Message({
       message: error.message,
       type: 'error',
