@@ -15,6 +15,8 @@ const name = defaultSettings.title || 'vue Element Admin' // page title
 // port = 9527 npm run dev OR npm run dev --port = 9527
 const port = process.env.port || process.env.npm_config_port || 9527 // dev port
 
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
+
 // All configuration item explanations can be find in https://cli.vuejs.org/config/
 module.exports = {
   /**
@@ -50,8 +52,9 @@ module.exports = {
     after: require('./mock/mock-server.js')
   },
   configureWebpack: {
-    // provide the app's title in webpack's name field, so that
-    // it can be accessed in index.html to inject the correct title.
+    plugins: [
+      new MonacoWebpackPlugin()
+    ],
     name: name,
     resolve: {
       alias: {
