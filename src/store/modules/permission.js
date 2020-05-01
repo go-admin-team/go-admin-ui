@@ -55,7 +55,8 @@ export function generaMenu(routes, data) {
 }
 
 export const loadView = (view) => { // 路由懒加载
-  return () => import(`@/views${view}`)
+  return (resolve) => require(['@/views' + view], resolve)
+  // return () => import(`@/views${view}`)
 }
 
 /**

@@ -25,7 +25,7 @@ export default {
   data() {
     return {
       title: 'DEV后台管理系统',
-      logo: 'https://raw.githubusercontent.com/wenjianzhang/image/master/img/go-admin.png'
+      logo: 'https://gitee.com/mydearzwj/image/raw/master/img/go-admin.png'
     }
   }
 }
