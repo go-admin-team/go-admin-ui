@@ -145,9 +145,10 @@ export default {
   methods: {
     getCode() {
       getCodeImg().then(res => {
-        console.log(res)
-        this.codeUrl = res.data
-        this.loginForm.uuid = res.id
+        if (res !== undefined) {
+          this.codeUrl = res.data
+          this.loginForm.uuid = res.id
+        }
       })
     },
     checkCapslock({ shiftKey, key } = {}) {
