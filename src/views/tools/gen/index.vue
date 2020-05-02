@@ -195,7 +195,7 @@ export default {
         open: false,
         title: '代码预览',
         data: {},
-        activeName: 'domain.java'
+        activeName: 'api.go'
       }
     }
   },
