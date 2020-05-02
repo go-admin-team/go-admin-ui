@@ -44,7 +44,6 @@ service.interceptors.response.use(
    */
   response => {
     const code = response.data.code
-    debugger
     if (code === 401) {
       store.dispatch('user/resetToken')
       if (URL.indexOf('login') !== -1) {
