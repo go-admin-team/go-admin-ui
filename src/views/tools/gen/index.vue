@@ -122,13 +122,6 @@
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
           >删除</el-button>
-          <el-button
-
-            type="text"
-            size="small"
-            icon="el-icon-download"
-            @click="handleGenTable(scope.row)"
-          >生成代码</el-button>
         </template>
       </el-table-column>
     </el-table>
