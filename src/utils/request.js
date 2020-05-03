@@ -46,7 +46,7 @@ service.interceptors.response.use(
     const code = response.data.code
     if (code === 401) {
       store.dispatch('user/resetToken')
-      if (URL.indexOf('login') !== -1) {
+      if (location.href.indexOf('login') !== -1) {
         location.reload() // 为了重新实例化vue-router对象 避免bug
       } else {
         MessageBox.confirm(
