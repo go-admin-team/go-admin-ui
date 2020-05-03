@@ -64,18 +64,6 @@
               />
             </el-select>
           </el-form-item>
-          <!-- <el-form-item label="创建时间">
-            <el-date-picker
-              v-model="dateRange"
-              size="small"
-              style="width: 240px"
-              value-format="yyyy-MM-dd"
-              type="daterange"
-              range-separator="-"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-            />
-          </el-form-item> -->
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -112,24 +100,6 @@
               @click="handleDelete"
             >删除</el-button>
           </el-col>
-          <!-- <el-col :span="1.5">
-            <el-button
-              v-permisaction="['system:sysuser:import']"
-              type="info"
-              icon="el-icon-upload2"
-              size="mini"
-              @click="handleImport"
-            >导入</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['system:sysuser:export']"
-              type="warning"
-              icon="el-icon-download"
-              size="mini"
-              @click="handleExport"
-            >导出</el-button>
-          </el-col> -->
         </el-row>
 
         <el-table
@@ -153,7 +123,7 @@
               />
             </template>
           </el-table-column>
-          <el-table-column label="创建时间" align="center" prop="createdAt" width="160">
+          <el-table-column label="创建时间" align="center" prop="createdAt" width="165">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
