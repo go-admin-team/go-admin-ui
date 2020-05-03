@@ -34,12 +34,11 @@ export function updateGenTable(data) {
   })
 }
 
-// 导入表
-export function importTable(data) {
+// 导出
+export function downTable(data) {
   return request({
-    url: '/api/v1/sys/tables/info',
-    method: 'post',
-    params: data
+    url: '/api/v1/gen/gencode/' + data,
+    method: 'get'
   })
 }
 // 预览生成代码

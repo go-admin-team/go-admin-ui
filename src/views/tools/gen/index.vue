@@ -122,13 +122,13 @@
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
           >删除</el-button>
-          <!-- <el-button
+          <el-button
 
             type="text"
             size="small"
             icon="el-icon-download"
             @click="handleGenTable(scope.row)"
-          >生成代码</el-button> -->
+          >生成代码</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -159,7 +159,7 @@
 <script>
 import { listTable, previewTable, delTable } from '@/api/tools/gen'
 import importTable from './importTable'
-import { downLoadZip } from '@/utils/zipdownload'
+import { downLoadFile } from '@/utils/zipdownload'
 export default {
   name: 'Gen',
   components: { importTable },
@@ -227,12 +227,12 @@ export default {
     },
     /** 生成代码操作 */
     handleGenTable(row) {
-      const tableNames = row.tableName || this.tableNames
-      if (tableNames === '') {
+      const ids = row.tableId || this.ids
+      if (ids === '') {
         this.msgError('请选择要生成的数据')
         return
       }
-      downLoadZip('/tool/gen/batchGenCode?tables=' + tableNames, 'ruoyi')
+      downLoadFile('/api/v1/gen/gencode/' + ids)
     },
     /** 打开导入表弹窗 */
     openImportTable() {
