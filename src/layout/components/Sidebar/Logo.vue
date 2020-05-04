@@ -24,7 +24,7 @@ export default {
   },
   data() {
     return {
-      title: 'DEV后台管理系统',
+      title: 'go-admin后台管理系统',
       logo: 'https://gitee.com/mydearzwj/image/raw/master/img/go-admin.png'
     }
   }
