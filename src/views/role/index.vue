@@ -370,12 +370,10 @@ export default {
     /** 根据角色ID查询菜单树结构 */
     getRoleMenuTreeselect(roleId) {
       roleMenuTreeselect(roleId).then(response => {
-        this.menuOptions = response.menus
-        if (response.checkedKeys.length > 0) {
-          this.$nextTick(function() {
-            this.$refs.menu.setCheckedKeys(response.checkedKeys)
-          })
-        }
+        this.$nextTick(() => {
+          this.menuOptions = response.menus
+          this.$refs.menu.setCheckedKeys(response.checkedKeys)
+        })
       })
     },
     /** 根据角色ID查询部门树结构 */
@@ -456,7 +454,6 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-
       const roleId = row.roleId || this.ids
       this.$nextTick(() => {
         this.getRoleMenuTreeselect(roleId)
