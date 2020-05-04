@@ -75,7 +75,7 @@ service.interceptors.response.use(
         location.reload() // 为了重新实例化vue-router对象 避免bug
       })
       return false
-    } else if (code === 400) {
+    } else if (code === 400 || code === 403) {
       Message({
         message: response.data.msg,
         type: 'error',
