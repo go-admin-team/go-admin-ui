@@ -18,6 +18,15 @@ export function downLoadZip(str, filename) {
     resolveBlob(res, mimeMap.zip)
   })
 }
+
+export function downLoadFile(str) {
+  var url = baseUrl + str
+  const aLink = document.createElement('a')
+  aLink.href = url
+  document.body.appendChild(aLink)
+  aLink.click()
+  document.body.appendChild(aLink)
+}
 /**
  * 解析blob响应内容并下载
  * @param {*} res blob响应内容

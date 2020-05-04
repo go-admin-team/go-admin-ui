@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'DEV后台管理系统',
+  title: 'go-admin后台管理系统',
 
   /**
    * @type {boolean} true | false

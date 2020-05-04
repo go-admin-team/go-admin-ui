@@ -361,19 +361,17 @@ export default {
     // 所有部门节点数据
     getDeptAllCheckedKeys() {
       // 目前被选中的部门节点
-      const checkedKeys = this.$refs.dept.getHalfCheckedKeys()
+      const checkedKeys = this.$refs.dept.getCheckedKeys()
       // 半选中的部门节点
-      const halfCheckedKeys = this.$refs.dept.getCheckedKeys()
-      checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys)
+      // const halfCheckedKeys = this.$refs.dept.getCheckedKeys()
+      // checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys)
       return checkedKeys
     },
     /** 根据角色ID查询菜单树结构 */
     getRoleMenuTreeselect(roleId) {
       roleMenuTreeselect(roleId).then(response => {
         this.menuOptions = response.menus
-        if (response.checkedKeys.length > 0) {
-          this.$refs.menu.setCheckedKeys(response.checkedKeys)
-        }
+        this.$refs.menu.setCheckedKeys(response.checkedKeys)
       })
     },
     /** 根据角色ID查询部门树结构 */
@@ -454,7 +452,6 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-
       const roleId = row.roleId || this.ids
       this.$nextTick(() => {
         this.getRoleMenuTreeselect(roleId)
@@ -511,7 +508,7 @@ export default {
     submitDataScope: function() {
       if (this.form.roleId !== undefined) {
         this.form.deptIds = this.getDeptAllCheckedKeys()
-
+        console.log(this.getDeptAllCheckedKeys())
         dataScope(this.form).then(response => {
           if (response.code === 200) {
             this.msgSuccess('修改成功')
