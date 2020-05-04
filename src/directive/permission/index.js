@@ -9,7 +9,8 @@ const install = function(Vue) {
 if (window.Vue) {
   window['permission'] = permission
   window['permisaction'] = permisaction
-  Vue.use(install); // eslint-disable-line
+  // eslint-disable-next-line no-undef
+  Vue.use(install)
 }
 
 permission.install = install
