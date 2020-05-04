@@ -372,7 +372,9 @@ export default {
       roleMenuTreeselect(roleId).then(response => {
         this.menuOptions = response.menus
         if (response.checkedKeys.length > 0) {
-          this.$refs.menu.setCheckedKeys(response.checkedKeys)
+          this.$nextTick(function() {
+            this.$refs.menu.setCheckedKeys(response.checkedKeys)
+          })
         }
       })
     },
