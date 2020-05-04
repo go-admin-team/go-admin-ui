@@ -370,10 +370,8 @@ export default {
     /** 根据角色ID查询菜单树结构 */
     getRoleMenuTreeselect(roleId) {
       roleMenuTreeselect(roleId).then(response => {
-        this.$nextTick(() => {
-          this.menuOptions = response.menus
-          this.$refs.menu.setCheckedKeys(response.checkedKeys)
-        })
+        this.menuOptions = response.menus
+        this.$refs.menu.setCheckedKeys(response.checkedKeys)
       })
     },
     /** 根据角色ID查询部门树结构 */
