@@ -92,7 +92,7 @@
           <el-col v-if="form.parentId !== 0" :span="24">
             <el-form-item label="上级部门" prop="parentId">
               <treeselect
-                v-model="form.parent_id"
+                v-model="form.parentId"
                 :options="deptOptions"
                 :normalizer="normalizer"
                 :show-count="true"
@@ -177,7 +177,7 @@ export default {
       form: {},
       // 表单校验
       rules: {
-        parent_id: [
+        parentId: [
           { required: true, message: '上级部门不能为空', trigger: 'blur' }
         ],
         deptName: [
@@ -251,7 +251,7 @@ export default {
     reset() {
       this.form = {
         deptId: undefined,
-        parent_id: undefined,
+        parentId: undefined,
         deptName: undefined,
         sorc: undefined,
         leader: undefined,
@@ -269,7 +269,7 @@ export default {
       this.reset()
       this.getTreeselect()
       if (row !== undefined) {
-        this.form.parent_id = row.deptId
+        this.form.parentId = row.deptId
       }
       this.open = true
       this.title = '添加部门'
