@@ -42,7 +42,7 @@
       />
     </el-row>
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="handleImportTable">确 定</el-button>
+      <el-button type="primary" :loading="loading" @click="handleImportTable">确 定</el-button>
       <el-button @click="visible = false">取 消</el-button>
     </div>
   </el-dialog>
@@ -53,6 +53,7 @@ import { listDbTable, importTable } from '@/api/tools/gen'
 export default {
   data() {
     return {
+      loading: false,
       // 遮罩层
       visible: false,
       // 选中数组值
@@ -104,12 +105,15 @@ export default {
     },
     /** 导入按钮操作 */
     handleImportTable() {
+      this.loading = true
+      this.visible = true
       importTable({ tables: this.tables.join(',') }).then(res => {
         this.msgSuccess(res.msg)
         if (res.code === 200) {
           this.visible = false
           this.$emit('ok')
         }
+        this.loading = false
       })
     }
   }
