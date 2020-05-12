@@ -48,22 +48,22 @@
 
           <el-table-column label="插入" width="50">
             <template slot-scope="scope">
-              <el-checkbox v-model="scope.row.isInsert" true-label="1" />
+              <el-checkbox v-model="scope.row.isInsert" true-label="1" false-label="0" />
             </template>
           </el-table-column>
           <el-table-column label="编辑" width="50">
             <template slot-scope="scope">
-              <el-checkbox v-model="scope.row.isEdit" true-label="1" />
+              <el-checkbox v-model="scope.row.isEdit" true-label="1" false-label="0" />
             </template>
           </el-table-column>
           <el-table-column label="列表" width="50">
             <template slot-scope="scope">
-              <el-checkbox v-model="scope.row.isList" true-label="1" />
+              <el-checkbox v-model="scope.row.isList" true-label="1" false-label="0" />
             </template>
           </el-table-column>
           <el-table-column label="查询" width="50">
             <template slot-scope="scope">
-              <el-checkbox v-model="scope.row.isQuery" true-label="1" />
+              <el-checkbox v-model="scope.row.isQuery" true-label="1" false-label="0" />
             </template>
           </el-table-column>
           <el-table-column label="查询方式" width="120">
@@ -174,6 +174,7 @@ export default {
         const validateResult = res.every(item => !!item)
         if (validateResult) {
           const genTable = Object.assign({}, basicForm.model, genForm.model)
+          console.log(this.columns)
           genTable.columns = this.columns
           genTable.params = {
             treeCode: genTable.treeCode,
