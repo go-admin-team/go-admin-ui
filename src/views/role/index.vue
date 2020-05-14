@@ -156,10 +156,10 @@
     <el-dialog :title="title" :visible.sync="open" width="500px">
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="角色名称" prop="roleName">
-          <el-input v-model="form.roleName" placeholder="请输入角色名称" />
+          <el-input v-model="form.roleName" placeholder="请输入角色名称" :disabled="isEdit" />
         </el-form-item>
         <el-form-item label="权限字符" prop="roleKey">
-          <el-input v-model="form.roleKey" placeholder="请输入权限字符" />
+          <el-input v-model="form.roleKey" placeholder="请输入权限字符" :disabled="isEdit" />
         </el-form-item>
         <el-form-item label="角色顺序" prop="roleSort">
           <el-input-number v-model="form.roleSort" controls-position="right" :min="0" />
@@ -260,6 +260,7 @@ export default {
       open: false,
       // 是否显示弹出层（数据权限）
       openDataScope: false,
+      isEdit: false,
       // 日期范围
       dateRange: [],
       // 状态数据字典
@@ -448,6 +449,7 @@ export default {
       this.getMenuTreeselect()
       this.open = true
       this.title = '添加角色'
+      this.isEdit = false
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -460,6 +462,7 @@ export default {
         this.form = response.data
         this.open = true
         this.title = '修改角色'
+        this.isEdit = true
       })
     },
     /** 分配数据权限操作 */

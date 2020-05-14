@@ -123,10 +123,10 @@
     <el-dialog :title="title" :visible.sync="open" width="500px">
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="参数名称" prop="configName">
-          <el-input v-model="form.configName" placeholder="请输入参数名称" />
+          <el-input v-model="form.configName" placeholder="请输入参数名称" :disabled="isEdit" />
         </el-form-item>
         <el-form-item label="参数键名" prop="configKey">
-          <el-input v-model="form.configKey" placeholder="请输入参数键名" />
+          <el-input v-model="form.configKey" placeholder="请输入参数键名" :disabled="isEdit" />
         </el-form-item>
         <el-form-item label="参数键值" prop="configValue">
           <el-input v-model="form.configValue" placeholder="请输入参数键值" />
@@ -174,6 +174,7 @@ export default {
       configList: [],
       // 弹出层标题
       title: '',
+      isEdit: false,
       // 是否显示弹出层
       open: false,
       // 类型数据字典
@@ -258,6 +259,7 @@ export default {
       this.reset()
       this.open = true
       this.title = '添加参数'
+      this.isEdit = false
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
@@ -273,6 +275,7 @@ export default {
         this.form = response.data
         this.open = true
         this.title = '修改参数'
+        this.isEdit = true
       })
     },
     /** 提交按钮 */

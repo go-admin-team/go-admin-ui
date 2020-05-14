@@ -135,10 +135,10 @@
     <el-dialog :title="title" :visible.sync="open" width="500px">
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="字典名称" prop="dictName">
-          <el-input v-model="form.dictName" placeholder="请输入字典名称" />
+          <el-input v-model="form.dictName" placeholder="请输入字典名称" :disabled="isEdit" />
         </el-form-item>
         <el-form-item label="字典类型" prop="dictType">
-          <el-input v-model="form.dictType" placeholder="请输入字典类型" />
+          <el-input v-model="form.dictType" placeholder="请输入字典类型" :disabled="isEdit" />
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
@@ -183,6 +183,7 @@ export default {
       typeList: [],
       // 弹出层标题
       title: '',
+      isEdit: false,
       // 是否显示弹出层
       open: false,
       // 状态数据字典
@@ -263,6 +264,7 @@ export default {
       this.reset()
       this.open = true
       this.title = '添加字典类型'
+      this.isEdit = false
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
@@ -278,6 +280,7 @@ export default {
         this.form = response.data
         this.open = true
         this.title = '修改字典类型'
+        this.isEdit = true
       })
     },
     /** 提交按钮 */
