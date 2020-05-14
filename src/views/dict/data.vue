@@ -116,10 +116,10 @@
           <el-input v-model="form.dictType" :disabled="true" />
         </el-form-item>
         <el-form-item label="数据标签" prop="dictLabel">
-          <el-input v-model="form.dictLabel" placeholder="请输入数据标签" />
+          <el-input v-model="form.dictLabel" placeholder="请输入数据标签" :disabled="isEdit" />
         </el-form-item>
         <el-form-item label="数据键值" prop="dictValue">
-          <el-input v-model="form.dictValue" placeholder="请输入数据键值" />
+          <el-input v-model="form.dictValue" placeholder="请输入数据键值" :disabled="isEdit" />
         </el-form-item>
         <el-form-item label="显示排序" prop="dictSort">
           <el-input-number v-model="form.dictSort" controls-position="right" :min="0" />
@@ -169,6 +169,7 @@ export default {
       defaultDictType: '',
       // 弹出层标题
       title: '',
+      isEdit: false,
       // 是否显示弹出层
       open: false,
       // 状态数据字典
@@ -268,6 +269,7 @@ export default {
       this.reset()
       this.open = true
       this.title = '添加字典数据'
+      this.isEdit = false
       this.form.dictType = this.queryParams.dictType
     },
     // 多选框选中数据
@@ -284,6 +286,7 @@ export default {
         this.form = response.data
         this.open = true
         this.title = '修改字典数据'
+        this.isEdit = true
       })
     },
     /** 提交按钮 */
