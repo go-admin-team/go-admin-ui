@@ -4,25 +4,44 @@
 
     <panel-group @handleSetLineChartData="handleSetLineChartData" />
 
-    <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
-      <line-chart :chart-data="lineChartData" />
-    </el-row>
-
     <el-row :gutter="32">
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <raddar-chart />
-        </div>
+      <el-col :xs="24" :sm="24" :lg="12">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span>最新动态</span>
+
+          </div>
+          <el-timeline>
+            <el-timeline-item timestamp="2020/05/15" placement="top">
+              <el-card>
+                <h4>更新角色授权数据绑定</h4>
+              </el-card>
+            </el-timeline-item>
+            <el-timeline-item timestamp="2020/05/14" placement="top">
+              <el-card>
+                <h4>角色名称和角色key控制唯一性；</h4>
+                <h4>以及字典，参数等功能唯一性控制；</h4>
+                <h4>记录总条数过滤已删除状态；</h4>
+                <h4>部分已知bug的修复；</h4>
+              </el-card>
+            </el-timeline-item>
+            <el-timeline-item timestamp="2020/4/2" placement="top">
+              <el-card>
+                <p>...</p>
+              </el-card>
+            </el-timeline-item>
+          </el-timeline>
+        </el-card>
+
       </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <pie-chart />
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <bar-chart />
-        </div>
+      <el-col :xs="24" :sm="24" :lg="12">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span>视频教程</span>
+
+          </div>
+          <iframe id="b" class="b video_pc" src="//player.bilibili.com/player.html??cid=185732281&aid=455391649&pre_ad=0" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="min-height:485px; width: 100%" />
+        </el-card>
       </el-col>
     </el-row>
   </div>
