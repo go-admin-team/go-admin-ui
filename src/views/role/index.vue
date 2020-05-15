@@ -372,16 +372,18 @@ export default {
     getRoleMenuTreeselect(roleId) {
       roleMenuTreeselect(roleId).then(response => {
         this.menuOptions = response.menus
-        this.$refs.menu.setCheckedKeys(response.checkedKeys)
+        this.$nextTick(() => {
+          this.$refs.menu.setCheckedKeys(response.checkedKeys)
+        })
       })
     },
     /** 根据角色ID查询部门树结构 */
     getRoleDeptTreeselect(roleId) {
       roleDeptTreeselect(roleId).then(response => {
         this.deptOptions = response.depts
-        if (response.checkedKeys.length > 0) {
+        this.$nextTick(() => {
           this.$refs.dept.setCheckedKeys(response.checkedKeys)
-        }
+        })
       })
     },
     // 角色状态修改
@@ -455,26 +457,22 @@ export default {
     handleUpdate(row) {
       this.reset()
       const roleId = row.roleId || this.ids
-      this.$nextTick(() => {
-        this.getRoleMenuTreeselect(roleId)
-      })
       getRole(roleId).then(response => {
         this.form = response.data
         this.open = true
         this.title = '修改角色'
         this.isEdit = true
+        this.getRoleMenuTreeselect(roleId)
       })
     },
     /** 分配数据权限操作 */
     handleDataScope(row) {
       this.reset()
-      this.$nextTick(() => {
-        this.getRoleDeptTreeselect(row.roleId)
-      })
       getRole(row.roleId).then(response => {
         this.form = response.data
         this.openDataScope = true
         this.title = '分配数据权限'
+        this.getRoleDeptTreeselect(row.roleId)
       })
     },
     /** 提交按钮 */
