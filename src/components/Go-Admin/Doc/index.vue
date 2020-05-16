@@ -9,7 +9,7 @@ export default {
   name: 'GoAdminDoc',
   data() {
     return {
-      url: 'http://doc.zhangwj.com/go-admin'
+      url: 'http://doc.zhangwj.com/go-admin-site'
     }
   },
   methods: {
