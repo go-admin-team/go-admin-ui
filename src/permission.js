@@ -3,7 +3,7 @@ import store from './store'
 import { Message } from 'element-ui'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
-import { getToken } from '@/utils/auth' // get token from cookie
+import { getToken, parseJwt } from '@/utils/auth' // get token from cookie
 import getPageTitle from '@/utils/get-page-title'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
@@ -29,6 +29,12 @@ router.beforeEach(async(to, from, next) => {
       // determine whether the user has obtained his permission roles through getInfo
       const hasRoles = store.getters.roles && store.getters.roles.length > 0
       if (hasRoles) {
+        // Verify token whether expire, if expired, will refresh token.
+        var JwtToken = parseJwt(hasToken)
+        var expiredTime = new Date(JwtToken.exp * 1000)
+        if (expiredTime < new Date()) {
+          await store.dispatch('user/refreshToken')
+        }
         next()
       } else {
         try {
