@@ -96,7 +96,7 @@ const actions = {
   // 刷新token
   refreshToken({ commit, state }) {
     return new Promise((resolve, reject) => {
-      refreshtoken({ token: state.token }).then(response => {
+      refreshtoken(state.token).then(response => {
         const { token } = response
         commit('SET_TOKEN', token)
         setToken(token)
