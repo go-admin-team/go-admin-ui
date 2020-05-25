@@ -93,14 +93,15 @@
     <el-dialog :title="title" :visible.sync="open" width="600px">
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
-          <el-col v-if="form.parentId !== 0" :span="24">
+          <el-col :span="24">
             <el-form-item label="上级部门" prop="parentId">
               <treeselect
-                v-model="form.parent_id"
+                v-model="form.parentId"
                 :options="deptOptions"
                 :normalizer="normalizer"
                 :show-count="true"
                 placeholder="选择上级部门"
+                :is-disabled="isEdit"
               />
             </el-form-item>
           </el-col>
@@ -168,6 +169,7 @@ export default {
       deptOptions: [],
       // 弹出层标题
       title: '',
+      isEdit: false,
       // 是否显示弹出层
       open: false,
       // 状态数据字典
@@ -181,7 +183,7 @@ export default {
       form: {},
       // 表单校验
       rules: {
-        parent_id: [
+        parentId: [
           { required: true, message: '上级部门不能为空', trigger: 'blur' }
         ],
         deptName: [
@@ -234,12 +236,19 @@ export default {
       }
     },
     /** 查询部门下拉树结构 */
-    getTreeselect() {
+    getTreeselect(e) {
       getDeptList().then(response => {
         this.deptOptions = []
-        const dept = { deptId: 0, deptName: '主类目', children: [] }
-        dept.children = response.data
-        this.deptOptions.push(dept)
+
+        if (e === 'update') {
+          const dept = { deptId: 0, deptName: '主类目', children: [], isDisabled: true }
+          dept.children = response.data
+          this.deptOptions.push(dept)
+        } else {
+          const dept = { deptId: 0, deptName: '主类目', children: [] }
+          dept.children = response.data
+          this.deptOptions.push(dept)
+        }
       })
     },
     // 字典状态字典翻译
@@ -255,7 +264,7 @@ export default {
     reset() {
       this.form = {
         deptId: undefined,
-        parent_id: undefined,
+        parentId: undefined,
         deptName: undefined,
         sorc: undefined,
         leader: undefined,
@@ -271,22 +280,24 @@ export default {
     /** 新增按钮操作 */
     handleAdd(row) {
       this.reset()
-      this.getTreeselect()
+      this.getTreeselect('add')
       if (row !== undefined) {
-        this.form.parent_id = row.deptId
+        this.form.parentId = row.deptId
       }
       this.open = true
       this.title = '添加部门'
+      this.isEdit = false
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-      this.getTreeselect()
+      this.getTreeselect('update')
 
       getDept(row.deptId).then(response => {
         this.form = response.data
         this.open = true
         this.title = '修改部门'
+        this.isEdit = true
       })
     },
     /** 提交按钮 */
