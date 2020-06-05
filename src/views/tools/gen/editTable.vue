@@ -70,13 +70,13 @@
             <template slot-scope="scope">
               <el-select v-model="scope.row.queryType">
                 <el-option label="=" value="EQ" />
-                <!-- <el-option label="!=" value="NE" />
+                <el-option label="!=" value="NE" />
                 <el-option label=">" value="GT" />
                 <el-option label=">=" value="GTE" />
                 <el-option label="<" value="LT" />
                 <el-option label="<=" value="LTE" />
                 <el-option label="LIKE" value="LIKE" />
-                <el-option label="BETWEEN" value="BETWEEN" /> -->
+                <!-- <el-option label="BETWEEN" value="BETWEEN" /> -->
               </el-select>
             </template>
           </el-table-column>
@@ -89,15 +89,15 @@
             <template slot-scope="scope">
               <el-select v-model="scope.row.htmlType">
                 <el-option label="文本框" value="input" />
-                <!-- <el-option label="文本域" value="textarea" />
                 <el-option label="下拉框" value="select" />
                 <el-option label="单选框" value="radio" />
-                <el-option label="复选框" value="checkbox" />
+                <!-- <el-option label="复选框" value="checkbox" />
+                <el-option label="文本域" value="textarea" />
                 <el-option label="日期控件" value="datetime" /> -->
               </el-select>
             </template>
           </el-table-column>
-          <!-- <el-table-column label="字典类型" width="160">
+          <el-table-column label="字典类型" width="160">
             <template slot-scope="scope">
               <el-select v-model="scope.row.dictType" clearable filterable placeholder="请选择">
                 <el-option
@@ -111,7 +111,7 @@
                 </el-option>
               </el-select>
             </template>
-          </el-table-column> -->
+          </el-table-column>
         </el-table>
       </el-tab-pane>
       <el-tab-pane label="生成信息" name="genInfo">
