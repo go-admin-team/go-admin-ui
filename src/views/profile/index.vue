@@ -25,11 +25,11 @@
               </li>
               <li class="list-group-item">
                 <svg-icon icon-class="tree" />所属部门
-                <div v-if="user.dept" class="pull-right">{{ user.dept.deptName }} / {{ postGroup }}</div>
+                <div class="pull-right">{{ deptName }}</div>
               </li>
               <li class="list-group-item">
                 <svg-icon icon-class="peoples" />所属角色
-                <div class="pull-right">{{ roleGroup }}</div>
+                <div class="pull-right">{{ roleName }}</div>
               </li>
               <li class="list-group-item">
                 <svg-icon icon-class="date" />创建日期
@@ -72,7 +72,14 @@ export default {
       user: {},
       roleGroup: {},
       postGroup: {},
-      activeTab: 'userinfo'
+      deptGroup: {},
+      activeTab: 'userinfo',
+      roleIds: undefined,
+      postIds: undefined,
+      roleName: undefined,
+      postName: undefined,
+      dept: {},
+      deptName: undefined
     }
   },
   created() {
@@ -82,8 +89,20 @@ export default {
     getUser() {
       getUserProfile().then(response => {
         this.user = response.data
-        this.roleGroup = response.roleGroup
-        this.postGroup = response.postGroup
+        this.roleIds = response.roleIds
+        this.roleGroup = response.roles
+
+        if (this.roleIds[0]) {
+          for (const key in this.roleGroup) {
+            if (this.roleIds[0] === this.roleGroup[key].roleId) {
+              this.roleName = this.roleGroup[key].roleName
+            }
+          }
+        } else {
+          this.roleName = '暂无'
+        }
+        this.dept = response.dept
+        this.deptName = this.dept.deptName
       })
     }
   }
