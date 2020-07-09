@@ -112,6 +112,13 @@
 
             type="text"
             size="small"
+            icon="el-icon-view"
+            @click="handleToProject(scope.row)"
+          >生成到项目</el-button>
+          <el-button
+
+            type="text"
+            size="small"
             icon="el-icon-edit"
             @click="handleEditTable(scope.row)"
           >编辑</el-button>
@@ -150,7 +157,7 @@
 </template>
 
 <script>
-import { listTable, previewTable, delTable } from '@/api/tools/gen'
+import { listTable, previewTable, delTable, toProjectTable } from '@/api/tools/gen'
 import importTable from './importTable'
 import { downLoadFile } from '@/utils/zipdownload'
 export default {
@@ -242,6 +249,11 @@ export default {
       previewTable(row.tableId).then(response => {
         this.preview.data = response.data
         this.preview.open = true
+      })
+    },
+    handleToProject(row) {
+      toProjectTable(row.tableId).then(response => {
+        this.msgSuccess(response.msg)
       })
     },
     // 多选框选中数据
