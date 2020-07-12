@@ -68,9 +68,9 @@
       </el-col>
     </el-row>
 
-    <el-table v-loading="loading" :data="dataList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="dataList" row-key="dictCode" :tree-props="{children: 'children', hasChildren: 'hasChildren'}" @selection-change="handleSelectionChange" >
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="字典编码" width="80" align="center" prop="dictCode" />
+      <el-table-column label="字典编码" width="120" align="center" prop="dictCode" />
       <el-table-column label="字典标签" align="center" prop="dictLabel" />
       <el-table-column label="字典键值" align="center" prop="dictValue" />
       <el-table-column label="字典排序" align="center" prop="dictSort" />
@@ -112,9 +112,19 @@
     <!-- 添加或修改参数配置对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px">
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="字典类型">
-          <el-input v-model="form.dictType" :disabled="true" />
+        <el-form-item label="上级">
+          <treeselect
+            v-model="form.pid"
+            :options="system"
+            :normalizer="normalizer"
+            :show-count="true"
+            placeholder="选择上级"
+            @change="console.log(1)"
+          />
         </el-form-item>
+        <!--<el-form-item label="字典类型">
+          <el-input v-model="form.dictType" :disabled="true" />
+        </el-form-item>-->
         <el-form-item label="数据标签" prop="dictLabel">
           <el-input v-model="form.dictLabel" placeholder="请输入数据标签" :disabled="isEdit" />
         </el-form-item>
@@ -148,9 +158,11 @@
 <script>
 import { listData, getData, delData, addData, updateData, exportData } from '@/api/system/dict/data'
 import { listType, getType } from '@/api/system/dict/type'
-
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 export default {
   name: 'Data',
+  components: { Treeselect },
   data() {
     return {
       // 遮罩层
@@ -197,7 +209,9 @@ export default {
         dictSort: [
           { required: true, message: '数据顺序不能为空', trigger: 'blur' }
         ]
-      }
+      },
+      system: [],
+      allSystem: []
     }
   },
   created() {
@@ -231,6 +245,41 @@ export default {
         this.total = response.data.count
         this.loading = false
       })
+    },
+    /** 转换菜单数据结构 */
+    normalizer(node) {
+      if (node.children && !node.children.length) {
+        delete node.children
+      }
+      return {
+        id: node.dictCode,
+        label: node.dictLabel,
+        children: node.children
+      }
+    },
+    getSystemList() {
+      listData({
+        pageSize: 10000,
+        status: 0,
+        dictType: this.queryParams.dictType
+      }).then(response => {
+        this.system = response.data.list
+        const data = []
+        response.data.list.forEach(v => {
+          data.push(v)
+          this.gen(v, data)
+        })
+        console.log(data)
+        this.allSystem = data
+      })
+    },
+    gen(v, data) {
+      if (v.children.length > 0) {
+        v.children.forEach(a => {
+          data.push(a)
+          this.gen(a, data)
+        })
+      }
     },
     // 数据状态字典翻译
     statusFormat(row, column) {
@@ -267,10 +316,11 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset()
+      this.getSystemList()
       this.open = true
       this.title = '添加字典数据'
       this.isEdit = false
-      this.form.dictType = this.queryParams.dictType
+      // this.form.dictType = this.queryParams.dictType
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
@@ -282,8 +332,10 @@ export default {
     handleUpdate(row) {
       this.reset()
       const dictCode = row.dictCode || this.ids
+      this.getSystemList()
       getData(dictCode).then(response => {
         this.form = response.data
+        this.form.pid = this.form.pid === 0 ? undefined : this.form.pid
         this.open = true
         this.title = '修改字典数据'
         this.isEdit = true
@@ -293,6 +345,11 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
+          if (this.form.pid !== undefined) {
+            this.form.dictType = this.allSystem.find(v => v.dictCode === this.form.pid).dictLabel
+          } else {
+            this.form.dictType = this.queryParams.dictType
+          }
           if (this.form.dictCode !== undefined) {
             updateData(this.form).then(response => {
               if (response.code === 200) {
