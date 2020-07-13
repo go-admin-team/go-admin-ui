@@ -57,3 +57,11 @@ export function delTable(tableId) {
   })
 }
 
+// 生成代码到项目
+export function toProjectTable(tableId) {
+  return request({
+    url: '/api/v1/gen/toproject/' + tableId,
+    method: 'get'
+  })
+}
+
