@@ -65,3 +65,11 @@ export function toProjectTable(tableId) {
   })
 }
 
+// 生成代码到项目
+export function toDBTable(tableId) {
+  return request({
+    url: '/api/v1/gen/todb/' + tableId,
+    method: 'get'
+  })
+}
+
