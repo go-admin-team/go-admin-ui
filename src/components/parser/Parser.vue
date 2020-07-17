@@ -34,8 +34,8 @@ const layouts = {
     let child = renderChildren.apply(this, arguments)
     if (scheme.type === 'flex') {
       child = <el-row type={scheme.type} justify={scheme.justify} align={scheme.align}>
-              {child}
-            </el-row>
+        {child}
+      </el-row>
     }
     return (
       <el-col span={scheme.span}>
@@ -71,8 +71,8 @@ function renderFrom(h) {
 
 function formBtns(h) {
   return <el-col>
-    <el-form-item size="large">
-      <el-button type="primary" onClick={this.submitForm}>提交</el-button>
+    <el-form-item size='large'>
+      <el-button type='primary' onClick={this.submitForm}>提交</el-button>
       <el-button onClick={this.resetForm}>重置</el-button>
     </el-form-item>
   </el-col>

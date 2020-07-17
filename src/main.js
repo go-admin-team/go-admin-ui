@@ -29,9 +29,7 @@ import '@/styles/generator/index.scss'
 
 import Tinymce from '@/components/tinymce/index.vue'
 
-
 import '@/icons'
-
 
 import * as filters from './filters' // global filters
 

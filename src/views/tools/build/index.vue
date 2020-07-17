@@ -1,11 +1,11 @@
 
 <template>
-  <div class="container" id="previewApp">
+  <div id="previewApp" class="container">
     <div class="left-board">
       <div class="logo-wrapper">
         <div class="logo">
           <img :src="logo" alt="logo"> Form Generator
-          
+
         </div>
       </div>
       <el-scrollbar class="left-scrollbar">
@@ -147,9 +147,8 @@ import {
 } from '@/utils/generator/db'
 import loadBeautifier from '@/utils/generator/loadBeautifier'
 
-
 let beautifier
-const emptyActiveData = { style: {}, autosize: {} }
+const emptyActiveData = { style: {}, autosize: {}}
 let oldActiveId
 let tempActiveData
 const drawingListInDB = getDrawingList()
@@ -207,11 +206,11 @@ export default {
   },
   watch: {
     // eslint-disable-next-line func-names
-    'activeData.__config__.label': function (val, oldVal) {
+    'activeData.__config__.label': function(val, oldVal) {
       if (
-        this.activeData.placeholder === undefined
-        || !this.activeData.__config__.tag
-        || oldActiveId !== this.activeId
+        this.activeData.placeholder === undefined ||
+        !this.activeData.__config__.tag ||
+        oldActiveId !== this.activeId
       ) {
         return
       }
@@ -421,6 +420,4 @@ export default {
 <style lang="scss" scoped>
 @import '@/styles/generator/home.scss';
 </style>
-
-
 
