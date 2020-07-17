@@ -71,7 +71,10 @@
   </div>
 </template>
 <script>
-import { isNumberStr } from '@/utils/index'
+import { isNumberStr } from '@/utils/generator/index'
+import { getTreeNodeId, saveTreeNodeId } from '@/utils/generator/db'
+
+const id = getTreeNodeId()
 
 export default {
   components: {},
@@ -79,7 +82,7 @@ export default {
   props: [],
   data() {
     return {
-      id: 100,
+      id,
       formData: {
         label: undefined,
         value: undefined
@@ -115,8 +118,12 @@ export default {
   },
   computed: {},
   watch: {
-    'formData.value': function(val) {
+    // eslint-disable-next-line func-names
+    'formData.value': function (val) {
       this.dataType = isNumberStr(val) ? 'number' : 'string'
+    },
+    id(val) {
+      saveTreeNodeId(val)
     }
   },
   created() {},
@@ -146,3 +153,6 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+</style>

@@ -2,6 +2,17 @@
 const path = require('path')
 const defaultSettings = require('./src/settings.js')
 
+const minify = process.env.NODE_ENV === 'development' ? false : {
+  collapseWhitespace: true,
+  removeComments: true,
+  removeRedundantAttributes: true,
+  removeScriptTypeAttributes: true,
+  removeStyleLinkTypeAttributes: true,
+  useShortDoctype: true,
+  minifyCSS: true,
+  minifyJS: true
+}
+
 function resolve(dir) {
   return path.join(__dirname, dir)
 }

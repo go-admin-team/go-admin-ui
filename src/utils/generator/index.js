@@ -1,14 +1,6 @@
-export function makeMap(str, expectsLowerCase) {
-  const map = Object.create(null)
-  const list = str.split(',')
-  for (let i = 0; i < list.length; i++) {
-    map[list[i]] = true
-  }
-  return expectsLowerCase
-    ? val => map[val.toLowerCase()]
-    : val => map[val]
-}
-
+/* eslint-disable no-nested-ternary */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable guard-for-in */
 /**
  * num 小于0，左缩进num*2个空格； 大于0，右缩进num*2个空格。
  * @param {string} str 代码
@@ -102,7 +94,6 @@ function stringify(obj) {
 function parse(str) {
   JSON.parse(str, (k, v) => {
     if (v.indexOf && v.indexOf('function') > -1) {
-      // eslint-disable-next-line no-eval
       return eval(`(${v})`)
     }
     return v
@@ -111,4 +102,42 @@ function parse(str) {
 
 export function jsonClone(obj) {
   return parse(stringify(obj))
+}
+
+// 深拷贝对象
+export function deepClone(obj) {
+  const _toString = Object.prototype.toString
+
+  // null, undefined, non-object, function
+  if (!obj || typeof obj !== 'object') {
+    return obj
+  }
+
+  // DOM Node
+  if (obj.nodeType && 'cloneNode' in obj) {
+    return obj.cloneNode(true)
+  }
+
+  // Date
+  if (_toString.call(obj) === '[object Date]') {
+    return new Date(obj.getTime())
+  }
+
+  // RegExp
+  if (_toString.call(obj) === '[object RegExp]') {
+    const flags = []
+    if (obj.global) { flags.push('g') }
+    if (obj.multiline) { flags.push('m') }
+    if (obj.ignoreCase) { flags.push('i') }
+
+    return new RegExp(obj.source, flags.join(''))
+  }
+
+  const result = Array.isArray(obj) ? [] : obj.constructor ? new obj.constructor() : {}
+
+  for (const key in obj) {
+    result[key] = deepClone(obj[key])
+  }
+
+  return result
 }
