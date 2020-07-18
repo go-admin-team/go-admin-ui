@@ -25,10 +25,6 @@ import './utils/error-log' // error log
 
 import '@/styles/index.scss'
 
-import '@/styles/generator/index.scss'
-
-import Tinymce from '@/components/tinymce/index.vue'
-
 import '@/icons'
 
 import * as filters from './filters' // global filters
@@ -46,8 +42,6 @@ Vue.prototype.download = download
 
 // 全局组件挂载
 Vue.component('Pagination', Pagination)
-
-Vue.component('tinymce', Tinymce)
 
 Vue.prototype.msgSuccess = function(msg) {
   this.$message({ showClose: true, message: msg, type: 'success' })
