@@ -2,11 +2,22 @@
 const path = require('path')
 const defaultSettings = require('./src/settings.js')
 
+const minify = process.env.NODE_ENV === 'development' ? false : {
+  collapseWhitespace: true,
+  removeComments: true,
+  removeRedundantAttributes: true,
+  removeScriptTypeAttributes: true,
+  removeStyleLinkTypeAttributes: true,
+  useShortDoctype: true,
+  minifyCSS: true,
+  minifyJS: true
+}
+
 function resolve(dir) {
   return path.join(__dirname, dir)
 }
 
-const name = defaultSettings.title || 'vue Element Admin' // page title
+const name = defaultSettings.title || 'go-admin' // page title
 
 // If your port is set to 80,
 // use administrator privileges to execute the command line.

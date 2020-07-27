@@ -23,6 +23,10 @@ import './icons' // icon
 import './permission' // permission control
 import './utils/error-log' // error log
 
+import '@/styles/index.scss'
+
+import '@/icons'
+
 import * as filters from './filters' // global filters
 
 import Pagination from '@/components/Pagination'

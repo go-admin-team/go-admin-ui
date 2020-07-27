@@ -94,11 +94,6 @@
           <span>{{ parseTime(scope.row.createdAt) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updatedAt" width="165">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updatedAt) }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -114,7 +109,21 @@
             size="small"
             icon="el-icon-view"
             @click="handleToProject(scope.row)"
-          >生成到项目</el-button>
+          >代码生成</el-button>
+          <el-button
+
+            type="text"
+            size="small"
+            icon="el-icon-view"
+            @click="handleToProjectCheckRole(scope.row)"
+          >代码生成[带权限]</el-button>
+          <el-button
+
+            type="text"
+            size="small"
+            icon="el-icon-view"
+            @click="handleToDB(scope.row)"
+          >配置生成</el-button>
           <el-button
 
             type="text"
@@ -157,7 +166,7 @@
 </template>
 
 <script>
-import { listTable, previewTable, delTable, toProjectTable } from '@/api/tools/gen'
+import { listTable, previewTable, delTable, toProjectTable, toDBTable, toProjectTableCheckRole } from '@/api/tools/gen'
 import importTable from './importTable'
 import { downLoadFile } from '@/utils/zipdownload'
 export default {
@@ -252,7 +261,17 @@ export default {
       })
     },
     handleToProject(row) {
-      toProjectTable(row.tableId).then(response => {
+      toProjectTableCheckRole(row.tableId, false).then(response => {
+        this.msgSuccess(response.msg)
+      })
+    },
+    handleToProjectCheckRole(row) {
+      toProjectTableCheckRole(row.tableId, true).then(response => {
+        this.msgSuccess(response.msg)
+      })
+    },
+    handleToDB(row) {
+      toDBTable(row.tableId).then(response => {
         this.msgSuccess(response.msg)
       })
     },
