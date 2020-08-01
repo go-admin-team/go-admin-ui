@@ -261,19 +261,37 @@ export default {
       })
     },
     handleToProject(row) {
-      toProjectTableCheckRole(row.tableId, false).then(response => {
-        this.msgSuccess(response.msg)
-      })
+      this.$confirm('正在使用代码生成请确认?', '提示', {
+        confirmButtonText: '生成',
+        cancelButtonText: '取消',
+        type: 'info'
+      }).then(function() {
+        toProjectTableCheckRole(row.tableId, false).then(response => {
+          this.msgSuccess(response.msg)
+        })
+      }).catch(function() {})
     },
     handleToProjectCheckRole(row) {
-      toProjectTableCheckRole(row.tableId, true).then(response => {
-        this.msgSuccess(response.msg)
-      })
+      this.$confirm('正在使用代码生成【带权限】请确认?', '提示', {
+        confirmButtonText: '生成',
+        cancelButtonText: '取消',
+        type: 'info'
+      }).then(function() {
+        toProjectTableCheckRole(row.tableId, true).then(response => {
+          this.msgSuccess(response.msg)
+        })
+      }).catch(function() {})
     },
     handleToDB(row) {
-      toDBTable(row.tableId).then(response => {
-        this.msgSuccess(response.msg)
-      })
+      this.$confirm('正在使用【菜单以及API生成到数据库】请确认?', '提示', {
+        confirmButtonText: '写入DB',
+        cancelButtonText: '取消',
+        type: 'info'
+      }).then(function() {
+        toDBTable(row.tableId).then(response => {
+          this.msgSuccess(response.msg)
+        })
+      }).catch(function() {})
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
