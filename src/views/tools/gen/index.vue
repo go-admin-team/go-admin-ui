@@ -266,9 +266,9 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        toProjectTableCheckRole(row.tableId, false).then(response => {
-          this.msgSuccess(response.msg)
-        })
+        return toProjectTableCheckRole(row.tableId, false)
+      }).then((response) => {
+        this.msgSuccess(response.msg)
       }).catch(function() {})
     },
     handleToProjectCheckRole(row) {
@@ -277,9 +277,9 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        toProjectTableCheckRole(row.tableId, true).then(response => {
-          this.msgSuccess(response.msg)
-        })
+        return toProjectTableCheckRole(row.tableId, true)
+      }).then((response) => {
+        this.msgSuccess(response.msg)
       }).catch(function() {})
     },
     handleToDB(row) {
@@ -288,9 +288,9 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        toDBTable(row.tableId).then(response => {
-          this.msgSuccess(response.msg)
-        })
+        return toDBTable(row.tableId)
+      }).then((response) => {
+        this.msgSuccess(response.msg)
       }).catch(function() {})
     },
     // 多选框选中数据
