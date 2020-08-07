@@ -1,0 +1,85 @@
+
+<template>
+  <div class="app-container">
+    <el-form>
+      <el-form-item>
+        <el-button type="success" icon="el-icon-search" size="mini">状态</el-button>
+        <el-button type="primary" icon="el-icon-search" size="mini">清空</el-button>
+      </el-form-item>
+    </el-form>
+    <el-row ref="log" :gutter="10" class="mb8">
+      <ul
+        style="
+    background-color: black;
+    color: cornflowerblue;
+    line-height: 25px;
+    padding-top: 15px;
+    margin: 0;
+    min-height: 500px;
+"
+      >
+        <li v-for="arr in arrs">
+
+          {{ arr }}
+        </li>
+      </ul>
+    </el-row>
+  </div>
+
+</template>
+
+<script>
+export default {
+  name: 'Test',
+  data() {
+    return {
+      websock: null,
+      arrs: []
+    }
+  },
+  created() {
+    this.initWebSocket()
+  },
+  destroyed() {
+    this.websock.close() // 离开路由之后断开websocket连接
+  },
+  methods: {
+    initWebSocket() { // 初始化weosocket
+      //   const myHeaders = new Headers()
+      //   myHeaders.append('Authorization', 'Bearer sssss')
+      const wsuri = 'ws://127.0.0.1:8000/ws?token=oooooooo'
+      this.websock = new WebSocket(wsuri, [this.getToken])
+      //   this.websock.on('headers', headers => {
+      //     headers.push('Authorization:Bearer sssss')
+      //   })
+      this.websock.onmessage = this.websocketonmessage
+      this.websock.onopen = this.websocketonopen
+      this.websock.onerror = this.websocketonerror
+      this.websock.onclose = this.websocketclose
+    },
+    websocketonopen() { // 连接建立之后执行send方法发送数据
+      console.log('连接打开')
+    //   const actions = { 'test': '12345' }
+    //   this.websocketsend(JSON.stringify(actions))
+    },
+    websocketonerror() { // 连接建立失败重连
+      this.initWebSocket()
+    },
+    websocketonmessage(e) { // 数据接收
+      console.log(e.data)
+      //   console.log(this.binaryAgent(e))
+      //   const redata = JSON.parse(e.data)
+      //   console.log(redata)
+      //   this.$refs.log.innerText = e.data + '\n' + this.$refs.log.innerText
+      this.arrs.unshift(e.data)
+    },
+    websocketsend(Data) { // 数据发送
+    //   this.websock.send(Data)
+    },
+    websocketclose(e) { // 关闭
+      console.log('断开连接', e)
+    }
+  }
+}
+
+</script>
