@@ -62,6 +62,7 @@
     "normalize.css": "8.0.1",
     "nprogress": "0.2.0",
     "path-to-regexp": "6.1.0",
+    "sass-resources-loader": "^2.0.3",
     "screenfull": "5.0.2",
     "showdown": "^1.9.1",
     "solarlunar": "^2.0.7",
