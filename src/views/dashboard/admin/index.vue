@@ -1,111 +1,156 @@
 <template>
   <div class="dashboard-editor-container">
-    <github-corner class="github-corner" />
-
-    <panel-group @handleSetLineChartData="handleSetLineChartData" />
-
-    <el-row :gutter="32">
-      <el-col :xs="24" :sm="24" :lg="12">
-        <el-card class="box-card">
-          <div slot="header" class="clearfix">
-            <span>最新动态</span>
-
+    <el-row :gutter="12">
+      <el-col :sm="24" :xs="6" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
+        <chart-card title="总销售额" total="￥126,560">
+          <el-tooltip slot="action" class="item" effect="dark" content="指标说明" placement="top-start">
+            <i class="el-icon-warning-outline" />
+          </el-tooltip>
+          <div>
+            <trend flag="top" style="margin-right: 16px;" rate="12">
+              <span slot="term">周同比</span>
+            </trend>
+            <trend flag="bottom" rate="11">
+              <span slot="term">日同比</span>
+            </trend>
           </div>
-          <el-timeline>
-            <el-timeline-item timestamp="2020/05/15" placement="top">
-              <el-card>
-                <h4>更新角色授权数据绑定</h4>
-              </el-card>
-            </el-timeline-item>
-            <el-timeline-item timestamp="2020/05/14" placement="top">
-              <el-card>
-                <h4>角色名称和角色key控制唯一性；</h4>
-                <h4>以及字典，参数等功能唯一性控制；</h4>
-                <h4>记录总条数过滤已删除状态；</h4>
-                <h4>部分已知bug的修复；</h4>
-              </el-card>
-            </el-timeline-item>
-            <el-timeline-item timestamp="2020/4/2" placement="top">
-              <el-card>
-                <p>...</p>
-              </el-card>
-            </el-timeline-item>
-          </el-timeline>
-        </el-card>
-
+          <template slot="footer">日均销售额<span>￥ 234.56</span></template>
+        </chart-card>
       </el-col>
-      <el-col :xs="24" :sm="24" :lg="12">
-        <el-card class="box-card">
-          <div slot="header" class="clearfix">
-            <span>视频教程</span>
-
+      <el-col :sm="24" :xs="6" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
+        <chart-card title="访问量" :total="8846">
+          <el-tooltip slot="action" class="item" effect="dark" content="指标说明" placement="top-start">
+            <i class="el-icon-warning-outline" />
+          </el-tooltip>
+          <div>
+            <mini-area />
           </div>
-          <iframe id="b" class="b video_pc" src="//player.bilibili.com/player.html??cid=185732281&aid=455391649&pre_ad=0" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="min-height:485px; width: 100%" />
-        </el-card>
+          <template slot="footer">日访问量<span> {{ '1234' }}</span></template>
+        </chart-card>
+      </el-col>
+      <el-col :sm="24" :xs="6" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
+        <chart-card title="支付笔数" :total="6560">
+          <el-tooltip slot="action" class="item" effect="dark" content="指标说明" placement="top-start">
+            <i class="el-icon-warning-outline" />
+          </el-tooltip>
+          <div>
+            <mini-bar />
+          </div>
+          <template slot="footer">转化率 <span>60%</span></template>
+        </chart-card>
+      </el-col>
+      <el-col :sm="24" :xs="6" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
+        <chart-card title="运营活动效果" total="78%">
+          <el-tooltip slot="action" class="item" effect="dark" content="指标说明" placement="top-start">
+            <i class="el-icon-warning-outline" />
+          </el-tooltip>
+          <div>
+            <mini-progress color="rgb(19, 194, 194)" :target="80" :percentage="78" height="8px" />
+          </div>
+          <template slot="footer">
+            <trend flag="top" style="margin-right: 16px;" rate="12">
+              <span slot="term">同周比</span>
+            </trend>
+            <trend flag="bottom" rate="80">
+              <span slot="term">日环比</span>
+            </trend>
+          </template>
+        </chart-card>
       </el-col>
     </el-row>
+
+    <el-card :bordered="false" :body-style="{padding: '0'}">
+      <div class="salesCard">
+        <el-tabs>
+          <el-tab-pane label="销售额">
+            <el-row>
+              <el-col :xl="16" :lg="12" :md="12" :sm="24" :xs="24">
+                <bar :list="barData" title="销售额排行" />
+              </el-col>
+              <el-col :xl="8" :lg="12" :md="12" :sm="24" :xs="24">
+                <rank-list title="门店销售排行榜" :list="rankList" />
+              </el-col>
+            </el-row>
+          </el-tab-pane>
+          <el-tab-pane label="访问量">
+            <el-row>
+              <el-col :xl="16" :lg="12" :md="12" :sm="24" :xs="24">
+                <bar :list="barData2" title="销售额趋势" />
+              </el-col>
+              <el-col :xl="8" :lg="12" :md="12" :sm="24" :xs="24">
+                <rank-list title="门店销售排行榜" :list="rankList" />
+              </el-col>
+            </el-row>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
+    </el-card>
+
   </div>
 </template>
 
 <script>
-import GithubCorner from '@/components/GithubCorner'
-import PanelGroup from './components/PanelGroup'
-import LineChart from './components/LineChart'
-import RaddarChart from './components/RaddarChart'
-import PieChart from './components/PieChart'
-import BarChart from './components/BarChart'
+import ChartCard from '@/components/ChartCard'
+import Trend from '@/components/Trend'
+import MiniArea from '@/components/MiniArea'
+import MiniBar from '@/components/MiniBar'
+import MiniProgress from '@/components/MiniProgress'
+import RankList from '@/components/RankList/index'
+import Bar from '@/components/Bar.vue'
 
-const lineChartData = {
-  newVisitis: {
-    expectedData: [100, 120, 161, 134, 105, 160, 165],
-    actualData: [120, 82, 91, 154, 162, 140, 145]
-  },
-  messages: {
-    expectedData: [200, 192, 120, 144, 160, 130, 140],
-    actualData: [180, 160, 151, 106, 145, 150, 130]
-  },
-  purchases: {
-    expectedData: [80, 100, 121, 104, 105, 90, 100],
-    actualData: [120, 90, 100, 138, 142, 130, 130]
-  },
-  shoppings: {
-    expectedData: [130, 140, 141, 142, 145, 150, 160],
-    actualData: [120, 82, 91, 154, 162, 140, 130]
-  }
+const barData = []
+const barData2 = []
+for (let i = 0; i < 12; i += 1) {
+  barData.push({
+    x: `${i + 1}月`,
+    y: Math.floor(Math.random() * 1000) + 200
+  })
+  barData2.push({
+    x: `${i + 1}月`,
+    y: Math.floor(Math.random() * 1000) + 200
+  })
+}
+
+const rankList = []
+for (let i = 0; i < 7; i++) {
+  rankList.push({
+    name: '白鹭岛 ' + (i + 1) + ' 号店',
+    total: 1234.56 - i * 100
+  })
 }
 
 export default {
   name: 'DashboardAdmin',
   components: {
-    GithubCorner,
-    PanelGroup,
-    LineChart,
-    RaddarChart,
-    PieChart,
-    BarChart
+    ChartCard,
+    Trend,
+    MiniArea,
+    MiniBar,
+    MiniProgress,
+    RankList,
+    Bar
   },
   data() {
     return {
-      lineChartData: lineChartData.newVisitis
+      barData,
+      barData2,
+      rankList
     }
   },
   methods: {
-    handleSetLineChartData(type) {
-      this.lineChartData = lineChartData[type]
-    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
 .dashboard-editor-container {
-  padding: 32px;
+  padding: 12px;
   background-color: rgb(240, 242, 245);
   position: relative;
 
   .github-corner {
     position: absolute;
-    top: 0px;
+    top: 0;
     border: 0;
     right: 0;
   }
@@ -115,6 +160,12 @@ export default {
     padding: 16px 16px 0;
     margin-bottom: 32px;
   }
+}
+
+/deep/ .el-tabs__item{
+   padding-left: 16px!important;
+   height: 50px;
+   line-height: 50px;
 }
 
 @media (max-width:1024px) {

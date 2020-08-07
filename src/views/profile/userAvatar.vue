@@ -119,7 +119,7 @@ export default {
         uploadAvatar(formData).then(response => {
           if (response.code === 200) {
             this.open = false
-            this.options.img = process.env.VUE_APP_BASE_API + '/' + response.data
+            this.options.img = process.env.VUE_APP_BASE_API + response.data
             this.msgSuccess('修改成功')
           } else {
             this.msgError(response.msg)

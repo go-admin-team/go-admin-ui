@@ -1,153 +1,147 @@
 <template>
-  <div class="app-container">
-    <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-      <el-form-item label="表名称" prop="tableName">
-        <el-input
-          v-model="queryParams.tableName"
-          placeholder="请输入表名称"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
+  <BasicLayout>
+    <template #wrapper>
+      <el-card class="box-card">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" label-position="left">
+          <el-form-item label="表名称" prop="tableName">
+            <el-input
+              v-model="queryParams.tableName"
+              placeholder="请输入表名称"
+              clearable
+              size="small"
+              @keyup.enter.native="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="表描述" prop="tableComment">
+            <el-input
+              v-model="queryParams.tableComment"
+              placeholder="请输入表描述"
+              clearable
+              size="small"
+              @keyup.enter.native="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+          </el-form-item>
+        </el-form>
+        <el-row :gutter="10" class="mb8">
+          <el-col :span="1.5">
+            <!-- <el-button
+              type="primary"
+              icon="el-icon-download"
+              size="mini"
+              @click="handleGenTable"
+            >生成</el-button> -->
+          </el-col>
+          <el-col :span="1.5">
+            <el-button
+
+              type="info"
+              icon="el-icon-upload"
+              size="mini"
+              @click="openImportTable"
+            >导入</el-button>
+          </el-col>
+          <el-col :span="1.5">
+            <el-button
+
+              type="success"
+              icon="el-icon-edit"
+              size="mini"
+              :disabled="single"
+              @click="handleEditTable"
+            >修改</el-button>
+          </el-col>
+          <el-col :span="1.5">
+            <el-button
+
+              type="danger"
+              icon="el-icon-delete"
+              size="mini"
+              :disabled="multiple"
+              @click="handleDelete"
+            >删除</el-button>
+          </el-col>
+        </el-row>
+
+        <el-table v-loading="loading" :data="tableList" @selection-change="handleSelectionChange">
+          <el-table-column type="selection" width="55" />
+          <el-table-column label="序号" align="center" prop="tableId" width="50px" />
+          <el-table-column
+            label="表名称"
+            align="center"
+            prop="tableName"
+            :show-overflow-tooltip="true"
+            width="130"
+          />
+          <el-table-column
+            label="表描述"
+            align="center"
+            prop="tableComment"
+            :show-overflow-tooltip="true"
+            width="130"
+          />
+          <el-table-column
+            label="实体"
+            align="center"
+            prop="className"
+            :show-overflow-tooltip="true"
+            width="130"
+          />
+          <el-table-column label="创建时间" align="center" prop="createdAt" width="165">
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.createdAt) }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="更新时间" align="center" prop="updatedAt" width="165">
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.updatedAt) }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+            <template slot-scope="scope">
+              <el-button
+
+                type="text"
+                size="small"
+                icon="el-icon-view"
+                @click="handlePreview(scope.row)"
+              >预览</el-button>
+              <el-button
+
+                type="text"
+                size="small"
+                icon="el-icon-view"
+                @click="handleToProject(scope.row)"
+              >生成到项目</el-button>
+              <el-button
+
+                type="text"
+                size="small"
+                icon="el-icon-edit"
+                @click="handleEditTable(scope.row)"
+              >编辑</el-button>
+              <el-button
+
+                type="text"
+                size="small"
+                icon="el-icon-delete"
+                @click="handleDelete(scope.row)"
+              >删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <pagination
+          v-show="total>0"
+          :total="total"
+          :page.sync="queryParams.pageIndex"
+          :limit.sync="queryParams.pageSize"
+          @pagination="getList"
         />
-      </el-form-item>
-      <el-form-item label="表描述" prop="tableComment">
-        <el-input
-          v-model="queryParams.tableComment"
-          placeholder="请输入表描述"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
-
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <!-- <el-button
-          type="primary"
-          icon="el-icon-download"
-          size="mini"
-          @click="handleGenTable"
-        >生成</el-button> -->
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-
-          type="info"
-          icon="el-icon-upload"
-          size="mini"
-          @click="openImportTable"
-        >导入</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-
-          type="success"
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleEditTable"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-
-          type="danger"
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-        >删除</el-button>
-      </el-col>
-    </el-row>
-
-    <el-table v-loading="loading" :data="tableList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" />
-      <el-table-column label="序号" align="center" prop="tableId" width="50px" />
-      <el-table-column
-        label="表名称"
-        align="center"
-        prop="tableName"
-        :show-overflow-tooltip="true"
-        width="130"
-      />
-      <el-table-column
-        label="表描述"
-        align="center"
-        prop="tableComment"
-        :show-overflow-tooltip="true"
-        width="130"
-      />
-      <el-table-column
-        label="实体"
-        align="center"
-        prop="className"
-        :show-overflow-tooltip="true"
-        width="130"
-      />
-      <el-table-column label="创建时间" align="center" prop="createdAt" width="165">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createdAt) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button
-
-            type="text"
-            size="small"
-            icon="el-icon-view"
-            @click="handlePreview(scope.row)"
-          >预览</el-button>
-          <el-button
-
-            type="text"
-            size="small"
-            icon="el-icon-view"
-            @click="handleToProject(scope.row)"
-          >代码生成</el-button>
-          <el-button
-
-            type="text"
-            size="small"
-            icon="el-icon-view"
-            @click="handleToProjectCheckRole(scope.row)"
-          >代码生成[带权限]</el-button>
-          <el-button
-
-            type="text"
-            size="small"
-            icon="el-icon-view"
-            @click="handleToDB(scope.row)"
-          >配置生成</el-button>
-          <el-button
-
-            type="text"
-            size="small"
-            icon="el-icon-edit"
-            @click="handleEditTable(scope.row)"
-          >编辑</el-button>
-          <el-button
-
-            type="text"
-            size="small"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-          >删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="queryParams.pageIndex"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
+      </el-card>
+    </template>
     <!-- 预览界面 -->
     <el-dialog :title="preview.title" :visible.sync="preview.open" width="80%" top="5vh">
       <el-tabs v-model="preview.activeName">
@@ -162,16 +156,17 @@
       </el-tabs>
     </el-dialog>
     <import-table ref="import" @ok="handleQuery" />
-  </div>
+  </BasicLayout>
 </template>
 
 <script>
-import { listTable, previewTable, delTable, toProjectTable, toDBTable, toProjectTableCheckRole } from '@/api/tools/gen'
+import { listTable, previewTable, delTable, toProjectTable } from '@/api/tools/gen'
 import importTable from './importTable'
 import { downLoadFile } from '@/utils/zipdownload'
+import BasicLayout from "@/layout/BasicLayout";
 export default {
   name: 'Gen',
-  components: { importTable },
+  components: { importTable, BasicLayout },
   data() {
     return {
       // 遮罩层
@@ -261,37 +256,9 @@ export default {
       })
     },
     handleToProject(row) {
-      this.$confirm('正在使用代码生成请确认?', '提示', {
-        confirmButtonText: '生成',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(function() {
-        return toProjectTableCheckRole(row.tableId, false)
-      }).then((response) => {
+      toProjectTable(row.tableId).then(response => {
         this.msgSuccess(response.msg)
-      }).catch(function() {})
-    },
-    handleToProjectCheckRole(row) {
-      this.$confirm('正在使用代码生成【带权限】请确认?', '提示', {
-        confirmButtonText: '生成',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(function() {
-        return toProjectTableCheckRole(row.tableId, true)
-      }).then((response) => {
-        this.msgSuccess(response.msg)
-      }).catch(function() {})
-    },
-    handleToDB(row) {
-      this.$confirm('正在使用【菜单以及API生成到数据库】请确认?', '提示', {
-        confirmButtonText: '写入DB',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(function() {
-        return toDBTable(row.tableId)
-      }).then((response) => {
-        this.msgSuccess(response.msg)
-      }).catch(function() {})
+      })
     },
     // 多选框选中数据
     handleSelectionChange(selection) {

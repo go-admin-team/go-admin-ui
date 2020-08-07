@@ -189,3 +189,16 @@ aside {
 .multiselect--active {
   z-index: 1000 !important;
 }
+
+
+.el-card__header{
+  padding: 15px!important;
+  box-sizing: border-box;
+}
+.el-card__body{
+  padding: 20px!important;
+}
+
+.el-card + .el-card{
+  margin-top: 10px;
+}

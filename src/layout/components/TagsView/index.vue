@@ -6,6 +6,7 @@
         ref="tag"
         :key="tag.path"
         :class="isActive(tag)?'active':''"
+        :style="{ backgroundColor: isActive(tag) ? theme : '', borderColor: isActive(tag) ? theme : '', }"
         :to="{ path: tag.path, query: tag.query, fullPath: tag.fullPath }"
         tag="span"
         class="tags-view-item"
@@ -17,10 +18,10 @@
       </router-link>
     </scroll-pane>
     <ul v-show="visible" :style="{left:left+'px',top:top+'px'}" class="contextmenu">
-      <li @click="refreshSelectedTag(selectedTag)">Refresh</li>
-      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">Close</li>
-      <li @click="closeOthersTags">Close Others</li>
-      <li @click="closeAllTags(selectedTag)">Close All</li>
+      <li @click="refreshSelectedTag(selectedTag)">刷新当前标签页</li>
+      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">关闭当前标签页</li>
+      <li @click="closeOthersTags">关闭其他标签页</li>
+      <li @click="closeAllTags(selectedTag)">关闭全部标签页</li>
     </ul>
   </div>
 </template>
@@ -46,6 +47,9 @@ export default {
     },
     routes() {
       return this.$store.state.permission.routes
+    },
+    theme() {
+      return this.$store.state.settings.theme
     }
   },
   watch: {
@@ -250,9 +254,12 @@ export default {
     font-weight: 400;
     color: #333;
     box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, .3);
+    -moz-user-select:none;
+    -webkit-user-select:none;
+    user-select:none;
     li {
       margin: 0;
-      padding: 7px 16px;
+      padding: 10px 22px;
       cursor: pointer;
       &:hover {
         background: #eee;

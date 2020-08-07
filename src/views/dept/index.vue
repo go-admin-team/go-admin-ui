@@ -1,154 +1,158 @@
 <template>
-  <div class="app-container">
-    <el-form :inline="true">
-      <el-form-item label="部门名称">
-        <el-input
-          v-model="queryParams.deptName"
-          placeholder="请输入部门名称"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="状态">
-        <el-select v-model="queryParams.status" placeholder="部门状态" clearable size="small">
-          <el-option
-            v-for="dict in statusOptions"
-            :key="dict.dictValue"
-            :label="dict.dictLabel"
-            :value="dict.dictValue"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button
-          class="filter-item"
-          type="primary"
-          icon="el-icon-search"
-          size="mini"
-          @click="handleQuery"
-        >搜索</el-button>
-        <el-button
-          v-permisaction="['system:sysdept:add']"
-          class="filter-item"
-          type="primary"
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-        >新增</el-button>
-      </el-form-item>
-    </el-form>
-
-    <el-table
-      v-loading="loading"
-      :data="deptList"
-      row-key="deptId"
-      default-expand-all
-      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-    >
-      <el-table-column prop="deptName" label="部门名称" />
-      <el-table-column prop="sort" label="排序" width="200" />
-      <el-table-column prop="status" label="状态" :formatter="statusFormat" width="100">
-        <template slot-scope="scope">
-          <el-tag
-            :type="scope.row.status === '1' ? 'danger' : 'success'"
-            disable-transitions
-          >{{ statusFormat(scope.row) }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createdAt" width="200">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createdAt) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button
-            v-permisaction="['system:sysdept:edit']"
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-          >修改</el-button>
-          <el-button
-            v-permisaction="['system:sysdept:add']"
-            size="mini"
-            type="text"
-            icon="el-icon-plus"
-            @click="handleAdd(scope.row)"
-          >新增</el-button>
-          <el-button
-            v-if="scope.row.p_id != 0"
-            v-permisaction="['system:sysdept:remove']"
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-          >删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <!-- 添加或修改部门对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="600px">
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="上级部门" prop="parentId">
-              <treeselect
-                v-model="form.parentId"
-                :options="deptOptions"
-                :normalizer="normalizer"
-                :show-count="true"
-                placeholder="选择上级部门"
-                :is-disabled="isEdit"
+  <BasicLayout>
+    <template #wrapper>
+      <el-card class="box-card">
+        <el-form :inline="true">
+          <el-form-item label="部门名称">
+            <el-input
+              v-model="queryParams.deptName"
+              placeholder="请输入部门名称"
+              clearable
+              size="small"
+              @keyup.enter.native="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="状态">
+            <el-select v-model="queryParams.status" placeholder="部门状态" clearable size="small">
+              <el-option
+                v-for="dict in statusOptions"
+                :key="dict.dictValue"
+                :label="dict.dictLabel"
+                :value="dict.dictValue"
               />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="部门名称" prop="deptName">
-              <el-input v-model="form.deptName" placeholder="请输入部门名称" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="显示排序" prop="orderNum">
-              <el-input-number v-model="form.sort" controls-position="right" :min="0" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="负责人" prop="leader">
-              <el-input v-model="form.leader" placeholder="请输入负责人" maxlength="20" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="联系电话" prop="phone">
-              <el-input v-model="form.phone" placeholder="请输入联系电话" maxlength="11" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="邮箱" prop="email">
-              <el-input v-model="form.email" placeholder="请输入邮箱" maxlength="50" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="部门状态">
-              <el-radio-group v-model="form.status">
-                <el-radio
-                  v-for="dict in statusOptions"
-                  :key="dict.dictValue"
-                  :label="dict.dictValue"
-                >{{ dict.dictLabel }}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
-    </el-dialog>
-  </div>
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button
+              class="filter-item"
+              type="primary"
+              icon="el-icon-search"
+              size="mini"
+              @click="handleQuery"
+            >搜索</el-button>
+            <el-button
+              v-permisaction="['system:sysdept:add']"
+              class="filter-item"
+              type="primary"
+              icon="el-icon-plus"
+              size="mini"
+              @click="handleAdd"
+            >新增</el-button>
+          </el-form-item>
+        </el-form>
+
+        <el-table
+          v-loading="loading"
+          :data="deptList"
+          row-key="deptId"
+          default-expand-all
+          :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+        >
+          <el-table-column prop="deptName" label="部门名称" />
+          <el-table-column prop="sort" label="排序" width="200" />
+          <el-table-column prop="status" label="状态" :formatter="statusFormat" width="100">
+            <template slot-scope="scope">
+              <el-tag
+                :type="scope.row.status === '1' ? 'danger' : 'success'"
+                disable-transitions
+              >{{ statusFormat(scope.row) }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="创建时间" align="center" prop="createdAt" width="200">
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.createdAt) }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+            <template slot-scope="scope">
+              <el-button
+                v-permisaction="['system:sysdept:edit']"
+                size="mini"
+                type="text"
+                icon="el-icon-edit"
+                @click="handleUpdate(scope.row)"
+              >修改</el-button>
+              <el-button
+                v-permisaction="['system:sysdept:add']"
+                size="mini"
+                type="text"
+                icon="el-icon-plus"
+                @click="handleAdd(scope.row)"
+              >新增</el-button>
+              <el-button
+                v-if="scope.row.p_id != 0"
+                v-permisaction="['system:sysdept:remove']"
+                size="mini"
+                type="text"
+                icon="el-icon-delete"
+                @click="handleDelete(scope.row)"
+              >删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <!-- 添加或修改部门对话框 -->
+        <el-dialog :title="title" :visible.sync="open" width="600px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="上级部门" prop="parentId">
+                  <treeselect
+                    v-model="form.parentId"
+                    :options="deptOptions"
+                    :normalizer="normalizer"
+                    :show-count="true"
+                    placeholder="选择上级部门"
+                    :is-disabled="isEdit"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="部门名称" prop="deptName">
+                  <el-input v-model="form.deptName" placeholder="请输入部门名称" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="显示排序" prop="orderNum">
+                  <el-input-number v-model="form.sort" controls-position="right" :min="0" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="负责人" prop="leader">
+                  <el-input v-model="form.leader" placeholder="请输入负责人" maxlength="20" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="联系电话" prop="phone">
+                  <el-input v-model="form.phone" placeholder="请输入联系电话" maxlength="11" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="邮箱" prop="email">
+                  <el-input v-model="form.email" placeholder="请输入邮箱" maxlength="50" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="部门状态">
+                  <el-radio-group v-model="form.status">
+                    <el-radio
+                      v-for="dict in statusOptions"
+                      :key="dict.dictValue"
+                      :label="dict.dictValue"
+                    >{{ dict.dictLabel }}</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="submitForm">确 定</el-button>
+            <el-button @click="cancel">取 消</el-button>
+          </div>
+        </el-dialog>
+      </el-card>
+    </template>
+  </BasicLayout>
 </template>
 
 <script>

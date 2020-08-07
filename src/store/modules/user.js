@@ -1,6 +1,7 @@
 import { login, logout, getInfo, refreshtoken } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
+import storage from '@/utils/storage'
 
 const state = {
   token: getToken(),
@@ -87,6 +88,7 @@ const actions = {
         commit('SET_ROLES', [])
         commit('SET_PERMISSIONS', [])
         removeToken()
+        storage.clear()
         resolve()
       }).catch(error => {
         reject(error)

@@ -23,13 +23,18 @@ import './icons' // icon
 import './permission' // permission control
 import './utils/error-log' // error log
 
-import '@/styles/index.scss'
-
-import '@/icons'
+import Viser from 'viser-vue'
+Vue.use(Viser)
 
 import * as filters from './filters' // global filters
 
 import Pagination from '@/components/Pagination'
+import BasicLayout from '@/layout/BasicLayout'
+
+import VueParticles from 'vue-particles'
+Vue.use(VueParticles)
+
+import '@/utils/dialog'
 
 // 全局方法挂载
 Vue.prototype.getDicts = getDicts
@@ -42,6 +47,7 @@ Vue.prototype.download = download
 
 // 全局组件挂载
 Vue.component('Pagination', Pagination)
+Vue.component('BasicLayout', BasicLayout)
 
 Vue.prototype.msgSuccess = function(msg) {
   this.$message({ showClose: true, message: msg, type: 'success' })

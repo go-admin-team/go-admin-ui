@@ -28,9 +28,8 @@
           <el-table-column label="go类型" width="120">
             <template slot-scope="scope">
               <el-select v-model="scope.row.goType">
-                <el-option label="int" value="int" />
+                <el-option label="int64" value="int64" />
                 <el-option label="string" value="string" />
-                <el-option label="Time" value="time.Time" />
                 <!-- <el-option label="int" value="int" />
                 <el-option label="bool" value="bool" /> -->
               </el-select>
@@ -92,9 +91,9 @@
                 <el-option label="文本框" value="input" />
                 <el-option label="下拉框" value="select" />
                 <el-option label="单选框" value="radio" />
-                <!-- <el-option label="复选框" value="checkbox" />-->
+                <!-- <el-option label="复选框" value="checkbox" />
                 <el-option label="文本域" value="textarea" />
-                <el-option label="日期控件" value="datetime" />
+                <el-option label="日期控件" value="datetime" /> -->
               </el-select>
             </template>
           </el-table-column>
