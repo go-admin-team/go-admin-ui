@@ -45,10 +45,9 @@ export default {
   },
   methods: {
     initWebSocket() { // 初始化weosocket
-      //   const myHeaders = new Headers()
-      //   myHeaders.append('Authorization', 'Bearer sssss')
+      console.log(this.$store.state.user.token)
       const wsuri = 'ws://127.0.0.1:8000/ws?token=oooooooo'
-      this.websock = new WebSocket(wsuri, [this.getToken])
+      this.websock = new WebSocket(wsuri, ['aaaaaaaaaaaaaaaaaaaaaaa'])
       //   this.websock.on('headers', headers => {
       //     headers.push('Authorization:Bearer sssss')
       //   })
