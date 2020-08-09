@@ -149,7 +149,8 @@ export default {
       })
     },
     closeSelectedTag(view) {
-      const index = this.visitedViews.findIndex(item => item.fullPath === view.fullPath)
+      const routerPath = view.fullPath ? view.fullPath : view
+      const index = this.visitedViews.findIndex(item => item.fullPath === routerPath)
       if (index > -1) {
         const path = this.visitedViews[index]
         this.$store.dispatch('tagsView/delView', path).then(({ visitedViews }) => {
