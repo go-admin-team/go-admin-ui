@@ -1,22 +1,30 @@
 <template>
   <div id="tags-view-container" class="tags-view-container">
-    <scroll-pane ref="scrollPane" class="tags-view-wrapper">
-      <router-link
-        v-for="tag in visitedViews"
-        ref="tag"
-        :key="tag.path"
-        :class="isActive(tag)?'active':''"
-        :style="{ backgroundColor: isActive(tag) ? theme : '', borderColor: isActive(tag) ? theme : '', }"
-        :to="{ path: tag.path, query: tag.query, fullPath: tag.fullPath }"
-        tag="span"
-        class="tags-view-item"
-        @click.middle.native="!isAffix(tag)?closeSelectedTag(tag):''"
-        @contextmenu.prevent.native="openMenu(tag,$event)"
+    <el-tabs
+      v-model="editableTabsValue"
+      type="card"
+      @tab-remove="closeSelectedTag"
+    >
+      <el-tab-pane
+        v-for="item in visitedViews"
+        :key="item.path"
+        :closable="item.fullPath === '/dashboard' ? false : true"
+        :name="item.fullPath"
       >
-        {{ tag.title }}
-        <span v-if="!isAffix(tag)" class="el-icon-close" @click.prevent.stop="closeSelectedTag(tag)" />
-      </router-link>
-    </scroll-pane>
+        <template #label>
+          <router-link
+            ref="tag"
+            tag="span"
+            class="tags-view-item"
+            :style="{ color: item.fullPath === $route.fullPath ? theme : '' }"
+            :to="{ path: item.path, query: item.query, fullPath: item.fullPath }"
+            @contextmenu.prevent.native="openMenu(item,$event)"
+          >
+            {{ item.title }}
+          </router-link>
+        </template>
+      </el-tab-pane>
+    </el-tabs>
     <ul v-show="visible" :style="{left:left+'px',top:top+'px'}" class="contextmenu">
       <li @click="refreshSelectedTag(selectedTag)">刷新当前标签页</li>
       <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">关闭当前标签页</li>
@@ -27,18 +35,17 @@
 </template>
 
 <script>
-import ScrollPane from './ScrollPane'
 import path from 'path'
 
 export default {
-  components: { ScrollPane },
   data() {
     return {
-      visible: false,
+      editableTabsValue: '/',
       top: 0,
       left: 0,
       selectedTag: {},
-      affixTags: []
+      affixTags: [],
+      visible: false
     }
   },
   computed: {
@@ -55,7 +62,6 @@ export default {
   watch: {
     $route() {
       this.addTags()
-      this.moveToCurrentTag()
     },
     visible(value) {
       if (value) {
@@ -68,10 +74,13 @@ export default {
   mounted() {
     this.initTags()
     this.addTags()
+    this.isActive()
   },
   methods: {
-    isActive(route) {
-      return route.path === this.$route.path
+    isActive() {
+      const index = this.visitedViews.findIndex(item => item.fullPath === this.$route.fullPath)
+      const pathIndex = index > -1 ? index : 0
+      this.editableTabsValue = this.visitedViews[pathIndex].fullPath
     },
     isAffix(tag) {
       return tag.meta && tag.meta.affix
@@ -110,6 +119,7 @@ export default {
       const { name } = this.$route
       if (name) {
         this.$store.dispatch('tagsView/addView', this.$route)
+        this.isActive()
       }
       return false
     },
@@ -118,7 +128,7 @@ export default {
       this.$nextTick(() => {
         for (const tag of tags) {
           if (tag.to.path === this.$route.path) {
-            this.$refs.scrollPane.moveToTarget(tag)
+            // this.$refs.scrollPane.moveToTarget(tag)
             // when query is different then update
             if (tag.to.fullPath !== this.$route.fullPath) {
               this.$store.dispatch('tagsView/updateVisitedView', this.$route)
@@ -139,14 +149,19 @@ export default {
       })
     },
     closeSelectedTag(view) {
-      this.$store.dispatch('tagsView/delView', view).then(({ visitedViews }) => {
-        if (this.isActive(view)) {
-          this.toLastView(visitedViews, view)
-        }
-      })
+      const routerPath = view.fullPath ? view.fullPath : view
+      const index = this.visitedViews.findIndex(item => item.fullPath === routerPath)
+      if (index > -1) {
+        const path = this.visitedViews[index]
+        this.$store.dispatch('tagsView/delView', path).then(({ visitedViews }) => {
+          if (this.editableTabsValue === path.fullPath) {
+            this.toLastView(visitedViews, path)
+          }
+        })
+      }
     },
     closeOthersTags() {
-      this.$router.push(this.selectedTag)
+      this.$router.push(this.selectedTag.path).catch(e => e)
       this.$store.dispatch('tagsView/delOthersViews', this.selectedTag).then(() => {
         this.moveToCurrentTag()
       })
@@ -162,7 +177,7 @@ export default {
     toLastView(visitedViews, view) {
       const latestView = visitedViews.slice(-1)[0]
       if (latestView) {
-        this.$router.push(latestView.fullPath)
+        this.$router.push(latestView.fullPath).catch(err => err)
       } else {
         // now the default is to redirect to the home page if there is no tags-view,
         // you can adjust it according to your needs.
@@ -199,12 +214,24 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.tags-view-container {
-  height: 34px;
+
+.tags-view-container /deep/{
+  height: 43px;
   width: 100%;
   background: #fff;
   border-bottom: 1px solid #d8dce5;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);
+  padding: 0 15px;
+  box-sizing: border-box;
+  .el-tabs__item{
+    &:hover{
+      color: #000;
+    }
+  }
+  .tags-view-item{
+    height: 40px;
+    display: inline-block;
+  }
   .tags-view-wrapper {
     .tags-view-item {
       display: inline-block;

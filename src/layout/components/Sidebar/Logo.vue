@@ -1,13 +1,13 @@
 <template>
-  <div class="sidebar-logo-container" :class="{'collapse':collapse}">
+  <div class="sidebar-logo-container" :class="{'collapse':collapse}" :style="{ backgroundColor: $store.state.settings.themeStyle === 'dark' ? variables.menuBg : variables.menuLightBg }">
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
         <img v-if="appInfo.logo" :src="appInfo.logo" class="sidebar-logo">
-        <h1 v-else class="sidebar-title">{{ appInfo.name }} </h1>
+        <h1 v-else class="sidebar-title" :style="{ color: $store.state.settings.themeStyle === 'dark' ? variables.sidebarTitle : variables.sidebarLightTitle }">{{ appInfo.name }} </h1>
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
         <img v-if="appInfo.logo" :src="appInfo.logo" class="sidebar-logo">
-        <h1 class="sidebar-title">{{ appInfo.name }} </h1>
+        <h1 class="sidebar-title" :style="{ color: $store.state.settings.themeStyle === 'dark' ? variables.sidebarTitle : variables.sidebarLightTitle }">{{ appInfo.name }} </h1>
       </router-link>
     </transition>
   </div>
@@ -15,6 +15,7 @@
 
 <script>
 
+import variables from '@/styles/variables.scss'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -28,7 +29,10 @@ export default {
   computed: {
     ...mapGetters([
       'appInfo'
-    ])
+    ]),
+    variables() {
+      return variables
+    }
   }
 }
 </script>

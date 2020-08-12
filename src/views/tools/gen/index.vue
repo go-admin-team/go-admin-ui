@@ -28,7 +28,7 @@
         </el-form>
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
-            <!-- <el-button
+          <!-- <el-button
               type="primary"
               icon="el-icon-download"
               size="mini"
@@ -95,11 +95,6 @@
               <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="更新时间" align="center" prop="updatedAt" width="165">
-            <template slot-scope="scope">
-              <span>{{ parseTime(scope.row.updatedAt) }}</span>
-            </template>
-          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
@@ -115,7 +110,21 @@
                 size="small"
                 icon="el-icon-view"
                 @click="handleToProject(scope.row)"
-              >生成到项目</el-button>
+              >代码生成</el-button>
+              <el-button
+
+                type="text"
+                size="small"
+                icon="el-icon-view"
+                @click="handleToProjectCheckRole(scope.row)"
+              >代码生成[带权限]</el-button>
+              <el-button
+
+                type="text"
+                size="small"
+                icon="el-icon-view"
+                @click="handleToDB(scope.row)"
+              >配置生成</el-button>
               <el-button
 
                 type="text"
@@ -141,29 +150,31 @@
           @pagination="getList"
         />
       </el-card>
+
+      <!-- 预览界面 -->
+
+      <el-dialog :title="preview.title" :visible.sync="preview.open" width="80%" top="5vh">
+        <el-tabs v-model="preview.activeName">
+          <el-tab-pane
+            v-for="(value, key) in preview.data"
+            :key="key"
+            :label="key.substring(key.lastIndexOf('/')+1,key.indexOf('.template'))"
+            :name="key.substring(key.lastIndexOf('/')+1,key.indexOf('.template'))"
+          >
+            <pre>{{ value }}</pre>
+          </el-tab-pane>
+        </el-tabs>
+      </el-dialog>
+      <import-table ref="importTB" @ok="handleQuery" />
     </template>
-    <!-- 预览界面 -->
-    <el-dialog :title="preview.title" :visible.sync="preview.open" width="80%" top="5vh">
-      <el-tabs v-model="preview.activeName">
-        <el-tab-pane
-          v-for="(value, key) in preview.data"
-          :key="key"
-          :label="key.substring(key.lastIndexOf('/')+1,key.indexOf('.template'))"
-          :name="key.substring(key.lastIndexOf('/')+1,key.indexOf('.template'))"
-        >
-          <pre>{{ value }}</pre>
-        </el-tab-pane>
-      </el-tabs>
-    </el-dialog>
-    <import-table ref="import" @ok="handleQuery" />
   </BasicLayout>
 </template>
 
 <script>
-import { listTable, previewTable, delTable, toProjectTable } from '@/api/tools/gen'
+import { listTable, previewTable, delTable, toProjectTable, toDBTable, toProjectTableCheckRole } from '@/api/tools/gen'
 import importTable from './importTable'
 import { downLoadFile } from '@/utils/zipdownload'
-import BasicLayout from "@/layout/BasicLayout";
+import BasicLayout from '@/layout/BasicLayout'
 export default {
   name: 'Gen',
   components: { importTable, BasicLayout },
@@ -240,7 +251,7 @@ export default {
     },
     /** 打开导入表弹窗 */
     openImportTable() {
-      this.$refs.import.show()
+      this.$refs.importTB.show()
     },
     /** 重置按钮操作 */
     resetQuery() {
@@ -256,9 +267,37 @@ export default {
       })
     },
     handleToProject(row) {
-      toProjectTable(row.tableId).then(response => {
+      this.$confirm('正在使用代码生成请确认?', '提示', {
+        confirmButtonText: '生成',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(function() {
+        return toProjectTableCheckRole(row.tableId, false)
+      }).then((response) => {
         this.msgSuccess(response.msg)
-      })
+      }).catch(function() {})
+    },
+    handleToProjectCheckRole(row) {
+      this.$confirm('正在使用代码生成【带权限】请确认?', '提示', {
+        confirmButtonText: '生成',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(function() {
+        return toProjectTableCheckRole(row.tableId, true)
+      }).then((response) => {
+        this.msgSuccess(response.msg)
+      }).catch(function() {})
+    },
+    handleToDB(row) {
+      this.$confirm('正在使用【菜单以及API生成到数据库】请确认?', '提示', {
+        confirmButtonText: '写入DB',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(function() {
+        return toDBTable(row.tableId)
+      }).then((response) => {
+        this.msgSuccess(response.msg)
+      }).catch(function() {})
     },
     // 多选框选中数据
     handleSelectionChange(selection) {

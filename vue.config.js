@@ -1,5 +1,6 @@
 'use strict'
 const path = require('path')
+const CompressionPlugin = require('compression-webpack-plugin');//引入gzip压缩插件
 const defaultSettings = require('./src/settings.js')
 
 function resolve(dir) {
@@ -42,7 +43,14 @@ module.exports = {
   },
   configureWebpack: {
     plugins: [
-      new MonacoWebpackPlugin()
+      new CompressionPlugin({
+        algorithm: 'gzip',
+        test:/\.js$|\.html$|\.css/,//匹配文件名
+        threshold:10240,//对超过10kb的数据进行压缩
+        deleteOriginalAssets:false,//是否删除原文件
+        minRatio: 0.8
+      }),
+      new MonacoWebpackPlugin(),
     ],
     name: name,
     resolve: {
@@ -125,5 +133,20 @@ module.exports = {
           config.optimization.runtimeChunk('single')
         }
       )
+  },
+  css: {
+    loaderOptions: {
+      less: {
+        modifyVars: {
+          // less vars，customize ant design theme
+
+          // 'primary-color': '#F5222D',
+          // 'link-color': '#F5222D',
+          'border-radius-base': '2px'
+        },
+        // DO NOT REMOVE THIS LINE
+        javascriptEnabled: true
+      }
+    }
   }
 }

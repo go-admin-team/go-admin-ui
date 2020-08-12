@@ -9,7 +9,7 @@
 
 <script>
 const version = require('element-ui/package.json').version // element-ui version from node_modules
-const ORIGINAL_THEME = '#409EFF' // default color
+const ORIGINAL_THEME = '#1890FF' // default color
 
 export default {
   data() {
@@ -35,10 +35,9 @@ export default {
       if (typeof val !== 'string') return
       const themeCluster = this.getThemeCluster(val.replace('#', ''))
       const originalCluster = this.getThemeCluster(oldVal.replace('#', ''))
-      console.log(themeCluster, originalCluster)
 
       const $message = this.$message({
-        message: '  Compiling the theme',
+        message: '编译主题中',
         customClass: 'theme-message',
         type: 'success',
         duration: 0,
@@ -79,9 +78,7 @@ export default {
         if (typeof innerText !== 'string') return
         style.innerText = this.updateStyle(innerText, originalCluster, themeCluster)
       })
-
       this.$emit('change', val)
-
       $message.close()
     }
   },
