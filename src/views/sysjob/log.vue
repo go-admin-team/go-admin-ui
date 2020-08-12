@@ -8,21 +8,21 @@
       </el-form-item>
     </el-form>
     <el-row ref="log" :gutter="10" class="mb8">
-      <ul
-        style="
+      <el-scrollbar style="height:500px">
+        <ul
+          style="
     background-color: black;
     color: cornflowerblue;
     line-height: 25px;
     padding-top: 15px;
-    margin: 0;
-    min-height: 500px;
-"
-      >
-        <li v-for="arr in arrs">
+    margin: 0;"
+        >
+          <li v-for="(item,index) in arrs" :key="index">
 
-          {{ arr }}
-        </li>
-      </ul>
+            {{ item }}
+          </li>
+        </ul>
+      </el-scrollbar>
     </el-row>
   </div>
 

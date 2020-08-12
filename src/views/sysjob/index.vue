@@ -4,7 +4,7 @@
     <BasicLayout>
       <template #wrapper>
         <el-card class="box-card">
-          <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
+          <el-form ref="queryForm" :model="queryParams" :inline="true" label-position="left" label-width="68px">
             <el-form-item label="名称" prop="jobName">
               <el-input
                 v-model="queryParams.jobName"
@@ -188,7 +188,7 @@
           />
 
           <!-- 添加或修改对话框 -->
-          <el-dialog :title="title" :visible.sync="open" width="700px" append-to-body>
+          <el-dialog v-dialogDrag :title="title" :visible.sync="open" width="700px" append-to-body>
             <el-form ref="form" :model="form" :rules="rules" label-width="120px">
               <el-row>
                 <el-col :span="12">
