@@ -216,12 +216,21 @@
                 </el-col>
                 <el-col :span="24">
                   <el-form-item label="调用目标" prop="invokeTarget">
+                    <span slot="label">
+                      调用目标
+                      <el-tooltip placement="top">
+                        <div slot="content">
+                          调用示例：func (t *EXEC) ExamplesNoParam(){..} 填写 ExamplesNoParam 即可；
+                          <br>参数说明：目前不支持带参调用
+                        </div>
+                        <i class="el-icon-question" />
+                      </el-tooltip>
+                    </span>
                     <el-input
                       v-model="form.invokeTarget"
                       placeholder="调用目标"
                     />
                   </el-form-item>
-
                 </el-col>
                 <el-col :span="12">
                   <el-form-item label="cron表达式" prop="cronExpression">
@@ -239,6 +248,15 @@
                     </el-radio-group>
                   </el-form-item>
                 </el-col>
+                <el-col :span="24">
+                  <el-form-item label="调用类型" prop="jobType">
+                    <el-radio-group v-model="form.jobType" size="small">
+                      <el-radio-button label="1">接口方式</el-radio-button>
+                      <el-radio-button label="2">函数【无参】</el-radio-button>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-col>
+
                 <el-col :span="24">
                   <el-form-item label="错误策略" prop="misfirePolicy">
                     <el-radio-group v-model="form.misfirePolicy" size="small">
@@ -387,6 +405,7 @@ export default {
         invokeTarget: undefined,
         misfirePolicy: 1,
         concurrent: 1,
+        jobType: 1,
         status: 0
       }
       this.resetForm('form')
@@ -432,6 +451,7 @@ export default {
         this.form.status = String(this.form.status)
         this.form.misfirePolicy = String(this.form.misfirePolicy)
         this.form.concurrent = String(this.form.concurrent)
+        this.form.jobType = String(this.form.jobType)
         this.open = true
         this.title = '修改定时任务'
         this.isEdit = true
@@ -446,6 +466,7 @@ export default {
             this.form.status = parseInt(this.form.status)
             this.form.misfirePolicy = parseInt(this.form.misfirePolicy)
             this.form.concurrent = parseInt(this.form.concurrent)
+            this.form.jobType = parseInt(this.form.jobType)
             updateSysJob(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('修改成功')
@@ -456,6 +477,10 @@ export default {
               }
             })
           } else {
+            this.form.status = parseInt(this.form.status)
+            this.form.misfirePolicy = parseInt(this.form.misfirePolicy)
+            this.form.concurrent = parseInt(this.form.concurrent)
+            this.form.jobType = parseInt(this.form.jobType)
             addSysJob(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('新增成功')
