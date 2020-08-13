@@ -10,9 +10,9 @@
           </el-form-item>
         </el-form>
         <el-row ref="log" :gutter="10" class="mb8">
-          <el-scrollbar style="height:500px">
+          <el-scrollbar style="height:500px;background-color: black;color: cornflowerblue;">
             <ul
-              style="background-color: black;color: cornflowerblue;line-height: 25px;padding-top: 15px;padding-bottom: 15px;min-height: 500px; margin: 0;"
+              style="line-height: 25px;padding-top: 15px;padding-bottom: 15px;min-height: 500px; margin: 0;list-style-type: none;"
             >
               <li v-for="(item,index) in arrs" :key="index">
 
