@@ -1,30 +1,29 @@
 
 <template>
-  <div class="app-container">
-    <el-form>
-      <el-form-item>
-        <el-button type="success" icon="el-icon-search" size="mini">状态</el-button>
-        <el-button type="primary" icon="el-icon-search" size="mini">清空</el-button>
-      </el-form-item>
-    </el-form>
-    <el-row ref="log" :gutter="10" class="mb8">
-      <el-scrollbar style="height:500px">
-        <ul
-          style="
-    background-color: black;
-    color: cornflowerblue;
-    line-height: 25px;
-    padding-top: 15px;
-    margin: 0;"
-        >
-          <li v-for="(item,index) in arrs" :key="index">
+  <BasicLayout>
+    <template #wrapper>
+      <el-card class="box-card">
+        <el-form>
+          <el-form-item>
+            <el-button type="success" icon="el-icon-search" size="mini">状态</el-button>
+            <el-button type="primary" icon="el-icon-search" size="mini">清空</el-button>
+          </el-form-item>
+        </el-form>
+        <el-row ref="log" :gutter="10" class="mb8">
+          <el-scrollbar style="height:500px;background-color: black;color: cornflowerblue;">
+            <ul
+              style="line-height: 25px;padding-top: 15px;padding-bottom: 15px;min-height: 500px; margin: 0;list-style-type: none;"
+            >
+              <li v-for="(item,index) in arrs" :key="index">
 
-            {{ item }}
-          </li>
-        </ul>
-      </el-scrollbar>
-    </el-row>
-  </div>
+                {{ item }}
+              </li>
+            </ul>
+          </el-scrollbar>
+        </el-row>
+      </el-card>
+    </template>
+  </BasicLayout>
 
 </template>
 
