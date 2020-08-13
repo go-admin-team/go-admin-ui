@@ -297,12 +297,11 @@
 
 <script>
 import { addSysJob, delSysJob, getSysJob, listSysJob, updateSysJob, removeJob, startJob } from '@/api/sysjob'
-import BasicLayout from '@/layout/BasicLayout'
 
 export default {
   name: 'Config',
   components: {
-    BasicLayout
+
   },
   data() {
     return {

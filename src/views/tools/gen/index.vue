@@ -171,13 +171,13 @@
 </template>
 
 <script>
-import { listTable, previewTable, delTable, toProjectTable, toDBTable, toProjectTableCheckRole } from '@/api/tools/gen'
+import { listTable, previewTable, delTable, toDBTable, toProjectTableCheckRole } from '@/api/tools/gen'
 import importTable from './importTable'
 import { downLoadFile } from '@/utils/zipdownload'
-import BasicLayout from '@/layout/BasicLayout'
+
 export default {
   name: 'Gen',
-  components: { importTable, BasicLayout },
+  components: { importTable },
   data() {
     return {
       // 遮罩层
