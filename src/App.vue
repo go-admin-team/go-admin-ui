@@ -21,7 +21,7 @@ var _hmt = _hmt || [];
 
 <style lang="scss">
   .el-dialog__wrapper{
-    display: flex;
+    //display: flex;
     justify-content: center;
     align-items: center;
   }
