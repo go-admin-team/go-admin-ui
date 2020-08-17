@@ -153,17 +153,26 @@
 
       <!-- 预览界面 -->
 
-      <el-dialog :title="preview.title" :visible.sync="preview.open" width="80%" top="5vh">
-        <el-tabs v-model="preview.activeName">
-          <el-tab-pane
-            v-for="(value, key) in preview.data"
-            :key="key"
-            :label="key.substring(key.lastIndexOf('/')+1,key.indexOf('.template'))"
-            :name="key.substring(key.lastIndexOf('/')+1,key.indexOf('.template'))"
-          >
-            <pre>{{ value }}</pre>
-          </el-tab-pane>
-        </el-tabs>
+      <el-dialog :title="preview.title" :visible.sync="preview.open" top="5vh">
+        <div class="el-dialog-container">
+          <el-tabs v-model="preview.activeName">
+            <el-tab-pane
+              v-for="(value, key) in preview.data"
+              :key="key"
+              :label="key.substring(key.lastIndexOf('/')+1,key.indexOf('.template'))"
+              :name="key.substring(key.lastIndexOf('/')+1,key.indexOf('.template'))"
+            >
+
+              <pre class="pre">
+                <el-scrollbar>
+                 {{ value }}
+                 </el-scrollbar>
+              </pre>
+
+            </el-tab-pane>
+          </el-tabs>
+        </div>
+
       </el-dialog>
       <import-table ref="importTB" @ok="handleQuery" />
     </template>
@@ -328,3 +337,23 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+ .el-dialog-container /deep/{
+   height:600px;
+   overflow: hidden;
+   .el-scrollbar__view{
+     height: 100%;
+   }
+   .pre{
+     height: 546px;
+      overflow: hidden;
+      .el-scrollbar{
+        height: 100%;
+      }
+   }
+   .el-scrollbar__wrap::-webkit-scrollbar{
+     display: none;
+   }
+ }
+</style>
