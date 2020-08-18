@@ -405,7 +405,7 @@ export default {
         misfirePolicy: 1,
         concurrent: 1,
         jobType: 1,
-        status: 0
+        status: undefined
       }
       this.resetForm('form')
     },
