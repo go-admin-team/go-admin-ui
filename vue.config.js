@@ -1,6 +1,6 @@
 'use strict'
 const path = require('path')
-const CompressionPlugin = require('compression-webpack-plugin');//引入gzip压缩插件
+const CompressionPlugin = require('compression-webpack-plugin')// 引入gzip压缩插件
 const defaultSettings = require('./src/settings.js')
 
 function resolve(dir) {
@@ -28,7 +28,7 @@ module.exports = {
    * Detail: https://cli.vuejs.org/config/#publicpath
    */
   publicPath: '/',
-  outputDir: '../service/view/admin',
+  outputDir: 'dist',
   // assetsDir: '../../static/admin',
   // assetsDir: '/',
   lintOnSave: false, // process.env.NODE_ENV === 'development',
@@ -45,12 +45,12 @@ module.exports = {
     plugins: [
       new CompressionPlugin({
         algorithm: 'gzip',
-        test:/\.js$|\.html$|\.css/,//匹配文件名
-        threshold:10240,//对超过10kb的数据进行压缩
-        deleteOriginalAssets:false,//是否删除原文件
+        test: /\.js$|\.html$|\.css/, // 匹配文件名
+        threshold: 10240, // 对超过10kb的数据进行压缩
+        deleteOriginalAssets: false, // 是否删除原文件
         minRatio: 0.8
       }),
-      new MonacoWebpackPlugin(),
+      new MonacoWebpackPlugin()
     ],
     name: name,
     resolve: {

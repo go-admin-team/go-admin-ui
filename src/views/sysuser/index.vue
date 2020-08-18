@@ -314,11 +314,10 @@ import { getToken } from '@/utils/auth'
 import { treeselect } from '@/api/system/dept'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-import BasicLayout from "@/layout/BasicLayout";
 
 export default {
   name: 'User',
-  components: { Treeselect, BasicLayout },
+  components: { Treeselect },
   data() {
     return {
       // 遮罩层

@@ -1,6 +1,6 @@
 {
   "name": "go-admin",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "A magical vue admin. An out-of-box UI solution for enterprise applications. Newest development stack of vue. Lots of awesome features",
   "author": "https://github.com/wenjianzhang/go-admin-ui",
   "license": "MIT",
@@ -73,6 +73,7 @@
     "vue-count-to": "1.0.13",
     "vue-cropper": "^0.5.5",
     "vue-particles": "^1.0.9",
+    "vue-quill-editor": "^3.0.6",
     "vue-router": "3.4.2",
     "vue-splitpane": "1.0.6",
     "vuedraggable": "2.24.0",

@@ -39,7 +39,7 @@ export function updateSysJob(data) {
 export function delSysJob(jobId) {
   return request({
     url: '/api/v1/sysjob/' + jobId,
-    method: 'get'
+    method: 'delete'
   })
 }
 
