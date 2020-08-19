@@ -232,6 +232,24 @@
                     />
                   </el-form-item>
                 </el-col>
+                <el-col :span="24">
+                  <el-form-item label="目标参数" prop="args">
+                    <span slot="label">
+                      目标参数
+                      <el-tooltip placement="top">
+                        <div slot="content">
+                          参数示例：有参：请以string格式填写；无参：为空；
+                          <br>参数说明：目前仅支持函数调用
+                        </div>
+                        <i class="el-icon-question" />
+                      </el-tooltip>
+                    </span>
+                    <el-input
+                      v-model="form.args"
+                      placeholder="目标参数"
+                    />
+                  </el-form-item>
+                </el-col>
                 <el-col :span="12">
                   <el-form-item label="cron表达式" prop="cronExpression">
                     <el-input
@@ -251,8 +269,8 @@
                 <el-col :span="24">
                   <el-form-item label="调用类型" prop="jobType">
                     <el-radio-group v-model="form.jobType" size="small">
-                      <el-radio-button label="1">接口方式</el-radio-button>
-                      <el-radio-button label="2">函数【无参】</el-radio-button>
+                      <el-radio-button label="1">接口</el-radio-button>
+                      <el-radio-button label="2">函数</el-radio-button>
                     </el-radio-group>
                   </el-form-item>
                 </el-col>
@@ -402,6 +420,7 @@ export default {
         jobGroup: undefined,
         cronExpression: undefined,
         invokeTarget: undefined,
+        args: undefined,
         misfirePolicy: 1,
         concurrent: 1,
         jobType: 1,
