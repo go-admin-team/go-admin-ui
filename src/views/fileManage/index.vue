@@ -5,7 +5,7 @@
         <DragColumn>
           <div slot="left" class="left">
             <el-card>
-              <el-tree :data="data" :props="defaultProps" icon-class="el-icon-folder" draggable />
+              <el-tree :data="data" :props="defaultProps" draggable />
             </el-card>
           </div>
           <div slot="right" class="right">
@@ -88,8 +88,15 @@ export default {
     .el-icon-caret-right:before{
         content: "\e78a";
     }
+
+    .el-tree-node__expand-icon.expanded{
+      transform: rotate(0)
+    }
     .el-tree-node__expand-icon.expanded:before{
         content: "\e784";
+    }
+    .el-tree-node__expand-icon{
+      font-size: 16px;
     }
   }
   .right{
