@@ -34,13 +34,13 @@ export default {
   mounted() {
     this.layoutWidth = document.querySelector('.layout').clientWidth
     this.dragWidth = document.querySelector('.layout-drag').clientWidth
-    this.leftWidth = (0.255 * this.layoutWidth) + 'px'
-    this.rightWidth = (0.735 * this.layoutWidth) + 'px'
+    this.leftWidth = (0.165 * this.layoutWidth) + 'px'
+    this.rightWidth = (0.825 * this.layoutWidth) + 'px'
     window.onresize = () => {
       this.layoutWidth = document.querySelector('.layout').clientWidth
       this.dragWidth = document.querySelector('.layout-drag').clientWidth
-      this.leftWidth = (0.255 * this.layoutWidth) + 'px'
-      this.rightWidth = (0.735 * this.layoutWidth) + 'px'
+      this.leftWidth = (0.165 * this.layoutWidth) + 'px'
+      this.rightWidth = (0.825 * this.layoutWidth) + 'px'
     }
   },
   methods: {
