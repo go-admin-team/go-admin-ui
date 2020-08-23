@@ -16,6 +16,7 @@ import router from './router'
 import permission from './directive/permission'
 
 import { getDicts } from '@/api/system/dict/data'
+import { getItems, setItems } from '@/api/table'
 import { getConfigKey } from '@/api/system/config'
 import { parseTime, resetForm, addDateRange, selectDictLabel, download } from '@/utils/costum'
 
@@ -38,6 +39,8 @@ import '@/utils/dialog'
 
 // 全局方法挂载
 Vue.prototype.getDicts = getDicts
+Vue.prototype.getItems = getItems
+Vue.prototype.setItems = setItems
 Vue.prototype.getConfigKey = getConfigKey
 Vue.prototype.parseTime = parseTime
 Vue.prototype.resetForm = resetForm

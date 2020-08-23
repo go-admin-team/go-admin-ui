@@ -79,3 +79,10 @@ export function toDBTable(tableId) {
     method: 'get'
   })
 }
+
+export function getTableTree() {
+  return request({
+    url: '/api/v1/gen/tabletree',
+    method: 'get'
+  })
+}
