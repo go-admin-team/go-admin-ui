@@ -61,7 +61,7 @@
 
     <el-card :bordered="false" :body-style="{padding: '0'}">
       <div class="salesCard">
-        <el-tabs>
+        <el-tabs >
           <el-tab-pane label="销售额">
             <el-row>
               <el-col :xl="16" :lg="12" :md="12" :sm="24" :xs="24">

@@ -71,8 +71,9 @@ Vue.use(Element, {
 })
 
 import VueDND from 'awe-dnd'
-
 Vue.use(VueDND)
+
+import 'remixicon/fonts/remixicon.css'
 
 // register global utility filters
 Object.keys(filters).forEach(key => {
