@@ -30,7 +30,7 @@
             <div v-for="(item,index) in tableData" :key="index" v-dragging="{ item: item, list: tableData, group: 'item' }" class="file-item-inner">
               <div class="file-item" @contextmenu.prevent.stop="rightClick(item,'',$event)">
                 <div class="file-item-icon">
-                  <i class="el-icon-picture-outline" />
+                  <img src="../../assets/icons/Zip.png" alt="">
                 </div>
                 <div class="file-item-title" v-if="!item.open">
                   {{ item.value }}
@@ -112,7 +112,8 @@ import UploadDialog from '@/components/UploadDialog/index'
 export default {
   name: 'Right',
   components: {
-    UploadDialog
+    UploadDialog,
+
   },
   data() {
     return {
@@ -557,7 +558,11 @@ String.prototype.colorRgb = function() {
     justify-content: center;
     align-items: center;
     .file-item-icon{
-      font-size: 50px;
+      margin-bottom: 5px;
+       img{
+         width: 50px;
+         height: 50px;
+       }
     }
     .file-item-title{
       word-break: break-all;
