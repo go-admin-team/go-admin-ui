@@ -11,14 +11,8 @@
       </el-form-item>
     </el-form>
     <el-tabs v-model="activeTab">
-      <el-tab-pane label="Base64文件" name="1">
-        <el-input
-          type="textarea"
-          :autosize="{ minRows: 7, maxRows: 8 }"
-          v-model="form.base64"
-        ></el-input>
-      </el-tab-pane>
-      <el-tab-pane label="文件" name="2">
+      
+      <el-tab-pane label="文件" name="1">
         <el-upload
           class="upload-demo"
           drag
@@ -30,6 +24,13 @@
           <i class="el-icon-upload"></i>
           <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
         </el-upload>
+      </el-tab-pane>
+      <el-tab-pane label="Base64文件" name="2">
+        <el-input
+          type="textarea"
+          :autosize="{ minRows: 7, maxRows: 8 }"
+          v-model="form.base64"
+        ></el-input>
       </el-tab-pane>
     </el-tabs>
     <div class="dialog-footer">
@@ -57,10 +58,11 @@ export default {
   mounted() {},
   methods: {
     uploadFile(file) {
+      console.log(file)
       this.formData.append('file',file.file)
     },
     confirm() {
-      if(this.activeTab === '1') {
+      if(this.activeTab === '2') {
          this.formData = new FormData()
         this.formData.append('file',this.form.base64)
         this.formData.append('type','3')
@@ -75,7 +77,8 @@ export default {
           if(ret.code === 200) {
             this.form.base64 = ""
             this.$refs.upload.clearFiles()
-            this.$emit("confirm",ret.data);
+
+            this.$emit("confirm",this.activeTab === '2' ? [ret.data] : ret.data);
           }
         })
     },

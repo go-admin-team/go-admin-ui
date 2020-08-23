@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import { data } from 'autoprefixer'
 
 export const sysfiledirList = data => request({
     url: '/api/v1/sysfiledirList',
@@ -21,4 +22,36 @@ export const sysfiledirAcionEdit = data => request({
 export const sysfiledirAcionDel = data => request({
     url: '/api/v1/sysfiledir/' + data,
     method: "DELETE",
+})
+
+
+
+export const sysfileinfoList = data => request({
+    url: '/api/v1/sysfileinfoList',
+    method: "GET",
+    data
+})
+
+
+export const sysfileinfo = id => request({
+    url: '/api/v1/sysfileinfo/' + id,
+    method: "GET",
+})
+
+export const sysfileinfoAdd = data => request({
+    url: '/api/v1/sysfileinfo',
+    method: "POST",
+    data
+})
+
+export const sysfileinfoEdit = data => request({
+    url: '/api/v1/sysfileinfo',
+    method: "UPDATE",
+    data
+})
+
+export const sysfileinfoDelete = id => request({
+    url: '/api/v1/sysfileinfo/' + id,
+    method: "DELETE",
+    data
 })

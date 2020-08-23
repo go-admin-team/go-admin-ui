@@ -115,6 +115,7 @@
 import Sortable from 'sortablejs'
 import UploadDialog from '@/components/UploadDialog/index'
 import eventBus from "@/utils/eventbus";
+import { sysfileinfo, sysfileinfoAdd, sysfileinfoEdit, sysfileinfoDelete } from "@/api/file"
 export default {
   name: 'Right',
   components: {
@@ -397,19 +398,41 @@ export default {
   },
   mounted() {
     eventBus.$on("treeNodeClick",e => {
-      console.log(e)
       this.treePath = e;
+      this.getList()
     })
     this.rowDrop()
     this.height = document.querySelector('.layout-right').clientHeight - 107
+    
   },
   destroyed() {
     eventBus.$off('treeNodeClick');
   },
   methods: {
+    getList() {
+      console.log(1111)
+      sysfileinfo(this.treePath.currentNode.id).then(ret => {
+          console.log(ret)
+      })
+    },
     handleUploadConfirm(e) {
-      console.log(e)
+      this.uploadMultiple(e).then(ret => {
+        console.log(ret)
+      })
       this.uploadShow = false
+    },
+    uploadMultiple(e) {
+      const path = e.map(item => {
+        return sysfileinfoAdd({
+          type: e.type,
+          name: e.name,
+          size: `${e.size}`,
+          url: e.path,
+          fullUrl: e.full_path,
+          pId: this.treePath.currentNode.id
+        })
+      })
+      return Promise.all(path)
     },
     handleUploadCancel() {
       this.uploadShow = false

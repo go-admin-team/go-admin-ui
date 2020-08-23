@@ -72,7 +72,7 @@ export default {
       })
     },
     handleAvatarSuccess(e) {
-      this.ruleForm.logo = e.data
+      this.ruleForm.logo = e.data.full_path
     },
     beforeAvatarUpload(e) {
 
