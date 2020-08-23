@@ -67,7 +67,14 @@
               prop="type"
               align="center"
               label="文件类型"
-            />
+            >
+              <template slot-scope="scope">
+                <div class="type">
+                  <img src="../../assets/icons/Zip.png" alt="">
+                  <span v-text="scope.row.type" />
+                </div>
+              </template>
+            </el-table-column>
             <el-table-column
               prop="size"
               align="center"
@@ -626,4 +633,14 @@ String.prototype.colorRgb = function() {
   }
 }
 
+.type{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  img{
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+  }
+}
 </style>
