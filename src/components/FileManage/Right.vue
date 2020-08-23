@@ -5,9 +5,7 @@
         <el-row>
           <el-col :span="18">
             <el-breadcrumb separator-class="el-icon-arrow-right" class="dir">
-              <el-breadcrumb-item :to="{ path: '/' }">一级1</el-breadcrumb-item>
-              <el-breadcrumb-item>二级 1-1</el-breadcrumb-item>
-              <el-breadcrumb-item>三级 1-1-1</el-breadcrumb-item>
+              <el-breadcrumb-item v-for="item in treePath.treeNodePath" :key="item.id">{{ item.label }}</el-breadcrumb-item>
             </el-breadcrumb>
           </el-col>
           <el-col :span="6">
@@ -24,7 +22,7 @@
           </el-col>
         </el-row>
       </div>
-      <div class="file-container">
+      <div class="file-container" @contextmenu.prevent.stop="rightClick('','',$event)">
         <el-scrollbar v-if="rightIndex === 0">
           <div class="file-container-inner">
             <div v-for="(item,index) in tableData" :key="index" v-dragging="{ item: item, list: tableData, group: 'item' }" class="file-item-inner">
@@ -54,7 +52,7 @@
               align="center"
               label="文件名">
               <template slot-scope="scope">
-                <span v-if="!scope.row.open" v-text="renderSize(scope.row.value)" />
+                <span v-if="!scope.row.open" v-text="scope.row.value" />
                 <el-input v-else v-model="scope.row.value" placeholder="请输入内容"></el-input>
               </template>
             </el-table-column>
@@ -94,17 +92,17 @@
         <span> 上传</span>
       </div>
       <el-divider />
-      <div class="right-contextMenu-item contextMenu-item" @click="handleAction(2)" @mouseover="handleTagsOver(1)" @mouseleave="handleTagsLeave(1)">
+      <div v-show="!isBlank" class="right-contextMenu-item contextMenu-item" @click="handleAction(2)" @mouseover="handleTagsOver(1)" @mouseleave="handleTagsLeave(1)">
         <i class="el-icon-edit" />
         <span> 重命名</span>
       </div>
       <el-divider />
-      <div class="right-contextMenu-item contextMenu-item" @click="handleAction(3)" @mouseover="handleTagsOver(2)" @mouseleave="handleTagsLeave(2)">
+      <div v-show="!isBlank" class="right-contextMenu-item contextMenu-item" @click="handleAction(3)" @mouseover="handleTagsOver(2)" @mouseleave="handleTagsLeave(2)">
         <i class="el-icon-folder-delete" />
         <span> 删除</span>
       </div>
       <el-divider />
-      <div class="right-contextMenu-item contextMenu-item" @click="handleAction(4)" @mouseover="handleTagsOver(3)" @mouseleave="handleTagsLeave(3)">
+      <div v-show="!isBlank" class="right-contextMenu-item contextMenu-item" @click="handleAction(4)" @mouseover="handleTagsOver(3)" @mouseleave="handleTagsLeave(3)">
         <i class="el-icon-download" />
         <span> 下载</span>
       </div>
@@ -116,6 +114,7 @@
 <script>
 import Sortable from 'sortablejs'
 import UploadDialog from '@/components/UploadDialog/index'
+import eventBus from "@/utils/eventbus";
 export default {
   name: 'Right',
   components: {
@@ -391,12 +390,21 @@ export default {
       searchFile: '',
       height: 0,
       visible: false,
-      rightMenu: {}
+      rightMenu: {},
+      treePath: {},
+      isBlank: false
     }
   },
   mounted() {
+    eventBus.$on("treeNodeClick",e => {
+      console.log(e)
+      this.treePath = e;
+    })
     this.rowDrop()
     this.height = document.querySelector('.layout-right').clientHeight - 107
+  },
+  destroyed() {
+    eventBus.$off('treeNodeClick');
   },
   methods: {
     handleUploadConfirm() {
@@ -434,6 +442,11 @@ export default {
       c.preventDefault()
       this.rightMenu = { top: c.pageY + 'px', left: c.pageX + 'px' }
       this.visible = true
+      if(!a) {
+        this.isBlank = true
+      } else {
+        this.isBlank = false
+      }
       this.rightData = {
         currentNode: b,
         currentData: a
