@@ -6,11 +6,7 @@
       @close="cancel"
       :visible.sync="show"
       width="30%">
-      <upload-form />
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="confirm">取 消</el-button>
-        <el-button type="primary" @click="cancel">确 定</el-button>
-      </span>
+      <upload-form @confirm="confirm" @cancel="cancel"/>
     </el-dialog>
   </div>
 </template>
@@ -37,8 +33,8 @@ export default {
 
   },
   methods: {
-    confirm() {
-      this.$emit('confirm')
+    confirm(e) {
+      this.$emit('confirm',e)
     },
     cancel() {
       this.$emit('cancel')

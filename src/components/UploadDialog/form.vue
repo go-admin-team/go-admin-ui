@@ -9,48 +9,96 @@
           <el-radio-button label="4">腾讯云COS</el-radio-button>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="Base64文件" clearable>
-        <el-input v-model="form.base64"></el-input>
-      </el-form-item>
-      <el-form-item label="文件">
+    </el-form>
+    <el-tabs v-model="activeTab">
+      <el-tab-pane label="Base64文件" name="1">
+        <el-input
+          type="textarea"
+          :autosize="{ minRows: 7, maxRows: 8 }"
+          v-model="form.base64"
+        ></el-input>
+      </el-tab-pane>
+      <el-tab-pane label="文件" name="2">
         <el-upload
           class="upload-demo"
           drag
-          action="https://jsonplaceholder.typicode.com/posts/"
+          :action="url"
+          ref="upload"
+          :auto-upload="false"
+          :http-request="uploadFile"
           multiple>
           <i class="el-icon-upload"></i>
           <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
         </el-upload>
-      </el-form-item>
-    </el-form>
+      </el-tab-pane>
+    </el-tabs>
+    <div class="dialog-footer">
+      <el-button @click="cancel">关 闭</el-button>
+      <el-button type="primary" @click="confirm">提 交</el-button>
+    </div>
   </div>
 </template>
 
 <script>
+import request from '@/utils/request'
 export default {
-  name: 'UploadForm',
+  name: "UploadForm",
   data() {
     return {
+      url: process.env.VUE_APP_BASE_API + '/api/v1/public/uploadFile',
+      activeTab: "1",
       form: {
-        dataSource: '1',
-        base64: ''
+        dataSource: "1",
+        base64: ""
+      },
+      formData: ""
+    };
+  },
+  mounted() {},
+  methods: {
+    uploadFile(file) {
+      this.formData.append('file',file.file)
+    },
+    confirm() {
+      if(this.activeTab === '1') {
+         this.formData = new FormData()
+        this.formData.append('file',this.form.base64)
+        this.formData.append('type','3')
+      } else {
+        this.formData = new FormData()
+        this.$refs.upload.submit()
+        this.formData.append('type','2')
       }
+       request.post(this.url,this.formData,{
+          'Content-Type': 'multipart/form-data'
+        }).then(ret => {
+          if(ret.code === 200) {
+            this.form.base64 = ""
+            this.$refs.upload.clearFiles()
+            this.$emit("confirm",ret.data);
+          }
+        })
+    },
+    cancel() {
+      this.$emit("cancel");
     }
-  },
-  mounted() {
-
-  },
-  methods: {}
-}
+  }
+};
 </script>
 
 <style lang="scss" scoped>
 .form /deep/ {
-  .el-upload{
+  .el-upload {
     width: 100%;
   }
-  .el-upload-dragger{
+  .el-upload-dragger {
     width: 100%;
   }
+}
+.dialog-footer {
+  padding: 30px 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 </style>

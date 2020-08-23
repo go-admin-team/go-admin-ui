@@ -407,7 +407,8 @@ export default {
     eventBus.$off('treeNodeClick');
   },
   methods: {
-    handleUploadConfirm() {
+    handleUploadConfirm(e) {
+      console.log(e)
       this.uploadShow = false
     },
     handleUploadCancel() {
