@@ -25,10 +25,10 @@
       </el-tab-pane>
     </el-tabs>
     <ul v-show="visible" :style="{left:left+'px',top:top+'px'}" class="contextmenu">
-      <li @click="refreshSelectedTag(selectedTag)">刷新当前标签页</li>
-      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">关闭当前标签页</li>
-      <li @click="closeOthersTags">关闭其他标签页</li>
-      <li @click="closeAllTags(selectedTag)">关闭全部标签页</li>
+      <li class="tags-item" @click="refreshSelectedTag(selectedTag)" @mouseover="handleTagsOver(1)" @mouseleave="handleTagsLeave(1)">刷新当前标签页</li>
+      <li v-if="!isAffix(selectedTag)" class="tags-item" @click="closeSelectedTag(selectedTag)" @mouseover="handleTagsOver(2)" @mouseleave="handleTagsLeave(2)">关闭当前标签页</li>
+      <li class="tags-item" @click="closeOthersTags" @mouseover="handleTagsOver(3)" @mouseleave="handleTagsLeave(3)">关闭其他标签页</li>
+      <li class="tags-item" @click="closeAllTags(selectedTag)" @mouseover="handleTagsOver(4)" @mouseleave="handleTagsLeave(4)">关闭全部标签页</li>
     </ul>
   </div>
 </template>
@@ -76,6 +76,18 @@ export default {
     this.isActive()
   },
   methods: {
+    handleTagsOver(index) {
+      const tags = document.querySelectorAll('.tags-item')
+      const item = tags[index - 1]
+      item.style.cssText = `color:${this.$store.state.settings.theme};background:${
+        this.$store.state.settings.theme.colorRgb()
+      }`
+    },
+    handleTagsLeave(index) {
+      const tags = document.querySelectorAll('.tags-item')
+      const item = tags[index - 1]
+      item.style.cssText = `color:#606266`
+    },
     isActive() {
       const index = this.visitedViews.findIndex(item => item.fullPath === this.$route.fullPath)
       const pathIndex = index > -1 ? index : 0
@@ -210,10 +222,30 @@ export default {
     }
   }
 }
+
+String.prototype.colorRgb = function() {
+  let sColor = this.toLowerCase()
+  const reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/
+  if (sColor && reg.test(sColor)) {
+    if (sColor.length === 4) {
+      let sColorNew = '#'
+      for (let i = 1; i < 4; i += 1) {
+        sColorNew += sColor.slice(i, i + 1).concat(sColor.slice(i, i + 1))
+      }
+      sColor = sColorNew
+    }
+    const sColorChange = []
+    for (let i = 1; i < 7; i += 2) {
+      sColorChange.push(parseInt('0x' + sColor.slice(i, i + 2)))
+    }
+    return 'rgba(' + sColorChange.join(',') + ',0.2)'
+  } else {
+    return sColor
+  }
+}
 </script>
 
 <style lang="scss" scoped>
-
 .tags-view-container /deep/{
   height: 43px;
   width: 100%;
@@ -279,13 +311,19 @@ export default {
     font-size: 12px;
     font-weight: 400;
     color: #333;
-    box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, .3);
+    box-shadow: 1px 2px 10px #ccc;
     -moz-user-select:none;
     -webkit-user-select:none;
     user-select:none;
     li {
+      list-style: none;
+      line-height: 36px;
+      padding: 2px 20px;
       margin: 0;
-      padding: 10px 22px;
+      font-size: 14px;
+      color: #606266;
+      cursor: pointer;
+      outline: 0;
       cursor: pointer;
       &:hover {
         background: #eee;
