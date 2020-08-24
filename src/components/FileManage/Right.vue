@@ -30,11 +30,11 @@
                 <div class="file-item-icon">
                   <img src="../../assets/icons/Zip.png" alt="">
                 </div>
-                <div class="file-item-title" v-if="!item.open">
+                <div v-if="!item.open" class="file-item-title">
                   {{ item.value }}
                 </div>
-                <div class="file-item-title" v-else>
-                  <el-input v-model="item.value" placeholder="请输入内容"></el-input>
+                <div v-else class="file-item-title">
+                  <el-input v-model="item.value" placeholder="请输入内容" />
                 </div>
               </div>
             </div>
@@ -45,15 +45,17 @@
             :data="tableData"
             highlight-current-row
             border
+            style="width: 100%"
             @row-contextmenu="rightClick"
-            style="width: 100%">
+          >
             <el-table-column
               prop="value"
               align="center"
-              label="文件名">
+              label="文件名"
+            >
               <template slot-scope="scope">
                 <span v-if="!scope.row.open" v-text="scope.row.value" />
-                <el-input v-else v-model="scope.row.value" placeholder="请输入内容"></el-input>
+                <el-input v-else v-model="scope.row.value" placeholder="请输入内容" />
               </template>
             </el-table-column>
             <el-table-column
@@ -107,19 +109,19 @@
         <span> 下载</span>
       </div>
     </div>
-    <upload-dialog :show="uploadShow" @confirm="handleUploadConfirm" @cancel="handleUploadCancel"/>
+    <upload-dialog :show="uploadShow" @confirm="handleUploadConfirm" @cancel="handleUploadCancel" />
   </div>
 </template>
 
 <script>
 import Sortable from 'sortablejs'
 import UploadDialog from '@/components/UploadDialog/index'
-import eventBus from "@/utils/eventbus";
-import { sysfileinfo, sysfileinfoAdd, sysfileinfoEdit, sysfileinfoDelete } from "@/api/file"
+import eventBus from '@/utils/eventbus'
+import { sysfileinfo, sysfileinfoList, sysfileinfoAdd, sysfileinfoEdit, sysfileinfoDelete } from '@/api/file'
 export default {
   name: 'Right',
   components: {
-    UploadDialog,
+    UploadDialog
 
   },
   data() {
@@ -397,22 +399,21 @@ export default {
     }
   },
   mounted() {
-    eventBus.$on("treeNodeClick",e => {
-      this.treePath = e;
+    eventBus.$on('treeNodeClick', e => {
+      this.treePath = e
       this.getList()
     })
     this.rowDrop()
     this.height = document.querySelector('.layout-right').clientHeight - 107
-    
   },
   destroyed() {
-    eventBus.$off('treeNodeClick');
+    eventBus.$off('treeNodeClick')
   },
   methods: {
     getList() {
       console.log(1111)
-      sysfileinfo(this.treePath.currentNode.id).then(ret => {
-          console.log(ret)
+      sysfileinfoList(this.treePath.currentNode.id).then(ret => {
+        console.log(ret)
       })
     },
     handleUploadConfirm(e) {
@@ -466,7 +467,7 @@ export default {
       c.preventDefault()
       this.rightMenu = { top: c.pageY + 'px', left: c.pageX + 'px' }
       this.visible = true
-      if(!a) {
+      if (!a) {
         this.isBlank = true
       } else {
         this.isBlank = false

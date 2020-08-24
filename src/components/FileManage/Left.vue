@@ -31,7 +31,7 @@
                   type="text"
                   @blur.stop="handleBlur(node, data)"
                   @keyup.enter="handleBlur(node, data)"
-                />
+                >
               </span>
               <span v-else class="file-name">
                 {{ node.label }}
@@ -96,59 +96,60 @@
 </template>
 
 <script>
-import { v1 as uuidv1 } from "uuid";
-import UploadDialog from "@/components/UploadDialog/index";
+// eslint-disable-next-line no-unused-vars
+import { v1 as uuidv1 } from 'uuid'
+import UploadDialog from '@/components/UploadDialog/index'
 import {
   sysfiledirList,
   sysfiledirAcionAdd,
   sysfiledirAcionEdit,
   sysfiledirAcionDel
-} from "@/api/file";
-import eventBus from "@/utils/eventbus";
+} from '@/api/file'
+import eventBus from '@/utils/eventbus'
 export default {
-  name: "Left",
+  name: 'Left',
   components: {
     UploadDialog
-  },
-  data() {
-    return {
-      rename: {
-        status: false,
-        node: ""
-      },
-      uploadShow: false,
-      drag: false,
-      data: [],
-      defaultProps: {
-        children: "children",
-        label: "label"
-      },
-      rightMenu: {},
-      visible: false
-    };
   },
   directives: {
     focus: {
       inserted: function(el, { value }) {
         if (value) {
-          el.focus();
-          el.select();
+          el.focus()
+          el.select()
         }
       }
     }
   },
+  data() {
+    return {
+      rename: {
+        status: false,
+        node: ''
+      },
+      uploadShow: false,
+      drag: false,
+      data: [],
+      defaultProps: {
+        children: 'children',
+        label: 'label'
+      },
+      rightMenu: {},
+      visible: false
+    }
+  },
   mounted() {
-    this.getDirList();
+    this.getDirList()
   },
   methods: {
     handleNodeClick(e) {
-      let result = this.treeFindPath(this.data, node => node.id === e.id)
-      eventBus.$emit('treeNodeClick',{
+      const result = this.treeFindPath(this.data, node => node.id === e.id)
+      eventBus.$emit('treeNodeClick', {
         treeNodePath: result,
         currentNode: e
       })
     },
-    treeFindPath (tree, func, path = []) {
+    treeFindPath(tree, func, path = []) {
       if (!tree) return []
       for (const data of tree) {
         path.push(data)
@@ -164,116 +165,117 @@ export default {
     getDirList() {
       sysfiledirList().then(ret => {
         if (ret.code === 200) {
-          this.data = ret.data;
-          eventBus.$emit('treeNodeClick',{
+          this.data = ret.data
+          eventBus.$emit('treeNodeClick', {
             treeNodePath: ret.data,
             currentNode: ret.data
           })
         }
-      });
+      })
     },
     handleUploadConfirm() {
-      this.uploadShow = false;
+      this.uploadShow = false
     },
     handleUploadCancel() {
-      this.uploadShow = false;
+      this.uploadShow = false
     },
     handleTagsOver(index) {
-      const tags = document.querySelectorAll(".left-contextMenu-item");
-      const item = tags[index];
+      const tags = document.querySelectorAll('.left-contextMenu-item')
+      const item = tags[index]
       item.style.cssText = `color:${
         this.$store.state.settings.theme
-      };background:${this.$store.state.settings.theme.colorRgb()}`;
+      };background:${this.$store.state.settings.theme.colorRgb()}`
     },
     handleTagsLeave(index) {
-      const tags = document.querySelectorAll(".left-contextMenu-item");
-      const item = tags[index];
-      item.style.cssText = `color:#606266`;
+      const tags = document.querySelectorAll('.left-contextMenu-item')
+      const item = tags[index]
+      item.style.cssText = `color:#606266`
     },
     handleBlur(n, d) {
       this.rename = {
         status: false,
-        node: ""
-      };
-      d.label = this.$refs.nodeInput.value;
-      console.log(d);
+        node: ''
+      }
+      d.label = this.$refs.nodeInput.value
+      console.log(d)
       sysfiledirAcionEdit({
         id: d.id,
         label: d.label,
         pId: d.pId
       }).then(ret => {
         if (ret.code === 200) {
-          this.$refs.tree.updateKeyChildren(n.id, d);
+          this.$refs.tree.updateKeyChildren(n.id, d)
         }
-      });
+      })
     },
     rightKeyClick(e, a, c) {
-      this.rightMenu = { top: e.pageY + "px", left: e.pageX + "px" };
-      this.visible = true;
+      this.rightMenu = { top: e.pageY + 'px', left: e.pageX + 'px' }
+      this.visible = true
       this.rightData = {
         currentNode: c,
         currentData: a
-      };
+      }
       document.onclick = ev => {
-        if (ev.target !== document.getElementById("perTreeMenu")) {
-          this.visible = false;
+        if (ev.target !== document.getElementById('perTreeMenu')) {
+          this.visible = false
         }
-      };
+      }
     },
     handleAction(e) {
       switch (e) {
         case 1:
           sysfiledirAcionAdd({
-            label: "新建文件夹",
+            label: '新建文件夹',
             pId: this.rightData.currentData.id
           }).then(ret => {
             if (ret.code === 200) {
-              this.$refs.tree.append(ret.data, this.rightData.currentData.id);
+              this.$refs.tree.append(ret.data, this.rightData.currentData.id)
             }
-          });
-          break;
+          })
+          break
         case 2:
-          this.uploadShow = true;
-          break;
+          this.uploadShow = true
+          break
         case 3:
           this.rename = {
             status: true,
             node: this.rightData.currentData
-          };
-          console.log(this.rename);
-          break;
+          }
+          console.log(this.rename)
+          break
         case 4:
           sysfiledirAcionDel(this.rightData.currentData.id).then(ret => {
             if (ret.code === 200) {
-              this.$refs.tree.remove(this.rightData.currentNode);
+              this.$refs.tree.remove(this.rightData.currentNode)
             }
-          });
-          break;
+          })
+          break
       }
     }
   }
-};
+}
 
+// eslint-disable-next-line no-extend-native
 String.prototype.colorRgb = function() {
-  let sColor = this.toLowerCase();
-  const reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+  let sColor = this.toLowerCase()
+  const reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/
   if (sColor && reg.test(sColor)) {
     if (sColor.length === 4) {
-      let sColorNew = "#";
+      let sColorNew = '#'
       for (let i = 1; i < 4; i += 1) {
-        sColorNew += sColor.slice(i, i + 1).concat(sColor.slice(i, i + 1));
+        sColorNew += sColor.slice(i, i + 1).concat(sColor.slice(i, i + 1))
       }
-      sColor = sColorNew;
+      sColor = sColorNew
     }
-    const sColorChange = [];
+    const sColorChange = []
     for (let i = 1; i < 7; i += 2) {
-      sColorChange.push(parseInt("0x" + sColor.slice(i, i + 2)));
+      sColorChange.push(parseInt('0x' + sColor.slice(i, i + 2)))
     }
-    return "rgba(" + sColorChange.join(",") + ",0.2)";
+    return 'rgba(' + sColorChange.join(',') + ',0.2)'
   } else {
-    return sColor;
+    return sColor
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>
@@ -287,7 +289,7 @@ String.prototype.colorRgb = function() {
           background-color: rgba(24, 144, 255,0.9);
         .icon{
           color: #fff!important;
-        }  
+        }
         .file-name{
           color: #fff!important;
         }
