@@ -25,7 +25,7 @@ export const sysfiledirAcionDel = data => request({
 })
 
 export const sysfileinfoList = data => request({
-  url: '/api/v1/sysfileinfoList?pId=' + data,
+  url: '/api/v1/sysfileinfoList?pId=' + data.pId,
   method: 'GET',
   data
 })

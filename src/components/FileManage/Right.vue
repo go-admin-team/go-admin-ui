@@ -412,7 +412,8 @@ export default {
   methods: {
     getList() {
       console.log(1111)
-      sysfileinfoList(this.treePath.currentNode.id).then(ret => {
+      const queryData = { qId: this.treePath.currentNode.id }
+      sysfileinfoList(queryData).then(ret => {
         console.log(ret)
       })
     },
@@ -512,6 +513,7 @@ export default {
   }
 }
 
+// eslint-disable-next-line no-extend-native
 String.prototype.colorRgb = function() {
   let sColor = this.toLowerCase()
   const reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/
