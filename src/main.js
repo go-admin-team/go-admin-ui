@@ -18,7 +18,7 @@ import permission from './directive/permission'
 import { getDicts } from '@/api/system/dict/data'
 import { getItems, setItems } from '@/api/table'
 import { getConfigKey } from '@/api/system/config'
-import { parseTime, resetForm, addDateRange, selectDictLabel, download } from '@/utils/costum'
+import { parseTime, resetForm, addDateRange, selectDictLabel, download, selectItemsLabel } from '@/utils/costum'
 
 import './icons' // icon
 import './permission' // permission control
@@ -46,6 +46,7 @@ Vue.prototype.parseTime = parseTime
 Vue.prototype.resetForm = resetForm
 Vue.prototype.addDateRange = addDateRange
 Vue.prototype.selectDictLabel = selectDictLabel
+Vue.prototype.selectItemsLabel = selectItemsLabel
 Vue.prototype.download = download
 
 // 全局组件挂载

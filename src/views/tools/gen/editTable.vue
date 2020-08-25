@@ -92,8 +92,9 @@
                 <el-option label="下拉框" value="select" />
                 <el-option label="单选框" value="radio" />
                 <!-- <el-option label="复选框" value="checkbox" />
+                <el-option label="日期控件" value="datetime" />-->
                 <el-option label="文本域" value="textarea" />
-                <el-option label="日期控件" value="datetime" /> -->
+
               </el-select>
             </template>
           </el-table-column>
@@ -117,9 +118,9 @@
               <el-select v-model="scope.row.fkTableName" clearable filterable placeholder="请选择" @change="handleChangeConfig(scope.row,scope.$index)">
                 <el-option
                   v-for="table in tableTree"
-                  :key="table.tableId"
+                  :key="table.tableName"
                   :label="table.tableName"
-                  :value="table.tableId"
+                  :value="table.tableName"
                 >
                   <span style="float: left">{{ table.tableName }}</span>
                   <span style="float: right; color: #8492a6; font-size: 13px">{{ table.tableComment }}</span>
@@ -129,12 +130,12 @@
           </el-table-column>
           <el-table-column label="关系表key" width="150">
             <template slot-scope="scope">
-              <el-select v-model="scope.row.fkLableId" clearable filterable placeholder="请选择">
+              <el-select v-model="scope.row.fkLabelId" clearable filterable placeholder="请选择">
                 <el-option
                   v-for="column in scope.row.fkCol"
-                  :key="column.columnId"
+                  :key="column.columnName"
                   :label="column.columnName"
-                  :value="column.columnId"
+                  :value="column.columnName"
                 >
                   <span style="float: left">{{ column.columnName }}</span>
                   <span style="float: right; color: #8492a6; font-size: 13px">{{ column.columnComment }}</span>
@@ -144,7 +145,17 @@
           </el-table-column>
           <el-table-column label="关系表value" width="150">
             <template slot-scope="scope">
-              <el-input v-model="scope.row.fkLableName" />
+              <el-select v-model="scope.row.fkLabelName" clearable filterable placeholder="请选择">
+                <el-option
+                  v-for="column in scope.row.fkCol"
+                  :key="column.columnName"
+                  :label="column.columnName"
+                  :value="column.columnName"
+                >
+                  <span style="float: left">{{ column.columnName }}</span>
+                  <span style="float: right; color: #8492a6; font-size: 13px">{{ column.columnComment }}</span>
+                </el-option>
+              </el-select>
             </template>
           </el-table-column>
         </el-table>
@@ -210,6 +221,7 @@ export default {
           })
         })
       })
+
       /** 查询字典下拉列表 */
       getDictOptionselect().then(response => {
         this.dictOptions = response.data
@@ -221,7 +233,7 @@ export default {
       console.log(row)
       console.log(index)
       this.tableTree.filter(function(item) {
-        if (item.tableId === row.fkTableName) {
+        if (item.tableName === row.fkTableName) {
           row.fkCol = item.columns
           // row.fkCol.unshift({ columnId: 0, columnName: '请选择' })
         }
