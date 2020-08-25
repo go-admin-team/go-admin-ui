@@ -3,9 +3,10 @@
     <el-dialog
       v-dialogDrag
       title="上传文件"
-      @close="cancel"
       :visible.sync="show"
-      width="30%">
+      width="30%"
+      @close="cancel"
+    >
       <upload-form @confirm="confirm" @cancel="cancel"/>
     </el-dialog>
   </div>
@@ -34,7 +35,7 @@ export default {
   },
   methods: {
     confirm(e) {
-      this.$emit('confirm',e)
+      this.$emit('confirm', e)
     },
     cancel() {
       this.$emit('cancel')
