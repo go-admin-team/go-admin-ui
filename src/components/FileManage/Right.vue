@@ -31,10 +31,10 @@
                   <img src="../../assets/icons/Zip.png" alt="">
                 </div>
                 <div v-if="!item.open" class="file-item-title">
-                  {{ item.value }}
+                  {{ item.name }}
                 </div>
                 <div v-else class="file-item-title">
-                  <el-input v-model="item.value" placeholder="请输入内容" />
+                  <el-input v-model="item.name" placeholder="请输入内容" />
                 </div>
               </div>
             </div>
@@ -49,20 +49,24 @@
             @row-contextmenu="rightClick"
           >
             <el-table-column
-              prop="value"
+              prop="name"
               align="center"
               label="文件名"
             >
               <template slot-scope="scope">
-                <span v-if="!scope.row.open" v-text="scope.row.value" />
-                <el-input v-else v-model="scope.row.value" placeholder="请输入内容" />
+                <span v-if="!scope.row.open" v-text="scope.row.name" />
+                <el-input v-else v-model="scope.row.name" placeholder="请输入内容" />
               </template>
             </el-table-column>
             <el-table-column
-              prop="date"
+              prop="createdAt"
               align="center"
               label="上传日期"
-            />
+            >
+          <template slot-scope="scope">
+                <span v-if="!scope.row.open" v-text="parseTime(scope.row.createdAt)" />
+              </template>
+            </el-table-column>
             <el-table-column
               prop="type"
               align="center"
@@ -117,6 +121,7 @@
 import Sortable from 'sortablejs'
 import UploadDialog from '@/components/UploadDialog/index'
 import eventBus from '@/utils/eventbus'
+import { parseTime } from '@/utils'
 import { sysfileinfo, sysfileinfoList, sysfileinfoAdd, sysfileinfoEdit, sysfileinfoDelete } from '@/api/file'
 export default {
   name: 'Right',
@@ -137,259 +142,7 @@ export default {
       ],
       rightIndex: 0,
       rightData: {},
-      tableData: [
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/oa/notify/2020/7/2.pdf',
-          'value': '2.pdf',
-          'open': false,
-          'type': 'pdf',
-          'date': 1595495846,
-          'size': '108223',
-          'pId': '7',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/oa/notify/2020/7/1.pdf',
-          'value': '1.pdf',
-          'open': false,
-          'type': 'pdf',
-          'date': 1595495841,
-          'size': '100767',
-          'pId': '7',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/oa/notify/2020/7/202.jpg',
-          'value': '202.jpg',
-          'open': false,
-          'type': 'image',
-          'date': 1595495698,
-          'size': '132449',
-          'pId': '7',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/oa/notify/2020/7/微信截图_20200723171830.png',
-          'value': '微信截图_20200723171830.png',
-          'open': false,
-          'type': 'image',
-          'date': 1595495932,
-          'size': '39883',
-          'pId': '7',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/oa/notify/2020/7/微信截图_20200723171830(1).png',
-          'value': '微信截图_20200723171830(1).png',
-          'open': false,
-          'type': 'image',
-          'date': 1595495964,
-          'size': '39883',
-          'pId': '7',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/oa/notify/2020/7/huihui.png',
-          'value': 'huihui.png',
-          'open': false,
-          'type': 'image',
-          'date': 1595495712,
-          'size': '601685',
-          'pId': '7',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/oa/notify/2020/7/101.jpg',
-          'value': '101.jpg',
-          'open': false,
-          'type': 'image',
-          'date': 1595495690,
-          'size': '123723',
-          'pId': '7',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/oa/notify/2020/7/LUC ERP系统计划进度表20200722.xlsx',
-          'value': 'LUC ERP系统计划进度表20200722.xlsx',
-          'open': false,
-          'type': 'excel',
-          'date': 1595495614,
-          'size': '10624',
-          'pId': '7',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/test/pic/testPic/2020/8/5eb50393be56e.jpg',
-          'value': '5eb50393be56e.jpg',
-          'open': false,
-          'type': 'image',
-          'date': 1597072709,
-          'size': '1528457',
-          'pId': '8',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/test/pic/testPic/2020/8/流程图0810.png',
-          'value': '流程图0810.png',
-          'open': false,
-          'type': 'image',
-          'date': 1597825927,
-          'size': '1765168',
-          'pId': '8',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/test/pic/testPic/2020/8/新建文本文档.txt',
-          'value': '新建文本文档.txt',
-          'open': false,
-          'type': 'text',
-          'date': 1597669232,
-          'size': '273',
-          'pId': '8',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/test/pic/testPic/2020/8/新建文本文档 (2).txt',
-          'value': '新建文本文档 (2).txt',
-          'open': false,
-          'type': 'text',
-          'date': 1597669240,
-          'size': '105',
-          'pId': '8',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/test/pic/testPic/2020/8/city tower.jpg',
-          'value': 'city tower.jpg',
-          'open': false,
-          'type': 'image',
-          'date': 1596881075,
-          'size': '342069',
-          'pId': '8',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/test/pic/testPic/2020/8/earth-2581631_1280.jpg',
-          'value': 'earth-2581631_1280.jpg',
-          'open': false,
-          'type': 'image',
-          'date': 1596784952,
-          'size': '279848',
-          'pId': '8',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/test/pic/testPic/2020/8/Yukon-Yukon-River-Canadian-Culture-Landscape-Canada-_photocredit-istock_royalty-free.jpg',
-          'value': 'Yukon-Yukon-River-Canadian-Culture-Landscape-Canada-_photocredit-istock_royalty-free.jpg',
-          'open': false,
-          'type': 'image',
-          'date': 1596807750,
-          'size': '643859',
-          'pId': '8',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/test/pic/testPic/2020/8/1.png',
-          'value': '1.png',
-          'open': false,
-          'type': 'image',
-          'date': 1597817011,
-          'size': '6978',
-          'pId': '8',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/oa/notify/2020/7/2.txt',
-          'value': '2.txt',
-          'open': false,
-          'type': 'text',
-          'date': 1595922370,
-          'size': '11',
-          'pId': '7',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/oa/notify/2020/6/ReadMe(1).txt',
-          'value': 'ReadMe(1).txt',
-          'open': false,
-          'type': 'text',
-          'date': 1591000829,
-          'size': '7861',
-          'pId': '6',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/oa/notify/2020/6/呼市招生办.png',
-          'value': '呼市招生办.png',
-          'open': false,
-          'type': 'image',
-          'date': 1591067881,
-          'size': '268729',
-          'pId': '6',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/oa/notify/2020/6/商业版本功能白皮书.pdf',
-          'value': '商业版本功能白皮书.pdf',
-          'open': false,
-          'type': 'pdf',
-          'date': 1593400457,
-          'size': '8251975',
-          'pId': '6',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/oa/notify/2020/6/12_1585150133246.jpg',
-          'value': '12_1585150133246.jpg',
-          'open': false,
-          'type': 'image',
-          'date': 1591067843,
-          'size': '7006',
-          'pId': '6',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/oa/notify/2020/6/ReadMe.txt',
-          'value': 'ReadMe.txt',
-          'open': false,
-          'type': 'text',
-          'date': 1591000809,
-          'size': '7861',
-          'pId': '6',
-          'data': {
-          }
-        },
-        {
-          'id': '/usr/upload/userfiles/1/程序附件/oa/notify/2020/6/GAT人脸识别回调接口文档 V1.0.7.docx',
-          'value': 'GAT人脸识别回调接口文档 V1.0.7.docx',
-          'open': false,
-          'type': 'file',
-          'date': 1593400440,
-          'size': '87520',
-          'pId': '6'
-        }
-      ],
+      tableData: [],
       searchFile: '',
       height: 0,
       visible: false,
@@ -400,6 +153,7 @@ export default {
   },
   mounted() {
     eventBus.$on('treeNodeClick', e => {
+      console.log(e)
       this.treePath = e
       this.getList()
     })
@@ -411,26 +165,33 @@ export default {
   },
   methods: {
     getList() {
-      console.log(1111)
-      const queryData = { pId: this.treePath.currentNode.id }
-      sysfileinfoList(queryData).then(ret => {
-        console.log(ret)
-      })
+      const pId = this.treePath.currentNode.id
+      if (pId) {
+        const queryData = { pId }
+        sysfileinfoList(queryData).then(ret => {
+          if (ret.code === 200) {
+            this.tableData = ret.data.list
+          }
+        })
+      }
     },
     handleUploadConfirm(e) {
       this.uploadMultiple(e).then(ret => {
-        console.log(ret)
+        if (ret) {
+          this.getList()
+        }
       })
       this.uploadShow = false
     },
     uploadMultiple(e) {
       const path = e.map(item => {
+        console.log(item)
         return sysfileinfoAdd({
-          type: e.type,
-          name: e.name,
-          size: `${e.size}`,
-          url: e.path,
-          fullUrl: e.full_path,
+          type: item.type,
+          name: item.name,
+          size: `${item.size}`,
+          url: item.path,
+          fullUrl: item.full_path,
           pId: this.treePath.currentNode.id
         })
       })

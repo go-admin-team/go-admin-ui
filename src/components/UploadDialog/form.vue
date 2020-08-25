@@ -11,26 +11,27 @@
       </el-form-item>
     </el-form>
     <el-tabs v-model="activeTab">
-      
       <el-tab-pane label="文件" name="1">
         <el-upload
+          ref="upload"
           class="upload-demo"
           drag
           :action="url"
-          ref="upload"
           :auto-upload="false"
+          :limit="5"
           :http-request="uploadFile"
-          multiple>
-          <i class="el-icon-upload"></i>
+          multiple
+        >
+          <i class="el-icon-upload" />
           <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
         </el-upload>
       </el-tab-pane>
       <el-tab-pane label="Base64文件" name="2">
         <el-input
+          v-model="form.base64"
           type="textarea"
           :autosize="{ minRows: 7, maxRows: 8 }"
-          v-model="form.base64"
-        ></el-input>
+        />
       </el-tab-pane>
     </el-tabs>
     <div class="dialog-footer">
@@ -43,50 +44,48 @@
 <script>
 import request from '@/utils/request'
 export default {
-  name: "UploadForm",
+  name: 'UploadForm',
   data() {
     return {
       url: process.env.VUE_APP_BASE_API + '/api/v1/public/uploadFile',
-      activeTab: "1",
+      activeTab: '1',
       form: {
-        dataSource: "1",
-        base64: ""
+        dataSource: '1',
+        base64: ''
       },
-      formData: ""
-    };
+      formData: ''
+    }
   },
   mounted() {},
   methods: {
     uploadFile(file) {
-      console.log(file)
-      this.formData.append('file',file.file)
+      this.formData.append('file', file.file)
     },
     confirm() {
-      if(this.activeTab === '2') {
-         this.formData = new FormData()
-        this.formData.append('file',this.form.base64)
-        this.formData.append('type','3')
+      if (this.activeTab === '2') {
+        this.formData = new FormData()
+        this.formData.append('file', this.form.base64)
+        this.formData.append('type', '3')
       } else {
         this.formData = new FormData()
         this.$refs.upload.submit()
-        this.formData.append('type','2')
+        this.formData.append('type', '2')
       }
-       request.post(this.url,this.formData,{
-          'Content-Type': 'multipart/form-data'
-        }).then(ret => {
-          if(ret.code === 200) {
-            this.form.base64 = ""
-            this.$refs.upload.clearFiles()
-
-            this.$emit("confirm",this.activeTab === '2' ? [ret.data] : ret.data);
-          }
-        })
+      request.post(this.url, this.formData, {
+        'Content-Type': 'multipart/form-data'
+      }).then(ret => {
+        if (ret.code === 200) {
+          this.form.base64 = ''
+          this.$refs.upload.clearFiles()
+          this.$emit('confirm', Array.isArray(ret.data) ? ret.data : [ret.data])
+        }
+      })
     },
     cancel() {
-      this.$emit("cancel");
+      this.$emit('cancel')
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>

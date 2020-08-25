@@ -168,7 +168,7 @@ export default {
           this.data = ret.data
           eventBus.$emit('treeNodeClick', {
             treeNodePath: ret.data,
-            currentNode: ret.data
+            currentNode: ret.data[0]
           })
         }
       })
