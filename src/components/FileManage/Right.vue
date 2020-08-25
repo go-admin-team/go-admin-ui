@@ -412,7 +412,7 @@ export default {
   methods: {
     getList() {
       console.log(1111)
-      const queryData = { qId: this.treePath.currentNode.id }
+      const queryData = { pId: this.treePath.currentNode.id }
       sysfileinfoList(queryData).then(ret => {
         console.log(ret)
       })
