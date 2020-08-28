@@ -25,7 +25,7 @@ export const sysfiledirAcionDel = data => request({
 })
 
 export const sysfileinfoList = data => request({
-  url: '/api/v1/sysfileinfoList?pId=' + data.pId,
+  url: `/api/v1/sysfileinfoList?pId=${data.pId}&pageSize=${data.pageSize}&pageIndex=${data.pageIndex}`,
   method: 'GET',
   data
 })
@@ -43,7 +43,7 @@ export const sysfileinfoAdd = data => request({
 
 export const sysfileinfoEdit = data => request({
   url: '/api/v1/sysfileinfo',
-  method: 'UPDATE',
+  method: 'put',
   data
 })
 

@@ -18,7 +18,8 @@
           drag
           :action="url"
           :auto-upload="false"
-          :limit="5"
+          :limit="limit"
+          :on-exceed="handleLimit"
           :http-request="uploadFile"
           multiple
         >
@@ -53,11 +54,20 @@ export default {
         dataSource: '1',
         base64: ''
       },
-      formData: ''
+      formData: '',
+      limit:10
     }
   },
   mounted() {},
   methods: {
+    handleLimit(e) {
+      if(e.length > this.limit) {
+         this.$message({
+          message: `最大单次只可上传${this.limit}条`,
+          type: 'warning'
+        });
+      }
+    },
     uploadFile(file) {
       this.formData.append('file', file.file)
     },

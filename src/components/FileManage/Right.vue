@@ -14,13 +14,13 @@
           </el-col>
           <el-col :span="6">
             <div class="file-action">
-              <el-input
+              <!-- <el-input
                 v-model="searchFile"
                 placeholder="请输入内容"
                 class="input-with-select"
               >
                 <el-button slot="append" type="primary">搜索</el-button>
-              </el-input>
+              </el-input> -->
               <div class="file-btn">
                 <div
                   v-for="(item, index) in rightBtn"
@@ -38,7 +38,7 @@
       </div>
       <div
         class="file-container"
-        @contextmenu.prevent.stop="rightClick('', '', $event)"
+        @contextmenu.prevent="rightClick('', '', $event, 1)"
       >
         <el-scrollbar v-if="rightIndex === 0">
           <div class="file-container-inner">
@@ -50,16 +50,20 @@
             >
               <div
                 class="file-item"
-                @contextmenu.prevent.stop="rightClick(item, '', $event)"
+                @contextmenu.prevent.stop="rightClick(item, '', $event, 2)"
               >
                 <div class="file-item-icon">
-                  <img :src="formatFile(item.fullUrl)" alt="" />
+                  <img :src="item.fullUrl | formatFile" alt="" />
                 </div>
                 <div v-if="!item.open" class="file-item-title">
                   {{ item.name }}
                 </div>
                 <div v-else class="file-item-title">
-                  <el-input v-model="item.name" placeholder="请输入内容" />
+                  <el-input
+                    v-model="item.name"
+                    placeholder="请输入内容"
+                    @blur="handleBlur($event, item)"
+                  />
                 </div>
               </div>
             </div>
@@ -71,13 +75,13 @@
             highlight-current-row
             border
             style="width: 100%"
-            @row-contextmenu="rightClick"
           >
             <el-table-column prop="name" align="center" label="文件名">
               <template slot-scope="scope">
                 <span v-if="!scope.row.open" v-text="scope.row.name" />
                 <el-input
                   v-else
+                  @blur="handleBlur($event, scope.row)"
                   v-model="scope.row.name"
                   placeholder="请输入内容"
                 />
@@ -94,7 +98,7 @@
             <el-table-column prop="type" align="center" label="文件类型">
               <template slot-scope="scope">
                 <div class="type">
-                  <img src="../../assets/icons/Zip.png" alt="" />
+                  <img :src="scope.row.fullUrl | formatFile" alt="" />
                   <span v-text="scope.row.type" />
                 </div>
               </template>
@@ -104,8 +108,35 @@
                 <span v-text="renderSize(scope.row.size)" />
               </template>
             </el-table-column>
+            <el-table-column prop="action" align="center" label="操作">
+              <template slot-scope="scope">
+                <el-dropdown trigger="click">
+                  <span class="el-dropdown-link">
+                    操作<i class="el-icon-arrow-down el-icon--right"></i>
+                  </span>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item icon="el-icon-folder-add" @click.native.stop="handleTableAction(scope.row,1)">上传</el-dropdown-item>
+                    <el-dropdown-item icon="el-icon-edit" @click.native.stop="handleTableAction(scope.row,2)">重命名</el-dropdown-item>
+                    <el-dropdown-item icon="el-icon-folder-delete" @click.native.stop="handleTableAction(scope.row,3)">删除</el-dropdown-item>
+                    <el-dropdown-item icon="el-icon-download" @click.native.stop="handleTableAction(scope.row,4)">下载</el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </template>
+            </el-table-column>
           </el-table>
         </el-scrollbar>
+        <div class="page">
+          <el-pagination
+            layout="prev, pager, next, jumper, total"
+            prev-text="上一页"
+            next-text="下一页"
+            @current-change="handlePage"
+            :current-page="pageNo"
+            :page-size="pageSize"
+            :total="total"
+          >
+          </el-pagination>
+        </div>
       </div>
     </el-card>
     <div
@@ -185,6 +216,9 @@ export default {
   data() {
     return {
       uploadShow: false,
+      pageNo: 1,
+      pageSize: 50,
+      total: 0,
       rightBtn: [
         {
           icon: "el-icon-s-grid"
@@ -204,22 +238,10 @@ export default {
       isBlank: false
     };
   },
-  mounted() {
-    eventBus.$on("treeNodeClick", e => {
-      console.log(e);
-      this.treePath = e;
-      this.getList();
-    });
-    this.rowDrop();
-    this.height = document.querySelector(".layout-right").clientHeight - 107;
-  },
-  destroyed() {
-    eventBus.$off("treeNodeClick");
-  },
-  methods: {
+  filters: {
     formatFile(pic) {
       let type = pic.substring(pic.lastIndexOf(".") + 1, pic.length);
-      let FileIcons = [
+      const FileIcons = [
         {
           icon: "",
           matchList: ["bmp", "jpg", "png", "jpeg", "gif", "webp"]
@@ -254,7 +276,7 @@ export default {
         },
         {
           icon: require("../../assets/icons/Idea.png"),
-          matchList: ["java", "class"]
+          matchList: ["java", "class", "jar", "kt"]
         },
         {
           icon: require("../../assets/icons/tubiaozhizuomoban-01.png"),
@@ -289,28 +311,51 @@ export default {
           matchList: ["php"]
         }
       ];
-
-      let UnknowIcon = require("../../assets/icons/Unknow.png");
+      const UnknowIcon = require("../../assets/icons/Unknow.png");
       if (FileIcons[0].matchList.includes(type)) {
         return pic;
       } else {
-        for (let i = 0; i < FileIcons.length; i++) {
-          const item = FileIcons[i];
-          if (item.matchList.includes(type)) {
-            return item.icon;
-          } else {
-            return UnknowIcon;
-          }
+        let file = FileIcons.filter(item => item.matchList.includes(type));
+        if (file.length > 0) {
+          return file[0].icon;
+        } else {
+          return UnknowIcon;
         }
       }
+    }
+  },
+  mounted() {
+    eventBus.$on("treeNodeClick", e => {
+      this.treePath = e;
+      this.getList();
+    });
+    this.rowDrop();
+    this.height = document.querySelector(".layout-right").clientHeight - 107;
+  },
+  destroyed() {
+    eventBus.$off("treeNodeClick");
+  },
+  methods: {
+    handlePage(e) {
+      this.pageNo = e;
+      this.getList();
     },
     getList() {
       const pId = this.treePath.currentNode.id;
       if (pId) {
-        const queryData = { pId };
-        sysfileinfoList(queryData).then(ret => {
+        sysfileinfoList({
+          pId,
+          pageIndex: this.pageNo,
+          pageSize: this.pageSize
+        }).then(ret => {
           if (ret.code === 200) {
-            this.tableData = ret.data.list;
+            this.total = ret.data.count;
+            this.tableData = ret.data.list.map(item => {
+              return {
+                ...item,
+                open: false
+              };
+            });
           }
         });
       }
@@ -325,7 +370,6 @@ export default {
     },
     uploadMultiple(e) {
       const path = e.map(item => {
-        console.log(item);
         return sysfileinfoAdd({
           type: item.type,
           name: item.name,
@@ -340,16 +384,33 @@ export default {
     handleUploadCancel() {
       this.uploadShow = false;
     },
+    handleTableAction(a,b) {
+      console.log(typeof b)
+      console.log(a)
+        this.rightData.currentData = a;
+        this.handleAction(b)
+    },
     handleAction(e) {
       switch (e) {
         case 1:
           this.uploadShow = true;
           break;
         case 2:
+          this.tableData.forEach((item, index) => {
+            if (item.id === this.rightData.currentData.id) {
+              this.tableData[index].open = true;
+            }
+          });
           break;
         case 3:
+          sysfileinfoDelete(this.rightData.currentData.id).then(ret => {
+            if (ret.code === 200) {
+              this.getList();
+            }
+          });
           break;
         case 4:
+          window.open(this.rightData.currentData.fullUrl);
           break;
       }
     },
@@ -365,7 +426,7 @@ export default {
       const item = tags[index];
       item.style.cssText = `color:#606266`;
     },
-    rightClick(a, b, c) {
+    rightClick(a, b, c, d) {
       c.preventDefault();
       this.rightMenu = { top: c.pageY + "px", left: c.pageX + "px" };
       this.visible = true;
@@ -383,6 +444,17 @@ export default {
           this.visible = false;
         }
       };
+    },
+    handleBlur(a, b) {
+      console.log(a, b);
+      if (this.tableData.length > 0) {
+        this.tableData.forEach(item => {
+          item.open = false;
+        });
+        sysfileinfoEdit({
+          ...b
+        });
+      }
     },
     rowDrop() {
       const tbody = document.querySelector(".el-table__body-wrapper tbody");
@@ -527,7 +599,13 @@ String.prototype.colorRgb = function() {
     }
   }
   .el-scrollbar {
-    height: calc(100vh - 220px);
+    height: calc(100vh - 280px);
+  }
+  .page {
+    height: 60rpx;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 .right {
