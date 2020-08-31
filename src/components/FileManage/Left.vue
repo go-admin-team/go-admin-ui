@@ -9,6 +9,7 @@
           node-key="id"
           :draggable="drag"
           default-expand-all
+          :expand-on-click-node="false"
           :indent="22"
           @node-contextmenu="rightKeyClick"
           @node-click="handleNodeClick"
