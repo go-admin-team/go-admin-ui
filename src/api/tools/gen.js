@@ -25,6 +25,13 @@ export function getGenTable(tableId) {
   })
 }
 
+export function getGenTableInfo(tablename) {
+  return request({
+    url: '/api/v1/sys/tables?tableName=' + tablename,
+    method: 'get'
+  })
+}
+
 // 修改代码生成信息
 export function updateGenTable(data) {
   return request({
@@ -76,6 +83,13 @@ export function toProjectTableCheckRole(tableId, ischeckrole) {
 export function toDBTable(tableId) {
   return request({
     url: '/api/v1/gen/todb/' + tableId,
+    method: 'get'
+  })
+}
+
+export function getTableTree() {
+  return request({
+    url: '/api/v1/gen/tabletree',
     method: 'get'
   })
 }

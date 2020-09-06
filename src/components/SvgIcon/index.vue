@@ -8,7 +8,6 @@
 <script>
 // doc: https://panjiachen.github.io/vue-element-admin-site/feature/component/svg-icon.html#usage
 import { isExternal } from '@/utils/validate'
-
 export default {
   name: 'SvgIcon',
   props: {
@@ -53,7 +52,6 @@ export default {
   fill: currentColor;
   overflow: hidden;
 }
-
 .svg-external-icon {
   background-color: currentColor;
   mask-size: cover!important;

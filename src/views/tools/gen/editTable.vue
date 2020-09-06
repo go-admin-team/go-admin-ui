@@ -92,8 +92,9 @@
                 <el-option label="下拉框" value="select" />
                 <el-option label="单选框" value="radio" />
                 <!-- <el-option label="复选框" value="checkbox" />
+                <el-option label="日期控件" value="datetime" />-->
                 <el-option label="文本域" value="textarea" />
-                <el-option label="日期控件" value="datetime" /> -->
+
               </el-select>
             </template>
           </el-table-column>
@@ -108,6 +109,51 @@
                 >
                   <span style="float: left">{{ dict.dictName }}</span>
                   <span style="float: right; color: #8492a6; font-size: 13px">{{ dict.dictType }}</span>
+                </el-option>
+              </el-select>
+            </template>
+          </el-table-column>
+          <el-table-column label="关系表" width="160">
+            <template slot-scope="scope">
+              <el-select v-model="scope.row.fkTableName" clearable filterable placeholder="请选择" @change="handleChangeConfig(scope.row,scope.$index)">
+                <el-option
+                  v-for="table in tableTree"
+                  :key="table.tableName"
+                  :label="table.tableName"
+                  :value="table.tableName"
+                >
+                  <span style="float: left">{{ table.tableName }}</span>
+                  <span style="float: right; color: #8492a6; font-size: 13px">{{ table.tableComment }}</span>
+                </el-option>
+              </el-select>
+            </template>
+          </el-table-column>
+          <el-table-column label="关系表key" width="150">
+            <template slot-scope="scope">
+              <el-select v-model="scope.row.fkLabelId" clearable filterable placeholder="请选择">
+                <el-option
+                  v-for="column in scope.row.fkCol"
+                  :key="column.columnName"
+                  :label="column.columnName"
+                  :value="column.columnName"
+                >
+                  <span style="float: left">{{ column.columnName }}</span>
+                  <span style="float: right; color: #8492a6; font-size: 13px">{{ column.columnComment }}</span>
+                </el-option>
+              </el-select>
+            </template>
+          </el-table-column>
+          <el-table-column label="关系表value" width="150">
+            <template slot-scope="scope">
+              <el-select v-model="scope.row.fkLabelName" clearable filterable placeholder="请选择">
+                <el-option
+                  v-for="column in scope.row.fkCol"
+                  :key="column.columnName"
+                  :label="column.columnName"
+                  :value="column.columnName"
+                >
+                  <span style="float: left">{{ column.columnName }}</span>
+                  <span style="float: right; color: #8492a6; font-size: 13px">{{ column.columnComment }}</span>
                 </el-option>
               </el-select>
             </template>
@@ -127,7 +173,8 @@
   </el-card>
 </template>
 <script>
-import { getGenTable, updateGenTable } from '@/api/tools/gen'
+import { getGenTable, updateGenTable, getTableTree } from '@/api/tools/gen'
+// import { listTable } from '@/api/tools/gen'
 import { optionselect as getDictOptionselect } from '@/api/system/dict/type'
 import basicInfoForm from './basicInfoForm'
 import genInfoForm from './genInfoForm'
@@ -145,20 +192,36 @@ export default {
       tableHeight: document.documentElement.scrollHeight - 245 + 'px',
       // 表列信息
       columns: [],
+      tableTree: [],
       // 字典信息
       dictOptions: [],
       // 表详细信息
       info: {}
     }
   },
+
   beforeCreate() {
+    getTableTree().then(response => {
+      this.tableTree = response.data
+      this.tableTree.unshift({ tableId: 0, tableName: '请选择' })
+    })
     const { tableId } = this.$route.query
     if (tableId) {
       // 获取表详细信息
       getGenTable(tableId).then(res => {
-        this.columns = res.data.rows
+        this.columns = res.data.list
         this.info = res.data.info
+
+        this.columns.forEach(item => {
+          this.tableTree.filter(function(e) {
+            if (e.tableId === item.fkTableName) {
+              item.fkCol = e.columns || [{ columnId: 0, columnName: '请选择' }]
+              // item.fkCol.unshift({ columnId: 0, columnName: '请选择' })
+            }
+          })
+        })
       })
+
       /** 查询字典下拉列表 */
       getDictOptionselect().then(response => {
         this.dictOptions = response.data
@@ -166,6 +229,16 @@ export default {
     }
   },
   methods: {
+    handleChangeConfig(row, index) {
+      console.log(row)
+      console.log(index)
+      this.tableTree.filter(function(item) {
+        if (item.tableName === row.fkTableName) {
+          row.fkCol = item.columns
+          // row.fkCol.unshift({ columnId: 0, columnName: '请选择' })
+        }
+      })
+    },
     /** 提交按钮 */
     submitForm() {
       const basicForm = this.$refs.basicInfo.$refs.basicInfoForm
@@ -192,6 +265,28 @@ export default {
         }
       })
     },
+    getTables() {
+      getTableTree().then(response => {
+        this.tableTree = response.data
+        this.tableTree.unshift({ tableId: 0, tableName: '请选择' })
+      })
+
+      console.log(this.tableList)
+    },
+    getTablesCol(tableName) {
+      return this.tableTree.filter(function(item) {
+        if (item.tableName === tableName) {
+          return item.columns
+        }
+      })
+    },
+    // getTableColList(tableId) {
+    //   this.getItems(getGenTable, { tableId: tableId }).then(res => {
+    //     this.dictOptions = this.setItems(res, 'columnName', 'columnComment')
+    //   })
+
+    //   console.log(this.tableList)
+    // },
     getFormPromise(form) {
       return new Promise(resolve => {
         form.validate(res => {

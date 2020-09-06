@@ -16,8 +16,9 @@ import router from './router'
 import permission from './directive/permission'
 
 import { getDicts } from '@/api/system/dict/data'
+import { getItems, setItems } from '@/api/table'
 import { getConfigKey } from '@/api/system/config'
-import { parseTime, resetForm, addDateRange, selectDictLabel, download } from '@/utils/costum'
+import { parseTime, resetForm, addDateRange, selectDictLabel, download, selectItemsLabel } from '@/utils/costum'
 
 import './icons' // icon
 import './permission' // permission control
@@ -38,11 +39,14 @@ import '@/utils/dialog'
 
 // 全局方法挂载
 Vue.prototype.getDicts = getDicts
+Vue.prototype.getItems = getItems
+Vue.prototype.setItems = setItems
 Vue.prototype.getConfigKey = getConfigKey
 Vue.prototype.parseTime = parseTime
 Vue.prototype.resetForm = resetForm
 Vue.prototype.addDateRange = addDateRange
 Vue.prototype.selectDictLabel = selectDictLabel
+Vue.prototype.selectItemsLabel = selectItemsLabel
 Vue.prototype.download = download
 
 // 全局组件挂载
@@ -66,6 +70,11 @@ Vue.use(permission)
 Vue.use(Element, {
   size: Cookies.get('size') || 'medium' // set element-ui default size
 })
+
+import VueDND from 'awe-dnd'
+Vue.use(VueDND)
+
+import 'remixicon/fonts/remixicon.css'
 
 // register global utility filters
 Object.keys(filters).forEach(key => {

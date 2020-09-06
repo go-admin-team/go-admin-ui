@@ -28,28 +28,36 @@
 </template>
 
 <script>
+
+import { unWsLogout } from '@/api/ws'
 export default {
   name: 'Test',
   data() {
     return {
       websock: null,
-      arrs: []
+      arrs: [],
+      id: undefined,
+      group: undefined
     }
   },
   created() {
+    this.id = this.guid()
+    this.group = 'log'
     this.initWebSocket()
   },
   destroyed() {
+    console.log('断开websocket连接')
     this.websock.close() // 离开路由之后断开websocket连接
+    unWsLogout(this.id, this.group).then(response => {
+      console.log(response.data)
+    }
+    )
   },
   methods: {
     initWebSocket() { // 初始化weosocket
       console.log(this.$store.state.user.token)
-      const wsuri = 'ws://127.0.0.1:8000/ws?token=oooooooo'
-      this.websock = new WebSocket(wsuri, ['aaaaaaaaaaaaaaaaaaaaaaa'])
-      //   this.websock.on('headers', headers => {
-      //     headers.push('Authorization:Bearer sssss')
-      //   })
+      const wsuri = 'ws://127.0.0.1:8000/ws/' + this.id + '/' + this.group + '?token=' + this.$store.state.user.token
+      this.websock = new WebSocket(wsuri)
       this.websock.onmessage = this.websocketonmessage
       this.websock.onopen = this.websocketonopen
       this.websock.onerror = this.websocketonerror
@@ -75,7 +83,17 @@ export default {
     //   this.websock.send(Data)
     },
     websocketclose(e) { // 关闭
+      unWsLogout(this.id, this.group).then(response => {
+        console.log(response.data)
+      }
+      )
       console.log('断开连接', e)
+    },
+    guid() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0; var v = c === 'x' ? r : (r & 0x3 | 0x8)
+        return v.toString(16)
+      })
     }
   }
 }

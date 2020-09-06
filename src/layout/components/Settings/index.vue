@@ -43,17 +43,17 @@
         </div>
         <div class="drawer-item">
           <span>开启任务栏</span>
-          <el-switch v-model="tagsView" class="drawer-switch" />
+          <el-switch v-model="tagsView" :active-color="activeColor" class="drawer-switch" />
         </div>
 
         <div class="drawer-item">
           <span>Header 固定</span>
-          <el-switch v-model="fixedHeader" class="drawer-switch" />
+          <el-switch :active-color="activeColor" v-model="fixedHeader" class="drawer-switch" />
         </div>
 
         <div class="drawer-item">
           <span>侧边栏Logo</span>
-          <el-switch v-model="sidebarLogo" class="drawer-switch" />
+          <el-switch :active-color="activeColor" v-model="sidebarLogo" class="drawer-switch" />
         </div>
       </div>
     </div>
@@ -66,7 +66,9 @@ import ThemePicker from '@/components/ThemePicker'
 export default {
   components: { ThemePicker },
   data() {
-    return {}
+    return {
+      activeColor: this.$store.state.settings.theme
+    }
   },
   computed: {
     theme() {
@@ -111,6 +113,7 @@ export default {
   },
   methods: {
     themeChange(val) {
+      this.activeColor = val
       this.$store.dispatch('settings/changeSetting', {
         key: 'theme',
         value: val
