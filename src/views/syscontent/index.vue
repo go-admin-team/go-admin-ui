@@ -203,8 +203,10 @@
             <el-button @click="cancel">取 消</el-button>
           </div>
         </el-dialog>
+        <FileChoose show></FileChoose>
       </el-card>
     </template>
+    
   </BasicLayout>
 </template>
 
@@ -212,8 +214,12 @@
 import { addSysContent, delSysContent, getSysContent, listSysContent, updateSysContent } from '@/api/syscontent'
 import { listSysCategory } from '@/api/syscategory'
 
+import FileChoose from "@/components/FileChoose"
 export default {
   name: 'Config',
+  components: {
+    FileChoose,
+  },
   data() {
     return {
       // 遮罩层
