@@ -15,8 +15,8 @@
       <el-col :span="12">
         <el-form-item prop="packageName">
           <span slot="label">
-            生成包路径
-            <el-tooltip content="文件夹路径名，例如 user" placement="top">
+            指定应用名
+            <el-tooltip content="应用名，例如user 将会在app文件夹下生成user应用" placement="top">
               <i class="el-icon-question" />
             </el-tooltip>
           </span>
@@ -57,6 +57,41 @@
             </el-tooltip>
           </span>
           <el-input v-model="info.functionName" />
+        </el-form-item>
+      </el-col>
+      <el-col :span="12">
+        <el-form-item prop="isDataScope">
+          <span slot="label">是否认证</span>
+          <el-select v-model="info.isAuth">
+            <el-option label="true" value="true" />
+            <el-option label="false" value="false" />
+
+          </el-select>
+        </el-form-item>
+      </el-col>
+      <el-col :span="12">
+        <el-form-item prop="isDataScope">
+          <span slot="label">数据权限</span>
+          <el-select v-model="info.isDataScope">
+            <el-option label="true" value="true" />
+            <el-option label="false" value="false" />
+
+          </el-select>
+        </el-form-item>
+      </el-col>
+      <el-col :span="12">
+        <el-form-item prop="isActions">
+          <span slot="label">
+            是否actions
+            <el-tooltip content="系统通用增删改查中间件方法" placement="top">
+              <i class="el-icon-question" />
+            </el-tooltip>
+          </span>
+          <el-select v-model="info.isActions">
+            <el-option label="true" value="true" />
+            <el-option label="false" value="false" />
+
+          </el-select>
         </el-form-item>
       </el-col>
     </el-row>

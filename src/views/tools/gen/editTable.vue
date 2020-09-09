@@ -243,6 +243,7 @@ export default {
     submitForm() {
       const basicForm = this.$refs.basicInfo.$refs.basicInfoForm
       const genForm = this.$refs.genInfo.$refs.genInfoForm
+
       Promise.all([basicForm, genForm].map(this.getFormPromise)).then(res => {
         const validateResult = res.every(item => !!item)
         if (validateResult) {
@@ -254,6 +255,9 @@ export default {
             treeName: genTable.treeName,
             treeParentCode: genTable.treeParentCode
           }
+          genTable.isDataScope = JSON.parse(genTable.isDataScope)
+          genTable.isActions = JSON.parse(genTable.isActions)
+          genTable.isAuth = JSON.parse(genTable.isAuth)
           updateGenTable(genTable).then(res => {
             this.msgSuccess(res.msg)
             if (res.code === 200) {
