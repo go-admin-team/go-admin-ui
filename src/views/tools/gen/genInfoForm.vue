@@ -63,8 +63,8 @@
         <el-form-item prop="isDataScope">
           <span slot="label">是否认证</span>
           <el-select v-model="info.isAuth">
-            <el-option label="true" value="true" />
-            <el-option label="false" value="false" />
+            <el-option label="true" value="1" />
+            <el-option label="false" value="2" />
 
           </el-select>
         </el-form-item>
@@ -73,8 +73,8 @@
         <el-form-item prop="isDataScope">
           <span slot="label">数据权限</span>
           <el-select v-model="info.isDataScope">
-            <el-option label="true" value="true" />
-            <el-option label="false" value="false" />
+            <el-option label="true" value="1" />
+            <el-option label="false" value="2" />
 
           </el-select>
         </el-form-item>
@@ -88,8 +88,8 @@
             </el-tooltip>
           </span>
           <el-select v-model="info.isActions">
-            <el-option label="true" value="true" />
-            <el-option label="false" value="false" />
+            <el-option label="true" value="1" />
+            <el-option label="false" value="2" />
 
           </el-select>
         </el-form-item>

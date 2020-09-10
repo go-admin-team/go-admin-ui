@@ -504,11 +504,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        if (Ids.length > 1) {
-          return delSysJob(Ids.shift(), { 'ids': Ids })
-        } else {
-          return delSysJob(Ids, { 'ids': [] })
-        }
+        return delSysJob({ 'ids': Ids })
       }).then(() => {
         this.getList()
         this.msgSuccess('删除成功')

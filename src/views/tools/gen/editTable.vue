@@ -212,6 +212,10 @@ export default {
         this.columns = res.data.list
         this.info = res.data.info
 
+        this.info.isDataScope = this.info.isDataScope.toString()
+        this.info.isActions = this.info.isActions.toString()
+        this.info.isAuth = this.info.isAuth.toString()
+
         this.columns.forEach(item => {
           this.tableTree.filter(function(e) {
             if (e.tableId === item.fkTableName) {
