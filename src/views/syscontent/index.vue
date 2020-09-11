@@ -176,6 +176,14 @@
                 v-model="form.img"
                 placeholder="图片"
               />
+              <el-button type="primary" @click="fileShow">选择文件</el-button>
+            </el-form-item>
+            <el-form-item label="图片" prop="img">
+              <el-input
+                v-model="form.img1"
+                placeholder="图片"
+              />
+              <el-button type="primary" @click="fileShow1">选择文件</el-button>
             </el-form-item>
             <el-form-item label="内容" prop="content">
               <el-input
@@ -203,10 +211,10 @@
             <el-button @click="cancel">取 消</el-button>
           </div>
         </el-dialog>
-        <FileChoose show></FileChoose>
+        <FileChoose ref="fileChoose" :dialog-form-visible="fileOpen" @confirm="getImgList" @close="fileClose" />
       </el-card>
     </template>
-    
+
   </BasicLayout>
 </template>
 
@@ -214,11 +222,11 @@
 import { addSysContent, delSysContent, getSysContent, listSysContent, updateSysContent } from '@/api/syscontent'
 import { listSysCategory } from '@/api/syscategory'
 
-import FileChoose from "@/components/FileChoose"
+import FileChoose from '@/components/FileChoose'
 export default {
   name: 'Config',
   components: {
-    FileChoose,
+    FileChoose
   },
   data() {
     return {
@@ -236,6 +244,8 @@ export default {
       title: '',
       // 是否显示弹出层
       open: false,
+      fileOpen: false,
+      fileIndex: undefined,
       isEdit: false,
       // 类型数据字典
       typeOptions: [],
@@ -243,7 +253,6 @@ export default {
       statusOptions: [],
       // 关系表类型
       cateIdOptions: [],
-
       // 查询参数
       queryParams: {
         pageIndex: 1,
@@ -251,24 +260,14 @@ export default {
         cateId: undefined,
         name: undefined,
         status: undefined
-
       },
       // 表单参数
-      form: {
-      },
+      form: {},
       // 表单校验
-      rules: { cateId:
-                [
-                  { required: true, message: '分类id不能为空', trigger: 'blur' }
-                ],
-      name:
-                [
-                  { required: true, message: '名称不能为空', trigger: 'blur' }
-                ],
-      status:
-                [
-                  { required: true, message: '状态不能为空', trigger: 'blur' }
-                ]
+      rules: {
+        cateId: [{ required: true, message: '分类id不能为空', trigger: 'blur' }],
+        name: [{ required: true, message: '名称不能为空', trigger: 'blur' }],
+        status: [{ required: true, message: '状态不能为空', trigger: 'blur' }]
       }
     }
   },
@@ -358,6 +357,20 @@ export default {
         this.title = '修改内容管理'
         this.isEdit = true
       })
+    },
+    fileShow: function() {
+      this.fileOpen = true
+      this.fileIndex = 'img'
+    },
+    fileShow1: function() {
+      this.fileOpen = true
+      this.fileIndex = 'img1'
+    },
+    getImgList: function() {
+      this.form[this.fileIndex] = this.$refs['fileChoose'].resultList[0].fullUrl
+    },
+    fileClose: function() {
+      this.fileOpen = false
     },
     /** 提交按钮 */
     submitForm: function() {

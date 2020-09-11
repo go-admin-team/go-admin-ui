@@ -231,6 +231,7 @@ export default {
           }).then(ret => {
             if (ret.code === 200) {
               this.$refs.tree.append(ret.data, this.rightData.currentData.id)
+              this.getDirList()
             }
           })
           break
