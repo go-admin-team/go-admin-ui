@@ -16,7 +16,7 @@
         <el-form-item prop="packageName">
           <span slot="label">
             指定应用名
-            <el-tooltip content="应用名，例如user 将会在app文件夹下生成user应用" placement="top">
+            <el-tooltip content="应用名，例如：在app文件夹下将该功能发到那个应用中，默认：admin" placement="top">
               <i class="el-icon-question" />
             </el-tooltip>
           </span>
@@ -61,7 +61,12 @@
       </el-col>
       <el-col :span="12">
         <el-form-item prop="isDataScope">
-          <span slot="label">是否认证</span>
+          <span slot="label">
+            是否认证
+            <el-tooltip content="是指是否使用用户和角色验证中间件" placement="top">
+              <i class="el-icon-question" />
+            </el-tooltip>
+          </span>
           <el-select v-model="info.isAuth">
             <el-option label="true" value="1" />
             <el-option label="false" value="2" />
@@ -71,8 +76,13 @@
       </el-col>
       <el-col :span="12">
         <el-form-item prop="isDataScope">
-          <span slot="label">数据权限</span>
-          <el-select v-model="info.isDataScope">
+          <span slot="label">
+            数据权限
+            <el-tooltip content="暂不支持" placement="top">
+              <i class="el-icon-question" />
+            </el-tooltip>
+          </span>
+          <el-select v-model="info.isDataScope" disabled="">
             <el-option label="true" value="1" />
             <el-option label="false" value="2" />
 
