@@ -136,76 +136,78 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-
-            <el-form-item label="分类id" prop="cateId">
-              <el-select
-                v-model="form.cateId"
-                placeholder="请选择"
-              >
-                <el-option
-                  v-for="dict in cateIdOptions"
-                  :key="dict.key"
-                  :label="dict.value"
-                  :value="dict.key"
+        <el-dialog :title="title" :visible.sync="open" width="53%">
+          <el-scrollbar style="height:600px">
+            <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+              <el-form-item label="分类id" prop="cateId">
+                <el-select
+                  v-model="form.cateId"
+                  placeholder="请选择"
+                >
+                  <el-option
+                    v-for="dict in cateIdOptions"
+                    :key="dict.key"
+                    :label="dict.value"
+                    :value="dict.key"
+                  />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="名称" prop="name">
+                <el-input
+                  v-model="form.name"
+                  placeholder="名称"
                 />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="名称" prop="name">
-              <el-input
-                v-model="form.name"
-                placeholder="名称"
-              />
-            </el-form-item>
-            <el-form-item label="状态" prop="status">
-              <el-select
-                v-model="form.status"
-                placeholder="请选择"
-              >
-                <el-option
-                  v-for="dict in statusOptions"
-                  :key="dict.dictValue"
-                  :label="dict.dictLabel"
-                  :value="dict.dictValue"
+              </el-form-item>
+              <el-form-item label="状态" prop="status">
+                <el-select
+                  v-model="form.status"
+                  placeholder="请选择"
+                >
+                  <el-option
+                    v-for="dict in statusOptions"
+                    :key="dict.dictValue"
+                    :label="dict.dictLabel"
+                    :value="dict.dictValue"
+                  />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="图片" prop="img">
+                <el-input
+                  v-model="form.img"
+                  placeholder="图片"
                 />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="图片" prop="img">
-              <el-input
-                v-model="form.img"
-                placeholder="图片"
-              />
-              <el-button type="primary" @click="fileShow">选择文件</el-button>
-            </el-form-item>
-            <el-form-item label="图片" prop="img">
-              <el-input
-                v-model="form.img1"
-                placeholder="图片"
-              />
-              <el-button type="primary" @click="fileShow1">选择文件</el-button>
-            </el-form-item>
-            <el-form-item label="内容" prop="content">
-              <el-input
+                <el-button type="primary" @click="fileShow">选择文件</el-button>
+              </el-form-item>
+              <el-form-item label="图片" prop="img">
+                <el-input
+                  v-model="form.img1"
+                  placeholder="图片"
+                />
+                <el-button type="primary" @click="fileShow1">选择文件</el-button>
+              </el-form-item>
+              <el-form-item label="内容" prop="content">
+                <!-- <el-input
                 v-model="form.content"
                 type="textarea"
                 :rows="2"
                 placeholder="请输入内容"
-              />
-            </el-form-item>
-            <el-form-item label="备注" prop="remark">
-              <el-input
-                v-model="form.remark"
-                placeholder="备注"
-              />
-            </el-form-item>
-            <el-form-item label="排序" prop="sort">
-              <el-input
-                v-model="form.sort"
-                placeholder="排序"
-              />
-            </el-form-item>
-          </el-form>
+              /> -->
+                <rict-text v-model="form.content" />
+              </el-form-item>
+              <el-form-item label="备注" prop="remark">
+                <el-input
+                  v-model="form.remark"
+                  placeholder="备注"
+                />
+              </el-form-item>
+              <el-form-item label="排序" prop="sort">
+                <el-input
+                  v-model="form.sort"
+                  placeholder="排序"
+                />
+              </el-form-item>
+            </el-form>
+          </el-scrollbar>
           <div slot="footer" class="dialog-footer">
             <el-button type="primary" @click="submitForm">确 定</el-button>
             <el-button @click="cancel">取 消</el-button>
@@ -223,10 +225,12 @@ import { addSysContent, delSysContent, getSysContent, listSysContent, updateSysC
 import { listSysCategory } from '@/api/syscategory'
 
 import FileChoose from '@/components/FileChoose'
+import RictText from '@/components/Tinymce'
 export default {
   name: 'Config',
   components: {
-    FileChoose
+    FileChoose,
+    RictText
   },
   data() {
     return {
@@ -374,6 +378,7 @@ export default {
     },
     /** 提交按钮 */
     submitForm: function() {
+      console.log(this.form)
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id !== undefined) {

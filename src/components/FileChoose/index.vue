@@ -3,6 +3,7 @@
     <el-dialog
       :visible.sync="dialog"
       width="30%"
+      append-to-body
       :before-close="handleClose"
     >
       <div slot="title" class="file-title">
