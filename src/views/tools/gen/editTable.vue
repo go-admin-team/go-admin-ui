@@ -116,14 +116,14 @@
           </el-table-column>
           <el-table-column label="关系表" width="160">
             <template slot-scope="scope">
-              <el-select v-model="scope.row.fkTableName" clearable filterable placeholder="请选择" @change="handleChangeConfig(scope.row,scope.$index)">
+              <el-select v-model="scope.row.fkTableNameClass" clearable filterable placeholder="请选择" @change="handleChangeConfig(scope.row,scope.$index)">
                 <el-option
                   v-for="table in tableTree"
-                  :key="table.tableName"
-                  :label="table.tableName"
-                  :value="table.tableName"
+                  :key="table.className"
+                  :label="table.className"
+                  :value="table.className"
                 >
-                  <span style="float: left">{{ table.tableName }}</span>
+                  <span style="float: left">{{ table.className }}</span>
                   <span style="float: right; color: #8492a6; font-size: 13px">{{ table.tableComment }}</span>
                 </el-option>
               </el-select>
@@ -136,9 +136,9 @@
                   v-for="column in scope.row.fkCol"
                   :key="column.columnName"
                   :label="column.columnName"
-                  :value="column.columnName"
+                  :value="column.jsonField"
                 >
-                  <span style="float: left">{{ column.columnName }}</span>
+                  <span style="float: left">{{ column.jsonField }}</span>
                   <span style="float: right; color: #8492a6; font-size: 13px">{{ column.columnComment }}</span>
                 </el-option>
               </el-select>
@@ -151,9 +151,9 @@
                   v-for="column in scope.row.fkCol"
                   :key="column.columnName"
                   :label="column.columnName"
-                  :value="column.columnName"
+                  :value="column.jsonField"
                 >
-                  <span style="float: left">{{ column.columnName }}</span>
+                  <span style="float: left">{{ column.jsonField }}</span>
                   <span style="float: right; color: #8492a6; font-size: 13px">{{ column.columnComment }}</span>
                 </el-option>
               </el-select>
@@ -204,7 +204,7 @@ export default {
   beforeCreate() {
     getTableTree().then(response => {
       this.tableTree = response.data
-      this.tableTree.unshift({ tableId: 0, tableName: '请选择' })
+      this.tableTree.unshift({ tableId: 0, className: '请选择' })
     })
     const { tableId } = this.$route.query
     if (tableId) {
@@ -219,7 +219,7 @@ export default {
 
         this.columns.forEach(item => {
           this.tableTree.filter(function(e) {
-            if (e.tableId === item.fkTableName) {
+            if (e.tableId === item.fkTableNameClass) {
               item.fkCol = e.columns || [{ columnId: 0, columnName: '请选择' }]
               // item.fkCol.unshift({ columnId: 0, columnName: '请选择' })
             }
@@ -238,7 +238,7 @@ export default {
       console.log(row)
       console.log(index)
       this.tableTree.filter(function(item) {
-        if (item.tableName === row.fkTableName) {
+        if (item.className === row.fkTableNameClass) {
           row.fkCol = item.columns
           // row.fkCol.unshift({ columnId: 0, columnName: '请选择' })
         }
@@ -277,7 +277,7 @@ export default {
     getTables() {
       getTableTree().then(response => {
         this.tableTree = response.data
-        this.tableTree.unshift({ tableId: 0, tableName: '请选择' })
+        this.tableTree.unshift({ tableId: 0, className: '请选择' })
       })
 
       console.log(this.tableList)
