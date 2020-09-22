@@ -36,9 +36,9 @@ export function updateSysJob(data) {
 }
 
 // 删除SysJob
-export function delSysJob(jobId, data) {
+export function delSysJob(data) {
   return request({
-    url: '/api/v1/sysjob/' + jobId,
+    url: '/api/v1/sysjob/delete',
     method: 'delete',
     data: data
   })
