@@ -38,7 +38,7 @@ export function updateSysJob(data) {
 // 删除SysJob
 export function delSysJob(data) {
   return request({
-    url: '/api/v1/sysjob/delete',
+    url: '/api/v1/sysjob',
     method: 'delete',
     data: data
   })
