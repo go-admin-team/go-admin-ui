@@ -225,7 +225,7 @@ import { addSysContent, delSysContent, getSysContent, listSysContent, updateSysC
 import { listSysCategory } from '@/api/syscategory'
 
 import FileChoose from '@/components/FileChoose'
-import RictText from '@/components/Tinymce'
+import RictText from '@/components/richtext'
 export default {
   name: 'Config',
   components: {
