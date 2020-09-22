@@ -116,14 +116,14 @@
           </el-table-column>
           <el-table-column label="关系表" width="160">
             <template slot-scope="scope">
-              <el-select v-model="scope.row.fkTableNameClass" clearable filterable placeholder="请选择" @change="handleChangeConfig(scope.row,scope.$index)">
+              <el-select v-model="scope.row.fkTableName" clearable filterable placeholder="请选择" @change="handleChangeConfig(scope.row,scope.$index)">
                 <el-option
                   v-for="table in tableTree"
-                  :key="table.className"
-                  :label="table.className"
-                  :value="table.className"
+                  :key="table.tableName"
+                  :label="table.tableName"
+                  :value="table.tableName"
                 >
-                  <span style="float: left">{{ table.className }}</span>
+                  <span style="float: left">{{ table.tableName }}</span>
                   <span style="float: right; color: #8492a6; font-size: 13px">{{ table.tableComment }}</span>
                 </el-option>
               </el-select>
