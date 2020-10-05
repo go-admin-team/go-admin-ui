@@ -111,13 +111,13 @@
                 icon="el-icon-view"
                 @click="handleToProject(scope.row)"
               >代码生成</el-button>
-              <el-button
+              <!-- <el-button
 
                 type="text"
                 size="small"
                 icon="el-icon-view"
                 @click="handleToProjectCheckRole(scope.row)"
-              >代码生成[带权限]</el-button>
+              >代码生成[带权限]</el-button> -->
               <el-button
 
                 type="text"

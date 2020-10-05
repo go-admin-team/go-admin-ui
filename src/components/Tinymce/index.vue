@@ -116,20 +116,21 @@ export default {
       const _this = this
       window.tinymce.init({
         selector: `#${this.tinymceId}`,
-        language: this.languageTypeList['en'],
+        language: this.languageTypeList['zh'],
         height: this.height,
         body_class: 'panel-body ',
         object_resizing: false,
         toolbar: this.toolbar.length > 0 ? this.toolbar : toolbar,
         menubar: this.menubar,
         plugins: plugins,
+        branding: false,
         end_container_on_empty_block: true,
         powerpaste_word_import: 'clean',
         code_dialog_height: 450,
         code_dialog_width: 1000,
         advlist_bullet_styles: 'square',
         advlist_number_styles: 'default',
-        imagetools_cors_hosts: ['www.tinymce.com', 'codepen.io'],
+        // imagetools_cors_hosts: ['www.tinymce.com', 'codepen.io'],
         default_link_target: '_blank',
         link_title: false,
         nonbreaking_force_tab: true, // inserting nonbreaking space &nbsp; need Nonbreaking Space Plugin
@@ -209,10 +210,17 @@ export default {
 }
 </script>
 
-<style scoped>
-.tinymce-container {
+<style lang="scss" scoped>
+
+.tinymce-container /deep/{
   position: relative;
   line-height: normal;
+  width: 100%;
+  padding: 0 20px 0 0;
+  box-sizing: border-box;
+  .mce-btn{
+	float: left!important;
+  }
 }
 .tinymce-container>>>.mce-fullscreen {
   z-index: 10000;
@@ -221,11 +229,11 @@ export default {
   visibility: hidden;
   z-index: -1;
 }
-.editor-custom-btn-container {
+.editor-custom-btn-container{
   position: absolute;
   right: 4px;
   top: 4px;
-  /*z-index: 2005;*/
+  right: 30px;
 }
 .fullscreen .editor-custom-btn-container {
   z-index: 10000;

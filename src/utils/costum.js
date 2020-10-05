@@ -69,6 +69,17 @@ export function selectDictLabel(datas, value) {
   return actions.join('')
 }
 
+export function selectItemsLabel(datas, value) {
+  var actions = []
+  Object.keys(datas).map((key) => {
+    if (datas[key].key === ('' + value)) {
+      actions.push(datas[key].value)
+      return false
+    }
+  })
+  return actions.join('')
+}
+
 // 字符串格式化(%s )
 export function sprintf(str) {
   var args = arguments; var flag = true; var i = 1

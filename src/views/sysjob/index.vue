@@ -98,17 +98,20 @@
           </el-row>
 
           <el-table v-loading="loading" :data="sysjobList" @selection-change="handleSelectionChange">
-            <el-table-column type="selection" width="55" align="center" /><el-table-column
+            <el-table-column type="selection" width="55" align="center" />
+            <el-table-column
               label="编码"
               align="center"
               prop="jobId"
               :show-overflow-tooltip="true"
-            /><el-table-column
+            />
+            <el-table-column
               label="名称"
               align="center"
               prop="jobName"
               :show-overflow-tooltip="true"
-            /><el-table-column
+            />
+            <el-table-column
               label="任务分组"
               align="center"
               prop="jobGroup"
@@ -118,17 +121,20 @@
               <template slot-scope="scope">
                 {{ jobGroupFormat(scope.row) }}
               </template>
-            </el-table-column><el-table-column
+            </el-table-column>
+            <el-table-column
               label="cron表达式"
               align="center"
               prop="cronExpression"
               :show-overflow-tooltip="true"
-            /><el-table-column
+            />
+            <el-table-column
               label="调用目标"
               align="center"
               prop="invokeTarget"
               :show-overflow-tooltip="true"
-            /><el-table-column
+            />
+            <el-table-column
               label="状态"
               align="center"
               prop="status"
@@ -232,6 +238,24 @@
                     />
                   </el-form-item>
                 </el-col>
+                <el-col :span="24">
+                  <el-form-item label="目标参数" prop="args">
+                    <span slot="label">
+                      目标参数
+                      <el-tooltip placement="top">
+                        <div slot="content">
+                          参数示例：有参：请以string格式填写；无参：为空；
+                          <br>参数说明：目前仅支持函数调用
+                        </div>
+                        <i class="el-icon-question" />
+                      </el-tooltip>
+                    </span>
+                    <el-input
+                      v-model="form.args"
+                      placeholder="目标参数"
+                    />
+                  </el-form-item>
+                </el-col>
                 <el-col :span="12">
                   <el-form-item label="cron表达式" prop="cronExpression">
                     <el-input
@@ -251,14 +275,14 @@
                 <el-col :span="24">
                   <el-form-item label="调用类型" prop="jobType">
                     <el-radio-group v-model="form.jobType" size="small">
-                      <el-radio-button label="1">接口方式</el-radio-button>
-                      <el-radio-button label="2">函数【无参】</el-radio-button>
+                      <el-radio-button label="1">接口</el-radio-button>
+                      <el-radio-button label="2">函数</el-radio-button>
                     </el-radio-group>
                   </el-form-item>
                 </el-col>
 
                 <el-col :span="24">
-                  <el-form-item label="错误策略" prop="misfirePolicy">
+                  <el-form-item label="执行策略" prop="misfirePolicy">
                     <el-radio-group v-model="form.misfirePolicy" size="small">
                       <el-radio-button label="1">立即执行</el-radio-button>
                       <el-radio-button label="2">执行一次</el-radio-button>
@@ -307,6 +331,7 @@ export default {
     return {
       // 遮罩层
       loading: true,
+      id: 0,
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -329,42 +354,22 @@ export default {
       queryParams: {
         pageIndex: 1,
         pageSize: 10,
-        jobName:
-            undefined,
-        jobGroup:
-            undefined,
-        status:
-            undefined
+        jobName: undefined,
+        jobGroup: undefined,
+        status: undefined
 
       },
       // 表单参数
       form: {
       },
       // 表单校验
-      rules: { jobId:
-                [
-                  { required: true, message: '编码不能为空', trigger: 'blur' }
-                ],
-      jobName:
-                [
-                  { required: true, message: '名称不能为空', trigger: 'blur' }
-                ],
-      jobGroup:
-                [
-                  { required: true, message: '任务分组不能为空', trigger: 'blur' }
-                ],
-      cronExpression:
-                [
-                  { required: true, message: 'cron表达式不能为空', trigger: 'blur' }
-                ],
-      invokeTarget:
-                [
-                  { required: true, message: '调用目标不能为空', trigger: 'blur' }
-                ],
-      status:
-                [
-                  { required: true, message: '状态不能为空', trigger: 'blur' }
-                ]
+      rules: {
+        jobId: [{ required: true, message: '编码不能为空', trigger: 'blur' }],
+        jobName: [{ required: true, message: '名称不能为空', trigger: 'blur' }],
+        jobGroup: [{ required: true, message: '任务分组不能为空', trigger: 'blur' }],
+        cronExpression: [{ required: true, message: 'cron表达式不能为空', trigger: 'blur' }],
+        invokeTarget: [{ required: true, message: '调用目标不能为空', trigger: 'blur' }],
+        status: [{ required: true, message: '状态不能为空', trigger: 'blur' }]
       }
     }
   },
@@ -386,8 +391,7 @@ export default {
         this.sysjobList = response.data.list
         this.total = response.data.count
         this.loading = false
-      }
-      )
+      })
     },
     // 取消按钮
     cancel() {
@@ -402,6 +406,7 @@ export default {
         jobGroup: undefined,
         cronExpression: undefined,
         invokeTarget: undefined,
+        args: undefined,
         misfirePolicy: 1,
         concurrent: 1,
         jobType: 1,
@@ -415,7 +420,6 @@ export default {
     statusFormat(row) {
       return this.selectDictLabel(this.statusOptions, row.status)
     },
-
     /** 搜索按钮操作 */
     handleQuery() {
       this.queryParams.pageIndex = 1
@@ -443,8 +447,7 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-      const jobId =
-                row.jobId || this.ids
+      const jobId = row.jobId || this.ids
       getSysJob(jobId).then(response => {
         this.form = response.data
         this.form.status = String(this.form.status)
@@ -495,13 +498,13 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const Ids = row.jobId || this.ids
+      const Ids = (row.jobId && [row.jobId]) || this.ids
       this.$confirm('是否确认删除编号为"' + Ids + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delSysJob(Ids)
+        return delSysJob({ 'ids': Ids })
       }).then(() => {
         this.getList()
         this.msgSuccess('删除成功')

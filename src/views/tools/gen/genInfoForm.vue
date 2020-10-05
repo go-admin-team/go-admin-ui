@@ -5,8 +5,9 @@
         <el-form-item prop="tplCategory">
           <span slot="label">生成模板</span>
           <el-select v-model="info.tplCategory">
-            <el-option label="单表（增删改查）" value="crud" />
-            <!-- <el-option label="树表（增删改查）" value="tree" /> -->
+            <el-option label="关系表（增删改查）" value="crud" />
+            <!-- <el-option label="关系表（增删改查）" value="mcrud" />
+            <el-option label="树表（增删改查）" value="tree" /> -->
           </el-select>
         </el-form-item>
       </el-col>
@@ -14,8 +15,8 @@
       <el-col :span="12">
         <el-form-item prop="packageName">
           <span slot="label">
-            生成包路径
-            <el-tooltip content="文件夹路径名，例如 user" placement="top">
+            指定应用名
+            <el-tooltip content="应用名，例如：在app文件夹下将该功能发到那个应用中，默认：admin" placement="top">
               <i class="el-icon-question" />
             </el-tooltip>
           </span>
@@ -56,6 +57,51 @@
             </el-tooltip>
           </span>
           <el-input v-model="info.functionName" />
+        </el-form-item>
+      </el-col>
+      <el-col :span="12">
+        <el-form-item prop="isDataScope">
+          <span slot="label">
+            是否认证
+            <el-tooltip content="是指是否使用用户和角色验证中间件" placement="top">
+              <i class="el-icon-question" />
+            </el-tooltip>
+          </span>
+          <el-select v-model="info.isAuth">
+            <el-option label="true" value="1" />
+            <el-option label="false" value="2" />
+
+          </el-select>
+        </el-form-item>
+      </el-col>
+      <el-col :span="12">
+        <el-form-item prop="isDataScope">
+          <span slot="label">
+            数据权限
+            <el-tooltip content="暂不支持" placement="top">
+              <i class="el-icon-question" />
+            </el-tooltip>
+          </span>
+          <el-select v-model="info.isDataScope" disabled="">
+            <el-option label="true" value="1" />
+            <el-option label="false" value="2" />
+
+          </el-select>
+        </el-form-item>
+      </el-col>
+      <el-col :span="12">
+        <el-form-item prop="isActions">
+          <span slot="label">
+            是否actions
+            <el-tooltip content="系统通用增删改查中间件方法" placement="top">
+              <i class="el-icon-question" />
+            </el-tooltip>
+          </span>
+          <el-select v-model="info.isActions">
+            <el-option label="true" value="1" />
+            <el-option label="false" value="2" />
+
+          </el-select>
         </el-form-item>
       </el-col>
     </el-row>

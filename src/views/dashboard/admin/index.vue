@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-editor-container">
     <el-row :gutter="12">
-      <el-col :sm="24" :xs="6" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
+      <el-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
         <chart-card title="总销售额" total="￥126,560">
           <el-tooltip slot="action" class="item" effect="dark" content="指标说明" placement="top-start">
             <i class="el-icon-warning-outline" />
@@ -17,7 +17,7 @@
           <template slot="footer">日均销售额<span>￥ 234.56</span></template>
         </chart-card>
       </el-col>
-      <el-col :sm="24" :xs="6" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
+      <el-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
         <chart-card title="访问量" :total="8846">
           <el-tooltip slot="action" class="item" effect="dark" content="指标说明" placement="top-start">
             <i class="el-icon-warning-outline" />
@@ -28,7 +28,7 @@
           <template slot="footer">日访问量<span> {{ '1234' }}</span></template>
         </chart-card>
       </el-col>
-      <el-col :sm="24" :xs="6" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
+      <el-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
         <chart-card title="支付笔数" :total="6560">
           <el-tooltip slot="action" class="item" effect="dark" content="指标说明" placement="top-start">
             <i class="el-icon-warning-outline" />
@@ -39,7 +39,7 @@
           <template slot="footer">转化率 <span>60%</span></template>
         </chart-card>
       </el-col>
-      <el-col :sm="24" :xs="6" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
+      <el-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
         <chart-card title="运营活动效果" total="78%">
           <el-tooltip slot="action" class="item" effect="dark" content="指标说明" placement="top-start">
             <i class="el-icon-warning-outline" />
@@ -61,7 +61,7 @@
 
     <el-card :bordered="false" :body-style="{padding: '0'}">
       <div class="salesCard">
-        <el-tabs>
+        <el-tabs >
           <el-tab-pane label="销售额">
             <el-row>
               <el-col :xl="16" :lg="12" :md="12" :sm="24" :xs="24">
