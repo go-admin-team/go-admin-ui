@@ -7,7 +7,7 @@
       width="30%"
       @close="cancel"
     >
-      <upload-form @confirm="confirm" @cancel="cancel"/>
+      <upload-form @confirm="confirm" @cancel="cancel" />
     </el-dialog>
   </div>
 </template>

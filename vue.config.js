@@ -31,7 +31,7 @@ module.exports = {
   outputDir: 'dist',
   // assetsDir: '../../static/admin',
   // assetsDir: '/',
-  lintOnSave: false, // process.env.NODE_ENV === 'development',
+  lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,
   devServer: {
     port: port,

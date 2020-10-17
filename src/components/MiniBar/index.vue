@@ -37,7 +37,7 @@ const scale = [{
 }]
 export default {
   name: 'MiniBar',
-  data () {
+  data() {
     return {
       data,
       tooltip,

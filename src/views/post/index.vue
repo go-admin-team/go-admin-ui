@@ -331,20 +331,20 @@ export default {
         type: 'warning'
       }).then(() => {
         this.downloadLoading = true
-      import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['岗位编号', '岗位编码', '岗位名称', '排序', '创建时间']
-        const filterVal = ['postId', 'postCode', 'postName', 'sort', 'createdAt']
-        const list = this.postList
-        const data = formatJson(filterVal, list)
-        excel.export_json_to_excel({
-          header: tHeader,
-          data,
-          filename: '岗位管理',
-          autoWidth: true, // Optional
-          bookType: 'xlsx' // Optional
+        import('@/vendor/Export2Excel').then(excel => {
+          const tHeader = ['岗位编号', '岗位编码', '岗位名称', '排序', '创建时间']
+          const filterVal = ['postId', 'postCode', 'postName', 'sort', 'createdAt']
+          const list = this.postList
+          const data = formatJson(filterVal, list)
+          excel.export_json_to_excel({
+            header: tHeader,
+            data,
+            filename: '岗位管理',
+            autoWidth: true, // Optional
+            bookType: 'xlsx' // Optional
+          })
+          this.downloadLoading = false
         })
-        this.downloadLoading = false
-      })
       }).catch(function() {})
     }
   }

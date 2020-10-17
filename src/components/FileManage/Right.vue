@@ -8,8 +8,7 @@
               <el-breadcrumb-item
                 v-for="item in treePath.treeNodePath"
                 :key="item.id"
-                >{{ item.label }}</el-breadcrumb-item
-              >
+              >{{ item.label }}</el-breadcrumb-item>
             </el-breadcrumb>
           </el-col>
           <el-col :span="6">
@@ -53,7 +52,7 @@
                 @contextmenu.prevent.stop="rightClick(item, '', $event, 2)"
               >
                 <div class="file-item-icon">
-                  <img :src="item.fullUrl | formatFile" alt="" />
+                  <img :src="item.fullUrl | formatFile" alt="">
                 </div>
                 <div v-if="!item.open" class="file-item-title">
                   {{ item.name }}
@@ -81,9 +80,9 @@
                 <span v-if="!scope.row.open" v-text="scope.row.name" />
                 <el-input
                   v-else
-                  @blur="handleBlur($event, scope.row)"
                   v-model="scope.row.name"
                   placeholder="请输入内容"
+                  @blur="handleBlur($event, scope.row)"
                 />
               </template>
             </el-table-column>
@@ -98,7 +97,7 @@
             <el-table-column prop="type" align="center" label="文件类型">
               <template slot-scope="scope">
                 <div class="type">
-                  <img :src="scope.row.fullUrl | formatFile" alt="" />
+                  <img :src="scope.row.fullUrl | formatFile" alt="">
                   <span v-text="scope.row.type" />
                 </div>
               </template>
@@ -112,7 +111,7 @@
               <template slot-scope="scope">
                 <el-dropdown trigger="click">
                   <span class="el-dropdown-link">
-                    操作<i class="el-icon-arrow-down el-icon--right"></i>
+                    操作<i class="el-icon-arrow-down el-icon--right" />
                   </span>
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item icon="el-icon-folder-add" @click.native.stop="handleTableAction(scope.row,1)">上传</el-dropdown-item>
@@ -130,12 +129,11 @@
             layout="prev, pager, next, jumper, total"
             prev-text="上一页"
             next-text="下一页"
-            @current-change="handlePage"
             :current-page="pageNo"
             :page-size="pageSize"
             :total="total"
-          >
-          </el-pagination>
+            @current-change="handlePage"
+          />
         </div>
       </div>
     </el-card>
@@ -197,21 +195,107 @@
 </template>
 
 <script>
-import Sortable from "sortablejs";
-import UploadDialog from "@/components/UploadDialog/index";
-import eventBus from "@/utils/eventbus";
-import { parseTime } from "@/utils";
+import Sortable from 'sortablejs'
+import UploadDialog from '@/components/UploadDialog/index'
+import eventBus from '@/utils/eventbus'
+// import { parseTime } from '@/utils'
 import {
-  sysfileinfo,
+  // sysfileinfo,
   sysfileinfoList,
   sysfileinfoAdd,
   sysfileinfoEdit,
   sysfileinfoDelete
-} from "@/api/file";
+} from '@/api/file'
 export default {
-  name: "Right",
+  name: 'Right',
   components: {
     UploadDialog
+  },
+  filters: {
+    formatFile(pic) {
+      const type = pic.substring(pic.lastIndexOf('.') + 1, pic.length)
+      const FileIcons = [
+        {
+          icon: '',
+          matchList: ['bmp', 'jpg', 'png', 'jpeg', 'gif', 'webp']
+        },
+        {
+          icon: require('../../assets/icons/txtbeifen.png'),
+          matchList: ['text', 'txt']
+        },
+        {
+          icon: require('../../assets/icons/Zip.png'),
+          matchList: ['zip', 'tar', '7z']
+        },
+        {
+          icon: require('../../assets/icons/rar.png'),
+          matchList: ['rar']
+        },
+        {
+          icon: require('../../assets/icons/Word.png'),
+          matchList: ['doc', 'docx']
+        },
+        {
+          icon: require('../../assets/icons/pptbeifen.png'),
+          matchList: ['ppt', 'pptx']
+        },
+        {
+          icon: require('../../assets/icons/Excel.png'),
+          matchList: ['xlsx', 'xls']
+        },
+        {
+          icon: require('../../assets/icons/PDFbeifen.png'),
+          matchList: ['pdf', 'pdfx']
+        },
+        {
+          icon: require('../../assets/icons/Idea.png'),
+          matchList: ['java', 'class', 'jar', 'kt']
+        },
+        {
+          icon: require('../../assets/icons/tubiaozhizuomoban-01.png'),
+          matchList: ['psd']
+        },
+        {
+          icon: require('../../assets/icons/tubiaozhizuomoban2-01-01.png'),
+          matchList: ['ai']
+        },
+        {
+          icon: require('../../assets/icons/Web.png'),
+          matchList: ['ts', 'html', 'css', 'js']
+        },
+        {
+          icon: require('../../assets/icons/video2.png'),
+          matchList: ['mp4']
+        },
+        {
+          icon: require('../../assets/icons/voice.png'),
+          matchList: ['mp3']
+        },
+        {
+          icon: require('../../assets/icons/AwesomeVue.png'),
+          matchList: ['vue']
+        },
+        {
+          icon: require('../../assets/icons/Pycharm.png'),
+          matchList: ['py']
+        },
+        {
+          icon: require('../../assets/icons/Phpstorm-01.png'),
+          matchList: ['php']
+        }
+      ]
+      const UnknowIcon = require('../../assets/icons/Unknow.png')
+      if (FileIcons[0].matchList.includes(type)) {
+        return pic
+      } else {
+        const file = FileIcons.filter(item => item.matchList.includes(type))
+        if (file.length > 0) {
+          return file[0].icon
+        } else {
+          return UnknowIcon
+        }
+      }
+    }
   },
   data() {
     return {
@@ -221,127 +305,41 @@ export default {
       total: 0,
       rightBtn: [
         {
-          icon: "el-icon-s-grid"
+          icon: 'el-icon-s-grid'
         },
         {
-          icon: "ri-table-fill"
+          icon: 'ri-table-fill'
         }
       ],
       rightIndex: 0,
       rightData: {},
       tableData: [],
-      searchFile: "",
+      searchFile: '',
       height: 0,
       visible: false,
       rightMenu: {},
       treePath: {},
       isBlank: false
-    };
-  },
-  filters: {
-    formatFile(pic) {
-      let type = pic.substring(pic.lastIndexOf(".") + 1, pic.length);
-      const FileIcons = [
-        {
-          icon: "",
-          matchList: ["bmp", "jpg", "png", "jpeg", "gif", "webp"]
-        },
-        {
-          icon: require("../../assets/icons/txtbeifen.png"),
-          matchList: ["text", "txt"]
-        },
-        {
-          icon: require("../../assets/icons/Zip.png"),
-          matchList: ["zip", "tar", "7z"]
-        },
-        {
-          icon: require("../../assets/icons/rar.png"),
-          matchList: ["rar"]
-        },
-        {
-          icon: require("../../assets/icons/Word.png"),
-          matchList: ["doc", "docx"]
-        },
-        {
-          icon: require("../../assets/icons/pptbeifen.png"),
-          matchList: ["ppt", "pptx"]
-        },
-        {
-          icon: require("../../assets/icons/Excel.png"),
-          matchList: ["xlsx", "xls"]
-        },
-        {
-          icon: require("../../assets/icons/PDFbeifen.png"),
-          matchList: ["pdf", "pdfx"]
-        },
-        {
-          icon: require("../../assets/icons/Idea.png"),
-          matchList: ["java", "class", "jar", "kt"]
-        },
-        {
-          icon: require("../../assets/icons/tubiaozhizuomoban-01.png"),
-          matchList: ["psd"]
-        },
-        {
-          icon: require("../../assets/icons/tubiaozhizuomoban2-01-01.png"),
-          matchList: ["ai"]
-        },
-        {
-          icon: require("../../assets/icons/Web.png"),
-          matchList: ["ts", "html", "css", "js"]
-        },
-        {
-          icon: require("../../assets/icons/video2.png"),
-          matchList: ["mp4"]
-        },
-        {
-          icon: require("../../assets/icons/voice.png"),
-          matchList: ["mp3"]
-        },
-        {
-          icon: require("../../assets/icons/AwesomeVue.png"),
-          matchList: ["vue"]
-        },
-        {
-          icon: require("../../assets/icons/Pycharm.png"),
-          matchList: ["py"]
-        },
-        {
-          icon: require("../../assets/icons/Phpstorm-01.png"),
-          matchList: ["php"]
-        }
-      ];
-      const UnknowIcon = require("../../assets/icons/Unknow.png");
-      if (FileIcons[0].matchList.includes(type)) {
-        return pic;
-      } else {
-        let file = FileIcons.filter(item => item.matchList.includes(type));
-        if (file.length > 0) {
-          return file[0].icon;
-        } else {
-          return UnknowIcon;
-        }
-      }
     }
   },
   mounted() {
-    eventBus.$on("treeNodeClick", e => {
-      this.treePath = e;
-      this.getList();
-    });
-    this.rowDrop();
-    this.height = document.querySelector(".layout-right").clientHeight - 107;
+    eventBus.$on('treeNodeClick', e => {
+      this.treePath = e
+      this.getList()
+    })
+    this.rowDrop()
+    this.height = document.querySelector('.layout-right').clientHeight - 107
   },
   destroyed() {
-    eventBus.$off("treeNodeClick");
+    eventBus.$off('treeNodeClick')
   },
   methods: {
     handlePage(e) {
-      this.pageNo = e;
-      this.getList();
+      this.pageNo = e
+      this.getList()
     },
     getList() {
-      const pId = this.treePath.currentNode.id;
+      const pId = this.treePath.currentNode.id
       if (pId) {
         sysfileinfoList({
           pId,
@@ -349,24 +347,24 @@ export default {
           pageSize: this.pageSize
         }).then(ret => {
           if (ret.code === 200) {
-            this.total = ret.data.count;
+            this.total = ret.data.count
             this.tableData = ret.data.list.map(item => {
               return {
                 ...item,
                 open: false
-              };
-            });
+              }
+            })
           }
-        });
+        })
       }
     },
     handleUploadConfirm(e) {
       this.uploadMultiple(e).then(ret => {
         if (ret) {
-          this.getList();
+          this.getList()
         }
-      });
-      this.uploadShow = false;
+      })
+      this.uploadShow = false
     },
     uploadMultiple(e) {
       const path = e.map(item => {
@@ -377,136 +375,136 @@ export default {
           url: item.path,
           fullUrl: item.full_path,
           pId: this.treePath.currentNode.id
-        });
-      });
-      return Promise.all(path);
+        })
+      })
+      return Promise.all(path)
     },
     handleUploadCancel() {
-      this.uploadShow = false;
+      this.uploadShow = false
     },
-    handleTableAction(a,b) {
+    handleTableAction(a, b) {
       console.log(typeof b)
       console.log(a)
-        this.rightData.currentData = a;
-        this.handleAction(b)
+      this.rightData.currentData = a
+      this.handleAction(b)
     },
     handleAction(e) {
       switch (e) {
         case 1:
-          this.uploadShow = true;
-          break;
+          this.uploadShow = true
+          break
         case 2:
           this.tableData.forEach((item, index) => {
             if (item.id === this.rightData.currentData.id) {
-              this.tableData[index].open = true;
+              this.tableData[index].open = true
             }
-          });
-          break;
+          })
+          break
         case 3:
           sysfileinfoDelete(this.rightData.currentData.id).then(ret => {
             if (ret.code === 200) {
-              this.getList();
+              this.getList()
             }
-          });
-          break;
+          })
+          break
         case 4:
-          window.open(this.rightData.currentData.fullUrl);
-          break;
+          window.open(this.rightData.currentData.fullUrl)
+          break
       }
     },
     handleTagsOver(index) {
-      const tags = document.querySelectorAll(".right-contextMenu-item");
-      const item = tags[index];
+      const tags = document.querySelectorAll('.right-contextMenu-item')
+      const item = tags[index]
       item.style.cssText = `color:${
         this.$store.state.settings.theme
-      };background:${this.$store.state.settings.theme.colorRgb()}`;
+      };background:${this.$store.state.settings.theme.colorRgb()}`
     },
     handleTagsLeave(index) {
-      const tags = document.querySelectorAll(".right-contextMenu-item");
-      const item = tags[index];
-      item.style.cssText = `color:#606266`;
+      const tags = document.querySelectorAll('.right-contextMenu-item')
+      const item = tags[index]
+      item.style.cssText = `color:#606266`
     },
     rightClick(a, b, c, d) {
-      c.preventDefault();
-      this.rightMenu = { top: c.pageY + "px", left: c.pageX + "px" };
-      this.visible = true;
+      c.preventDefault()
+      this.rightMenu = { top: c.pageY + 'px', left: c.pageX + 'px' }
+      this.visible = true
       if (!a) {
-        this.isBlank = true;
+        this.isBlank = true
       } else {
-        this.isBlank = false;
+        this.isBlank = false
       }
       this.rightData = {
         currentNode: b,
         currentData: a
-      };
+      }
       document.onclick = ev => {
-        if (ev.target !== document.getElementById("perTreeMenu")) {
-          this.visible = false;
+        if (ev.target !== document.getElementById('perTreeMenu')) {
+          this.visible = false
         }
-      };
+      }
     },
     handleBlur(a, b) {
-      console.log(a, b);
+      console.log(a, b)
       if (this.tableData.length > 0) {
         this.tableData.forEach(item => {
-          item.open = false;
-        });
+          item.open = false
+        })
         sysfileinfoEdit({
           ...b
-        });
+        })
       }
     },
     rowDrop() {
-      const tbody = document.querySelector(".el-table__body-wrapper tbody");
+      const tbody = document.querySelector('.el-table__body-wrapper tbody')
       if (tbody) {
-        const _this = this;
+        const _this = this
         Sortable.create(tbody, {
           onEnd({ newIndex, oldIndex }) {
-            const currRow = _this.tableData.splice(oldIndex, 1)[0];
-            _this.tableData.splice(newIndex, 0, currRow);
+            const currRow = _this.tableData.splice(oldIndex, 1)[0]
+            _this.tableData.splice(newIndex, 0, currRow)
           }
-        });
+        })
       }
     },
     handleRightBtn(e) {
-      this.rightIndex = e;
+      this.rightIndex = e
     },
     renderSize(value) {
-      if (value === null || value === "") {
-        return "0 Bytes";
+      if (value === null || value === '') {
+        return '0 Bytes'
       }
-      const unitArr = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-      let index = 0;
-      const srcsize = parseFloat(value);
-      index = Math.floor(Math.log(srcsize) / Math.log(1024));
-      let size = srcsize / Math.pow(1024, index);
-      size = size.toFixed(2);
-      return size + unitArr[index];
+      const unitArr = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+      let index = 0
+      const srcsize = parseFloat(value)
+      index = Math.floor(Math.log(srcsize) / Math.log(1024))
+      let size = srcsize / Math.pow(1024, index)
+      size = size.toFixed(2)
+      return size + unitArr[index]
     }
   }
-};
+}
 
 // eslint-disable-next-line no-extend-native
 String.prototype.colorRgb = function() {
-  let sColor = this.toLowerCase();
-  const reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+  let sColor = this.toLowerCase()
+  const reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/
   if (sColor && reg.test(sColor)) {
     if (sColor.length === 4) {
-      let sColorNew = "#";
+      let sColorNew = '#'
       for (let i = 1; i < 4; i += 1) {
-        sColorNew += sColor.slice(i, i + 1).concat(sColor.slice(i, i + 1));
+        sColorNew += sColor.slice(i, i + 1).concat(sColor.slice(i, i + 1))
       }
-      sColor = sColorNew;
+      sColor = sColorNew
     }
-    const sColorChange = [];
+    const sColorChange = []
     for (let i = 1; i < 7; i += 2) {
-      sColorChange.push(parseInt("0x" + sColor.slice(i, i + 2)));
+      sColorChange.push(parseInt('0x' + sColor.slice(i, i + 2)))
     }
-    return "rgba(" + sColorChange.join(",") + ",0.2)";
+    return 'rgba(' + sColorChange.join(',') + ',0.2)'
   } else {
-    return sColor;
+    return sColor
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>

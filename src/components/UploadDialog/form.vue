@@ -55,17 +55,17 @@ export default {
         base64: ''
       },
       formData: '',
-      limit:10
+      limit: 10
     }
   },
   mounted() {},
   methods: {
     handleLimit(e) {
-      if(e.length > this.limit) {
-         this.$message({
+      if (e.length > this.limit) {
+        this.$message({
           message: `最大单次只可上传${this.limit}条`,
           type: 'warning'
-        });
+        })
       }
     },
     uploadFile(file) {
