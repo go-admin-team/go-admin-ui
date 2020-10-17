@@ -1,12 +1,12 @@
 <template>
   <div class="basic-layout">
-    <slot name="wrapper"></slot>
+    <slot name="wrapper" />
   </div>
 </template>
 
 <script>
 export default {
-  name: "BasicLayout"
+  name: 'BasicLayout'
 }
 </script>
 

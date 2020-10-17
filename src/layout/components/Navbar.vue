@@ -34,25 +34,15 @@
 import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
-import ErrorLog from '@/components/ErrorLog'
 import Screenfull from '@/components/Screenfull'
-import SizeSelect from '@/components/SizeSelect'
 import Search from '@/components/HeaderSearch'
-import GoAdminGit from '@/components/Go-Admin/Git'
-import GoAdminDoc from '@/components/Go-Admin/Doc'
-import GoAdminDonate from '@/components/Go-Admin/Donate'
 
 export default {
   components: {
     Breadcrumb,
     Hamburger,
-    ErrorLog,
     Screenfull,
-    SizeSelect,
-    Search,
-    GoAdminGit,
-    GoAdminDoc,
-    GoAdminDonate
+    Search
   },
   computed: {
     ...mapGetters([
