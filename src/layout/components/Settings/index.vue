@@ -48,12 +48,12 @@
 
         <div class="drawer-item">
           <span>Header 固定</span>
-          <el-switch :active-color="activeColor" v-model="fixedHeader" class="drawer-switch" />
+          <el-switch v-model="fixedHeader" :active-color="activeColor" class="drawer-switch" />
         </div>
 
         <div class="drawer-item">
           <span>侧边栏Logo</span>
-          <el-switch :active-color="activeColor" v-model="sidebarLogo" class="drawer-switch" />
+          <el-switch v-model="sidebarLogo" :active-color="activeColor" class="drawer-switch" />
         </div>
       </div>
     </div>

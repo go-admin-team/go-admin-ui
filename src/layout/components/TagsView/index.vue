@@ -223,6 +223,7 @@ export default {
   }
 }
 
+// eslint-disable-next-line no-extend-native
 String.prototype.colorRgb = function() {
   let sColor = this.toLowerCase()
   const reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/

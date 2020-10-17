@@ -1,6 +1,6 @@
 <template>
   <div class="chart-trend">
-    <slot name="term"/>
+    <slot name="term" />
     <span>{{ rate }}%</span>
     <span :class="[flag]">
       <i :class="'el-icon-caret-' + flag" />
@@ -10,20 +10,20 @@
 
 <script>
 export default {
-  name: "Trend",
+  name: 'Trend',
   props: {
     rate: {
       type: String,
-      default: "",
+      default: '',
       required: true
     },
     flag: {
       type: String,
-      default: "",
+      default: '',
       required: true
-    },
-  },
-};
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>
