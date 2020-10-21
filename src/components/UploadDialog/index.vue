@@ -4,7 +4,7 @@
       v-dialogDrag
       title="上传文件"
       :visible.sync="show"
-      width="30%"
+      width="550px"
       @close="cancel"
     >
       <upload-form @confirm="confirm" @cancel="cancel" />
