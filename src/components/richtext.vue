@@ -21,6 +21,9 @@
 <script>
 // 引入富文本编辑器
 import { quillEditor } from 'vue-quill-editor'
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
 export default {
   name: 'Richtext',
   components: {
