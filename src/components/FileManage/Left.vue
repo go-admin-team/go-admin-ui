@@ -15,7 +15,7 @@
           @node-click="handleNodeClick"
         >
 
-          <span slot-scope="{ node, data }" class="custom-tree-node">
+          <span class="custom-tree-node" @slot-scope="{ node, data }">
             <span>
               <i
                 v-show="node.childNodes.length > 0"
