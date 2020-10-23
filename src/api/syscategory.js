@@ -3,16 +3,16 @@ import request from '@/utils/request'
 // 查询SysCategory列表
 export function listSysCategory(query) {
   return request({
-    url: '/api/v1/syscategoryList',
+    url: '/api/v1/syscategory',
     method: 'get',
     params: query
   })
 }
 
 // 查询SysCategory详细
-export function getSysCategory(id) {
+export function getSysCategory(ID) {
   return request({
-    url: '/api/v1/syscategory/' + id,
+    url: '/api/v1/syscategory/' + ID,
     method: 'get'
   })
 }
@@ -29,17 +29,18 @@ export function addSysCategory(data) {
 // 修改SysCategory
 export function updateSysCategory(data) {
   return request({
-    url: '/api/v1/syscategory',
+    url: '/api/v1/syscategory/' + data.ID,
     method: 'put',
     data: data
   })
 }
 
 // 删除SysCategory
-export function delSysCategory(id) {
+export function delSysCategory(data) {
   return request({
-    url: '/api/v1/syscategory/' + id,
-    method: 'delete'
+    url: '/api/v1/syscategory/',
+    method: 'delete',
+    data: data
   })
 }
 
