@@ -51,17 +51,17 @@
               <el-checkbox v-model="scope.row.isInsert" true-label="1" false-label="0" />
             </template>
           </el-table-column>
-          <el-table-column label="编辑" width="50">
+          <el-table-column label="编辑" width="70" :render-header="renderHeadeUpdate" :cell-style="{'text-align':'center'}">
             <template slot-scope="scope">
               <el-checkbox v-model="scope.row.isEdit" true-label="1" false-label="0" />
             </template>
           </el-table-column>
-          <el-table-column label="列表" width="50">
+          <el-table-column label="列表" width="70" :render-header="renderHeadeList" :cell-style="{'text-align':'center'}">
             <template slot-scope="scope">
               <el-checkbox v-model="scope.row.isList" true-label="1" false-label="0" />
             </template>
           </el-table-column>
-          <el-table-column label="查询" width="50">
+          <el-table-column label="查询" width="70" :render-header="renderHeadeSearch" :cell-style="{'text-align':'center'}">
             <template slot-scope="scope">
               <el-checkbox v-model="scope.row.isQuery" true-label="1" false-label="0" />
             </template>
@@ -234,11 +234,63 @@ export default {
     }
   },
   methods: {
+    renderHeadeUpdate(h, { column, $index }) {
+      // h 是一个渲染函数       column 是一个对象表示当前列      $index 第几列
+      return h('div', [
+        h('span', column.label + '  ', { align: 'center', marginTop: '0px' }),
+        h(
+          'el-popover',
+          {
+            props: { placement: 'top-start', width: '270', trigger: 'hover' }
+          },
+          [
+            h('p', '是否在表单编辑时能够编辑，打√表示需要', { class: 'text-align: center; margin: 0' }),
+            // 生成 i 标签 ，添加icon 设置 样式，slot 必填
+            h('i', { class: 'el-icon-question', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
+          ]
+        )
+      ])
+    },
+    renderHeadeList(h, { column, $index }) {
+      // h 是一个渲染函数       column 是一个对象表示当前列      $index 第几列
+      return h('div', [
+        h('span', column.label + '  ', { align: 'center', marginTop: '0px' }),
+        h(
+          'el-popover',
+          {
+            props: { placement: 'top-start', width: '260', trigger: 'hover' }
+          },
+          [
+            h('p', '是否在列表中展示，打√表示需要展示', { class: 'text-align: center; margin: 0' }),
+            // 生成 i 标签 ，添加icon 设置 样式，slot 必填
+            h('i', { class: 'el-icon-question', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
+          ]
+        )
+      ])
+    },
+    renderHeadeSearch(h, { column, $index }) {
+      // h 是一个渲染函数       column 是一个对象表示当前列      $index 第几列
+      return h('div', [
+        h('span', column.label + '  ', { align: 'center', marginTop: '0px' }),
+        h(
+          'el-popover',
+          {
+            props: { placement: 'top-start', width: '270', trigger: 'hover' }
+          },
+          [
+            h('p', '是都当做搜索条件，打√表示做为搜索条件', { class: 'text-align: center; margin: 0' }),
+            // 生成 i 标签 ，添加icon 设置 样式，slot 必填
+            h('i', { class: 'el-icon-question', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
+          ]
+        )
+      ])
+    },
     handleChangeConfig(row, index) {
       console.log(row)
       console.log(index)
       this.tableTree.filter(function(item) {
-        if (item.className === row.fkTableNameClass) {
+        debugger
+        if (item.tableName === row.fkTableName) {
           row.fkCol = item.columns
           // row.fkCol.unshift({ columnId: 0, columnName: '请选择' })
         }
@@ -289,13 +341,6 @@ export default {
         }
       })
     },
-    // getTableColList(tableId) {
-    //   this.getItems(getGenTable, { tableId: tableId }).then(res => {
-    //     this.dictOptions = this.setItems(res, 'columnName', 'columnComment')
-    //   })
-
-    //   console.log(this.tableList)
-    // },
     getFormPromise(form) {
       return new Promise(resolve => {
         form.validate(res => {

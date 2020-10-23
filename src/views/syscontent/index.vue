@@ -227,7 +227,7 @@ import { listSysCategory } from '@/api/syscategory'
 import FileChoose from '@/components/FileChoose'
 import RictText from '@/components/richtext'
 export default {
-  name: 'Config',
+  name: 'SysContent',
   components: {
     FileChoose,
     RictText
@@ -278,7 +278,6 @@ export default {
   created() {
     this.getList()
     this.getSysCategoryItems()
-
     this.getDicts('sys_content_status').then(response => {
       this.statusOptions = response.data
     })
