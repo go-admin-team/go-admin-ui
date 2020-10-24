@@ -136,12 +136,12 @@
                 @click="handleDataScope(scope.row)"
               >数据权限</el-button>
               <el-button
+                v-if="scope.row.roleKey!=='admin'"
                 v-permisaction="['system:sysrole:remove']"
                 size="mini"
                 type="text"
                 icon="el-icon-delete"
                 @click="handleDelete(scope.row)"
-                @v-show="scope.row.roleKey != 'admin'"
               >删除</el-button>
             </template>
           </el-table-column>
