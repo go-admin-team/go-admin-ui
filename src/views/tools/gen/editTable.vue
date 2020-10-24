@@ -240,9 +240,7 @@ export default {
         h('span', column.label + '  ', { align: 'center', marginTop: '0px' }),
         h(
           'el-popover',
-          {
-            props: { placement: 'top-start', width: '270', trigger: 'hover' }
-          },
+          { props: { placement: 'top-start', width: '270', trigger: 'hover' }},
           [
             h('p', '是否在表单编辑时能够编辑，打√表示需要', { class: 'text-align: center; margin: 0' }),
             // 生成 i 标签 ，添加icon 设置 样式，slot 必填
@@ -257,29 +255,22 @@ export default {
         h('span', column.label + '  ', { align: 'center', marginTop: '0px' }),
         h(
           'el-popover',
-          {
-            props: { placement: 'top-start', width: '260', trigger: 'hover' }
-          },
+          { props: { placement: 'top-start', width: '260', trigger: 'hover' }},
           [
             h('p', '是否在列表中展示，打√表示需要展示', { class: 'text-align: center; margin: 0' }),
-            // 生成 i 标签 ，添加icon 设置 样式，slot 必填
             h('i', { class: 'el-icon-question', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
           ]
         )
       ])
     },
     renderHeadeSearch(h, { column, $index }) {
-      // h 是一个渲染函数       column 是一个对象表示当前列      $index 第几列
       return h('div', [
         h('span', column.label + '  ', { align: 'center', marginTop: '0px' }),
         h(
           'el-popover',
-          {
-            props: { placement: 'top-start', width: '270', trigger: 'hover' }
-          },
+          { props: { placement: 'top-start', width: '270', trigger: 'hover' }},
           [
             h('p', '是都当做搜索条件，打√表示做为搜索条件', { class: 'text-align: center; margin: 0' }),
-            // 生成 i 标签 ，添加icon 设置 样式，slot 必填
             h('i', { class: 'el-icon-question', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
           ]
         )
