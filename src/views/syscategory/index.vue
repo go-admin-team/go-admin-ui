@@ -4,19 +4,18 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="名称" prop="name">
-            <el-input
-              v-model="queryParams.name"
-              placeholder="请输入名称"
-              clearable
-              size="small"
-              @keyup.enter.native="handleQuery"
-            />
+          <el-form-item label="名称" prop="name"><el-input
+            v-model="queryParams.name"
+            placeholder="请输入名称"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
           </el-form-item>
           <el-form-item label="状态" prop="status">
             <el-select
               v-model="queryParams.status"
-              placeholder="分类状态"
+              placeholder="分类管理状态"
               clearable
               size="small"
             >
@@ -38,7 +37,7 @@
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['syscategory:syscategory:add']"
+              v-permisaction="['admin:cms:add']"
               type="primary"
               icon="el-icon-plus"
               size="mini"
@@ -48,7 +47,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['syscategory:syscategory:edit']"
+              v-permisaction="['admin:cms:edit']"
               type="success"
               icon="el-icon-edit"
               size="mini"
@@ -59,7 +58,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['syscategory:syscategory:remove']"
+              v-permisaction="['admin:cms:remove']"
               type="danger"
               icon="el-icon-delete"
               size="mini"
@@ -70,7 +69,7 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="syscategoryList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="cmsList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
             label="名称"
             align="center"
@@ -91,16 +90,20 @@
             <template slot-scope="scope">
               {{ statusFormat(scope.row) }}
             </template>
-          </el-table-column><el-table-column
+          </el-table-column>
+          <el-table-column
             label="创建时间"
             align="center"
-            prop="createdAt"
-            :show-overflow-tooltip="true"
-          />
+            prop="CreatedAt"
+          >
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.CreatedAt) }}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
-                v-permisaction="['syscategory:syscategory:edit']"
+                v-permisaction="['admin:cms:edit']"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
@@ -108,7 +111,7 @@
               >修改
               </el-button>
               <el-button
-                v-permisaction="['syscategory:syscategory:remove']"
+                v-permisaction="['admin:cms:remove']"
                 size="mini"
                 type="text"
                 icon="el-icon-delete"
@@ -137,10 +140,10 @@
                 placeholder="名称"
               />
             </el-form-item>
-            <el-form-item label="图片" prop="img">
+            <el-form-item label="图标" prop="img">
               <el-input
                 v-model="form.img"
-                placeholder="图片"
+                placeholder="图标"
               />
             </el-form-item>
             <el-form-item label="排序" prop="sort">
@@ -150,17 +153,13 @@
               />
             </el-form-item>
             <el-form-item label="状态" prop="status">
-              <el-select
-                v-model="form.status"
-                placeholder="请选择"
-              >
-                <el-option
+              <el-radio-group v-model="form.status">
+                <el-radio
                   v-for="dict in statusOptions"
                   :key="dict.dictValue"
-                  :label="dict.dictLabel"
-                  :value="dict.dictValue"
-                />
-              </el-select>
+                  :label="dict.dictValue"
+                >{{ dict.dictLabel }}</el-radio>
+              </el-radio-group>
             </el-form-item>
             <el-form-item label="备注" prop="remark">
               <el-input
@@ -174,6 +173,7 @@
             <el-button @click="cancel">取 消</el-button>
           </div>
         </el-dialog>
+        <FileChoose ref="fileChoose" :dialog-form-visible="fileOpen" @confirm="getImgList" @close="fileClose" />
       </el-card>
     </template>
   </BasicLayout>
@@ -181,9 +181,13 @@
 
 <script>
 import { addSysCategory, delSysCategory, getSysCategory, listSysCategory, updateSysCategory } from '@/api/syscategory'
+import FileChoose from '@/components/FileChoose'
 
 export default {
-  name: 'Config',
+  name: 'SysCategory',
+  components: {
+    FileChoose
+  },
   data() {
     return {
       // 遮罩层
@@ -201,38 +205,35 @@ export default {
       // 是否显示弹出层
       open: false,
       isEdit: false,
+      fileOpen: false,
+      fileIndex: undefined,
       // 类型数据字典
       typeOptions: [],
-      syscategoryList: [],
+      cmsList: [],
       statusOptions: [],
+      // 关系表类型
+
       // 查询参数
       queryParams: {
         pageIndex: 1,
         pageSize: 10,
-        name:
-            undefined,
-        status:
-            undefined
+        name: undefined,
+        status: undefined
 
       },
       // 表单参数
       form: {
       },
       // 表单校验
-      rules: { name:
-                [
-                  { required: true, message: '名称不能为空', trigger: 'blur' }
-                ],
-      status:
-                [
-                  { required: true, message: '状态不能为空', trigger: 'blur' }
-                ]
+      rules: {
+        name: [{ required: true, message: '名称不能为空', trigger: 'blur' }],
+        status: [{ required: true, message: '状态不能为空', trigger: 'blur' }]
       }
     }
   },
   created() {
     this.getList()
-    this.getDicts('sys_category').then(response => {
+    this.getDicts('sys_common_status').then(response => {
       this.statusOptions = response.data
     })
   },
@@ -241,7 +242,7 @@ export default {
     getList() {
       this.loading = true
       listSysCategory(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        this.syscategoryList = response.data.list
+        this.cmsList = response.data.list
         this.total = response.data.count
         this.loading = false
       }
@@ -256,7 +257,7 @@ export default {
     reset() {
       this.form = {
 
-        id: undefined,
+        ID: undefined,
         name: undefined,
         img: undefined,
         sort: undefined,
@@ -265,10 +266,17 @@ export default {
       }
       this.resetForm('form')
     },
+    getImgList: function() {
+      this.form[this.fileIndex] = this.$refs['fileChoose'].resultList[0].fullUrl
+    },
+    fileClose: function() {
+      this.fileOpen = false
+    },
     statusFormat(row) {
       return this.selectDictLabel(this.statusOptions, row.status)
     },
-
+    // 关系
+    // 文件
     /** 搜索按钮操作 */
     handleQuery() {
       this.queryParams.pageIndex = 1
@@ -284,24 +292,23 @@ export default {
     handleAdd() {
       this.reset()
       this.open = true
-      this.title = '添加分类'
+      this.title = '添加分类管理'
       this.isEdit = false
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.id)
+      this.ids = selection.map(item => item.ID)
       this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-      const id =
-                row.id || this.ids
-      getSysCategory(id).then(response => {
+      const ID = row.ID || this.ids
+      getSysCategory(ID).then(response => {
         this.form = response.data
         this.open = true
-        this.title = '修改分类'
+        this.title = '修改分类管理'
         this.isEdit = true
       })
     },
@@ -309,7 +316,7 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-          if (this.form.id !== undefined) {
+          if (this.form.ID !== undefined) {
             updateSysCategory(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('修改成功')
@@ -335,13 +342,14 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const Ids = row.id || this.ids
+      var Ids = (row.ID && [row.ID]) || this.ids
+
       this.$confirm('是否确认删除编号为"' + Ids + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delSysCategory(Ids)
+        return delSysCategory({ 'ids': Ids })
       }).then(() => {
         this.getList()
         this.msgSuccess('删除成功')

@@ -13,16 +13,6 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="操作人员" prop="operName">
-            <el-input
-              v-model="queryParams.operName"
-              placeholder="请输入操作人员"
-              clearable
-              style="width: 240px;"
-              size="small"
-              @keyup.enter.native="handleQuery"
-            />
-          </el-form-item>
           <el-form-item label="类型" prop="businessType">
             <el-select
               v-model="queryParams.businessType"
@@ -74,15 +64,6 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['system:sysoperlog:remove']"
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              @click="handleClean"
-            >清空</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
               v-permisaction="['system:sysoperlog:export']"
               type="warning"
               icon="el-icon-download"
@@ -94,14 +75,14 @@
 
         <el-table v-loading="loading" :data="list" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
-          <el-table-column label="日志编号" width="80" align="center" prop="operId" />
-          <el-table-column label="系统模块" align="center" prop="title" />
-          <el-table-column label="操作类型" width="80" align="center" prop="businessType" :formatter="typeFormat" />
-          <el-table-column label="请求方式" width="80" align="center" prop="requestMethod" />
-          <el-table-column label="操作人员" align="center" prop="operName" />
+          <el-table-column label="日志编号" width="80" align="center" prop="ID" />
+          <el-table-column label="系统模块" align="center" prop="title" :show-overflow-tooltip="true" />
+          <el-table-column label="操作类型" width="80" align="center" prop="businessType" :formatter="typeFormat" :show-overflow-tooltip="true" />
+          <el-table-column label="请求方式" width="80" align="center" prop="requestMethod" :show-overflow-tooltip="true" />
+          <el-table-column label="操作人员" align="center" prop="operName" :show-overflow-tooltip="true" />
           <el-table-column label="主机" align="center" prop="operIp" width="130" :show-overflow-tooltip="true" />
-          <el-table-column label="操作地点" align="center" prop="operLocation" />
-          <el-table-column label="操作状态" align="center" prop="status" :formatter="statusFormat" />
+          <el-table-column label="操作地点" align="center" prop="operLocation" :show-overflow-tooltip="true" />
+          <el-table-column label="操作状态" align="center" prop="status" :formatter="statusFormat" :show-overflow-tooltip="true" />
           <el-table-column label="操作日期" align="center" prop="operTime" width="180">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.operTime) }}</span>
@@ -178,7 +159,7 @@
 </template>
 
 <script>
-import { list, delOperlog, cleanOperlog } from '@/api/system/operlog'
+import { listSysOperlog, delSysOperlog, cleanOperlog } from '@/api/system/sys-opera-log'
 import { formatJson } from '@/utils'
 
 export default {
@@ -229,7 +210,7 @@ export default {
     /** 查询登录日志 */
     getList() {
       this.loading = true
-      list(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      listSysOperlog(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
         this.list = response.data.list
         this.total = response.data.count
         this.loading = false
@@ -267,13 +248,13 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const operIds = row.operId || this.ids
+      const operIds = row.ID || this.ids
       this.$confirm('是否确认删除日志编号为"' + operIds + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delOperlog(operIds)
+        return delSysOperlog(operIds)
       }).then(() => {
         this.getList()
         this.msgSuccess('删除成功')
@@ -303,7 +284,7 @@ export default {
         this.downloadLoading = true
         import('@/vendor/Export2Excel').then(excel => {
           const tHeader = ['日志编号', '系统模块', '操作类型', '请求方式', '操作人员', '主机', '操作地点', '操作状态', '操作url', '操作日期']
-          const filterVal = ['operId', 'title', 'businessType', 'method', 'operName', 'operIp', 'operLocation', 'status', 'operUrl', 'operTime']
+          const filterVal = ['ID', 'title', 'businessType', 'method', 'operName', 'operIp', 'operLocation', 'status', 'operUrl', 'operTime']
           const list = this.list
           const data = formatJson(filterVal, list)
           excel.export_json_to_excel({

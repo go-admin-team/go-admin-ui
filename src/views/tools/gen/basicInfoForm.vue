@@ -11,7 +11,6 @@
           <el-input v-model="info.tableComment" placeholder="请输入" />
         </el-form-item>
       </el-col>
-
       <el-col :span="12">
         <el-form-item label="实体类名称" prop="className">
           <el-input v-model="info.className" placeholder="请输入" />
@@ -30,7 +29,6 @@
               <i class="el-icon-question" />
             </el-tooltip>
           </span>
-
           <el-radio-group v-model="info.isLogicalDelete">
             <el-radio label="1">是</el-radio>
             <el-radio label="0">否</el-radio>
