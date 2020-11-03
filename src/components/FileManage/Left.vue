@@ -15,14 +15,11 @@
           @node-click="handleNodeClick"
         >
 
-          <span class="custom-tree-node" @slot-scope="{ node, data }">
+          <span slot-scope="{ node, data }" class="custom-tree-node">
             <span>
               <i
                 v-show="node.childNodes.length > 0"
-                class="icon"
-                :class="
-                  node.expanded ? 'el-icon-folder-opened' : 'el-icon-folder'
-                "
+                :class="node.expanded ? 'el-icon-folder-opened icon' : 'el-icon-folder icon'"
               />
               <span v-if="rename.status && rename.node.id === data.id">
                 <input
@@ -56,7 +53,7 @@
         @mouseleave="handleTagsLeave(0)"
       >
         <i class="el-icon-folder-add" />
-        <span> 创建目录</span>
+        <span>创建目录</span>
       </div>
       <el-divider />
       <div
@@ -66,7 +63,7 @@
         @mouseleave="handleTagsLeave(1)"
       >
         <i class="el-icon-upload2" />
-        <span> 上传</span>
+        <span>上传</span>
       </div>
       <el-divider />
       <div
@@ -76,7 +73,7 @@
         @mouseleave="handleTagsLeave(2)"
       >
         <i class="el-icon-edit" />
-        <span> 重命名</span>
+        <span>重命名</span>
       </div>
       <el-divider />
       <div
@@ -86,7 +83,7 @@
         @mouseleave="handleTagsLeave(3)"
       >
         <i class="el-icon-folder-delete" />
-        <span> 删除</span>
+        <span>删除</span>
       </div>
     </div>
     <upload-dialog
