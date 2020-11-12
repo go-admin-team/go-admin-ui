@@ -59,7 +59,7 @@
           </el-form-item>
           <el-form-item>
             <el-button v-loading="loading" style="margin-left: 10px;" type="success" @click="submitForm">
-              Publish
+              保存
             </el-button>
             <el-button v-loading="loading" type="warning" @click="draftForm">
               Draft
@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { addSysContent } from '@/api/syscontent'
+import { getSysContent, updateSysContent } from '@/api/syscontent'
 import { listSysCategory } from '@/api/syscategory'
 
 // import FileChoose from '@/components/FileChoose'
@@ -109,6 +109,10 @@ export default {
     }
   },
   created() {
+    const id = this.$route.params && this.$route.params.id
+    getSysContent(id).then(response => {
+      this.form = response.data
+    })
     this.getSysCategoryItems()
     this.getDicts('sys_content_status').then(response => {
       this.statusOptions = response.data
@@ -124,13 +128,13 @@ export default {
     draftForm() {
 
     },
-    submitForm: function() {
+    submitForm() {
       console.log(this.form)
       this.$refs['form'].validate(valid => {
         if (valid) {
-          addSysContent(this.form).then(response => {
+          updateSysContent(this.form).then(response => {
             if (response.code === 200) {
-              this.msgSuccess('新增成功')
+              this.msgSuccess('修改成功')
               this.$store.dispatch('tagsView/delView', this.$route)
               this.$router.go(-1)
             } else {
