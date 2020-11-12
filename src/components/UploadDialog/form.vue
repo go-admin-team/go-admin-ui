@@ -5,8 +5,8 @@
         <el-radio-group v-model="form.dataSource">
           <el-radio-button label="1">本地</el-radio-button>
           <el-radio-button label="2">阿里云OSS</el-radio-button>
-          <el-radio-button label="3">七牛云</el-radio-button>
-          <el-radio-button label="4">腾讯云COS</el-radio-button>
+          <!-- <el-radio-button label="3">七牛云</el-radio-button>
+          <el-radio-button label="4">腾讯云COS</el-radio-button> -->
         </el-radio-group>
       </el-form-item>
     </el-form>
@@ -75,10 +75,12 @@ export default {
       if (this.activeTab === '2') {
         this.formData = new FormData()
         this.formData.append('file', this.form.base64)
+        this.formData.append('source', this.form.dataSource)
         this.formData.append('type', '3')
       } else {
         this.formData = new FormData()
         this.$refs.upload.submit()
+        this.formData.append('source', this.form.dataSource)
         this.formData.append('type', '2')
       }
       request.post(this.url, this.formData, {

@@ -31,6 +31,7 @@ export default {
   },
   methods: {
     checkAllSuccess() {
+      debugger
       return Object.keys(this.listObj).every(item => this.listObj[item].hasSuccess)
     },
     handleFile() {
@@ -42,6 +43,7 @@ export default {
     handleFileConfirm(e) {
       this.dialogVisible = false
       console.log(e)
+      this.$emit('successCBK', e)
     }
   }
 }

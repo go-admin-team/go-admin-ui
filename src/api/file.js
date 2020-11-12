@@ -2,7 +2,7 @@ import request from '@/utils/request'
 import { data } from 'autoprefixer'
 
 export const sysfiledirList = data => request({
-  url: '/api/v1/sysfiledirList',
+  url: '/api/v1/sysfiledir',
   method: 'GET',
   data
 })
@@ -14,7 +14,7 @@ export const sysfiledirAcionAdd = data => request({
 })
 
 export const sysfiledirAcionEdit = data => request({
-  url: '/api/v1/sysfiledir',
+  url: '/api/v1/sysfiledir/' + data.ID,
   method: 'PUT',
   data
 })
@@ -25,7 +25,7 @@ export const sysfiledirAcionDel = data => request({
 })
 
 export const sysfileinfoList = data => request({
-  url: `/api/v1/sysfileinfoList?pId=${data.pId}&pageSize=${data.pageSize}&pageIndex=${data.pageIndex}`,
+  url: `/api/v1/sysfileinfo?pId=${data.pId}&pageSize=${data.pageSize}&pageIndex=${data.pageIndex}`,
   method: 'GET',
   data
 })
@@ -42,7 +42,7 @@ export const sysfileinfoAdd = data => request({
 })
 
 export const sysfileinfoEdit = data => request({
-  url: '/api/v1/sysfileinfo',
+  url: '/api/v1/sysfileinfo/' + data.ID,
   method: 'put',
   data
 })

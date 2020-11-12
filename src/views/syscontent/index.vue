@@ -338,10 +338,11 @@ export default {
     },
     /** 新增按钮操作 */
     handleAdd() {
-      this.reset()
-      this.open = true
-      this.title = '添加内容管理'
-      this.isEdit = false
+      this.$router.push({ name: 'SysContentCreate' })
+      // this.reset()
+      // this.open = true
+      // this.title = '添加内容管理'
+      // this.isEdit = false
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
