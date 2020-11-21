@@ -275,34 +275,6 @@ export default {
         this.isEdit = true
       })
     },
-    /** 提交按钮 */
-    submitForm: function() {
-      this.$refs['form'].validate(valid => {
-        if (valid) {
-          if (this.form.ID !== undefined) {
-            updateSysLoginlog(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess('修改成功')
-                this.open = false
-                this.getList()
-              } else {
-                this.msgError(response.msg)
-              }
-            })
-          } else {
-            addSysLoginlog(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess('新增成功')
-                this.open = false
-                this.getList()
-              } else {
-                this.msgError(response.msg)
-              }
-            })
-          }
-        }
-      })
-    },
     /** 删除按钮操作 */
     handleDelete(row) {
       var Ids = (row.ID && [row.ID]) || this.ids

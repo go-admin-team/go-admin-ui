@@ -3,8 +3,8 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="分类id" prop="cateId"><el-select
-            v-model="form.cateId"
+          <el-form-item label="分类" prop="cateId"><el-select
+            v-model="queryParams.cateId"
             placeholder="请选择"
           >
             <el-option
@@ -80,11 +80,13 @@
         </el-row>
 
         <el-table v-loading="loading" :data="syscontentList" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" /><el-table-column label="分类id" align="center" prop="cateId" :formatter="cateIdFormat" width="100">
+          <el-table-column type="selection" width="55" align="center" />
+          <el-table-column label="分类" align="center" prop="cateId" :formatter="cateIdFormat" width="100">
             <template slot-scope="scope">
               {{ cateIdFormat(scope.row) }}
             </template>
-          </el-table-column><el-table-column
+          </el-table-column>
+          <el-table-column
             label="名称"
             align="center"
             prop="name"
@@ -134,86 +136,6 @@
           :limit.sync="queryParams.pageSize"
           @pagination="getList"
         />
-
-        <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="53%">
-          <el-scrollbar style="height:600px">
-            <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-              <el-form-item label="分类id" prop="cateId">
-                <el-select
-                  v-model="form.cateId"
-                  placeholder="请选择"
-                >
-                  <el-option
-                    v-for="dict in cateIdOptions"
-                    :key="dict.key"
-                    :label="dict.value"
-                    :value="dict.key"
-                  />
-                </el-select>
-              </el-form-item>
-              <el-form-item label="名称" prop="name">
-                <el-input
-                  v-model="form.name"
-                  placeholder="名称"
-                />
-              </el-form-item>
-              <el-form-item label="状态" prop="status">
-                <el-select
-                  v-model="form.status"
-                  placeholder="请选择"
-                >
-                  <el-option
-                    v-for="dict in statusOptions"
-                    :key="dict.dictValue"
-                    :label="dict.dictLabel"
-                    :value="dict.dictValue"
-                  />
-                </el-select>
-              </el-form-item>
-              <el-form-item label="图片" prop="img">
-                <el-input
-                  v-model="form.img"
-                  placeholder="图片"
-                />
-                <el-button type="primary" @click="fileShow">选择文件</el-button>
-              </el-form-item>
-              <el-form-item label="图片" prop="img">
-                <el-input
-                  v-model="form.img1"
-                  placeholder="图片"
-                />
-                <el-button type="primary" @click="fileShow1">选择文件</el-button>
-              </el-form-item>
-              <el-form-item label="内容" prop="content">
-                <!-- <el-input
-                v-model="form.content"
-                type="textarea"
-                :rows="2"
-                placeholder="请输入内容"
-              /> -->
-                <rict-text v-model="form.content" />
-              </el-form-item>
-              <el-form-item label="备注" prop="remark">
-                <el-input
-                  v-model="form.remark"
-                  placeholder="备注"
-                />
-              </el-form-item>
-              <el-form-item label="排序" prop="sort">
-                <el-input
-                  v-model="form.sort"
-                  placeholder="排序"
-                />
-              </el-form-item>
-            </el-form>
-          </el-scrollbar>
-          <div slot="footer" class="dialog-footer">
-            <el-button type="primary" @click="submitForm">确 定</el-button>
-            <el-button @click="cancel">取 消</el-button>
-          </div>
-        </el-dialog>
-        <FileChoose ref="fileChoose" :dialog-form-visible="fileOpen" @confirm="getImgList" @close="fileClose" />
       </el-card>
     </template>
 
@@ -221,16 +143,14 @@
 </template>
 
 <script>
-import { addSysContent, delSysContent, getSysContent, listSysContent, updateSysContent } from '@/api/syscontent'
+import { delSysContent, listSysContent } from '@/api/syscontent'
 import { listSysCategory } from '@/api/syscategory'
 
-import FileChoose from '@/components/FileChoose'
-import RictText from '@/components/richtext'
+// import FileChoose from '@/components/FileChoose'
+// import RictText from '@/components/richtext'
 export default {
   name: 'SysContent',
   components: {
-    FileChoose,
-    RictText
   },
   data() {
     return {
@@ -298,21 +218,6 @@ export default {
       this.open = false
       this.reset()
     },
-    // 表单重置
-    reset() {
-      this.form = {
-
-        id: undefined,
-        cateId: undefined,
-        name: undefined,
-        status: undefined,
-        img: undefined,
-        content: undefined,
-        remark: undefined,
-        sort: undefined
-      }
-      this.resetForm('form')
-    },
     cateIdFormat(row) {
       return this.selectItemsLabel(this.cateIdOptions, row.cateId)
     },
@@ -322,11 +227,12 @@ export default {
     // 关系
     getSysCategoryItems() {
       this.getItems(listSysCategory, undefined).then(res => {
-        this.cateIdOptions = this.setItems(res, 'id', 'name')
+        this.cateIdOptions = this.setItems(res, 'ID', 'name')
       })
     },
     /** 搜索按钮操作 */
     handleQuery() {
+      debugger
       this.queryParams.pageIndex = 1
       this.getList()
     },
@@ -338,10 +244,7 @@ export default {
     },
     /** 新增按钮操作 */
     handleAdd() {
-      this.reset()
-      this.open = true
-      this.title = '添加内容管理'
-      this.isEdit = false
+      this.$router.push({ name: 'SysContentCreate' })
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
@@ -351,58 +254,7 @@ export default {
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
-      this.reset()
-      const id =
-                row.id || this.ids
-      getSysContent(id).then(response => {
-        this.form = response.data
-        this.open = true
-        this.title = '修改内容管理'
-        this.isEdit = true
-      })
-    },
-    fileShow: function() {
-      this.fileOpen = true
-      this.fileIndex = 'img'
-    },
-    fileShow1: function() {
-      this.fileOpen = true
-      this.fileIndex = 'img1'
-    },
-    getImgList: function() {
-      this.form[this.fileIndex] = this.$refs['fileChoose'].resultList[0].fullUrl
-    },
-    fileClose: function() {
-      this.fileOpen = false
-    },
-    /** 提交按钮 */
-    submitForm: function() {
-      console.log(this.form)
-      this.$refs['form'].validate(valid => {
-        if (valid) {
-          if (this.form.id !== undefined) {
-            updateSysContent(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess('修改成功')
-                this.open = false
-                this.getList()
-              } else {
-                this.msgError(response.msg)
-              }
-            })
-          } else {
-            addSysContent(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess('新增成功')
-                this.open = false
-                this.getList()
-              } else {
-                this.msgError(response.msg)
-              }
-            })
-          }
-        }
-      })
+      this.$router.push({ name: 'SysContentEdit', params: { id: row.id }})
     },
     /** 删除按钮操作 */
     handleDelete(row) {
