@@ -22,7 +22,7 @@
           </el-form-item>
 
           <el-form-item>
-            <el-button v-permisaction="['system:syssystem:edit']" type="primary" @click="submitForm('ruleForm')">确定</el-button>
+            <el-button v-permisaction="['system:system:edit']" type="primary" @click="submitForm('ruleForm')">确定</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -43,7 +43,8 @@ export default {
       url: process.env.VUE_APP_BASE_API + '/api/v1/public/uploadFile',
       ruleForm: {
         name: this.$store.state.system.info.name,
-        logo: this.$store.state.system.info.logo
+        logo: this.$store.state.system.info.logo,
+        settings_id: this.$store.state.system.info.settings_id
       },
       rules: {
         name: [
@@ -62,8 +63,9 @@ export default {
         if (valid) {
           this.$store.dispatch('system/updateSetting', this.ruleForm).then(ret => {
             if (ret) {
+              this.msgSuccess(ret.msg)
               const str1 = document.title.split('-')[0]
-              document.title = str1 + ' - ' + ret.name
+              document.title = str1 + ' - ' + ret.data.name
             }
           })
         } else {

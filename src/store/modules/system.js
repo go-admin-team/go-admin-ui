@@ -28,7 +28,7 @@ const actions = {
       updateSetting(info).then(response => {
         const { data } = response
         commit('SET_INFO', data)
-        resolve(data)
+        resolve(response)
       }).catch(error => {
         reject(error)
       })
