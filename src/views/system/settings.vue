@@ -22,7 +22,7 @@
           </el-form-item>
 
           <el-form-item>
-            <el-button v-permisaction="['system:syssystem:edit']" type="primary" @click="submitForm('ruleForm')">确定</el-button>
+            <el-button v-permisaction="['system:system:edit']" type="primary" @click="submitForm('ruleForm')">确定</el-button>
           </el-form-item>
         </el-form>
       </div>
