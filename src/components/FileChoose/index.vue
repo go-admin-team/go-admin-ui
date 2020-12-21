@@ -2,7 +2,7 @@
   <div>
     <el-dialog
       :visible.sync="dialog"
-      width="30%"
+      width="500px"
       append-to-body
       :before-close="handleClose"
     >
