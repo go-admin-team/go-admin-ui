@@ -395,7 +395,6 @@ export default {
           break
         case 2:
           this.tableData.forEach((item, index) => {
-            debugger
             if (item.ID === this.rightData.currentData.ID) {
               this.tableData[index].open = true
             }
