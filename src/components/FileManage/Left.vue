@@ -56,7 +56,7 @@
         <span>创建目录</span>
       </div>
       <el-divider />
-      <div
+      <!-- <div
         class="contextMenu-item left-contextMenu-item"
         @click="handleAction(2)"
         @mouseover="handleTagsOver(1)"
@@ -65,7 +65,7 @@
         <i class="el-icon-upload2" />
         <span>上传</span>
       </div>
-      <el-divider />
+      <el-divider /> -->
       <div
         class="contextMenu-item left-contextMenu-item"
         @click="handleAction(3)"
