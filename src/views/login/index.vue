@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <div id="particles-js">
-      <vue-particles
+      <!-- <vue-particles
         v-if="refreshParticles"
         color="#dedede"
         :particle-opacity="0.7"
@@ -18,7 +18,7 @@
         hover-mode="grab"
         :click-effect="true"
         click-mode="push"
-      />
+      /> -->
     </div>
 
     <div class="login-weaper animated bounceInDown">
