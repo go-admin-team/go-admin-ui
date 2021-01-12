@@ -119,7 +119,7 @@
                 <template slot-scope="scope">
                   <el-switch
                     v-model="scope.row.status"
-                    active-value="0"
+                    active-value="2"
                     inactive-value="1"
                     @change="handleStatusChange(scope.row)"
                   />
@@ -474,7 +474,7 @@ export default {
     },
     // 用户状态修改
     handleStatusChange(row) {
-      const text = row.status === '0' ? '启用' : '停用'
+      const text = row.status === '2' ? '启用' : '停用'
       this.$confirm('确认要"' + text + '""' + row.username + '"用户吗?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -484,7 +484,7 @@ export default {
       }).then(() => {
         this.msgSuccess(text + '成功')
       }).catch(function() {
-        row.status = row.status === '0' ? '1' : '0'
+        row.status = row.status === '2' ? '1' : '2'
       })
     },
     // 取消按钮
@@ -503,7 +503,7 @@ export default {
         phone: undefined,
         email: undefined,
         sex: undefined,
-        status: '0',
+        status: '2',
         remark: undefined,
         postIds: undefined,
         roleIds: undefined
