@@ -16,7 +16,7 @@
               :on-success="handleAvatarSuccess"
               :before-upload="beforeAvatarUpload"
             >
-              <img v-if="ruleForm.logo" :src="ruleForm.logo" class="avatar">
+              <img v-if="ruleForm.logo" :src="base_url + '/' + ruleForm.logo" class="avatar">
               <i v-else class="el-icon-plus avatar-uploader-icon" />
             </el-upload>
           </el-form-item>
@@ -41,6 +41,7 @@ export default {
   data() {
     return {
       url: process.env.VUE_APP_BASE_API + '/api/v1/public/uploadFile',
+      base_url: process.env.VUE_APP_BASE_API,
       ruleForm: {
         name: this.$store.state.system.info.name,
         logo: this.$store.state.system.info.logo,
@@ -74,7 +75,10 @@ export default {
       })
     },
     handleAvatarSuccess(e) {
-      this.ruleForm.logo = e.data.full_path
+      // this.ruleForm.logo = e.data.full_path
+      this.ruleForm.logo = e.data.local_path
+      // window.console.log(111)
+      // window.console.log(this.ruleForm.logo)
     },
     beforeAvatarUpload(e) {
 
