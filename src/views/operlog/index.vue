@@ -237,7 +237,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.operId)
+      this.ids = selection.map(item => Number(item.id))
       this.multiple = !selection.length
     },
     /** 详细按钮操作 */
@@ -247,7 +247,7 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const operIds = row.ID || this.ids
+      const operIds = row.id || this.ids
       this.$confirm('是否确认删除日志编号为"' + operIds + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

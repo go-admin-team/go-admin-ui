@@ -21,7 +21,7 @@
                 v-show="node.childNodes.length > 0"
                 :class="node.expanded ? 'el-icon-folder-opened icon' : 'el-icon-folder icon'"
               />
-              <span v-if="rename.status && rename.node.ID === data.ID">
+              <span v-if="rename.status && rename.node.id === data.id">
                 <input
                   ref="nodeInput"
                   v-focus="rename.status"
@@ -142,7 +142,7 @@ export default {
   },
   methods: {
     handleNodeClick(e) {
-      const result = this.treeFindPath(this.data, node => node.ID === e.ID)
+      const result = this.treeFindPath(this.data, node => node.id === e.id)
       eventBus.$emit('treeNodeClick', {
         treeNodePath: result,
         currentNode: e
@@ -198,12 +198,12 @@ export default {
       d.label = this.$refs.nodeInput.value
       console.log(d)
       sysfiledirAcionEdit({
-        ID: d.ID,
+        id: d.id,
         label: d.label,
         pId: d.pId
       }).then(ret => {
         if (ret.code === 200) {
-          this.$refs.tree.updateKeyChildren(n.ID, d)
+          this.$refs.tree.updateKeyChildren(n.id, d)
         }
       })
     },
@@ -225,10 +225,10 @@ export default {
         case 1:
           sysfiledirAcionAdd({
             label: '新建文件夹',
-            pId: this.rightData.currentData.ID
+            pId: this.rightData.currentData.id
           }).then(ret => {
             if (ret.code === 200) {
-              this.$refs.tree.append(ret.data, this.rightData.currentData.ID)
+              this.$refs.tree.append(ret.data, this.rightData.currentData.id)
               this.getDirList()
             }
           })
@@ -244,7 +244,7 @@ export default {
           console.log(this.rename)
           break
         case 4:
-          sysfiledirAcionDel(this.rightData.currentData.ID).then(ret => {
+          sysfiledirAcionDel(this.rightData.currentData.id).then(ret => {
             if (ret.code === 200) {
               this.$refs.tree.remove(this.rightData.currentNode)
             }

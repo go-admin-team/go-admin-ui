@@ -14,7 +14,7 @@ export const sysfiledirAcionAdd = data => request({
 })
 
 export const sysfiledirAcionEdit = data => request({
-  url: '/api/v1/sysfiledir/' + data.ID,
+  url: '/api/v1/sysfiledir/' + data.id,
   method: 'PUT',
   data
 })
@@ -42,7 +42,7 @@ export const sysfileinfoAdd = data => request({
 })
 
 export const sysfileinfoEdit = data => request({
-  url: '/api/v1/sysfileinfo/' + data.ID,
+  url: '/api/v1/sysfileinfo/' + data.id,
   method: 'put',
   data
 })

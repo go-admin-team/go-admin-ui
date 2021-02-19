@@ -38,7 +38,7 @@ export function addConfig(data) {
 // 修改参数配置
 export function updateConfig(data) {
   return request({
-    url: '/api/v1/config/' + data.ID,
+    url: '/api/v1/config/' + data.id,
     method: 'put',
     data: data
   })
