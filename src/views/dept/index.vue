@@ -309,7 +309,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.deptId !== undefined) {
-            updateDept(this.form).then(response => {
+            updateDept(this.form, this.form.deptId).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('修改成功')
                 this.open = false

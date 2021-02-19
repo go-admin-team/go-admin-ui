@@ -27,9 +27,9 @@ export function addRole(data) {
 }
 
 // 修改角色
-export function updateRole(data) {
+export function updateRole(data, roleId) {
   return request({
-    url: '/api/v1/role',
+    url: '/api/v1/role/' + roleId,
     method: 'put',
     data: data
   })
@@ -47,14 +47,9 @@ export function dataScope(data) {
 // 角色状态修改
 export function changeRoleStatus(roleId, status) {
   const data = {
-    roleId,
     status
   }
-  return request({
-    url: '/api/v1/role',
-    method: 'put',
-    data: data
-  })
+  return updateRole(data, roleId)
 }
 
 // 删除角色

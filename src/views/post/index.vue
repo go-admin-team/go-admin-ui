@@ -285,7 +285,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.postId !== undefined) {
-            updatePost(this.form).then(response => {
+            updatePost(this.form, this.form.postId).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('修改成功')
                 this.open = false

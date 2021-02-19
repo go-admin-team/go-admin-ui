@@ -64,6 +64,12 @@
             :show-overflow-tooltip="true"
           />
           <el-table-column
+            label="类型"
+            align="center"
+            prop="msg"
+            :show-overflow-tooltip="true"
+          />
+          <el-table-column
             label="状态"
             align="center"
             prop="status"
@@ -284,7 +290,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delSysLoginlog({ 'ids': Ids })
+        return delSysLoginlog(Ids)
       }).then(() => {
         this.getList()
         this.msgSuccess('删除成功')

@@ -495,7 +495,7 @@ export default {
         if (valid) {
           if (this.form.roleId !== undefined) {
             this.form.menuIds = this.getMenuAllCheckedKeys()
-            updateRole(this.form).then(response => {
+            updateRole(this.form, this.form.roleId).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('修改成功')
                 this.open = false

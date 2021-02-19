@@ -42,9 +42,9 @@ export function addDept(data) {
 }
 
 // 修改部门
-export function updateDept(data) {
+export function updateDept(data, id) {
   return request({
-    url: '/api/v1/dept',
+    url: '/api/v1/dept/' + id,
     method: 'put',
     data: data
   })

@@ -187,7 +187,6 @@
                 <treeselect
                   v-model="form.deptId"
                   :options="deptOptions"
-                  :normalizer="normalizer"
                   placeholder="请选择归属部门"
                 />
               </el-form-item>
@@ -448,7 +447,6 @@ export default {
     /** 查询部门下拉树结构 */
     getTreeselect() {
       treeselect().then(response => {
-        console.log(response.data)
         this.deptOptions = response.data
       })
     },
