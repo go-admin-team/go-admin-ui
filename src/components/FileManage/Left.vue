@@ -70,6 +70,7 @@
 
 <script>
 // eslint-disable-next-line no-unused-vars
+import { v1 as uuidv1 } from 'uuid'
 import UploadDialog from '@/components/UploadDialog/index'
 import {
   sysfiledirList,

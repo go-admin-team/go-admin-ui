@@ -267,14 +267,14 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.ID)
+      this.ids = selection.map(item => item.id)
       this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-      const ID = row.ID || this.ids
+      const ID = row.id || this.ids
       getConfig(ID).then(response => {
         this.form = response.data
         this.open = true
@@ -286,7 +286,7 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-          if (this.form.ID !== undefined) {
+          if (this.form.id !== undefined) {
             updateConfig(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('修改成功')
@@ -312,7 +312,7 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const configIds = row.ID || this.ids
+      const configIds = row.id || this.ids
       this.$confirm('是否确认删除参数编号为"' + configIds + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

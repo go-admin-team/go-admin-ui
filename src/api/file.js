@@ -42,7 +42,7 @@ export const sysfileinfoAdd = data => request({
 })
 
 export const sysfileinfoEdit = data => request({
-  url: '/api/v1/sysfileinfo/' + data.ID,
+  url: '/api/v1/sysfileinfo/' + data.id,
   method: 'put',
   data
 })
