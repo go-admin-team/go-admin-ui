@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 查询角色列表
 export function listRole(query) {
   return request({
-    url: '/api/v1/rolelist',
+    url: '/api/v1/role',
     method: 'get',
     params: query
   })

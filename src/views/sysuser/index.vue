@@ -356,7 +356,7 @@ export default {
       form: {},
       defaultProps: {
         children: 'children',
-        label: 'deptName'
+        label: 'label'
       },
       // 用户导入参数
       upload: {
@@ -448,6 +448,7 @@ export default {
     /** 查询部门下拉树结构 */
     getTreeselect() {
       treeselect().then(response => {
+        console.log(response.data)
         this.deptOptions = response.data
       })
     },
