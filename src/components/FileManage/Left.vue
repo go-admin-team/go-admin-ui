@@ -112,13 +112,13 @@ export default {
             })
           }
         },
-        {
-          label: '上传',
-          icon: 'el-icon-upload2',
-          f: () => {
-            this.uploadShow = true
-          }
-        },
+        // {
+        //   label: '上传',
+        //   icon: 'el-icon-upload2',
+        //   f: () => {
+        //     this.uploadShow = true
+        //   }
+        // },
         {
           label: '重命名',
           icon: 'el-icon-edit',
