@@ -108,7 +108,7 @@
             <template slot-scope="scope">
               <el-switch
                 v-model="scope.row.status"
-                active-value="0"
+                active-value="2"
                 inactive-value="1"
                 @change="handleStatusChange(scope.row)"
               />
