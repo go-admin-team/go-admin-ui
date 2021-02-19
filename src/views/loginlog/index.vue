@@ -265,7 +265,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.ID)
+      this.ids = selection.map(item => item.id)
       this.single = selection.length !== 1
       this.multiple = !selection.length
     },
@@ -273,7 +273,7 @@ export default {
     handleUpdate(row) {
       this.reset()
       const ID =
-                row.ID || this.ids
+                row.id || this.ids
       getSysLoginlog(ID).then(response => {
         this.form = response.data
         this.open = true
@@ -283,7 +283,7 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      var Ids = (row.ID && [row.ID]) || this.ids
+      var Ids = (row.id && [row.id]) || this.ids
 
       this.$confirm('是否确认删除编号为"' + Ids + '"的数据项?', '警告', {
         confirmButtonText: '确定',

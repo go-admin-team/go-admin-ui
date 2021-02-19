@@ -227,7 +227,7 @@ export default {
     // 关系
     getSysCategoryItems() {
       this.getItems(listSysCategory, undefined).then(res => {
-        this.cateIdOptions = this.setItems(res, 'ID', 'name')
+        this.cateIdOptions = this.setItems(res, 'id', 'name')
       })
     },
     /** 搜索按钮操作 */

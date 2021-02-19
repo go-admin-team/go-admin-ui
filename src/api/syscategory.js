@@ -38,7 +38,7 @@ export function updateSysCategory(data) {
 // 删除SysCategory
 export function delSysCategory(data) {
   return request({
-    url: '/api/v1/syscategory/',
+    url: '/api/v1/syscategory',
     method: 'delete',
     data: data
   })

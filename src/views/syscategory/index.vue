@@ -94,10 +94,10 @@
           <el-table-column
             label="创建时间"
             align="center"
-            prop="CreatedAt"
+            prop="createdAt"
           >
             <template slot-scope="scope">
-              <span>{{ parseTime(scope.row.CreatedAt) }}</span>
+              <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
           </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -297,14 +297,14 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.ID)
+      this.ids = selection.map(item => item.id)
       this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-      const ID = row.ID || this.ids
+      const ID = row.id || this.ids
       getSysCategory(ID).then(response => {
         this.form = response.data
         this.open = true
@@ -316,7 +316,7 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-          if (this.form.ID !== undefined) {
+          if (this.form.id !== undefined) {
             updateSysCategory(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('修改成功')
@@ -342,14 +342,14 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      var Ids = (row.ID && [row.ID]) || this.ids
+      const ids = (row.id && [row.id]) || this.ids
 
-      this.$confirm('是否确认删除编号为"' + Ids + '"的数据项?', '警告', {
+      this.$confirm('是否确认删除编号为"' + ids + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delSysCategory({ 'ids': Ids })
+        return delSysCategory(ids)
       }).then(() => {
         this.getList()
         this.msgSuccess('删除成功')

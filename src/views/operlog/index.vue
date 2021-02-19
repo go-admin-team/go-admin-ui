@@ -75,7 +75,7 @@
 
         <el-table v-loading="loading" :data="list" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
-          <el-table-column label="日志编号" width="80" align="center" prop="ID" />
+          <el-table-column label="日志编号" width="80" align="center" prop="id" />
           <el-table-column label="请求方式" width="80" align="center" prop="requestMethod" :show-overflow-tooltip="true" />
           <el-table-column label="请求地址" align="center" prop="operUrl" :show-overflow-tooltip="true" />
           <el-table-column label="操作人员" align="center" prop="operName" :show-overflow-tooltip="true" />
@@ -237,7 +237,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.ID)
+      this.ids = selection.map(item => item.id)
       this.multiple = !selection.length
     },
     /** 详细按钮操作 */
@@ -247,7 +247,7 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const operIds = row.ID || this.ids
+      const operIds = row.id || this.ids
       this.$confirm('是否确认删除日志编号为"' + operIds + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
