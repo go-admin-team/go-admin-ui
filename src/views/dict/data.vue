@@ -223,7 +223,7 @@ export default {
     },
     /** 查询字典类型列表 */
     getTypeList() {
-      listType().then(response => {
+      listType({ pageSize: 1000 }).then(response => {
         this.typeOptions = response.data.list
       })
     },
