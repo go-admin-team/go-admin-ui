@@ -537,7 +537,7 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const roleIds = row.roleId || this.ids
+      const roleIds = (row.roleId && [row.roleId]) || this.ids
       this.$confirm('是否确认删除角色编号为"' + roleIds + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

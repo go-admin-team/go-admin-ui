@@ -55,8 +55,9 @@ export function changeRoleStatus(roleId, status) {
 // 删除角色
 export function delRole(roleId) {
   return request({
-    url: '/api/v1/role/' + roleId,
-    method: 'delete'
+    url: '/api/v1/role',
+    method: 'delete',
+    data: roleId
   })
 }
 
