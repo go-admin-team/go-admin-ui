@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 查询SysContent列表
 export function listSysContent(query) {
   return request({
-    url: '/api/v1/syscontentList',
+    url: '/api/v1/syscontent',
     method: 'get',
     params: query
   })
