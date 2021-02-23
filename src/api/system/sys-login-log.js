@@ -20,9 +20,9 @@ export function getSysLoginlog(ID) {
 // 删除SysLoginlog
 export function delSysLoginlog(data) {
   return request({
-    url: '/api/v1/sys-login-log/' + data.splice(0, 1),
+    url: '/api/v1/sys-login-log',
     method: 'delete',
-    data: '{"ids":[' + data + ']}'
+    data: data
   })
 }
 

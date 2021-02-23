@@ -20,9 +20,9 @@ export function listSysOperlog(query) {
 // 删除SysOperlog
 export function delSysOperlog(data) {
   return request({
-    url: '/api/v1/sys-opera-log/' + data.splice(0, 1),
+    url: '/api/v1/sys-opera-log',
     method: 'delete',
-    data: '{"ids":[' + data + ']}'
+    data: data
   })
 }
 
