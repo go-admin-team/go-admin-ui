@@ -14,7 +14,7 @@
           v-model="value"
           :options="options"
           clearable
-          :props="{ expandTrigger: 'hover', checkStrictly: true, value: 'ID' }"
+          :props="{ expandTrigger: 'hover', checkStrictly: true, value: 'id' }"
           @change="handleChange"
         />
       </div>
@@ -204,9 +204,9 @@ export default {
         }
       })
     },
-    getFileInfo(ID) {
+    getFileInfo(id) {
       sysfileinfoList({
-        pId: ID,
+        pId: id,
         pageIndex: this.pageNo,
         pageSize: this.pageSize
       }).then(ret => {
@@ -226,20 +226,20 @@ export default {
       this.handleCancel()
     },
     handleChange() {
-      const ID = this.value[this.value.length - 1]
+      const id = this.value[this.value.length - 1]
       this.total = 0
       this.pageNo = 1
       this.fileList.length = 0
-      if (ID) {
-        this.getFileInfo(ID)
+      if (id) {
+        this.getFileInfo(id)
       }
     },
     handlePage(e) {
       this.pageNo = e
       debugger
-      const ID = this.value[this.value.length - 1]
-      if (ID) {
-        this.getFileInfo(ID)
+      const id = this.value[this.value.length - 1]
+      if (id) {
+        this.getFileInfo(id)
       }
     },
     handleChoose(e, index) {
