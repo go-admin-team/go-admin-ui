@@ -8,23 +8,18 @@
           </el-form-item>
           <el-form-item label="系统logo" prop="logo">
             <el-input v-model="ruleForm.logo" type="hidden" style="display: none" />
-            <el-upload
-              class="avatar-uploader"
-              :action="url"
-              :data="{type:'1'}"
-              :show-file-list="false"
-              :on-success="handleAvatarSuccess"
-              :before-upload="beforeAvatarUpload"
-            >
+            <div class="avatar-uploader" @click="fileShowlogo">
               <img v-if="ruleForm.logo" :src="ruleForm.logo" class="avatar">
               <i v-else class="el-icon-plus avatar-uploader-icon" />
-            </el-upload>
+            </div>
+            <!-- <el-button type="primary" @click="fileShowlogo">选择文件</el-button> -->
           </el-form-item>
 
           <el-form-item>
             <el-button v-permisaction="['system:system:edit']" type="primary" @click="submitForm('ruleForm')">确定</el-button>
           </el-form-item>
         </el-form>
+        <FileChoose ref="fileChoose" :dialog-form-visible="fileOpen" @confirm="getImgList" @close="fileClose" />
       </div>
     </Layout>
   </div>
@@ -32,14 +27,19 @@
 
 <script>
 import Layout from '@/components/layout'
+import FileChoose from '@/components/FileChoose'
 
 export default {
   name: 'Setting',
   components: {
-    Layout
+    Layout,
+    FileChoose
   },
   data() {
     return {
+      isEdit: false,
+      fileOpen: false,
+      fileIndex: undefined,
       url: process.env.VUE_APP_BASE_API + '/api/v1/public/uploadFile',
       ruleForm: {
         name: this.$store.state.system.info.name,
@@ -73,11 +73,15 @@ export default {
         }
       })
     },
-    handleAvatarSuccess(e) {
-      this.ruleForm.logo = e.data.full_path
+    fileShowlogo() {
+      this.fileOpen = true
+      this.fileIndex = 'logo'
     },
-    beforeAvatarUpload(e) {
-
+    getImgList() {
+      this.ruleForm[this.fileIndex] = this.$refs['fileChoose'].resultList[0].fullUrl
+    },
+    fileClose() {
+      this.fileOpen = false
     }
   }
 }
