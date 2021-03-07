@@ -308,11 +308,13 @@
 </template>
 
 <script>
-import { listUser, getUser, delUser, addUser, updateUser, exportUser, resetUserPwd, changeUserStatus, importTemplate, getUserInit } from '@/api/system/sysuser'
+import { listUser, getUser, delUser, addUser, updateUser, exportUser, resetUserPwd, changeUserStatus, importTemplate } from '@/api/system/sysuser'
 import { getToken } from '@/utils/auth'
 import { treeselect } from '@/api/system/dept'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import { listPost } from '@/api/system/post'
+import { listRole } from '@/api/system/role'
 
 export default {
   name: 'User',
@@ -530,29 +532,44 @@ export default {
     handleAdd() {
       this.reset()
       this.getTreeselect()
-      getUserInit().then(response => {
-        this.postOptions = response.data.posts
-        this.roleOptions = response.data.roles
-        this.open = true
-        this.title = '添加用户'
-        this.form.password = this.initPassword
+      // getUserInit().then(response => {
+      //   this.postOptions = response.data.posts
+      //   this.roleOptions = response.data.roles
+      //   this.open = true
+      //   this.title = '添加用户'
+      // this.form.password = this.initPassword
+      // })
+      listPost({ pageSize: 1000 }).then(response => {
+        this.postOptions = response.data.list
       })
+      listRole({ pageSize: 1000 }).then(response => {
+        this.roleOptions = response.data.list
+      })
+      this.open = true
+      this.title = '添加用户'
+      this.form.password = this.initPassword
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-      this.getTreeselect()
+      // this.getTreeselect()
 
       const userId = row.userId || this.ids
       getUser(userId).then(response => {
         this.form = response.data
-        this.postOptions = response.posts
-        this.roleOptions = response.roles
-        this.form.postIds = response.postIds[0]
-        this.form.roleIds = response.roleIds[0]
+        // this.postOptions = response.posts
+        // this.roleOptions = response.roles
+        // this.form.postIds = response.postIds[0]
+        // this.form.roleIds = response.roleIds[0]
         this.open = true
         this.title = '修改用户'
         this.form.password = ''
+      })
+      listPost({ pageSize: 1000 }).then(response => {
+        this.postOptions = response.data.list
+      })
+      listRole({ pageSize: 1000 }).then(response => {
+        this.roleOptions = response.data.list
       })
     },
     /** 重置密码按钮操作 */

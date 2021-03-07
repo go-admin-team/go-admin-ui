@@ -90,9 +90,9 @@ export default {
   methods: {
     getUser() {
       getUserProfile().then(response => {
-        this.user = response.data
-        this.roleIds = response.roleIds
-        this.roleGroup = response.roles
+        this.user = response.data.user
+        this.roleIds = response.data.user.roleIds
+        this.roleGroup = response.data.roles
 
         if (this.roleIds[0]) {
           for (const key in this.roleGroup) {
@@ -103,7 +103,7 @@ export default {
         } else {
           this.roleName = '暂无'
         }
-        this.dept = response.dept
+        this.dept = response.data.user.dept
         this.deptName = this.dept.deptName
       })
     }

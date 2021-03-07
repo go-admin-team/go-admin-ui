@@ -29,17 +29,18 @@ export function addSysContent(data) {
 // 修改SysContent
 export function updateSysContent(data) {
   return request({
-    url: '/api/v1/syscontent',
+    url: '/api/v1/syscontent/' + data.id,
     method: 'put',
     data: data
   })
 }
 
 // 删除SysContent
-export function delSysContent(id) {
+export function delSysContent(data) {
   return request({
-    url: '/api/v1/syscontent/' + id,
-    method: 'delete'
+    url: '/api/v1/syscontent',
+    method: 'delete',
+    data: data
   })
 }
 

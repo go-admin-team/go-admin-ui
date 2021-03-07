@@ -384,9 +384,10 @@ export default {
         this.menuOptions = []
       } else {
         roleMenuTreeselect(row.roleId).then(response => {
-          this.menuOptions = response.menus
+          console.log(response)
+          this.menuOptions = response.data.menus
           this.$nextTick(() => {
-            this.$refs.menu.setCheckedKeys(response.checkedKeys)
+            this.$refs.menu.setCheckedKeys(response.data.checkedKeys)
           })
         })
       }
@@ -394,9 +395,9 @@ export default {
     /** 根据角色ID查询部门树结构 */
     getRoleDeptTreeselect(roleId) {
       roleDeptTreeselect(roleId).then(response => {
-        this.deptOptions = response.depts
+        this.deptOptions = response.data.depts
         this.$nextTick(() => {
-          this.$refs.dept.setCheckedKeys(response.checkedKeys)
+          this.$refs.dept.setCheckedKeys(response.data.checkedKeys)
         })
       })
     },
