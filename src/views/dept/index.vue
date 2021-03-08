@@ -257,7 +257,7 @@ export default {
     },
     // 字典状态字典翻译
     statusFormat(row) {
-      return this.selectDictLabel(this.statusOptions, row.status)
+      return this.selectDictLabel(this.statusOptions, parseInt(row.status))
     },
     // 取消按钮
     cancel() {
@@ -309,7 +309,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.deptId !== undefined) {
-            updateDept(this.form).then(response => {
+            updateDept(this.form, this.form.deptId).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('修改成功')
                 this.open = false

@@ -108,7 +108,7 @@
             <template slot-scope="scope">
               <el-switch
                 v-model="scope.row.status"
-                active-value="0"
+                active-value="2"
                 inactive-value="1"
                 @change="handleStatusChange(scope.row)"
               />
@@ -350,7 +350,7 @@ export default {
     /** 查询菜单树结构 */
     getMenuTreeselect() {
       menuTreeselect().then(response => {
-        this.menuOptions = response.data
+        this.menuOptions = response.data.menus
       })
     },
     /** 查询部门树结构 */
@@ -384,9 +384,9 @@ export default {
         this.menuOptions = []
       } else {
         roleMenuTreeselect(row.roleId).then(response => {
-          this.menuOptions = response.menus
+          this.menuOptions = response.data.menus
           this.$nextTick(() => {
-            this.$refs.menu.setCheckedKeys(response.checkedKeys)
+            this.$refs.menu.setCheckedKeys(response.data.checkedKeys)
           })
         })
       }
@@ -394,9 +394,9 @@ export default {
     /** 根据角色ID查询部门树结构 */
     getRoleDeptTreeselect(roleId) {
       roleDeptTreeselect(roleId).then(response => {
-        this.deptOptions = response.depts
+        this.deptOptions = response.data.depts
         this.$nextTick(() => {
-          this.$refs.dept.setCheckedKeys(response.checkedKeys)
+          this.$refs.dept.setCheckedKeys(response.data.checkedKeys)
         })
       })
     },
@@ -435,7 +435,7 @@ export default {
         roleName: undefined,
         roleKey: undefined,
         roleSort: 0,
-        status: '0',
+        status: '2',
         menuIds: [],
         deptIds: [],
         remark: undefined
@@ -495,7 +495,7 @@ export default {
         if (valid) {
           if (this.form.roleId !== undefined) {
             this.form.menuIds = this.getMenuAllCheckedKeys()
-            updateRole(this.form).then(response => {
+            updateRole(this.form, this.form.roleId).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('修改成功')
                 this.open = false
@@ -537,7 +537,7 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const roleIds = row.roleId || this.ids
+      const roleIds = (row.roleId && [row.roleId]) || this.ids
       this.$confirm('是否确认删除角色编号为"' + roleIds + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

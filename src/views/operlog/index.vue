@@ -75,10 +75,9 @@
 
         <el-table v-loading="loading" :data="list" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
-          <el-table-column label="日志编号" width="80" align="center" prop="ID" />
-          <el-table-column label="系统模块" align="center" prop="title" :show-overflow-tooltip="true" />
-          <el-table-column label="操作类型" width="80" align="center" prop="businessType" :formatter="typeFormat" :show-overflow-tooltip="true" />
+          <el-table-column label="日志编号" width="80" align="center" prop="id" />
           <el-table-column label="请求方式" width="80" align="center" prop="requestMethod" :show-overflow-tooltip="true" />
+          <el-table-column label="请求地址" align="center" prop="operUrl" :show-overflow-tooltip="true" />
           <el-table-column label="操作人员" align="center" prop="operName" :show-overflow-tooltip="true" />
           <el-table-column label="主机" align="center" prop="operIp" width="130" :show-overflow-tooltip="true" />
           <el-table-column label="操作地点" align="center" prop="operLocation" :show-overflow-tooltip="true" />
@@ -124,7 +123,7 @@
                 <el-form-item label="请求方式：">{{ form.requestMethod }}</el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="耗时：">{{ form.latencyime }}</el-form-item>
+                <el-form-item label="耗时：">{{ form.latencyTime }}</el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="操作方法：">{{ form.method }}</el-form-item>
@@ -137,8 +136,8 @@
               </el-col>
               <el-col :span="12">
                 <el-form-item label="操作状态：">
-                  <div v-if="form.status === 0">正常</div>
-                  <div v-else-if="form.status === 1">失败</div>
+                  <div v-if="form.status === '2'">正常</div>
+                  <div v-else-if="form.status === '1'">失败</div>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -238,7 +237,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.operId)
+      this.ids = selection.map(item => item.id)
       this.multiple = !selection.length
     },
     /** 详细按钮操作 */
@@ -248,7 +247,7 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const operIds = row.ID || this.ids
+      const operIds = row.id || this.ids
       this.$confirm('是否确认删除日志编号为"' + operIds + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

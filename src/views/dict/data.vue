@@ -223,7 +223,7 @@ export default {
     },
     /** 查询字典类型列表 */
     getTypeList() {
-      listType().then(response => {
+      listType({ pageSize: 1000 }).then(response => {
         this.typeOptions = response.data.list
       })
     },
@@ -323,7 +323,7 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const dictCodes = row.dictCode || this.ids
+      const dictCodes = (row.dictCode && [row.dictCode]) || this.ids
       this.$confirm('是否确认删除字典编码为"' + dictCodes + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

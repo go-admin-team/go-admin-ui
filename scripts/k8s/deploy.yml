@@ -1,0 +1,65 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-admin-ui
+  namespace: go-admin
+  labels:
+    app: go-admin-ui
+    service: go-admim-ui
+spec:
+  ports:
+    - port: 80
+      name: http
+      protocol: TCP
+  selector:
+    app: go-admin-ui
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: go-admin-go-admin-ui
+  namespace: go-admin
+  labels:
+    account: go-admin-ui
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-admin-ui-v1
+  namespace: go-admin
+  labels:
+    app: go-admin-ui
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-admin-ui
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: go-admin-ui
+        version: v1
+    spec:
+      serviceAccountName: go-admin-go-admin-ui
+      containers:
+        - name: go-admin-ui
+          image: registry.cn-shanghai.aliyuncs.com/go-admin-team/go-admin-ui:v1.2.2
+          #imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: frontendconf
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+              readOnly: true
+          env:
+            - name: COMMIT_TAG
+              value: "DRONE_COMMIT"
+      volumes:
+        - name: frontendconf
+          configMap:
+            name: nginx-frontend
+---

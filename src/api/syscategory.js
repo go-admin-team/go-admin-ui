@@ -29,7 +29,7 @@ export function addSysCategory(data) {
 // 修改SysCategory
 export function updateSysCategory(data) {
   return request({
-    url: '/api/v1/syscategory/' + data.ID,
+    url: '/api/v1/syscategory/' + data.id,
     method: 'put',
     data: data
   })
@@ -38,7 +38,7 @@ export function updateSysCategory(data) {
 // 删除SysCategory
 export function delSysCategory(data) {
   return request({
-    url: '/api/v1/syscategory/',
+    url: '/api/v1/syscategory',
     method: 'delete',
     data: data
   })

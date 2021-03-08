@@ -119,7 +119,7 @@
                 <template slot-scope="scope">
                   <el-switch
                     v-model="scope.row.status"
-                    active-value="0"
+                    active-value="2"
                     inactive-value="1"
                     @change="handleStatusChange(scope.row)"
                   />
@@ -187,7 +187,6 @@
                 <treeselect
                   v-model="form.deptId"
                   :options="deptOptions"
-                  :normalizer="normalizer"
                   placeholder="请选择归属部门"
                 />
               </el-form-item>
@@ -309,11 +308,13 @@
 </template>
 
 <script>
-import { listUser, getUser, delUser, addUser, updateUser, exportUser, resetUserPwd, changeUserStatus, importTemplate, getUserInit } from '@/api/system/sysuser'
+import { listUser, getUser, delUser, addUser, updateUser, exportUser, resetUserPwd, changeUserStatus, importTemplate } from '@/api/system/sysuser'
 import { getToken } from '@/utils/auth'
 import { treeselect } from '@/api/system/dept'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import { listPost } from '@/api/system/post'
+import { listRole } from '@/api/system/role'
 
 export default {
   name: 'User',
@@ -356,7 +357,7 @@ export default {
       form: {},
       defaultProps: {
         children: 'children',
-        label: 'deptName'
+        label: 'label'
       },
       // 用户导入参数
       upload: {
@@ -458,7 +459,7 @@ export default {
     },
     // 节点单击事件
     handleNodeClick(data) {
-      this.queryParams.deptId = data.deptId
+      this.queryParams.deptId = data.id
       this.getList()
     },
     /** 转换菜单数据结构 */
@@ -467,14 +468,14 @@ export default {
         delete node.children
       }
       return {
-        id: node.deptId,
-        label: node.deptName,
+        id: node.id,
+        label: node.label,
         children: node.children
       }
     },
     // 用户状态修改
     handleStatusChange(row) {
-      const text = row.status === '0' ? '启用' : '停用'
+      const text = row.status === '2' ? '启用' : '停用'
       this.$confirm('确认要"' + text + '""' + row.username + '"用户吗?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -484,7 +485,7 @@ export default {
       }).then(() => {
         this.msgSuccess(text + '成功')
       }).catch(function() {
-        row.status = row.status === '0' ? '1' : '0'
+        row.status = row.status === '2' ? '1' : '2'
       })
     },
     // 取消按钮
@@ -503,7 +504,7 @@ export default {
         phone: undefined,
         email: undefined,
         sex: undefined,
-        status: '0',
+        status: '2',
         remark: undefined,
         postIds: undefined,
         roleIds: undefined
@@ -531,29 +532,44 @@ export default {
     handleAdd() {
       this.reset()
       this.getTreeselect()
-      getUserInit().then(response => {
-        this.postOptions = response.data.posts
-        this.roleOptions = response.data.roles
-        this.open = true
-        this.title = '添加用户'
-        this.form.password = this.initPassword
+      // getUserInit().then(response => {
+      //   this.postOptions = response.data.posts
+      //   this.roleOptions = response.data.roles
+      //   this.open = true
+      //   this.title = '添加用户'
+      // this.form.password = this.initPassword
+      // })
+      listPost({ pageSize: 1000 }).then(response => {
+        this.postOptions = response.data.list
       })
+      listRole({ pageSize: 1000 }).then(response => {
+        this.roleOptions = response.data.list
+      })
+      this.open = true
+      this.title = '添加用户'
+      this.form.password = this.initPassword
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-      this.getTreeselect()
+      // this.getTreeselect()
 
       const userId = row.userId || this.ids
       getUser(userId).then(response => {
         this.form = response.data
-        this.postOptions = response.posts
-        this.roleOptions = response.roles
-        this.form.postIds = response.postIds[0]
-        this.form.roleIds = response.roleIds[0]
+        // this.postOptions = response.posts
+        // this.roleOptions = response.roles
+        // this.form.postIds = response.postIds[0]
+        // this.form.roleIds = response.roleIds[0]
         this.open = true
         this.title = '修改用户'
         this.form.password = ''
+      })
+      listPost({ pageSize: 1000 }).then(response => {
+        this.postOptions = response.data.list
+      })
+      listRole({ pageSize: 1000 }).then(response => {
+        this.roleOptions = response.data.list
       })
     },
     /** 重置密码按钮操作 */

@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 查询字典类型列表
 export function listType(query) {
   return request({
-    url: '/api/v1/dict/typelist',
+    url: '/api/v1/dict/type',
     method: 'get',
     params: query
   })
@@ -29,7 +29,7 @@ export function addType(data) {
 // 修改字典类型
 export function updateType(data) {
   return request({
-    url: '/api/v1/dict/type',
+    url: '/api/v1/dict/type/' + data.id,
     method: 'put',
     data: data
   })
@@ -38,8 +38,9 @@ export function updateType(data) {
 // 删除字典类型
 export function delType(dictId) {
   return request({
-    url: '/api/v1/dict/type/' + dictId,
-    method: 'delete'
+    url: '/api/v1/dict/type',
+    method: 'delete',
+    data: dictId
   })
 }
 
@@ -55,7 +56,7 @@ export function exportType(query) {
 // 获取字典选择框列表
 export function optionselect() {
   return request({
-    url: '/api/v1/dict/typeoptionselect',
+    url: '/api/v1/dict/type-option-select',
     method: 'get'
   })
 }

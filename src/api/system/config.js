@@ -20,9 +20,8 @@ export function getConfig(configId) {
 // 根据参数键名查询参数值
 export function getConfigKey(configKey) {
   return request({
-    url: '/api/v1/configKey',
-    method: 'post',
-    data: { 'configKey': configKey }
+    url: '/api/v1/configKey/' + configKey,
+    method: 'get'
   })
 }
 
@@ -38,7 +37,7 @@ export function addConfig(data) {
 // 修改参数配置
 export function updateConfig(data) {
   return request({
-    url: '/api/v1/config/' + data.ID,
+    url: '/api/v1/config/' + data.id,
     method: 'put',
     data: data
   })

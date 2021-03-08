@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 查询角色列表
 export function listRole(query) {
   return request({
-    url: '/api/v1/rolelist',
+    url: '/api/v1/role',
     method: 'get',
     params: query
   })
@@ -27,9 +27,9 @@ export function addRole(data) {
 }
 
 // 修改角色
-export function updateRole(data) {
+export function updateRole(data, roleId) {
   return request({
-    url: '/api/v1/role',
+    url: '/api/v1/role/' + roleId,
     method: 'put',
     data: data
   })
@@ -47,21 +47,17 @@ export function dataScope(data) {
 // 角色状态修改
 export function changeRoleStatus(roleId, status) {
   const data = {
-    roleId,
     status
   }
-  return request({
-    url: '/api/v1/role',
-    method: 'put',
-    data: data
-  })
+  return updateRole(data, roleId)
 }
 
 // 删除角色
 export function delRole(roleId) {
   return request({
-    url: '/api/v1/role/' + roleId,
-    method: 'delete'
+    url: '/api/v1/role',
+    method: 'delete',
+    data: roleId
   })
 }
 

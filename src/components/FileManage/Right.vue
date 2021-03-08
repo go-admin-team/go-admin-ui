@@ -7,7 +7,7 @@
             <el-breadcrumb separator-class="el-icon-arrow-right" class="dir">
               <el-breadcrumb-item
                 v-for="item in treePath.treeNodePath"
-                :key="item.ID"
+                :key="item.id"
               >{{ item.label }}</el-breadcrumb-item>
             </el-breadcrumb>
           </el-col>
@@ -339,7 +339,7 @@ export default {
       this.getList()
     },
     getList() {
-      const pId = this.treePath.currentNode.ID
+      const pId = this.treePath.currentNode.id
       if (pId) {
         sysfileinfoList({
           pId,
@@ -374,7 +374,7 @@ export default {
           size: `${item.size}`,
           url: item.path,
           fullUrl: item.full_path,
-          pId: this.treePath.currentNode.ID
+          pId: this.treePath.currentNode.id
         })
       })
       return Promise.all(path)
@@ -395,14 +395,13 @@ export default {
           break
         case 2:
           this.tableData.forEach((item, index) => {
-            debugger
-            if (item.ID === this.rightData.currentData.ID) {
+            if (item.id === this.rightData.currentData.id) {
               this.tableData[index].open = true
             }
           })
           break
         case 3:
-          sysfileinfoDelete(this.rightData.currentData.ID).then(ret => {
+          sysfileinfoDelete(this.rightData.currentData.id).then(ret => {
             if (ret.code === 200) {
               this.getList()
             }

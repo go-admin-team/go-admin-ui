@@ -89,11 +89,11 @@
 
         <el-table v-loading="loading" :data="typeList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
-          <el-table-column label="字典编号" width="80" align="center" prop="dictId" />
+          <el-table-column label="字典编号" width="80" align="center" prop="id" />
           <el-table-column label="字典名称" align="center" prop="dictName" :show-overflow-tooltip="true" />
           <el-table-column label="字典类型" align="center" :show-overflow-tooltip="true">
             <template slot-scope="scope">
-              <router-link :to="{name:'DictData', params: {dictId:scope.row.dictId}}" class="link-type">
+              <router-link :to="{name:'DictData', params: {dictId:scope.row.id}}" class="link-type">
                 <span>{{ scope.row.dictType }}</span>
               </router-link>
             </template>
@@ -233,7 +233,7 @@ export default {
     },
     // 字典状态字典翻译
     statusFormat(row, column) {
-      return this.selectDictLabel(this.statusOptions, row.status)
+      return this.selectDictLabel(this.statusOptions, parseInt(row.status))
     },
     // 取消按钮
     cancel() {
@@ -243,7 +243,7 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        dictId: undefined,
+        id: undefined,
         dictName: undefined,
         dictType: undefined,
         status: '0',
@@ -271,14 +271,14 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.dictId)
+      this.ids = selection.map(item => item.id)
       this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-      const dictId = row.dictId || this.ids
+      const dictId = row.id || this.ids
       getType(dictId).then(response => {
         this.form = response.data
         this.open = true
@@ -290,7 +290,7 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-          if (this.form.dictId !== undefined) {
+          if (this.form.id !== undefined) {
             updateType(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('修改成功')
@@ -316,7 +316,7 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const dictIds = row.dictId || this.ids
+      const dictIds = (row.id && [row.id]) || this.ids
       this.$confirm('是否确认删除字典编号为"' + dictIds + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -339,7 +339,7 @@ export default {
         this.downloadLoading = true
         import('@/vendor/Export2Excel').then(excel => {
           const tHeader = ['字典编号', '字典名称', '字典类型', '状态', '备注']
-          const filterVal = ['dictId', 'dictName', 'dictType', 'status', 'remark']
+          const filterVal = ['id', 'dictName', 'dictType', 'status', 'remark']
           const list = this.typeList
           const data = formatJson(filterVal, list)
           excel.export_json_to_excel({

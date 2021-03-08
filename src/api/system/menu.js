@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 查询菜单列表
 export function listMenu(query) {
   return request({
-    url: '/api/v1/menulist',
+    url: '/api/v1/menu',
     method: 'get',
     params: query
   })
@@ -43,9 +43,9 @@ export function addMenu(data) {
 }
 
 // 修改菜单
-export function updateMenu(data) {
+export function updateMenu(data, id) {
   return request({
-    url: '/api/v1/menu',
+    url: '/api/v1/menu/' + id,
     method: 'put',
     data: data
   })

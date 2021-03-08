@@ -14,7 +14,7 @@
           v-model="value"
           :options="options"
           clearable
-          :props="{ expandTrigger: 'hover', checkStrictly: true, value: 'ID' }"
+          :props="{ expandTrigger: 'hover', checkStrictly: true, value: 'id' }"
           @change="handleChange"
         />
       </div>
@@ -24,7 +24,7 @@
             <div class="file-footer-inner">
               <div
                 v-for="(item,index) in fileList"
-                :key="item.ID"
+                :key="item.id"
                 class="file-footer-item"
                 :class=" item.open ? 'file-active' : '' "
                 @click="handleChoose(item,index)"
@@ -204,9 +204,9 @@ export default {
         }
       })
     },
-    getFileInfo(ID) {
+    getFileInfo(id) {
       sysfileinfoList({
-        pId: ID,
+        pId: id,
         pageIndex: this.pageNo,
         pageSize: this.pageSize
       }).then(ret => {
@@ -226,25 +226,25 @@ export default {
       this.handleCancel()
     },
     handleChange() {
-      const ID = this.value[this.value.length - 1]
+      const id = this.value[this.value.length - 1]
       this.total = 0
       this.pageNo = 1
       this.fileList.length = 0
-      if (ID) {
-        this.getFileInfo(ID)
+      if (id) {
+        this.getFileInfo(id)
       }
     },
     handlePage(e) {
       this.pageNo = e
       debugger
-      const ID = this.value[this.value.length - 1]
-      if (ID) {
-        this.getFileInfo(ID)
+      const id = this.value[this.value.length - 1]
+      if (id) {
+        this.getFileInfo(id)
       }
     },
     handleChoose(e, index) {
       if (this.multiple) {
-        const fileIndex = this.resultList.findIndex(item => item.ID === e.ID)
+        const fileIndex = this.resultList.findIndex(item => item.id === e.id)
         if (e.open) {
           if (fileIndex < 0) {
             return false
@@ -272,7 +272,7 @@ export default {
         for (let i = 0; i < this.fileList.length; i++) {
           this.fileList[i].open = false
           for (let j = 0; j < this.resultList.length; j++) {
-            if (this.resultList[j].ID === this.fileList[i].ID) {
+            if (this.resultList[j].id === this.fileList[i].id) {
               this.fileList[i].open = true
             }
             continue
@@ -280,7 +280,7 @@ export default {
         }
       } else {
         for (let i = 0; i < this.fileList.length; i++) {
-          if (this.resultList.every(e => e.ID === this.fileList[i].ID)) {
+          if (this.resultList.every(e => e.id === this.fileList[i].id)) {
             this.fileList[i].open = true
           } else {
             this.fileList[i].open = false

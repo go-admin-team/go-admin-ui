@@ -15,13 +15,14 @@
           @node-click="handleNodeClick"
         >
 
+          <!-- /* eslint-disable */ -->
           <span slot-scope="{ node, data }" class="custom-tree-node">
             <span>
               <i
                 v-show="node.childNodes.length > 0"
                 :class="node.expanded ? 'el-icon-folder-opened icon' : 'el-icon-folder icon'"
               />
-              <span v-if="rename.status && rename.node.ID === data.ID">
+              <span v-if="rename.status && rename.node.id === data.id">
                 <input
                   ref="nodeInput"
                   v-focus="rename.status"
@@ -46,44 +47,17 @@
       :style="{ ...rightMenu }"
       class="contextmenu"
     >
-      <div
-        class="contextMenu-item left-contextMenu-item"
-        @click="handleAction(1)"
-        @mouseover="handleTagsOver(0)"
-        @mouseleave="handleTagsLeave(0)"
-      >
-        <i class="el-icon-folder-add" />
-        <span>创建目录</span>
-      </div>
-      <el-divider />
-      <div
-        class="contextMenu-item left-contextMenu-item"
-        @click="handleAction(2)"
-        @mouseover="handleTagsOver(1)"
-        @mouseleave="handleTagsLeave(1)"
-      >
-        <i class="el-icon-upload2" />
-        <span>上传</span>
-      </div>
-      <el-divider />
-      <div
-        class="contextMenu-item left-contextMenu-item"
-        @click="handleAction(3)"
-        @mouseover="handleTagsOver(2)"
-        @mouseleave="handleTagsLeave(2)"
-      >
-        <i class="el-icon-edit" />
-        <span>重命名</span>
-      </div>
-      <el-divider />
-      <div
-        class="contextMenu-item left-contextMenu-item"
-        @click="handleAction(4)"
-        @mouseover="handleTagsOver(3)"
-        @mouseleave="handleTagsLeave(3)"
-      >
-        <i class="el-icon-folder-delete" />
-        <span>删除</span>
+      <div v-for="(item, index) in rightOptions" :key="index">
+        <div
+          class="contextMenu-item left-contextMenu-item"
+          @click="handleAction(index)"
+          @mouseover="handleTagsOver(index)"
+          @mouseleave="handleTagsLeave(index)"
+        >
+          <i :class="item.icon" />
+          <span>{{ item.label }}</span>
+        </div>
+        <el-divider />
       </div>
     </div>
     <upload-dialog
@@ -122,6 +96,52 @@ export default {
   },
   data() {
     return {
+      rightOptions: [
+        {
+          label: '创建目录',
+          icon: 'el-icon-folder-add',
+          f: () => {
+            sysfiledirAcionAdd({
+              label: '新建文件夹',
+              pId: this.rightData.currentData.id
+            }).then(ret => {
+              if (ret.code === 200) {
+                this.$refs.tree.append(ret.data, this.rightData.currentData.id)
+                this.getDirList()
+              }
+            })
+          }
+        },
+        // {
+        //   label: '上传',
+        //   icon: 'el-icon-upload2',
+        //   f: () => {
+        //     this.uploadShow = true
+        //   }
+        // },
+        {
+          label: '重命名',
+          icon: 'el-icon-edit',
+          f: () => {
+            this.rename = {
+              status: true,
+              node: this.rightData.currentData
+            }
+            console.log(this.rename)
+          }
+        },
+        {
+          label: '删除',
+          icon: 'el-icon-folder-delete',
+          f: () => {
+            sysfiledirAcionDel(this.rightData.currentData.id).then(ret => {
+              if (ret.code === 200) {
+                this.$refs.tree.remove(this.rightData.currentNode)
+              }
+            })
+          }
+        }
+      ],
       rename: {
         status: false,
         node: ''
@@ -142,7 +162,7 @@ export default {
   },
   methods: {
     handleNodeClick(e) {
-      const result = this.treeFindPath(this.data, node => node.ID === e.ID)
+      const result = this.treeFindPath(this.data, node => node.id === e.id)
       eventBus.$emit('treeNodeClick', {
         treeNodePath: result,
         currentNode: e
@@ -198,12 +218,12 @@ export default {
       d.label = this.$refs.nodeInput.value
       console.log(d)
       sysfiledirAcionEdit({
-        ID: d.ID,
+        id: d.id,
         label: d.label,
         pId: d.pId
       }).then(ret => {
         if (ret.code === 200) {
-          this.$refs.tree.updateKeyChildren(n.ID, d)
+          this.$refs.tree.updateKeyChildren(n.id, d)
         }
       })
     },
@@ -221,36 +241,7 @@ export default {
       }
     },
     handleAction(e) {
-      switch (e) {
-        case 1:
-          sysfiledirAcionAdd({
-            label: '新建文件夹',
-            pId: this.rightData.currentData.ID
-          }).then(ret => {
-            if (ret.code === 200) {
-              this.$refs.tree.append(ret.data, this.rightData.currentData.ID)
-              this.getDirList()
-            }
-          })
-          break
-        case 2:
-          this.uploadShow = true
-          break
-        case 3:
-          this.rename = {
-            status: true,
-            node: this.rightData.currentData
-          }
-          console.log(this.rename)
-          break
-        case 4:
-          sysfiledirAcionDel(this.rightData.currentData.ID).then(ret => {
-            if (ret.code === 200) {
-              this.$refs.tree.remove(this.rightData.currentNode)
-            }
-          })
-          break
-      }
+      this.rightOptions[e].f()
     }
   }
 }

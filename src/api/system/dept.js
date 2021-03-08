@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getDeptList(query) {
   return request({
-    url: '/api/v1/deptList',
+    url: '/api/v1/dept',
     method: 'get',
     params: query
   })
@@ -42,9 +42,9 @@ export function addDept(data) {
 }
 
 // 修改部门
-export function updateDept(data) {
+export function updateDept(data, id) {
   return request({
-    url: '/api/v1/dept',
+    url: '/api/v1/dept/' + id,
     method: 'put',
     data: data
   })
