@@ -350,7 +350,7 @@ export default {
     /** 查询菜单树结构 */
     getMenuTreeselect() {
       menuTreeselect().then(response => {
-        this.menuOptions = response.data
+        this.menuOptions = response.data.menus
       })
     },
     /** 查询部门树结构 */
@@ -384,7 +384,6 @@ export default {
         this.menuOptions = []
       } else {
         roleMenuTreeselect(row.roleId).then(response => {
-          console.log(response)
           this.menuOptions = response.data.menus
           this.$nextTick(() => {
             this.$refs.menu.setCheckedKeys(response.data.checkedKeys)
@@ -436,7 +435,7 @@ export default {
         roleName: undefined,
         roleKey: undefined,
         roleSort: 0,
-        status: '0',
+        status: '2',
         menuIds: [],
         deptIds: [],
         remark: undefined
