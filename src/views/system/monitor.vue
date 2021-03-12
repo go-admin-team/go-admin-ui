@@ -42,7 +42,7 @@
               </div>
               <div class="monitor">
                 <div class="monitor-header">
-                  <el-progress :color="$store.state.settings.theme" type="circle" :percentage=" `${((info.disk.free / info.disk.total) * 100).toFixed(2)}` " />
+                  <el-progress :color="$store.state.settings.theme" type="circle" :percentage=" Number(( info.disk.free / info.disk.total * 100).toFixed(2))" />
                 </div>
                 <div class="monitor-footer">
                   <Cell label="总内存" :value="info.disk.total+'G'" border />
@@ -70,7 +70,7 @@
           </div>
           <div class="monitor">
             <Cell label="操作系统" :value="info.os.goOs" border />
-            <Cell label="服务器IP" value="10.30.54.43" border />
+            <Cell label="服务器IP" :value="info.os.ip" border />
             <Cell label="系统架构" :value="info.os.arch" border />
             <Cell label="CPU" :value="info.cpu.cpuInfo[0].modelName" />
           </div>
