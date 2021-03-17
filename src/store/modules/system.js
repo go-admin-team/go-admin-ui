@@ -1,4 +1,5 @@
 import { getSetting, updateSetting } from '@/api/login'
+// import { logout } from '@/api/user'
 import storage from '@/utils/storage'
 const state = {
   info: storage.get('app_info')
@@ -15,6 +16,7 @@ const actions = {
   settingDetail({ commit }) {
     return new Promise((resolve, reject) => {
       getSetting().then(response => {
+        debugger
         const { data } = response
         commit('SET_INFO', data)
         resolve(data)

@@ -8,19 +8,19 @@ export function getCodeImg() {
   })
 }
 
-// 查询
+// 查询 此接口不在验证数据权限
 export function getSetting() {
   return request({
-    url: '/api/v1/setting',
+    url: '/api/v1/app-config',
     method: 'get'
   })
 }
 
-// 修改
-export function updateSetting(data) {
-  return request({
-    url: '/api/v1/setting',
-    method: 'post',
-    data: data
-  })
-}
+// // 修改
+// export function updateSetting(data) {
+//   return request({
+//     url: '/api/v1/setting',
+//     method: 'post',
+//     data: data
+//   })
+// }
