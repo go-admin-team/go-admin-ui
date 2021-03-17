@@ -15,9 +15,9 @@
             <!-- <el-button type="primary" @click="fileShowlogo">选择文件</el-button> -->
           </el-form-item>
 
-          <el-form-item>
+          <!-- <el-form-item>
             <el-button v-permisaction="['system:system:edit']" type="primary" @click="submitForm('ruleForm')">确定</el-button>
-          </el-form-item>
+          </el-form-item> -->
         </el-form>
         <FileChoose ref="fileChoose" :dialog-form-visible="fileOpen" @confirm="getImgList" @close="fileClose" />
       </div>

@@ -24,8 +24,8 @@
     <div class="login-weaper animated bounceInDown">
       <div class="login-left">
         <div class="login-time" v-text="currentTime" />
-        <img :src="sysInfo.logo" alt="" class="img">
-        <p class="title" v-text="sysInfo.name" />
+        <img :src="sysInfo.sys_app_logo" alt="" class="img">
+        <p class="title" v-text="sysInfo.sys_app_name" />
       </div>
       <div class="login-border">
         <div class="login-main">
@@ -228,7 +228,7 @@ export default {
     getSystemSetting() {
       this.$store.dispatch('system/settingDetail').then((ret) => {
         this.sysInfo = ret
-        document.title = ret.name
+        document.title = ret.sys_app_name
       })
     },
     getCurrentTime() {
