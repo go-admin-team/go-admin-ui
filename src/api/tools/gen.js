@@ -72,6 +72,14 @@ export function toProjectTable(tableId) {
   })
 }
 
+// 生成接口数据到迁移脚本
+export function apiToFile(tableId) {
+  return request({
+    url: '/api/v1/gen/apitofile/' + tableId,
+    method: 'get'
+  })
+}
+
 export function toProjectTableCheckRole(tableId, ischeckrole) {
   return request({
     url: '/api/v1/gen/toproject/' + tableId + '?ischeckrole=' + ischeckrole,

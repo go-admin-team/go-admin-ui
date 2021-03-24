@@ -111,13 +111,13 @@
                 icon="el-icon-view"
                 @click="handleToProject(scope.row)"
               >代码生成</el-button>
-              <!-- <el-button
+              <el-button
 
                 type="text"
                 size="small"
                 icon="el-icon-view"
-                @click="handleToProjectCheckRole(scope.row)"
-              >代码生成[带权限]</el-button> -->
+                @click="handleToApiFile(scope.row)"
+              >配置迁移脚本</el-button>
               <el-button
 
                 type="text"
@@ -180,7 +180,7 @@
 </template>
 
 <script>
-import { listTable, previewTable, delTable, toDBTable, toProjectTableCheckRole } from '@/api/tools/gen'
+import { listTable, previewTable, delTable, toDBTable, toProjectTableCheckRole, apiToFile } from '@/api/tools/gen'
 import importTable from './importTable'
 import { downLoadFile } from '@/utils/zipdownload'
 
@@ -286,13 +286,13 @@ export default {
         this.msgSuccess(response.msg)
       }).catch(function() {})
     },
-    handleToProjectCheckRole(row) {
-      this.$confirm('正在使用代码生成【带权限】请确认?', '提示', {
+    handleToApiFile(row) {
+      this.$confirm('正在使用代码生成配置迁移脚本请确认?', '提示', {
         confirmButtonText: '生成',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return toProjectTableCheckRole(row.tableId, true)
+        return apiToFile(row.tableId, true)
       }).then((response) => {
         this.msgSuccess(response.msg)
       }).catch(function() {})
