@@ -184,14 +184,6 @@ export default {
         cateId: undefined,
         name: undefined,
         status: undefined
-      },
-      // 表单参数
-      form: {},
-      // 表单校验
-      rules: {
-        cateId: [{ required: true, message: '分类id不能为空', trigger: 'blur' }],
-        name: [{ required: true, message: '名称不能为空', trigger: 'blur' }],
-        status: [{ required: true, message: '状态不能为空', trigger: 'blur' }]
       }
     }
   },
