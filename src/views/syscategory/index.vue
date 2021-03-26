@@ -150,6 +150,7 @@
               <el-input
                 v-model="form.sort"
                 placeholder="排序"
+                type="number"
               />
             </el-form-item>
             <el-form-item label="状态" prop="status">
@@ -227,7 +228,8 @@ export default {
       // 表单校验
       rules: {
         name: [{ required: true, message: '名称不能为空', trigger: 'blur' }],
-        status: [{ required: true, message: '状态不能为空', trigger: 'blur' }]
+        status: [{ required: true, message: '状态不能为空', trigger: 'blur' }],
+        sort: [{ required: true, message: '排序不能为空', trigger: 'blur' }]
       }
     }
   },
@@ -260,7 +262,7 @@ export default {
         ID: undefined,
         name: undefined,
         img: undefined,
-        sort: undefined,
+        sort: 999,
         status: undefined,
         remark: undefined
       }
@@ -307,6 +309,7 @@ export default {
       const ID = row.id || this.ids
       getSysCategory(ID).then(response => {
         this.form = response.data
+        this.form.status = String(this.form.status)
         this.open = true
         this.title = '修改分类管理'
         this.isEdit = true
@@ -316,6 +319,8 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
+          this.form.sort = parseInt(this.form.sort)
+          this.form.status = parseInt(this.form.status)
           if (this.form.id !== undefined) {
             updateSysCategory(this.form).then(response => {
               if (response.code === 200) {

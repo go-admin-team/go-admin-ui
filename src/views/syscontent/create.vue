@@ -2,7 +2,7 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="form" :model="form" label-width="80px" class="form-container">
+        <el-form ref="form" :model="form" :rules="rules" label-width="80px" class="form-container">
           <el-form-item label="分类" prop="cateId">
             <el-select
               v-model="form.cateId"
@@ -36,14 +36,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="内容" prop="content">
-            <!-- <el-input
-                v-model="form.content"
-                type="textarea"
-                :rows="2"
-                placeholder="请输入内容"
-              /> -->
             <Tinymce ref="editor" v-model="form.content" :height="400" />
-            <!-- <rict-text v-model="form.content" :height="400" /> -->
           </el-form-item>
           <el-form-item label="备注" prop="remark">
             <el-input
@@ -55,21 +48,18 @@
             <el-input
               v-model="form.sort"
               placeholder="排序"
+              type="number"
             />
           </el-form-item>
           <el-form-item>
             <el-button v-loading="loading" style="margin-left: 10px;" type="success" @click="submitForm">
-              Publish
+              提交
             </el-button>
             <el-button v-loading="loading" type="warning" @click="draftForm">
-              Draft
+              取消
             </el-button>
           </el-form-item>
         </el-form>
-        <!-- <div slot="footer">
-          <el-button type="primary" @click="submitForm">确 定</el-button>
-          <el-button @click="cancel">取 消</el-button>
-        </div> -->
       </el-card>
     </template>
   </BasicLayout>
@@ -96,7 +86,9 @@ export default {
       loading: false,
       postForm: Object.assign({}, defaultForm),
       // 表单参数
-      form: {},
+      form: {
+        sort: 999
+      },
       statusOptions: [],
       // 关系表类型
       cateIdOptions: [],
@@ -104,7 +96,8 @@ export default {
       rules: {
         cateId: [{ required: true, message: '分类id不能为空', trigger: 'blur' }],
         name: [{ required: true, message: '名称不能为空', trigger: 'blur' }],
-        status: [{ required: true, message: '状态不能为空', trigger: 'blur' }]
+        status: [{ required: true, message: '状态不能为空', trigger: 'blur' }],
+        sort: [{ required: true, message: '排序不能为空', trigger: 'blur' }]
       }
     }
   },
@@ -128,6 +121,9 @@ export default {
       console.log(this.form)
       this.$refs['form'].validate(valid => {
         if (valid) {
+          this.form.cateId = parseInt(this.form.cateId)
+          this.form.status = parseInt(this.form.status)
+          this.form.sort = parseInt(this.form.sort)
           addSysContent(this.form).then(response => {
             if (response.code === 200) {
               this.msgSuccess('新增成功')
