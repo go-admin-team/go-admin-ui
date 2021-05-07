@@ -280,7 +280,6 @@ export default {
       console.log(row)
       console.log(index)
       this.tableTree.filter(function(item) {
-        debugger
         if (item.tableName === row.fkTableName) {
           row.fkCol = item.columns
           // row.fkCol.unshift({ columnId: 0, columnName: '请选择' })

@@ -31,7 +31,6 @@ export default {
   },
   methods: {
     checkAllSuccess() {
-      debugger
       return Object.keys(this.listObj).every(item => this.listObj[item].hasSuccess)
     },
     handleFile() {
