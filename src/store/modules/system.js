@@ -16,7 +16,6 @@ const actions = {
   settingDetail({ commit }) {
     return new Promise((resolve, reject) => {
       getSetting().then(response => {
-        debugger
         const { data } = response
         commit('SET_INFO', data)
         resolve(data)

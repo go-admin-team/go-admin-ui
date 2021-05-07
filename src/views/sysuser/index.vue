@@ -455,7 +455,7 @@ export default {
     // 筛选节点
     filterNode(value, data) {
       if (!value) return true
-      return data.deptName.indexOf(value) !== -1
+      return data.label.indexOf(value) !== -1
     },
     // 节点单击事件
     handleNodeClick(data) {

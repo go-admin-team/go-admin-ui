@@ -224,7 +224,6 @@ export default {
     },
     /** 搜索按钮操作 */
     handleQuery() {
-      debugger
       this.queryParams.pageIndex = 1
       this.getList()
     },

@@ -236,7 +236,6 @@ export default {
     },
     handlePage(e) {
       this.pageNo = e
-      debugger
       const id = this.value[this.value.length - 1]
       if (id) {
         this.getFileInfo(id)
