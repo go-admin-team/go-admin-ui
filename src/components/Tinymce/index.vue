@@ -201,7 +201,6 @@ export default {
       window.tinymce.get(this.tinymceId).getContent()
     },
     imageSuccessCBK(arr) {
-      debugger
       const _this = this
       arr.forEach(v => {
         console.log(v)
