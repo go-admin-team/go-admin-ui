@@ -316,13 +316,13 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const configIds = row.id || this.ids
-      this.$confirm('是否确认删除参数编号为"' + configIds + '"的数据项?', '警告', {
+      const Ids = (row.id && [row.id]) || this.ids
+      this.$confirm('是否确认删除参数编号为"' + Ids + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delConfig(configIds)
+        return delConfig({ 'ids': Ids })
       }).then(() => {
         this.getList()
         this.msgSuccess('删除成功')
