@@ -44,10 +44,11 @@ export function updateConfig(data) {
 }
 
 // 删除参数配置
-export function delConfig(configId) {
+export function delConfig(data) {
   return request({
-    url: '/api/v1/config/' + configId,
-    method: 'delete'
+    url: '/api/v1/config',
+    method: 'delete',
+    data: data
   })
 }
 
