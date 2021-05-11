@@ -52,9 +52,10 @@ export function updateMenu(data, id) {
 }
 
 // 删除菜单
-export function delMenu(menuId) {
+export function delMenu(data) {
   return request({
-    url: '/api/v1/menu/' + menuId,
-    method: 'delete'
+    url: '/api/v1/menu',
+    method: 'delete',
+    data: data
   })
 }
