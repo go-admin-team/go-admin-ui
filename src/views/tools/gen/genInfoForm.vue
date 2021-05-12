@@ -27,12 +27,24 @@
       <el-col :span="12">
         <el-form-item prop="moduleName">
           <span slot="label">
-            生成模块名
-            <el-tooltip content="可理解为子系统名，例如 system" placement="top">
+            服务端文件名
+            <el-tooltip content="服务端项目文件名，例如 sys_user.go" placement="top">
               <i class="el-icon-question" />
             </el-tooltip>
           </span>
           <el-input v-model="info.moduleName" />
+        </el-form-item>
+      </el-col>
+
+      <el-col :span="12">
+        <el-form-item prop="moduleFrontName">
+          <span slot="label">
+            前端文件名
+            <el-tooltip content="前端项目文件名，例如 sys-user.js " placement="top">
+              <i class="el-icon-question" />
+            </el-tooltip>
+          </span>
+          <el-input v-model="info.moduleFrontName" />
         </el-form-item>
       </el-col>
 
