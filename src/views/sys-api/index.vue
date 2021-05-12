@@ -12,41 +12,45 @@
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="标题" prop="title"><el-input
-            v-model="queryParams.title"
-            placeholder="请输入标题"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="地址" prop="path"><el-input
-            v-model="queryParams.path"
-            placeholder="请输入地址"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="类型" prop="action"><el-input
-            v-model="queryParams.action"
-            placeholder="请输入类型"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="按钮id" prop="parentId"><el-select
-            v-model="form.parentId"
-            placeholder="请选择"
-          >
-            <el-option
-              v-for="dict in parentIdOptions"
-              :key="dict.key"
-              :label="dict.value"
-              :value="dict.key"
+          <el-form-item label="标题" prop="title">
+            <el-input
+              v-model="queryParams.title"
+              placeholder="请输入标题"
+              clearable
+              size="small"
+              @keyup.enter.native="handleQuery"
             />
-          </el-select>
+          </el-form-item>
+          <el-form-item label="地址" prop="path">
+            <el-input
+              v-model="queryParams.path"
+              placeholder="请输入地址"
+              clearable
+              size="small"
+              @keyup.enter.native="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="类型" prop="action">
+            <el-input
+              v-model="queryParams.action"
+              placeholder="请输入类型"
+              clearable
+              size="small"
+              @keyup.enter.native="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="按钮id" prop="parentId">
+            <el-select
+              v-model="form.parentId"
+              placeholder="请选择"
+            >
+              <el-option
+                v-for="dict in parentIdOptions"
+                :key="dict.key"
+                :label="dict.value"
+                :value="dict.key"
+              />
+            </el-select>
           </el-form-item>
 
           <el-form-item>
@@ -77,55 +81,60 @@
             >修改
             </el-button>
           </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysapi:remove']"
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              :disabled="multiple"
-              @click="handleDelete"
-            >删除
-            </el-button>
-          </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="sysapiList" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="名称"
-            align="center"
-            prop="name"
+        <el-table v-loading="loading" :data="sysapiList" border @selection-change="handleSelectionChange">
+          <el-table-column
+            label="handle"
+            align="left"
+            prop="handle"
             :show-overflow-tooltip="true"
-          /><el-table-column
+            width="300px"
+            fixed="left"
+          />
+          <el-table-column
             label="标题"
-            align="center"
+            align="left"
             prop="title"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="地址"
-            align="center"
+            align="left"
             prop="path"
-            :show-overflow-tooltip="true"
-          /><el-table-column
+            width="180px"
+          />
+          <el-table-column
             label="类型"
-            align="center"
+            align="left"
             prop="action"
-            :show-overflow-tooltip="true"
-          /><el-table-column label="按钮id" align="center" prop="parentId" :formatter="parentIdFormat" width="100">
+            width="70"
+          />
+          <!-- <el-table-column
+            label="菜单按钮"
+            align="left"
+            prop="parentId"
+            :formatter="parentIdFormat"
+            width="100"
+          >
             <template slot-scope="scope">
               {{ parentIdFormat(scope.row) }}
             </template>
-          </el-table-column><el-table-column
+          </el-table-column> -->
+          <el-table-column
             label="排序"
-            align="center"
             prop="sort"
-            :show-overflow-tooltip="true"
-          /><el-table-column
+            width="60"
+          />
+          <el-table-column
             label="创建时间"
             align="center"
             prop="createdAt"
             :show-overflow-tooltip="true"
-          />
+          ><template slot-scope="scope">
+            <span>{{ parseTime(scope.row.createdAt) }}</span>
+          </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
@@ -135,14 +144,6 @@
                 icon="el-icon-edit"
                 @click="handleUpdate(scope.row)"
               >修改
-              </el-button>
-              <el-button
-                v-permisaction="['admin:sysapi:remove']"
-                size="mini"
-                type="text"
-                icon="el-icon-delete"
-                @click="handleDelete(scope.row)"
-              >删除
               </el-button>
             </template>
           </el-table-column>
@@ -157,91 +158,72 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-drawer
+          ref="drawer"
+          :title="title"
+          :before-close="handleClose"
+          :visible.sync="open"
+          direction="rtl"
+          custom-class="demo-drawer"
+        >
+          <div class="demo-drawer__content">
+            <el-form ref="form" :model="form" :rules="rules" label-width="80px">
 
-            <el-form-item label="名称" prop="name">
-              <el-input
-                v-model="form.name"
-                placeholder="名称"
-              />
-            </el-form-item>
-            <el-form-item label="标题" prop="title">
-              <el-input
-                v-model="form.title"
-                placeholder="标题"
-              />
-            </el-form-item>
-            <el-form-item label="地址" prop="path">
-              <el-input
-                v-model="form.path"
-                placeholder="地址"
-              />
-            </el-form-item>
-            <el-form-item label="" prop="paths">
-              <el-input
-                v-model="form.paths"
-                placeholder=""
-              />
-            </el-form-item>
-            <el-form-item label="类型" prop="action">
-              <el-input
-                v-model="form.action"
-                placeholder="类型"
-              />
-            </el-form-item>
-            <el-form-item label="按钮id" prop="parentId">
-              <el-input
-                v-model="form.parentId"
-                placeholder="按钮id"
-              />
-            </el-form-item>
-            <el-form-item label="排序" prop="sort">
-              <el-input
-                v-model="form.sort"
-                placeholder="排序"
-              />
-            </el-form-item>
-            <el-form-item label="创建者" prop="createBy">
-              <el-input
-                v-model="form.createBy"
-                placeholder="创建者"
-              />
-            </el-form-item>
-            <el-form-item label="更新者" prop="updateBy">
-              <el-input
-                v-model="form.updateBy"
-                placeholder="更新者"
-              />
-            </el-form-item>
-            <el-form-item label="创建时间" prop="createdAt">
-              <el-date-picker
-                v-model="form.createdAt"
-                type="datetime"
-                placeholder="选择日期"
-              />
-            </el-form-item>
-            <el-form-item label="最后更新时间" prop="updatedAt">
-              <el-date-picker
-                v-model="form.updatedAt"
-                type="datetime"
-                placeholder="选择日期"
-              />
-            </el-form-item>
-            <el-form-item label="删除时间" prop="deletedAt">
-              <el-date-picker
-                v-model="form.deletedAt"
-                type="datetime"
-                placeholder="选择日期"
-              />
-            </el-form-item>
-          </el-form>
-          <div slot="footer" class="dialog-footer">
-            <el-button type="primary" @click="submitForm">确 定</el-button>
-            <el-button @click="cancel">取 消</el-button>
+              <el-form-item label="handle" prop="name">
+                <el-input
+                  v-model="form.handle"
+                  placeholder="handle"
+                />
+              </el-form-item>
+              <el-form-item label="标题" prop="title">
+                <el-input
+                  v-model="form.title"
+                  placeholder="标题"
+                />
+              </el-form-item>
+              <el-form-item label="类型" prop="action">
+                <el-input
+                  v-model="form.action"
+                  placeholder="类型"
+                />
+              </el-form-item>
+              <el-form-item label="地址" prop="path">
+                <el-input
+                  v-model="form.path"
+                  placeholder="地址"
+                />
+              </el-form-item>
+
+              <el-form-item label="按钮id" prop="parentId">
+                <el-select
+                  v-model="form.parentId"
+                  placeholder="请选择"
+                >
+                  <el-option
+                    v-for="dict in parentIdOptions"
+                    :key="dict.key"
+                    :label="dict.value"
+                    :value="dict.key"
+                  />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="排序" prop="sort">
+                <el-input
+                  v-model="form.sort"
+                  type="number"
+                  placeholder="排序"
+                />
+              </el-form-item>
+
+            </el-form>
+            <div class="demo-drawer__footer">
+              <el-button type="primary" @click="submitForm">确 定</el-button>
+              <el-button @click="cancel">取 消</el-button>
+            </div>
           </div>
-        </el-dialog>
-        <FileChoose ref="fileChoose" :dialog-form-visible="fileOpen" @confirm="getImgList" @close="fileClose" />
+
+        </el-drawer>
+
       </el-card>
     </template>
   </BasicLayout>
@@ -251,15 +233,13 @@
 import { addSysApi, delSysApi, getSysApi, listSysApi, updateSysApi } from '@/api/sys-api'
 import { listMenu } from '@/api/system/menu'
 
-import FileChoose from '@/components/FileChoose'
-
 export default {
   name: 'SysApi',
   components: {
-    FileChoose
   },
   data() {
     return {
+      dialog: false,
       // 遮罩层
       loading: true,
       // 选中数组
@@ -275,12 +255,10 @@ export default {
       // 是否显示弹出层
       open: false,
       isEdit: false,
-      fileOpen: false,
-      fileIndex: undefined,
       // 类型数据字典
       typeOptions: [],
       sysapiList: [],
-
+      dateRange: [],
       // 关系表类型
       parentIdOptions: [],
 
@@ -313,10 +291,27 @@ export default {
     this.getSysMenuItems()
   },
   methods: {
+    handleClose(done) {
+      if (this.loading) {
+        return
+      }
+      this.$confirm('需要提交表单吗？')
+        .then(_ => {
+          this.loading = true
+          this.timer = setTimeout(() => {
+            done()
+            // 动画关闭需要一定的时间
+            setTimeout(() => {
+              this.loading = false
+            }, 400)
+          }, 2000)
+        })
+        .catch(_ => {})
+    },
     /** 查询参数列表 */
     getList() {
       this.loading = true
-      listSysApi(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      listSysApi(this.queryParams).then(response => {
         this.sysapiList = response.data.list
         this.total = response.data.count
         this.loading = false
@@ -342,12 +337,6 @@ export default {
         sort: undefined
       }
       this.resetForm('form')
-    },
-    getImgList: function() {
-      this.form[this.fileIndex] = this.$refs['fileChoose'].resultList[0].fullUrl
-    },
-    fileClose: function() {
-      this.fileOpen = false
     },
     parentIdFormat(row) {
       return this.selectItemsLabel(this.parentIdOptions, row.parentId)
