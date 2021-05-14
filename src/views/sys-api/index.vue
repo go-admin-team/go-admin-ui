@@ -31,25 +31,17 @@
             />
           </el-form-item>
           <el-form-item label="类型" prop="action">
-            <el-input
+            <el-select
               v-model="queryParams.action"
-              placeholder="请输入类型"
+              placeholder="请选择类型"
               clearable
               size="small"
               @keyup.enter.native="handleQuery"
-            />
-          </el-form-item>
-          <el-form-item label="按钮id" prop="parentId">
-            <el-select
-              v-model="form.parentId"
-              placeholder="请选择"
             >
-              <el-option
-                v-for="dict in parentIdOptions"
-                :key="dict.key"
-                :label="dict.value"
-                :value="dict.key"
-              />
+              <el-option value="GET">GET</el-option>
+              <el-option value="POST">POST</el-option>
+              <el-option value="PUT">PUT</el-option>
+              <el-option value="DELETE">DELETE</el-option>
             </el-select>
           </el-form-item>
 
@@ -83,7 +75,13 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="sysapiList" border @selection-change="handleSelectionChange">
+        <el-table
+          v-loading="loading"
+          :data="sysapiList"
+          border
+          @selection-change="handleSelectionChange"
+          @sort-change="handleSortChang"
+        >
           <el-table-column
             label="handle"
             align="left"
@@ -91,6 +89,7 @@
             :show-overflow-tooltip="true"
             width="300px"
             fixed="left"
+            sortable="custom"
           />
           <el-table-column
             label="标题"
@@ -176,6 +175,20 @@
                   placeholder="类型"
                 />
               </el-form-item>
+              <el-form-item label="请求方式">
+                <el-select
+                  v-model="form.action"
+                  placeholder="请选择类型"
+                  clearable
+                  size="small"
+                  @keyup.enter.native="handleQuery"
+                >
+                  <el-option value="GET">GET</el-option>
+                  <el-option value="POST">POST</el-option>
+                  <el-option value="PUT">PUT</el-option>
+                  <el-option value="DELETE">DELETE</el-option>
+                </el-select>
+              </el-form-item>
               <el-form-item label="地址" prop="path">
                 <el-input
                   v-model="form.path"
@@ -260,7 +273,6 @@ export default {
   },
   created() {
     this.getList()
-    this.getSysMenuItems()
   },
   methods: {
     handleClose(done) {
@@ -330,6 +342,23 @@ export default {
       this.open = true
       this.title = '添加接口管理'
       this.isEdit = false
+    },
+    handleSortChang(column, prop, order) {
+      prop = column.prop
+      order = column.order
+      console.log(column, prop, order)
+
+      if (order === 'descending') {
+        this.queryParams[prop + '_order'] = 'desc'
+      } else if (order === 'ascending') {
+        this.queryParams[prop + '_order'] = 'asc'
+      } else {
+        this.queryParams[prop + '_order'] = undefined
+      }
+      this.getList()
+    },
+    handleSortMethod(a, b) {
+      console.log(a, b)
     },
     // 多选框选中数据
     handleSelectionChange(selection) {

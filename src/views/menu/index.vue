@@ -136,17 +136,6 @@
                       <el-radio label="M">目录</el-radio>
                       <el-radio label="C">菜单</el-radio>
                       <el-radio label="F">按钮</el-radio>
-                      <el-radio label="A">接口</el-radio>
-                    </el-radio-group>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="24">
-                  <el-form-item v-if="form.menuType == 'A'" label="请求方式">
-                    <el-radio-group v-model="form.action">
-                      <el-radio label="GET">GET</el-radio>
-                      <el-radio label="POST">POST</el-radio>
-                      <el-radio label="PUT">PUT</el-radio>
-                      <el-radio label="DELETE">DELETE</el-radio>
                     </el-radio-group>
                   </el-form-item>
                 </el-col>
@@ -217,6 +206,7 @@
                 </el-col>
                 <el-col>
                   <el-transfer
+                    v-if="form.menuType == 'F' || form.menuType == 'C'"
                     v-model="form.apis"
                     style="text-align: left; display: inline-block"
                     filterable
