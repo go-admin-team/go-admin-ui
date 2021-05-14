@@ -110,17 +110,6 @@
             prop="action"
             width="70"
           />
-          <!-- <el-table-column
-            label="菜单按钮"
-            align="left"
-            prop="parentId"
-            :formatter="parentIdFormat"
-            width="100"
-          >
-            <template slot-scope="scope">
-              {{ parentIdFormat(scope.row) }}
-            </template>
-          </el-table-column> -->
           <el-table-column
             label="排序"
             prop="sort"
@@ -193,20 +182,6 @@
                   placeholder="地址"
                 />
               </el-form-item>
-
-              <el-form-item label="按钮id" prop="parentId">
-                <el-select
-                  v-model="form.parentId"
-                  placeholder="请选择"
-                >
-                  <el-option
-                    v-for="dict in parentIdOptions"
-                    :key="dict.key"
-                    :label="dict.value"
-                    :value="dict.key"
-                  />
-                </el-select>
-              </el-form-item>
               <el-form-item label="排序" prop="sort">
                 <el-input
                   v-model="form.sort"
@@ -231,7 +206,6 @@
 
 <script>
 import { addSysApi, delSysApi, getSysApi, listSysApi, updateSysApi } from '@/api/sys-api'
-import { listMenu } from '@/api/system/menu'
 
 export default {
   name: 'SysApi',
@@ -259,8 +233,6 @@ export default {
       typeOptions: [],
       sysapiList: [],
       dateRange: [],
-      // 关系表类型
-      parentIdOptions: [],
 
       // 查询参数
       queryParams: {
@@ -326,7 +298,6 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-
         id: undefined,
         name: undefined,
         title: undefined,
@@ -340,12 +311,6 @@ export default {
     },
     parentIdFormat(row) {
       return this.selectItemsLabel(this.parentIdOptions, row.parentId)
-    },
-    // 关系
-    getSysMenuItems() {
-      this.getItems(listMenu, undefined).then(res => {
-        this.parentIdOptions = this.setItems(res, 'menuId', 'menuName')
-      })
     },
     // 文件
     /** 搜索按钮操作 */
