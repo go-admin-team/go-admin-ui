@@ -286,6 +286,7 @@ export default {
   },
   created() {
     this.getList()
+
     this.getApiList()
     this.getDicts('sys_show_hide').then(response => {
       this.visibleOptions = response.data
@@ -402,6 +403,7 @@ export default {
         menuName: undefined,
         icon: undefined,
         menuType: 'M',
+        apis: [],
         sort: 0,
         action: this.form.menuType === 'A' ? this.form.action : '',
         isFrame: '1',
@@ -440,8 +442,6 @@ export default {
         l.push(element.id)
       }
       this.form.apis = l
-      console.log('-------apis')
-      console.log(this.form.apis)
     },
     /** 提交按钮 */
     submitForm: function() {
