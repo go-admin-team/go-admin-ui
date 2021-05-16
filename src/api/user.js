@@ -1,5 +1,6 @@
 import request from '@/utils/request'
 
+// login 登陆
 export function login(data) {
   return request({
     url: '/api/v1/login',
@@ -8,6 +9,15 @@ export function login(data) {
   })
 }
 
+// logout 退出
+export function logout() {
+  return request({
+    url: '/api/v1/logout',
+    method: 'post'
+  })
+}
+
+// refreshtoken 刷新token
 export function refreshtoken(data) {
   return request({
     url: '/refreshtoken',
@@ -16,17 +26,11 @@ export function refreshtoken(data) {
   })
 }
 
+// getInfo 获取用户基本信息
 export function getInfo() {
   return request({
     url: '/api/v1/getinfo',
     method: 'get'
-  })
-}
-
-export function logout() {
-  return request({
-    url: '/api/v1/logout',
-    method: 'post'
   })
 }
 

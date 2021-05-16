@@ -1,5 +1,5 @@
 import { asyncRoutes, constantRoutes } from '@/router'
-import { getRoutes } from '@/api/system/role'
+import { getRoutes } from '@/api/admin/sys-role'
 import Layout from '@/layout'
 // import sysuserindex from '@/views/sysuser/index'
 

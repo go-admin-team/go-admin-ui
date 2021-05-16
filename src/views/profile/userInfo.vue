@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { updateUser } from '@/api/system/sysuser'
+import { updateUser } from '@/api/admin/sys-user'
 
 export default {
   props: {

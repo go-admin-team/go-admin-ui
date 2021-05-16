@@ -176,7 +176,7 @@
 <script>
 import { getGenTable, updateGenTable, getTableTree } from '@/api/tools/gen'
 // import { listTable } from '@/api/tools/gen'
-import { optionselect as getDictOptionselect } from '@/api/system/dict/type'
+import { optionselect as getDictOptionselect } from '@/api/admin/dict/type'
 import basicInfoForm from './basicInfoForm'
 import genInfoForm from './genInfoForm'
 export default {

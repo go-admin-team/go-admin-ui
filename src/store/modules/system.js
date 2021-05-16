@@ -1,5 +1,4 @@
 import { getSetting, updateSetting } from '@/api/login'
-// import { logout } from '@/api/user'
 import storage from '@/utils/storage'
 const state = {
   info: storage.get('app_info')

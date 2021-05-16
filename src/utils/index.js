@@ -12,6 +12,10 @@ export function parseTime(time, cFormat) {
   if (arguments.length === 0) {
     return null
   }
+  console.log(time_str.indexOf('01-01-01'))
+  if (time_str.indexOf('01-01-01') > -1) {
+    return '-'
+  }
   const format = cFormat || '{y}-{m}-{d} {h}:{i}:{s}'
   let date
   if (typeof time === 'object') {
@@ -40,6 +44,7 @@ export function parseTime(time, cFormat) {
     if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value] }
     return value.toString().padStart(2, '0')
   })
+
   return time_str
 }
 
