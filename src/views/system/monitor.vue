@@ -45,8 +45,8 @@
                   <el-progress :color="$store.state.settings.theme" type="circle" :percentage=" Number(( info.disk.free / info.disk.total * 100).toFixed(2))" />
                 </div>
                 <div class="monitor-footer">
-                  <Cell label="总内存" :value="info.disk.total+'G'" border />
-                  <Cell label="已用内存" :value="info.disk.free+'G'" />
+                  <Cell label="总磁盘" :value="info.disk.total+'G'" border />
+                  <Cell label="已用磁盘" :value="info.disk.free+'G'" />
                 </div>
               </div>
             </el-card>
