@@ -212,7 +212,7 @@
                       filterable
                       :props="{
                         key: 'id',
-                        label: 'path'
+                        label: 'title'
                       }"
                       :titles="['Source', 'Target']"
                       :button-texts="['到左边', '到右边 ']"
@@ -224,7 +224,7 @@
                       :data="sysapiList"
                       @change="handleChange"
                     >
-                      <span slot-scope="{ option }">{{ option.id }} - {{ option.path }}</span>
+                      <span slot-scope="{ option }">{{ option.id }} - {{ option.title }}</span>
                     </el-transfer>
                   </el-form-item>
                 </el-col>
@@ -275,7 +275,8 @@ export default {
       },
       // 表单参数
       form: {
-        apis: []
+        apis: [],
+        sysApi: []
       },
       // 表单校验
       rules: {

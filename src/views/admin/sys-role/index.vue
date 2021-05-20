@@ -239,7 +239,7 @@
 
 <script>
 import { listRole, getRole, delRole, addRole, updateRole, dataScope, changeRoleStatus } from '@/api/admin/sys-role'
-import { treeselect as menuTreeselect, roleMenuTreeselect } from '@/api/admin/sys-menu'
+import { roleMenuTreeselect } from '@/api/admin/sys-menu'
 import { treeselect as deptTreeselect, roleDeptTreeselect } from '@/api/admin/sys-dept'
 import { formatJson } from '@/utils'
 
@@ -310,7 +310,9 @@ export default {
         status: undefined
       },
       // 表单参数
-      form: {},
+      form: {
+        sysMenu: []
+      },
       defaultProps: {
         children: 'children',
         label: 'label'
@@ -349,7 +351,7 @@ export default {
     },
     /** 查询菜单树结构 */
     getMenuTreeselect() {
-      menuTreeselect().then(response => {
+      roleMenuTreeselect(0).then(response => {
         this.menuOptions = response.data.menus
       })
     },
@@ -438,6 +440,7 @@ export default {
         status: '2',
         menuIds: [],
         deptIds: [],
+        sysMenu: [],
         remark: undefined
       }
       this.resetForm('form')
@@ -462,7 +465,7 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset()
-      this.getMenuTreeselect()
+      this.getMenuTreeselect(0)
       this.open = true
       this.title = '添加角色'
       this.isEdit = false
