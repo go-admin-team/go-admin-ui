@@ -75,7 +75,7 @@
             <el-row :gutter="10" class="mb8">
               <el-col :span="1.5">
                 <el-button
-                  v-permisaction="['system:sysuser:add']"
+                  v-permisaction="['admin:sysUser:add']"
                   type="primary"
                   icon="el-icon-plus"
                   size="mini"
@@ -84,7 +84,7 @@
               </el-col>
               <el-col :span="1.5">
                 <el-button
-                  v-permisaction="['system:sysuser:edit']"
+                  v-permisaction="['admin:sysUser:edit']"
                   type="success"
                   icon="el-icon-edit"
                   size="mini"
@@ -94,7 +94,7 @@
               </el-col>
               <el-col :span="1.5">
                 <el-button
-                  v-permisaction="['system:sysuser:remove']"
+                  v-permisaction="['admin:sysUser:remove']"
                   type="danger"
                   icon="el-icon-delete"
                   size="mini"
@@ -138,7 +138,7 @@
               >
                 <template slot-scope="scope">
                   <el-button
-                    v-permisaction="['system:sysuser:edit']"
+                    v-permisaction="['admin:sysUser:edit']"
                     size="mini"
                     type="text"
                     icon="el-icon-edit"
@@ -146,14 +146,14 @@
                   >修改</el-button>
                   <el-button
                     v-if="scope.row.userId !== 1"
-                    v-permisaction="['system:sysuser:remove']"
+                    v-permisaction="['admin:sysUser:remove']"
                     size="mini"
                     type="text"
                     icon="el-icon-delete"
                     @click="handleDelete(scope.row)"
                   >删除</el-button>
                   <el-button
-                    v-permisaction="['system:sysuser:resetPassword']"
+                    v-permisaction="['admin:sysUser:resetPassword']"
                     size="mini"
                     type="text"
                     icon="el-icon-key"

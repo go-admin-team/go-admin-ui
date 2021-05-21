@@ -46,23 +46,12 @@
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:sysapi:add']"
+              v-permisaction="['admin:sysApi:add']"
               type="primary"
               icon="el-icon-plus"
               size="mini"
               @click="handleAdd"
             >新增
-            </el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysapi:edit']"
-              type="success"
-              icon="el-icon-edit"
-              size="mini"
-              :disabled="single"
-              @click="handleUpdate"
-            >修改
             </el-button>
           </el-col>
         </el-row>
@@ -118,7 +107,7 @@
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
-                v-permisaction="['admin:sysapi:edit']"
+                v-permisaction="['admin:sysApi:edit']"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
@@ -149,7 +138,7 @@
           <div class="demo-drawer__content">
             <el-form ref="form" :model="form" :rules="rules" label-width="80px">
 
-              <el-form-item label="handle" prop="name">
+              <el-form-item label="handle" prop="handle">
                 <el-input
                   v-model="form.handle"
                   placeholder="handle"
@@ -161,13 +150,7 @@
                   placeholder="标题"
                 />
               </el-form-item>
-              <el-form-item label="类型" prop="action">
-                <el-input
-                  v-model="form.action"
-                  placeholder="类型"
-                />
-              </el-form-item>
-              <el-form-item label="请求方式">
+              <el-form-item label="请求方式" prop="action">
                 <el-select
                   v-model="form.action"
                   placeholder="请选择类型"
@@ -184,6 +167,7 @@
               <el-form-item label="地址" prop="path">
                 <el-input
                   v-model="form.path"
+                  :disabled="isEdit"
                   placeholder="地址"
                 />
               </el-form-item>
@@ -255,7 +239,6 @@ export default {
       },
       // 表单校验
       rules: {
-        name: [{ required: true, message: '名称不能为空', trigger: 'blur' }],
         title: [{ required: true, message: '标题不能为空', trigger: 'blur' }],
         path: [{ required: true, message: '地址不能为空', trigger: 'blur' }],
         action: [{ required: true, message: '类型不能为空', trigger: 'blur' }],

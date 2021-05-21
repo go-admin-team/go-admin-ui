@@ -40,7 +40,7 @@
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['system:syspost:add']"
+              v-permisaction="['admin:sysPost:add']"
               type="primary"
               icon="el-icon-plus"
               size="mini"
@@ -49,7 +49,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['system:syspost:edit']"
+              v-permisaction="['admin:sysPost:edit']"
               type="success"
               icon="el-icon-edit"
               size="mini"
@@ -59,7 +59,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['system:syspost:remove']"
+              v-permisaction="['admin:sysPost:remove']"
               type="danger"
               icon="el-icon-delete"
               size="mini"
@@ -69,7 +69,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['system:syspost:export']"
+              v-permisaction="['admin:sysPost:export']"
               type="warning"
               icon="el-icon-download"
               size="mini"
@@ -100,14 +100,14 @@
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
-                v-permisaction="['system:syspost:edit']"
+                v-permisaction="['admin:sysPost:edit']"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
                 @click="handleUpdate(scope.row)"
               >修改</el-button>
               <el-button
-                v-permisaction="['system:syspost:remove']"
+                v-permisaction="['admin:sysPost:remove']"
                 size="mini"
                 type="text"
                 icon="el-icon-delete"

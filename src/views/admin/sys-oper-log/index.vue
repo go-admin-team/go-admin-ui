@@ -54,7 +54,7 @@
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['system:sysoperlog:remove']"
+              v-permisaction="['admin:sysOperLog:remove']"
               type="danger"
               icon="el-icon-delete"
               size="mini"
@@ -64,7 +64,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['system:sysoperlog:export']"
+              v-permisaction="['admin:sysOperLog:export']"
               type="warning"
               icon="el-icon-download"
               size="mini"
@@ -73,11 +73,11 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="list" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="list" border @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
-          <el-table-column label="日志编号" width="80" align="center" prop="id" />
-          <el-table-column label="请求方式" width="80" align="center" prop="requestMethod" :show-overflow-tooltip="true" />
-          <el-table-column label="请求地址" align="center" prop="operUrl" :show-overflow-tooltip="true" />
+          <el-table-column label="编号" width="70" align="center" prop="id" />
+          <el-table-column label="方式" width="70" align="center" prop="requestMethod" :show-overflow-tooltip="true" />
+          <el-table-column label="请求地址" width="270" align="left" header-align="center" prop="operUrl" :show-overflow-tooltip="true" />
           <el-table-column label="操作人员" align="center" prop="operName" :show-overflow-tooltip="true" />
           <el-table-column label="主机" align="center" prop="operIp" width="130" :show-overflow-tooltip="true" />
           <el-table-column label="操作地点" align="center" prop="operLocation" :show-overflow-tooltip="true" />
@@ -90,7 +90,7 @@
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
-                v-permisaction="['system:sysoperlog:query']"
+                v-permisaction="['admin:sysOperLog:query']"
                 size="mini"
                 type="text"
                 icon="el-icon-view"
@@ -114,12 +114,16 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item label="操作模块：">{{ form.title }} / {{ typeFormat(form) }}</el-form-item>
+              </el-col>
+              <el-col :span="12">
                 <el-form-item
                   label="登录信息："
                 >{{ form.operName }} / {{ form.operIp }} / {{ form.operLocation }}</el-form-item>
               </el-col>
-              <el-col :span="12">
+              <el-col :span="24">
                 <el-form-item label="请求地址：">{{ form.operUrl }}</el-form-item>
+              </el-col>
+              <el-col :span="12">
                 <el-form-item label="请求方式：">{{ form.requestMethod }}</el-form-item>
               </el-col>
               <el-col :span="12">

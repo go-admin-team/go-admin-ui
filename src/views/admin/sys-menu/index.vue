@@ -25,7 +25,7 @@
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button
-              v-permisaction="['system:sysmenu:add']"
+              v-permisaction="['admin:sysMenu:add']"
               type="primary"
               icon="el-icon-plus"
               size="mini"
@@ -71,21 +71,21 @@
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="180">
             <template slot-scope="scope">
               <el-button
-                v-permisaction="['system:sysmenu:edit']"
+                v-permisaction="['admin:sysMenu:edit']"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
                 @click="handleUpdate(scope.row)"
               >修改</el-button>
               <el-button
-                v-permisaction="['system:sysmenu:add']"
+                v-permisaction="['admin:sysMenu:add']"
                 size="mini"
                 type="text"
                 icon="el-icon-plus"
                 @click="handleAdd(scope.row)"
               >新增</el-button>
               <el-button
-                v-permisaction="['system:sysmenu:remove']"
+                v-permisaction="['admin:sysMenu:remove']"
                 size="mini"
                 type="text"
                 icon="el-icon-delete"
