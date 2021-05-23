@@ -91,11 +91,6 @@
             width="70"
           />
           <el-table-column
-            label="排序"
-            prop="sort"
-            width="60"
-          />
-          <el-table-column
             label="创建时间"
             align="center"
             prop="createdAt"
