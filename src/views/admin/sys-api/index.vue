@@ -43,19 +43,6 @@
           </el-form-item>
         </el-form>
 
-        <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysApi:add']"
-              type="primary"
-              icon="el-icon-plus"
-              size="mini"
-              @click="handleAdd"
-            >新增
-            </el-button>
-          </el-col>
-        </el-row>
-
         <el-table
           v-loading="loading"
           :data="sysapiList"
@@ -64,42 +51,66 @@
           @sort-change="handleSortChang"
         >
           <el-table-column
-            label="handle"
-            align="left"
-            prop="handle"
-            :show-overflow-tooltip="true"
-            width="300px"
-            fixed="left"
-            sortable="custom"
-          />
-          <el-table-column
             label="标题"
+            header-align="center"
             align="left"
             prop="title"
+            fixed="left"
+            sortable="custom"
+            width="260px"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <span v-if="scope.row.type=='SYS' && scope.row.title!=''"><el-tag type="success">{{ '['+scope.row.type +'] '+ scope.row.title }}</el-tag></span>
+              <span v-if="scope.row.type!='SYS' && scope.row.title!=''"><el-tag type="">{{ '['+scope.row.type +'] '+scope.row.title }}</el-tag></span>
+              <span v-if="scope.row.title==''"><el-tag type="danger">暂无</el-tag></span>
+
+            </template>
+          </el-table-column>
+
           <el-table-column
-            label="地址"
+            label="Request Info"
+            header-align="center"
             align="left"
             prop="path"
-            width="180px"
-          />
-          <el-table-column
-            label="类型"
-            align="left"
-            prop="action"
-            width="70"
-          />
+            sortable="custom"
+            :show-overflow-tooltip="true"
+          >
+            <!-- <template slot-scope="scope">
+              <span>{{ "["+scope.row.action +"] "+ scope.row.path }}</span>
+            </template> -->
+            <template slot-scope="scope">
+              <el-popover trigger="hover" placement="top">
+                <p>Handle: {{ scope.row.handle }}</p>
+                <p>Method: {{ scope.row.action }}</p>
+                <p>接口类型: {{ scope.row.type }}</p>
+                <div slot="reference" class="name-wrapper">
+                  <el-tag v-if="scope.row.action=='GET'">{{ scope.row.action }}</el-tag>
+                  <el-tag v-if="scope.row.action=='POST'" type="success">{{ scope.row.action }}</el-tag>
+                  <el-tag v-if="scope.row.action=='PUT'" type="warning">{{ scope.row.action }}</el-tag>
+                  <el-tag v-if="scope.row.action=='DELETE'" type="danger">{{ scope.row.action }}</el-tag>
+                  {{ scope.row.path }}
+                </div>
+              </el-popover>
+            </template>
+          </el-table-column>
           <el-table-column
             label="创建时间"
             align="center"
             prop="createdAt"
-            :show-overflow-tooltip="true"
-          ><template slot-scope="scope">
-            <span>{{ parseTime(scope.row.createdAt) }}</span>
-          </template>
+            width="155px"
+            sortable="custom"
+          >
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.createdAt) }}</span>
+            </template>
           </el-table-column>
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <el-table-column
+            label="操作"
+            align="center"
+            width="80px"
+            class-name="small-padding fixed-width"
+          >
             <template slot-scope="scope">
               <el-button
                 v-permisaction="['admin:sysApi:edit']"
@@ -133,7 +144,7 @@
           <div class="demo-drawer__content">
             <el-form ref="form" :model="form" :rules="rules" label-width="80px">
 
-              <el-form-item label="handle" prop="handle">
+              <el-form-item label="Handle" prop="handle">
                 <el-input
                   v-model="form.handle"
                   placeholder="handle"
@@ -145,10 +156,22 @@
                   placeholder="标题"
                 />
               </el-form-item>
-              <el-form-item label="请求方式" prop="action">
+              <el-form-item label="类型" prop="type">
+                <el-select
+                  v-model="form.type"
+                  placeholder="请选择类型"
+                  clearable
+                  size="small"
+                  @keyup.enter.native="handleQuery"
+                >
+                  <el-option value="SYS">SYS</el-option>
+                  <el-option value="BUS">BUS</el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="Method" prop="action">
                 <el-select
                   v-model="form.action"
-                  placeholder="请选择类型"
+                  placeholder="请选择方式"
                   clearable
                   size="small"
                   @keyup.enter.native="handleQuery"
@@ -159,18 +182,12 @@
                   <el-option value="DELETE">DELETE</el-option>
                 </el-select>
               </el-form-item>
+
               <el-form-item label="地址" prop="path">
                 <el-input
                   v-model="form.path"
                   :disabled="isEdit"
                   placeholder="地址"
-                />
-              </el-form-item>
-              <el-form-item label="排序" prop="sort">
-                <el-input
-                  v-model="form.sort"
-                  type="number"
-                  placeholder="排序"
                 />
               </el-form-item>
 
