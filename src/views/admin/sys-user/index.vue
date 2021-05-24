@@ -36,7 +36,7 @@
                   placeholder="请输入用户名称"
                   clearable
                   size="small"
-                  style="width: 240px"
+                  style="width: 160px"
                   @keyup.enter.native="handleQuery"
                 />
               </el-form-item>
@@ -46,7 +46,7 @@
                   placeholder="请输入手机号码"
                   clearable
                   size="small"
-                  style="width: 240px"
+                  style="width: 160px"
                   @keyup.enter.native="handleQuery"
                 />
               </el-form-item>
@@ -56,7 +56,7 @@
                   placeholder="用户状态"
                   clearable
                   size="small"
-                  style="width: 240px"
+                  style="width: 160px"
                 >
                   <el-option
                     v-for="dict in statusOptions"
@@ -109,14 +109,15 @@
               :data="userList"
               border
               @selection-change="handleSelectionChange"
+              @sort-change="handleSortChang"
             >
               <el-table-column type="selection" width="45" align="center" />
-              <el-table-column label="编号" width="50" align="center" prop="userId" />
-              <el-table-column label="用户名称" align="center" prop="username" :show-overflow-tooltip="true" />
-              <el-table-column label="用户昵称" align="center" prop="nickName" :show-overflow-tooltip="true" />
-              <el-table-column label="部门" align="center" prop="dept.deptName" :show-overflow-tooltip="true" />
-              <el-table-column label="手机号码" align="center" prop="phone" width="120" />
-              <el-table-column label="状态" width="50" align="center">
+              <el-table-column label="编号" width="75" prop="userId" sortable="custom" />
+              <el-table-column label="登录名" width="105" prop="username" sortable="custom" :show-overflow-tooltip="true" />
+              <el-table-column label="昵称" prop="nickName" :show-overflow-tooltip="true" />
+              <el-table-column label="部门" prop="dept.deptName" :show-overflow-tooltip="true" />
+              <el-table-column label="手机号" prop="phone" width="108" />
+              <el-table-column label="状态" width="80" sortable="custom">
                 <template slot-scope="scope">
                   <el-switch
                     v-model="scope.row.status"
@@ -126,15 +127,14 @@
                   />
                 </template>
               </el-table-column>
-              <el-table-column label="创建时间" align="center" prop="createdAt" width="165">
+              <el-table-column label="创建时间" prop="createdAt" sortable="custom" width="155">
                 <template slot-scope="scope">
                   <span>{{ parseTime(scope.row.createdAt) }}</span>
                 </template>
               </el-table-column>
               <el-table-column
                 label="操作"
-                align="center"
-                width="220"
+                width="120"
                 class-name="small-padding fixed-width"
               >
                 <template slot-scope="scope">
@@ -388,33 +388,17 @@ export default {
       },
       // 表单校验
       rules: {
-        username: [
-          { required: true, message: '用户名称不能为空', trigger: 'blur' }
-        ],
-        nickName: [
-          { required: true, message: '用户昵称不能为空', trigger: 'blur' }
-        ],
-        deptId: [
-          { required: true, message: '归属部门不能为空', trigger: 'blur' }
-        ],
-        password: [
-          { required: true, message: '用户密码不能为空', trigger: 'blur' }
-        ],
+        username: [{ required: true, message: '用户名称不能为空', trigger: 'blur' }],
+        nickName: [{ required: true, message: '用户昵称不能为空', trigger: 'blur' }],
+        deptId: [{ required: true, message: '归属部门不能为空', trigger: 'blur' }],
+        password: [{ required: true, message: '用户密码不能为空', trigger: 'blur' }],
         email: [
           { required: true, message: '邮箱地址不能为空', trigger: 'blur' },
-          {
-            type: 'email',
-            message: "'请输入正确的邮箱地址",
-            trigger: ['blur', 'change']
-          }
+          { type: 'email', message: "'请输入正确的邮箱地址", trigger: ['blur', 'change'] }
         ],
         phone: [
           { required: true, message: '手机号码不能为空', trigger: 'blur' },
-          {
-            pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
-            message: '请输入正确的手机号码',
-            trigger: 'blur'
-          }
+          { pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/, message: '请输入正确的手机号码', trigger: 'blur' }
         ]
       }
     }
@@ -475,6 +459,19 @@ export default {
         label: node.label,
         children: node.children
       }
+    },
+    /** 排序回调函数 */
+    handleSortChang(column, prop, order) {
+      prop = column.prop
+      order = column.order
+      if (order === 'descending') {
+        this.queryParams[prop + '_order'] = 'desc'
+      } else if (order === 'ascending') {
+        this.queryParams[prop + '_order'] = 'asc'
+      } else {
+        this.queryParams[prop + '_order'] = undefined
+      }
+      this.getList()
     },
     // 用户状态修改
     handleStatusChange(row) {
