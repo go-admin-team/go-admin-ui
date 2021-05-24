@@ -3,32 +3,6 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="系统模块" prop="title">
-            <el-input
-              v-model="queryParams.title"
-              placeholder="请输入系统模块"
-              clearable
-              style="width: 160px;"
-              size="small"
-              @keyup.enter.native="handleQuery"
-            />
-          </el-form-item>
-          <el-form-item label="类型" prop="businessType">
-            <el-select
-              v-model="queryParams.businessType"
-              placeholder="操作类型"
-              clearable
-              size="small"
-              style="width: 160px"
-            >
-              <el-option
-                v-for="dict in typeOptions"
-                :key="dict.dictValue"
-                :label="dict.dictLabel"
-                :value="dict.dictValue"
-              />
-            </el-select>
-          </el-form-item>
           <el-form-item label="状态" prop="status">
             <el-select
               v-model="queryParams.status"
@@ -44,6 +18,19 @@
                 :value="dict.dictValue"
               />
             </el-select>
+          </el-form-item>
+          <el-form-item label="创建时间">
+            <el-date-picker
+              v-model="dateRange"
+              size="small"
+              type="datetimerange"
+              :picker-options="pickerOptions"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              align="right"
+              value-format="yyyy-MM-dd HH:mm:ss"
+            />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -78,16 +65,22 @@
           <el-table-column label="编号" width="70" prop="id" />
           <el-table-column
             label="Request info"
-            width="270"
             prop="operUrl"
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="top">
-                <p>Method: {{ scope.row.requestMethod }}</p>
-                <p>Uri: {{ scope.row.operUrl }}</p>
+
+                <p>Request:
+                  <el-tag v-if="scope.row.requestMethod=='GET'">{{ scope.row.requestMethod }}</el-tag>
+                  <el-tag v-if="scope.row.requestMethod=='POST'" type="success">{{ scope.row.requestMethod }}</el-tag>
+                  <el-tag v-if="scope.row.requestMethod=='PUT'" type="warning">{{ scope.row.requestMethod }}</el-tag>
+                  <el-tag v-if="scope.row.requestMethod=='DELETE'" type="danger">{{ scope.row.requestMethod }}</el-tag>
+                  {{ scope.row.operUrl }}
+                </p>
                 <p>Host: {{ scope.row.operIp }}</p>
                 <p>Location: {{ scope.row.operLocation }}</p>
+                <p>耗时: {{ scope.row.latencyTime }}</p>
                 <div slot="reference" class="name-wrapper">
                   <el-tag v-if="scope.row.requestMethod=='GET'">{{ scope.row.requestMethod }}</el-tag>
                   <el-tag v-if="scope.row.requestMethod=='POST'" type="success">{{ scope.row.requestMethod }}</el-tag>
@@ -101,15 +94,20 @@
           <el-table-column
             label="操作人员"
             prop="operName"
+            width="160"
             :show-overflow-tooltip="true"
           />
           <el-table-column
             label="状态"
             prop="status"
             width="80"
-            :formatter="statusFormat"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.status=='2'" type="success">{{ statusFormat(scope.row,scope.row.status) }}</el-tag>
+              <el-tag v-if="scope.row.status=='1'" type="danger">{{ statusFormat(scope.row,scope.row.status) }}</el-tag>
+            </template>
+          </el-table-column>
           <el-table-column label="操作日期" prop="operTime" width="160">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.operTime) }}</span>
@@ -144,25 +142,20 @@
         <el-dialog title="操作日志详细" :visible.sync="open" width="700px">
           <el-form ref="form" :model="form" label-width="100px" size="mini">
             <el-row>
-              <el-col :span="12">
-                <el-form-item label="操作模块：">{{ form.title }} / {{ typeFormat(form) }}</el-form-item>
+              <el-col :span="24">
+                <el-form-item label="请求地址：">{{ form.operUrl }}</el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item
                   label="登录信息："
                 >{{ form.operName }} / {{ form.operIp }} / {{ form.operLocation }}</el-form-item>
               </el-col>
-              <el-col :span="24">
-                <el-form-item label="请求地址：">{{ form.operUrl }}</el-form-item>
-              </el-col>
+
               <el-col :span="12">
                 <el-form-item label="请求方式：">{{ form.requestMethod }}</el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="耗时：">{{ form.latencyTime }}</el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="操作方法：">{{ form.method }}</el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="请求参数：">{{ form.operParam }}</el-form-item>
@@ -214,8 +207,6 @@ export default {
       // 是否显示弹出层
       open: false,
       // 类型数据字典
-      typeOptions: [],
-      // 类型数据字典
       statusOptions: [],
       // 日期范围
       dateRange: [],
@@ -234,9 +225,7 @@ export default {
   },
   created() {
     this.getList()
-    this.getDicts('sys_oper_type').then(response => {
-      this.typeOptions = response.data
-    })
+
     this.getDicts('sys_common_status').then(response => {
       this.statusOptions = response.data
     })
@@ -255,10 +244,6 @@ export default {
     // 操作日志状态字典翻译
     statusFormat(row, column) {
       return this.selectDictLabel(this.statusOptions, row.status)
-    },
-    // 操作日志类型字典翻译
-    typeFormat(row, column) {
-      return this.selectDictLabel(this.typeOptions, row.businessType)
     },
     /** 搜索按钮操作 */
     handleQuery() {
