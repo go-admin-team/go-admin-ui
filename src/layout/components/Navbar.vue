@@ -2,7 +2,8 @@
   <div class="navbar">
     <hamburger id="hamburger-container" :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
 
-    <breadcrumb id="breadcrumb-container" class="breadcrumb-container" />
+    <breadcrumb v-if="!topNav" id="breadcrumb-container" class="breadcrumb-container" />
+    <top-nav v-if="topNav" id="topmenu-container" class="breadcrumb-container" />
 
     <div class="right-menu">
       <template v-if="device!=='mobile'">
@@ -33,6 +34,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
+import TopNav from '@/components/TopNav'
 import Hamburger from '@/components/Hamburger'
 import Screenfull from '@/components/Screenfull'
 import Search from '@/components/HeaderSearch'
@@ -40,6 +42,7 @@ import Search from '@/components/HeaderSearch'
 export default {
   components: {
     Breadcrumb,
+    TopNav,
     Hamburger,
     Screenfull,
     Search
@@ -49,7 +52,24 @@ export default {
       'sidebar',
       'avatar',
       'device'
-    ])
+    ]),
+    setting: {
+      get() {
+        return this.$store.state.settings.showSettings
+      },
+      set(val) {
+        this.$store.dispatch('settings/changeSetting', {
+          key: 'showSettings',
+          value: val
+        })
+      }
+    },
+    topNav: {
+      get() {
+        return this.$store.state.settings.topNav
+      }
+    }
+
   },
   methods: {
     toggleSideBar() {

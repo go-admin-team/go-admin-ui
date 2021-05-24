@@ -8,6 +8,11 @@ module.exports = {
   showSettings: true,
 
   /**
+   * 是否显示顶部导航
+   */
+  topNav: true,
+
+  /**
    * @type {boolean} true | false
    * @description Whether need tagsView
    */

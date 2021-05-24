@@ -41,6 +41,12 @@
         <div class="setting-drawer-title">
           布局设置
         </div>
+
+        <div class="drawer-item">
+          <span>开启 TopNav</span>
+          <el-switch v-model="topNav" class="drawer-switch" />
+        </div>
+
         <div class="drawer-item">
           <span>开启任务栏</span>
           <el-switch v-model="tagsView" :active-color="activeColor" class="drawer-switch" />
@@ -86,6 +92,20 @@ export default {
           key: 'fixedHeader',
           value: val
         })
+      }
+    },
+    topNav: {
+      get() {
+        return this.$store.state.settings.topNav
+      },
+      set(val) {
+        this.$store.dispatch('settings/changeSetting', {
+          key: 'topNav',
+          value: val
+        })
+        if (!val) {
+          this.$store.commit('permission/SET_SIDEBAR_ROUTERS', this.$store.state.permission.defaultRoutes)
+        }
       }
     },
     tagsView: {

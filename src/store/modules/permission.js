@@ -44,7 +44,7 @@ export function generaMenu(routes, data) {
       meta: {
         title: item.title,
         icon: item.icon,
-        noCache: true
+        noCache: item.noCache
       }
     }
     if (item.children) {
@@ -55,8 +55,7 @@ export function generaMenu(routes, data) {
 }
 
 export const loadView = (view) => { // 路由懒加载
-  return (resolve) => require(['@/views' + view], resolve)
-  // return () => import(`@/views${view}`)
+  return (resolve) => require([`@/views${view}`], resolve)
 }
 
 /**
@@ -103,13 +102,30 @@ export function filterAsyncPathRoutes(routes, paths) {
 
 const state = {
   routes: [],
-  addRoutes: []
+  addRoutes: [],
+  defaultRoutes: [],
+  topbarRouters: [],
+  sidebarRouters: []
 }
 
 const mutations = {
   SET_ROUTES: (state, routes) => {
     state.addRoutes = routes
     state.routes = constantRoutes.concat(routes)
+  },
+  SET_DEFAULT_ROUTES: (state, routes) => {
+    state.defaultRoutes = constantRoutes.concat(routes)
+  },
+  SET_TOPBAR_ROUTES: (state, routes) => {
+    // 顶部导航菜单默认添加统计报表栏指向首页
+    const index = [{
+      path: 'index',
+      meta: { title: '统计报表', icon: 'dashboard' }
+    }]
+    state.topbarRouters = routes.concat(index)
+  },
+  SET_SIDEBAR_ROUTERS: (state, routes) => {
+    state.sidebarRouters = routes
   }
 }
 
@@ -133,6 +149,11 @@ const actions = {
           generaMenu(asyncRoutes, loadMenuData)
           asyncRoutes.push({ path: '*', redirect: '/', hidden: true })
           commit('SET_ROUTES', asyncRoutes)
+          const sidebarRoutes = []
+          generaMenu(sidebarRoutes, loadMenuData)
+          commit('SET_SIDEBAR_ROUTERS', constantRoutes.concat(sidebarRoutes))
+          commit('SET_DEFAULT_ROUTES', sidebarRoutes)
+          commit('SET_TOPBAR_ROUTES', sidebarRoutes)
           resolve(asyncRoutes)
         }
       }).catch(error => {
