@@ -81,8 +81,17 @@
             </template> -->
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="top">
+                <p><span v-if="scope.row.type=='SYS' && scope.row.title!=''"><el-tag type="success">{{ '['+scope.row.type +'] '+ scope.row.title }}</el-tag></span>
+                  <span v-if="scope.row.type!='SYS' && scope.row.title!=''"><el-tag type="">{{ '['+scope.row.type +'] '+scope.row.title }}</el-tag></span>
+                  <span v-if="scope.row.title==''"><el-tag type="danger">暂无</el-tag></span>
+                </p>
                 <p>Handle: {{ scope.row.handle }}</p>
-                <p>Method: {{ scope.row.action }}</p>
+                <p>Method:
+                  <el-tag v-if="scope.row.action=='GET'">{{ scope.row.action }}</el-tag>
+                  <el-tag v-if="scope.row.action=='POST'" type="success">{{ scope.row.action }}</el-tag>
+                  <el-tag v-if="scope.row.action=='PUT'" type="warning">{{ scope.row.action }}</el-tag>
+                  <el-tag v-if="scope.row.action=='DELETE'" type="danger">{{ scope.row.action }}</el-tag>
+                </p>
                 <p>接口类型: {{ scope.row.type }}</p>
                 <div slot="reference" class="name-wrapper">
                   <el-tag v-if="scope.row.action=='GET'">{{ scope.row.action }}</el-tag>
