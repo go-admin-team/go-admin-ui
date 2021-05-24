@@ -3,13 +3,13 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true">
-          <el-form-item label="角色名称" prop="roleName">
+          <el-form-item label="名称" prop="roleName">
             <el-input
               v-model="queryParams.roleName"
               placeholder="请输入角色名称"
               clearable
               size="small"
-              style="width: 240px"
+              style="width: 160px"
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
@@ -19,7 +19,7 @@
               placeholder="请输入权限字符"
               clearable
               size="small"
-              style="width: 240px"
+              style="width: 160px"
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
@@ -29,7 +29,7 @@
               placeholder="角色状态"
               clearable
               size="small"
-              style="width: 240px"
+              style="width: 160px"
             >
               <el-option
                 v-for="dict in statusOptions"
@@ -98,13 +98,19 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="roleList" @selection-change="handleSelectionChange">
+        <el-table
+          v-loading="loading"
+          :data="roleList"
+          border
+          @selection-change="handleSelectionChange"
+          @sort-change="handleSortChang"
+        >
           <el-table-column type="selection" width="55" align="center" />
-          <el-table-column label="角色编号" prop="roleId" width="120" />
-          <el-table-column label="角色名称" prop="roleName" :show-overflow-tooltip="true" width="150" />
+          <el-table-column label="编码" sortable="custom" prop="roleId" width="80" />
+          <el-table-column label="名称" sortable="custom" prop="roleName" :show-overflow-tooltip="true" />
           <el-table-column label="权限字符" prop="roleKey" :show-overflow-tooltip="true" width="150" />
-          <el-table-column label="显示顺序" prop="roleSort" width="100" />
-          <el-table-column label="状态" align="center" width="100">
+          <el-table-column label="排序" sortable="custom" prop="roleSort" width="80" />
+          <el-table-column label="状态" sortable="custom" width="80">
             <template slot-scope="scope">
               <el-switch
                 v-model="scope.row.status"
@@ -114,12 +120,17 @@
               />
             </template>
           </el-table-column>
-          <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
+          <el-table-column label="创建时间" sortable="custom" prop="createdAt" width="160">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <el-table-column
+            label="操作"
+            align="left"
+            class-name="small-padding fixed-width"
+            width="220"
+          >
             <template slot-scope="scope">
               <el-button
                 v-permisaction="['admin:sysRole:edit']"
