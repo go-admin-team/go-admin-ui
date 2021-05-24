@@ -8,7 +8,7 @@
               v-model="queryParams.title"
               placeholder="请输入系统模块"
               clearable
-              style="width: 240px;"
+              style="width: 160px;"
               size="small"
               @keyup.enter.native="handleQuery"
             />
@@ -19,7 +19,7 @@
               placeholder="操作类型"
               clearable
               size="small"
-              style="width: 240px"
+              style="width: 160px"
             >
               <el-option
                 v-for="dict in typeOptions"
@@ -35,7 +35,7 @@
               placeholder="操作状态"
               clearable
               size="small"
-              style="width: 240px"
+              style="width: 160px"
             >
               <el-option
                 v-for="dict in statusOptions"
@@ -75,19 +75,51 @@
 
         <el-table v-loading="loading" :data="list" border @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
-          <el-table-column label="编号" width="70" align="center" prop="id" />
-          <el-table-column label="方式" width="70" align="center" prop="requestMethod" :show-overflow-tooltip="true" />
-          <el-table-column label="请求地址" width="270" align="left" header-align="center" prop="operUrl" :show-overflow-tooltip="true" />
-          <el-table-column label="操作人员" align="center" prop="operName" :show-overflow-tooltip="true" />
-          <el-table-column label="主机" align="center" prop="operIp" width="130" :show-overflow-tooltip="true" />
-          <el-table-column label="操作地点" align="center" prop="operLocation" :show-overflow-tooltip="true" />
-          <el-table-column label="操作状态" align="center" prop="status" :formatter="statusFormat" :show-overflow-tooltip="true" />
-          <el-table-column label="操作日期" align="center" prop="operTime" width="180">
+          <el-table-column label="编号" width="70" prop="id" />
+          <el-table-column
+            label="Request info"
+            width="270"
+            prop="operUrl"
+            :show-overflow-tooltip="true"
+          >
+            <template slot-scope="scope">
+              <el-popover trigger="hover" placement="top">
+                <p>Method: {{ scope.row.requestMethod }}</p>
+                <p>Uri: {{ scope.row.operUrl }}</p>
+                <p>Host: {{ scope.row.operIp }}</p>
+                <p>Location: {{ scope.row.operLocation }}</p>
+                <div slot="reference" class="name-wrapper">
+                  <el-tag v-if="scope.row.requestMethod=='GET'">{{ scope.row.requestMethod }}</el-tag>
+                  <el-tag v-if="scope.row.requestMethod=='POST'" type="success">{{ scope.row.requestMethod }}</el-tag>
+                  <el-tag v-if="scope.row.requestMethod=='PUT'" type="warning">{{ scope.row.requestMethod }}</el-tag>
+                  <el-tag v-if="scope.row.requestMethod=='DELETE'" type="danger">{{ scope.row.requestMethod }}</el-tag>
+                  {{ scope.row.operUrl }}
+                </div>
+              </el-popover>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="操作人员"
+            prop="operName"
+            :show-overflow-tooltip="true"
+          />
+          <el-table-column
+            label="状态"
+            prop="status"
+            width="80"
+            :formatter="statusFormat"
+            :show-overflow-tooltip="true"
+          />
+          <el-table-column label="操作日期" prop="operTime" width="160">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.operTime) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <el-table-column
+            label="操作"
+            width="80"
+            class-name="small-padding fixed-width"
+          >
             <template slot-scope="scope">
               <el-button
                 v-permisaction="['admin:sysOperLog:query']"
