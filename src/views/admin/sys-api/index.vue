@@ -330,11 +330,10 @@ export default {
       this.title = '添加接口管理'
       this.isEdit = false
     },
+    /** 排序回调函数 */
     handleSortChang(column, prop, order) {
       prop = column.prop
       order = column.order
-      console.log(column, prop, order)
-
       if (order === 'descending') {
         this.queryParams[prop + '_order'] = 'desc'
       } else if (order === 'ascending') {
@@ -343,9 +342,6 @@ export default {
         this.queryParams[prop + '_order'] = undefined
       }
       this.getList()
-    },
-    handleSortMethod(a, b) {
-      console.log(a, b)
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
