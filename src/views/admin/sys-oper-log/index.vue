@@ -166,7 +166,7 @@
               <el-col :span="12">
                 <el-form-item label="操作状态：">
                   <div v-if="form.status === '2'">正常</div>
-                  <div v-else-if="form.status === '1'">失败</div>
+                  <div v-else-if="form.status === '1'">关闭</div>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -268,13 +268,13 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const operIds = row.id || this.ids
+      const operIds = (row.id && [row.id]) || this.ids
       this.$confirm('是否确认删除日志编号为"' + operIds + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delSysOperlog(operIds)
+        return delSysOperlog({ 'ids': operIds })
       }).then(() => {
         this.getList()
         this.msgSuccess('删除成功')

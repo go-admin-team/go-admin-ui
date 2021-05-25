@@ -127,7 +127,12 @@
                   />
                 </template>
               </el-table-column>
-              <el-table-column label="创建时间" prop="createdAt" sortable="custom" width="155">
+              <el-table-column
+                label="创建时间"
+                prop="createdAt"
+                sortable="custom"
+                width="155"
+              >
                 <template slot-scope="scope">
                   <span>{{ parseTime(scope.row.createdAt) }}</span>
                 </template>
@@ -418,7 +423,7 @@ export default {
     this.getDicts('sys_user_sex').then(response => {
       this.sexOptions = response.data
     })
-    this.getConfigKey('sys.user.initPassword').then(response => {
+    this.getConfigKey('sys_user_initPassword').then(response => {
       this.initPassword = response.data.configValue
     })
   },
@@ -464,12 +469,17 @@ export default {
     handleSortChang(column, prop, order) {
       prop = column.prop
       order = column.order
+      if (this.order !== '' && this.order !== prop + 'Order') {
+        this.queryParams[this.order] = undefined
+      }
       if (order === 'descending') {
-        this.queryParams[prop + '_order'] = 'desc'
+        this.queryParams[prop + 'Order'] = 'desc'
+        this.order = prop + 'Order'
       } else if (order === 'ascending') {
-        this.queryParams[prop + '_order'] = 'asc'
+        this.queryParams[prop + 'Order'] = 'asc'
+        this.order = prop + 'Order'
       } else {
-        this.queryParams[prop + '_order'] = undefined
+        this.queryParams[prop + 'Order'] = undefined
       }
       this.getList()
     },

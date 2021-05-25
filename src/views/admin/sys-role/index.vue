@@ -481,6 +481,18 @@ export default {
       this.title = '添加角色'
       this.isEdit = false
     },
+    handleSortChang(column, prop, order) {
+      prop = column.prop
+      order = column.order
+      if (order === 'descending') {
+        this.queryParams[prop + 'Order'] = 'desc'
+      } else if (order === 'ascending') {
+        this.queryParams[prop + 'Order'] = 'asc'
+      } else {
+        this.queryParams[prop + 'Order'] = undefined
+      }
+      this.getList()
+    },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()

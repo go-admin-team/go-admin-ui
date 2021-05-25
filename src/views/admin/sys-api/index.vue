@@ -343,12 +343,17 @@ export default {
     handleSortChang(column, prop, order) {
       prop = column.prop
       order = column.order
+      if (this.order !== '' && this.order !== prop + 'Order') {
+        this.queryParams[this.order] = undefined
+      }
       if (order === 'descending') {
-        this.queryParams[prop + '_order'] = 'desc'
+        this.queryParams[prop + 'Order'] = 'desc'
+        this.order = prop + 'Order'
       } else if (order === 'ascending') {
-        this.queryParams[prop + '_order'] = 'asc'
+        this.queryParams[prop + 'Order'] = 'asc'
+        this.order = prop + 'Order'
       } else {
-        this.queryParams[prop + '_order'] = undefined
+        this.queryParams[prop + 'Order'] = undefined
       }
       this.getList()
     },
