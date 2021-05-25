@@ -2,28 +2,28 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="参数名称" prop="configName">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="48px">
+          <el-form-item label="名称" prop="configName">
             <el-input
               v-model="queryParams.configName"
               placeholder="请输入参数名称"
               clearable
               size="small"
-              style="width: 240px"
+              style="width: 160px"
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="参数键名" prop="configKey">
+          <el-form-item label="键名" prop="configKey">
             <el-input
               v-model="queryParams.configKey"
               placeholder="请输入参数键名"
               clearable
               size="small"
-              style="width: 240px"
+              style="width: 160px"
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="系统内置" prop="configType">
+          <el-form-item label="内置" prop="configType">
             <el-select v-model="queryParams.configType" placeholder="系统内置" clearable size="small">
               <el-option
                 v-for="dict in typeOptions"
@@ -80,20 +80,75 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="configList" @selection-change="handleSelectionChange">
+        <el-table
+          v-loading="loading"
+          :data="configList"
+          border
+          @selection-change="handleSelectionChange"
+          @sort-change="handleSortChang"
+        >
           <el-table-column type="selection" width="55" align="center" />
-          <el-table-column label="参数主键" width="80" align="center" prop="id" />
-          <el-table-column label="参数名称" align="center" prop="configName" :show-overflow-tooltip="true" />
-          <el-table-column label="参数键名" align="center" prop="configKey" :show-overflow-tooltip="true" />
-          <el-table-column label="参数键值" align="center" prop="configValue" />
-          <el-table-column label="系统内置" align="center" prop="configType" :formatter="typeFormat" />
-          <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true" />
-          <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
+          <el-table-column
+            label="编码"
+            sortable="custom"
+            width="75"
+            prop="id"
+          />
+          <el-table-column
+            label="名称"
+            sortable="custom"
+            prop="configName"
+            :show-overflow-tooltip="true"
+          />
+          <el-table-column
+            label="键名"
+            sortable="custom"
+            prop="configKey"
+          >
+            <template slot-scope="scope">
+              <el-popover trigger="hover" placement="top">
+                <p>键值: {{ scope.row.configValue }}</p>
+                <p>UI:  <el-tag v-if="scope.row.isFrontend=='0'">{{ scope.row.isFrontend }}</el-tag>
+                  <el-tag v-if="scope.row.isFrontend=='1'" type="success">{{ scope.row.isFrontend }}</el-tag>
+                  {{ scope.row.isFrontend }}</p>
+                <div slot="reference" class="name-wrapper">
+                  {{ scope.row.configKey }}
+                </div>
+              </el-popover>
+            </template>
+          </el-table-column>
+          <!-- <el-table-column
+            label="参数键值"
+            align="center"
+            prop="configValue"
+          /> -->
+          <el-table-column
+            label="内置"
+            sortable="custom"
+            prop="configType"
+            :formatter="typeFormat"
+            width="80"
+          />
+          <el-table-column
+            label="备注"
+            prop="remark"
+            :show-overflow-tooltip="true"
+          />
+          <el-table-column
+            label="创建时间"
+            sortable="custom"
+            prop="createdAt"
+            width="160"
+          >
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <el-table-column
+            label="操作"
+            class-name="small-padding fixed-width"
+            width="120"
+          >
             <template slot-scope="scope">
               <el-button
                 v-permisaction="['admin:sysConfig:edit']"
@@ -182,6 +237,8 @@ export default {
       total: 0,
       // 参数表格数据
       configList: [],
+      // 排序字段
+      order: 'createdAtOrder',
       // 弹出层标题
       title: '',
       isEdit: false,
@@ -197,7 +254,8 @@ export default {
         pageSize: 10,
         configName: undefined,
         configKey: undefined,
-        configType: undefined
+        configType: undefined,
+        createdAtOrder: 'desc'
       },
       // 表单参数
       form: {},
@@ -258,6 +316,7 @@ export default {
     resetQuery() {
       this.dateRange = []
       this.resetForm('queryForm')
+      this.queryParams['createdAtOrderOrder'] = 'desc'
       this.handleQuery()
     },
     /** 新增按钮操作 */
@@ -266,6 +325,23 @@ export default {
       this.open = true
       this.title = '添加参数'
       this.isEdit = false
+    },
+    handleSortChang(column, prop, order) {
+      prop = column.prop
+      order = column.order
+      if (this.order !== '' && this.order !== prop + 'Order') {
+        this.queryParams[this.order] = undefined
+      }
+      if (order === 'descending') {
+        this.queryParams[prop + 'Order'] = 'desc'
+        this.order = prop + 'Order'
+      } else if (order === 'ascending') {
+        this.queryParams[prop + 'Order'] = 'asc'
+        this.order = prop + 'Order'
+      } else {
+        this.queryParams[prop + 'Order'] = undefined
+      }
+      this.getList()
     },
     // 多选框选中数据
     handleSelectionChange(selection) {

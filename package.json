@@ -108,6 +108,7 @@
     "connect": "3.7.0",
     "eslint": "7.6.0",
     "eslint-plugin-vue": "6.2.2",
+    "form-gen-parser": "^1.0.3",
     "html-webpack-plugin": "4.3.0",
     "husky": "4.2.5",
     "lint-staged": "10.2.11",
