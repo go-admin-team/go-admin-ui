@@ -119,7 +119,10 @@ export default {
           'name': 'file',
           'auto-upload': true,
           'on-success': function(response, file, fileList) {
-            console.log(response)
+            console.log('表单的Model：', this.formData)
+            console.log('表单的ref：', this.$refs.elForm)
+            // this.$refs.elForm.sys_app_logo = response.data.full_path
+            localStorage.setItem('sysAppLogo', response.data.full_path)
           },
           'list-type': 'picture-card',
           'multiple': false,
@@ -233,7 +236,8 @@ export default {
           'filterable': false,
           'multiple': false,
           '__vModel__': 'sys_index_sideTheme'
-        }],
+        }
+        ],
         'formRef': 'elForm',
         'formModel': 'formData',
         'size': 'medium',
@@ -303,14 +307,8 @@ export default {
     },
     sumbitForm2(data) {
       console.log('sumbitForm2提交数据：', data)
-      this.formConf.fields.forEach(item => {
-        console.log(item)
-        debugger
-      })
-    },
-    aaa(res, file) {
-      console.log(res)
-      console.log(file)
+      data['sys_app_logo'] = localStorage.getItem('sysAppLogo')
+      console.log('sumbitForm2提交数据：', data)
     }
   }
 }
