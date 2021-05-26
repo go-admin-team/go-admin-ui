@@ -20,7 +20,7 @@
 
 <script>
 import { listConfig } from '@/api/admin/sys-config'
-import Parser from 'form-gen-parser'
+import Parser from '@/components/FormGenParser/Parser'
 
 export default {
   name: 'SysConfigSet',
@@ -98,7 +98,7 @@ export default {
             'defaultValue': null,
             'showLabel': true,
             'labelWidth': null,
-            'required': true,
+            'required': false,
             'span': 24,
             'showTip': false,
             'buttonText': '点击上传',
@@ -115,9 +115,12 @@ export default {
           },
           'action': 'http://localhost:8000/api/v1/public/uploadFile',
           'disabled': false,
-          'accept': '',
+          'accept': 'image/*',
           'name': 'file',
           'auto-upload': true,
+          'on-success': function(response, file, fileList) {
+            console.log(response)
+          },
           'list-type': 'picture-card',
           'multiple': false,
           '__vModel__': 'sys_app_logo'
@@ -284,13 +287,6 @@ export default {
       this.queryParams.pageIndex = 1
       this.getList()
     },
-    /** 重置按钮操作 */
-    resetQuery() {
-      this.dateRange = []
-      this.resetForm('queryForm')
-      this.queryParams['createdAtOrderOrder'] = 'desc'
-      this.handleQuery()
-    },
     fillFormData(form, data) {
       form.fields.forEach(item => {
         const val = data[item.__vModel__]
@@ -305,11 +301,16 @@ export default {
       this.formConf = this.formConf2
       this.formConf2 = t
     },
-    sumbitForm1(data) {
-      console.log('sumbitForm1提交数据：', data)
-    },
     sumbitForm2(data) {
       console.log('sumbitForm2提交数据：', data)
+      this.formConf.fields.forEach(item => {
+        console.log(item)
+        debugger
+      })
+    },
+    aaa(res, file) {
+      console.log(res)
+      console.log(file)
     }
   }
 }
