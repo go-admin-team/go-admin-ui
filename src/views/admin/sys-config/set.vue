@@ -6,7 +6,7 @@
           <el-tab-pane label="系统内置">
             <el-form label-width="80px">
               <div class="test-form">
-                <parser :key="key2" :form-conf="formConf" @submit="sumbitForm2" @bind="bind" @token="token" />
+                <parser :key="key2" :form-conf="formConf" @submit="sumbitForm2" @bind="bind" />
               </div>
             </el-form>
           </el-tab-pane>
@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { listConfig } from '@/api/admin/sys-config'
+import { getSetConfig } from '@/api/admin/sys-config'
 import Parser from '@/components/FormGenParser/Parser'
 
 export default {
@@ -102,22 +102,29 @@ export default {
             'renderKey': 1621935611177
           },
           '__slot__': {
-            'list-type': true,
-            'headers': { Authorization: localStorage.getItem('sysAppLogo') }
+            'list-type': true
           },
           'action': 'http://localhost:8000/api/v1/public/uploadFile',
           'disabled': false,
           'accept': 'image/*',
           'name': 'file',
+          'v-if': 'fileList',
           'auto-upload': true,
-
           'on-success': function(response, file, fileList) {
-            console.log('root', this.$root)
-            console.log('parent', this.$parent)
+            console.log('response', response)
+            console.log('file', file)
+            console.log('fileList', fileList)
+            // this.defaultValue = [{ 'url': response.data.full_path }]
+            this.fileList[0] = { 'url': response.data.full_path }
             this.$parent.$parent.$parent.$parent.$parent.$parent.$emit('bind', 'sys_app_logo', response.data.full_path)
-            this.$parent.$parent.$parent.$parent.$parent.$parent['formData']['sys_app_logo'] = response.data.full_path
+            // this.$parent.$parent.$parent.$parent.$parent.$parent['formData']['sys_app_logo'] = response.data.full_path
+            return true
+          },
+          'props': {
+            'file-list': []
           },
           'list-type': 'picture-card',
+
           'multiple': false,
           '__vModel__': 'sys_app_logo'
         }, {
@@ -255,28 +262,36 @@ export default {
     // 表单数据回填，模拟异步请求场景
     setTimeout(() => {
       // 请求回来的表单数据
-      const data = {
-        mobile: '18836662555'
-      }
-      // 回填数据
-      this.fillFormData(this.formConf, data)
-      // 更新表单
-      this.key2 = +new Date()
+      // const data = {
+      //   sys_app_logo: [{ url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100' }]
+      // }
+      // // 回填数据
+      // this.fillFormData(this.formConf, data)
+      // // 更新表单
+      // this.key2 = +new Date()
     }, 2000)
   },
   methods: {
     /** 查询参数列表 */
     getList() {
       this.loading = true
-      listConfig(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        this.configList = response.data.list
-        this.total = response.data.count
+      getSetConfig().then(response => {
+        this.configList = response.data
         this.loading = false
+        this.fillFormData(this.formConf, this.configList)
+        // 更新表单
+        this.key2 = +new Date()
       }
       )
     },
-    token() {
-      return 'aaabbbbtoken'
+    setUrl(url) {
+      const data = {
+        sys_app_logo: [{ url: url }]
+      }
+      // 回填数据
+      this.fillFormData(this.formConf, data)
+      // 更新表单
+      this.key2 = +new Date()
     },
     // 参数系统内置字典翻译
     typeFormat(row, column) {
@@ -289,15 +304,20 @@ export default {
     },
     fillFormData(form, data) {
       form.fields.forEach(item => {
+        console.log(item)
         const val = data[item.__vModel__]
         if (val) {
+          // if (item.tag === 'el-upload') {
+          //   item['file-list'] = val
+          // } else {
           item.__config__.defaultValue = val
+          // }
         }
       })
     },
     bind(key, data) {
       console.log(key, data)
-      // this.formConf[this.formConf.formData][key] = data
+      this.setUrl(data)
       // console.log(this.formConf.formData)
       // // 更新表单
       // this.key2 = +new Date()
