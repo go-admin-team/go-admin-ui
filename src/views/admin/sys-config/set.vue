@@ -4,9 +4,9 @@
       <el-card class="box-card">
         <el-tabs tab-position="left" style="height: 100%;">
           <el-tab-pane label="系统内置">
-            <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+            <el-form label-width="80px">
               <div class="test-form">
-                <parser :key="key2" :form-conf="formConf" @submit="sumbitForm2" />
+                <parser :key="key2" :form-conf="formConf" @submit="sumbitForm2" @bind="bind" @token="token" />
               </div>
             </el-form>
           </el-tab-pane>
@@ -45,15 +45,6 @@ export default {
         configKey: undefined,
         configType: undefined,
         createdAtOrder: 'desc'
-      },
-      // 表单参数
-      form: {},
-      // 表单校验
-      rules: {
-        configName: [{ required: true, message: '参数名称不能为空', trigger: 'blur' }],
-        configKey: [{ required: true, message: '参数键名不能为空', trigger: 'blur' }],
-        configValue: [{ required: true, message: '参数键值不能为空', trigger: 'blur' }],
-        isFrontend: [{ required: true, message: '是否前台显示不能为空', trigger: 'blur' }]
       },
       key2: +new Date(),
       formConf: {
@@ -111,18 +102,20 @@ export default {
             'renderKey': 1621935611177
           },
           '__slot__': {
-            'list-type': true
+            'list-type': true,
+            'headers': { Authorization: localStorage.getItem('sysAppLogo') }
           },
           'action': 'http://localhost:8000/api/v1/public/uploadFile',
           'disabled': false,
           'accept': 'image/*',
           'name': 'file',
           'auto-upload': true,
+
           'on-success': function(response, file, fileList) {
-            console.log('表单的Model：', this.formData)
-            console.log('表单的ref：', this.$refs.elForm)
-            // this.$refs.elForm.sys_app_logo = response.data.full_path
-            localStorage.setItem('sysAppLogo', response.data.full_path)
+            console.log('root', this.$root)
+            console.log('parent', this.$parent)
+            this.$parent.$parent.$parent.$parent.$parent.$parent.$emit('bind', 'sys_app_logo', response.data.full_path)
+            this.$parent.$parent.$parent.$parent.$parent.$parent['formData']['sys_app_logo'] = response.data.full_path
           },
           'list-type': 'picture-card',
           'multiple': false,
@@ -282,6 +275,9 @@ export default {
       }
       )
     },
+    token() {
+      return 'aaabbbbtoken'
+    },
     // 参数系统内置字典翻译
     typeFormat(row, column) {
       return this.selectDictLabel(this.typeOptions, row.configType)
@@ -299,6 +295,13 @@ export default {
         }
       })
     },
+    bind(key, data) {
+      console.log(key, data)
+      // this.formConf[this.formConf.formData][key] = data
+      // console.log(this.formConf.formData)
+      // // 更新表单
+      // this.key2 = +new Date()
+    },
     change() {
       this.key2 = +new Date()
       const t = this.formConf
@@ -307,7 +310,7 @@ export default {
     },
     sumbitForm2(data) {
       console.log('sumbitForm2提交数据：', data)
-      data['sys_app_logo'] = localStorage.getItem('sysAppLogo')
+      // data['sys_app_logo'] = localStorage.getItem('sysAppLogo')
       console.log('sumbitForm2提交数据：', data)
     }
   }
