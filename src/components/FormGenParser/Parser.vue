@@ -97,6 +97,7 @@ function renderChildren(h, scheme) {
 }
 
 function setValue(event, config, scheme) {
+  // console.log('config', config)
   this.$set(config, 'defaultValue', event)
   this.$set(this[this.formConf.formModel], scheme.__vModel__, event)
 }
@@ -125,12 +126,17 @@ export default {
       type: Object,
       required: true
     }
+    // fileList: {
+    //   type: Array,
+    //   required: false
+    // }
   },
   data() {
     const data = {
       formConfCopy: deepClone(this.formConf),
       [this.formConf.formModel]: {},
       [this.formConf.formRules]: {}
+      // fileList: this.fileList
     }
     this.initFormData(data.formConfCopy.fields, data[this.formConf.formModel])
     this.buildRules(data.formConfCopy.fields, data[this.formConf.formRules])
@@ -140,7 +146,9 @@ export default {
     initFormData(componentList, formData) {
       componentList.forEach(cur => {
         const config = cur.__config__
+        console.log('initFormData', config)
         if (cur.__vModel__) formData[cur.__vModel__] = config.defaultValue
+
         if (config.children) this.initFormData(config.children, formData)
       })
     },
@@ -158,6 +166,7 @@ export default {
             config.regList.push(required)
           }
           rules[cur.__vModel__] = config.regList.map(item => {
+            // eslint-disable-next-line no-eval
             item.pattern && (item.pattern = eval(item.pattern))
             item.trigger = ruleTrigger && ruleTrigger[config.tag]
             return item
@@ -171,6 +180,8 @@ export default {
       this.$refs[this.formConf.formRef].resetFields()
     },
     submitForm() {
+      console.log('sub', this.$refs[this.formConf.formRef])
+      console.log('refs', this.$refs['upload'])
       this.$refs[this.formConf.formRef].validate(valid => {
         if (!valid) return false
         // 触发sumit事件

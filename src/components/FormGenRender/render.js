@@ -54,7 +54,7 @@ function buildDataObject(confClone, dataObject) {
     } else if (dataObject[key] !== undefined) {
       if (dataObject[key] === null ||
         dataObject[key] instanceof RegExp ||
-        ['boolean', 'string', 'number', 'function'].includes(typeof dataObject[key])) {
+        ['boolean', 'string', 'number', 'function', 'Array'].includes(typeof dataObject[key])) {
         dataObject[key] = val
       } else if (Array.isArray(dataObject[key])) {
         dataObject[key] = [...dataObject[key], ...val]
