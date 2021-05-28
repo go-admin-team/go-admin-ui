@@ -9,13 +9,6 @@ export function listConfig(query) {
   })
 }
 
-export function getSetConfig(query) {
-  return request({
-    url: '/api/v1/set-config',
-    method: 'get'
-  })
-}
-
 // 查询参数详细
 export function getConfig(configId) {
   return request({
@@ -59,3 +52,17 @@ export function delConfig(data) {
   })
 }
 
+export function getSetConfig(query) {
+  return request({
+    url: '/api/v1/set-config',
+    method: 'get'
+  })
+}
+
+export function updateSetConfig(data) {
+  return request({
+    url: '/api/v1/set-config',
+    method: 'put',
+    data: data
+  })
+}
