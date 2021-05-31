@@ -318,7 +318,7 @@ export default {
     /** 修改按钮操作 */
     handleEditTable(row) {
       const tableId = row.tableId || this.ids[0]
-      this.$router.push({ path: '/tools/editTable', query: { tableId: tableId }})
+      this.$router.push({ path: '/dev-tools/editTable', query: { tableId: tableId }})
     },
     /** 删除按钮操作 */
     handleDelete(row) {
