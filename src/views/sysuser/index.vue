@@ -617,13 +617,13 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const userIds = row.userId || this.ids
-      this.$confirm('是否确认删除用户编号为"' + userIds + '"的数据项?', '警告', {
+      const ids = (row.userId && [row.userId]) || this.ids
+      this.$confirm('是否确认删除用户编号为"' + ids + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delUser(userIds)
+        return delUser({ 'ids': ids })
       }).then(() => {
         this.getList()
         this.msgSuccess('删除成功')
