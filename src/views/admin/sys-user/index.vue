@@ -139,7 +139,9 @@
               </el-table-column>
               <el-table-column
                 label="操作"
-                width="120"
+                width="160"
+
+                fix="right"
                 class-name="small-padding fixed-width"
               >
                 <template slot-scope="scope">
@@ -491,7 +493,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return changeUserStatus(row.userId, row.status)
+        return changeUserStatus(row)
       }).then(() => {
         this.msgSuccess(text + '成功')
       }).catch(function() {
@@ -616,13 +618,13 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const userIds = row.userId || this.ids
-      this.$confirm('是否确认删除用户编号为"' + userIds + '"的数据项?', '警告', {
+      const Ids = (row.userId && [row.userId]) || this.ids
+      this.$confirm('是否确认删除用户编号为"' + Ids + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delUser(userIds)
+        return delUser({ 'ids': Ids })
       }).then(() => {
         this.getList()
         this.msgSuccess('删除成功')
