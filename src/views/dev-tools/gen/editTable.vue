@@ -277,8 +277,6 @@ export default {
       ])
     },
     handleChangeConfig(row, index) {
-      console.log(row)
-      console.log(index)
       this.tableTree.filter(function(item) {
         if (item.tableName === row.fkTableName) {
           row.fkCol = item.columns
@@ -295,7 +293,6 @@ export default {
         const validateResult = res.every(item => !!item)
         if (validateResult) {
           const genTable = Object.assign({}, basicForm.model, genForm.model)
-          console.log(this.columns)
           genTable.columns = this.columns
           genTable.params = {
             treeCode: genTable.treeCode,
@@ -321,8 +318,6 @@ export default {
         this.tableTree = response.data
         this.tableTree.unshift({ tableId: 0, className: '请选择' })
       })
-
-      console.log(this.tableList)
     },
     getTablesCol(tableName) {
       return this.tableTree.filter(function(item) {

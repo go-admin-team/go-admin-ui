@@ -285,7 +285,6 @@ export default {
       var list = []
       var i = 0
       for (var key in data) {
-        console.log(data[key])
         list[i] = { 'configKey': key, 'configValue': data[key] }
         i++
       }

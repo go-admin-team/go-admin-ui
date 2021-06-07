@@ -12,7 +12,6 @@ export function parseTime(time, cFormat) {
   if (arguments.length === 0) {
     return null
   }
-  console.log(time_str.indexOf('01-01-01'))
   if (time_str.indexOf('01-01-01') > -1) {
     return '-'
   }

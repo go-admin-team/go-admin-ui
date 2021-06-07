@@ -50,7 +50,6 @@ export default {
     },
     // 所有的路由信息
     routers() {
-      console.log(this.$store.state)
       return this.$store.state.permission.topbarRouters
     },
     // 设置子路由

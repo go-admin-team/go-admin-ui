@@ -97,7 +97,6 @@ function renderChildren(h, scheme) {
 }
 
 function setValue(event, config, scheme) {
-  // console.log('config', config)
   this.$set(config, 'defaultValue', event)
   this.$set(this[this.formConf.formModel], scheme.__vModel__, event)
 }
@@ -146,7 +145,6 @@ export default {
     initFormData(componentList, formData) {
       componentList.forEach(cur => {
         const config = cur.__config__
-        console.log('initFormData', config)
         if (cur.__vModel__) formData[cur.__vModel__] = config.defaultValue
 
         if (config.children) this.initFormData(config.children, formData)
@@ -180,8 +178,6 @@ export default {
       this.$refs[this.formConf.formRef].resetFields()
     },
     submitForm() {
-      console.log('sub', this.$refs[this.formConf.formRef])
-      console.log('refs', this.$refs['upload'])
       this.$refs[this.formConf.formRef].validate(valid => {
         if (!valid) return false
         // 触发sumit事件
