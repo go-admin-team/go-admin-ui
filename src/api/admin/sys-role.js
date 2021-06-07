@@ -75,9 +75,9 @@ export function getRoutes() {
   })
 }
 
-export function getMenuNames() {
-  return request({
-    url: '/api/v1/menuids',
-    method: 'get'
-  })
-}
+// export function getMenuNames() {
+//   return request({
+//     url: '/api/v1/menuids',
+//     method: 'get'
+//   })
+// }
