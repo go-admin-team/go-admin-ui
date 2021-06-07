@@ -48,7 +48,12 @@
             </template>
           </el-table-column>
           <el-table-column prop="sort" label="排序" width="60px" />
-          <el-table-column prop="permission" label="权限标识" :show-overflow-tooltip="true" />
+          <el-table-column prop="permission" label="权限标识" :show-overflow-tooltip="true">
+            <template slot-scope="scope">
+              <span v-if="scope.row.permission==''">-</span>
+              <span v-else>{{ scope.row.permission }}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="path" label="组建路径" :show-overflow-tooltip="true">
             <template slot-scope="scope">
               <span v-if="scope.row.menuType=='A'">{{ scope.row.path }}</span>
@@ -106,7 +111,7 @@
           size="830px"
         >
           <div class="demo-drawer__content">
-            <el-form ref="form" :model="form" :rules="rules" label-width="106px">
+            <el-form ref="form" :model="form" :rules="rules" label-position="top" label-width="106px">
               <el-row>
                 <el-col :span="24">
                   <el-form-item prop="parentId">
@@ -565,5 +570,12 @@ export default {
 }
 .panel .el-transfer-panel{
   width: 260px;
+}
+
+.el-col {
+padding: 0 5px;
+}
+.el-drawer__header{
+margin-bottom: 0;
 }
 </style>
