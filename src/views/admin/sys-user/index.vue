@@ -453,7 +453,7 @@ export default {
     },
     // 节点单击事件
     handleNodeClick(data) {
-      this.queryParams.deptId = data.id
+      this.queryParams.deptId = '/' + data.id + '/'
       this.getList()
     },
     /** 转换菜单数据结构 */
@@ -532,6 +532,7 @@ export default {
     resetQuery() {
       this.dateRange = []
       this.resetForm('queryForm')
+      this.queryParams.deptId = ''
       this.handleQuery()
     },
     // 多选框选中数据
