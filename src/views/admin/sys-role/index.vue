@@ -189,12 +189,11 @@
             </el-form-item>
             <el-form-item label="菜单权限">
               <el-tree
-                ref="menu"
+                ref="menuTree"
                 :data="menuOptions"
                 show-checkbox
                 node-key="id"
                 :empty-text="menuOptionsAlert"
-                :props="defaultProps"
               />
             </el-form-item>
             <el-form-item label="备注">
@@ -273,6 +272,7 @@ export default {
       total: 0,
       // 角色表格数据
       roleList: [],
+      menuIdsChecked: [],
       // 弹出层标题
       title: '',
       // 是否显示弹出层
@@ -309,6 +309,7 @@ export default {
       ],
       // 菜单列表
       menuOptions: [],
+      menuList: [],
       // 部门列表
       deptOptions: [],
       menuOptionsAlert: '加载中，请稍后',
@@ -344,6 +345,7 @@ export default {
   },
   created() {
     this.getList()
+    this.getMenuTreeselect()
     this.getDicts('sys_normal_disable').then(response => {
       this.statusOptions = response.data
     })
@@ -364,6 +366,7 @@ export default {
     getMenuTreeselect() {
       roleMenuTreeselect(0).then(response => {
         this.menuOptions = response.data.menus
+        this.menuList = this.menuOptions
       })
     },
     /** 查询部门树结构 */
@@ -375,10 +378,10 @@ export default {
     // 所有菜单节点数据
     getMenuAllCheckedKeys() {
       // 目前被选中的菜单节点
-      const checkedKeys = this.$refs.menu.getHalfCheckedKeys()
+      const checkedKeys = this.$refs.menuTree.getHalfCheckedKeys()
       console.log('目前被选中的菜单节点', checkedKeys)
       // 半选中的菜单节点
-      const halfCheckedKeys = this.$refs.menu.getCheckedKeys()
+      const halfCheckedKeys = this.$refs.menuTree.getCheckedKeys()
       console.log('半选中的菜单节点', halfCheckedKeys)
       // checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys)
       return halfCheckedKeys
@@ -393,16 +396,13 @@ export default {
       return checkedKeys
     },
     /** 根据角色ID查询菜单树结构 */
-    getRoleMenuTreeselect(row) {
+    getRoleMenuTreeselect(row, checkedKeys) {
       if (row.roleKey === 'admin') {
         this.menuOptionsAlert = '系统超级管理员无需此操作'
         this.menuOptions = []
       } else {
-        roleMenuTreeselect(row.roleId).then(response => {
-          this.menuOptions = response.data.menus
-          this.$nextTick(() => {
-            this.$refs.menu.setCheckedKeys(response.data.checkedKeys)
-          })
+        this.$nextTick(() => {
+          this.$refs.menuTree.setCheckedKeys(checkedKeys)
         })
       }
     },
@@ -442,8 +442,9 @@ export default {
     },
     // 表单重置
     reset() {
-      if (this.$refs.menu !== undefined) {
-        this.$refs.menu.setCheckedKeys([])
+      this.menuOptions = this.menuList
+      if (this.$refs.menuTree !== undefined) {
+        this.$refs.menuTree.setCheckedKeys([])
       }
       this.form = {
         roleId: undefined,
@@ -478,7 +479,7 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset()
-      this.getMenuTreeselect(0)
+      // this.getMenuTreeselect(0)
       this.open = true
       this.title = '添加角色'
       this.isEdit = false
@@ -497,14 +498,16 @@ export default {
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
+      this.menuIdsChecked = []
       this.reset()
       const roleId = row.roleId || this.ids
       getRole(roleId).then(response => {
         this.form = response.data
-        this.open = true
+        this.menuIdsChecked = response.data.menuIds
         this.title = '修改角色'
         this.isEdit = true
-        this.getRoleMenuTreeselect(row)
+        this.open = true
+        this.getRoleMenuTreeselect(row, response.data.menuIds)
       })
     },
     /** 分配数据权限操作 */
