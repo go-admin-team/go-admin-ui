@@ -78,7 +78,7 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="postList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="postList" border @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column label="岗位编号" width="80" align="center" prop="postId" />
           <el-table-column label="岗位编码" align="center" prop="postCode" />

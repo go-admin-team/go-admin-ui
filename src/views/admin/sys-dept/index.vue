@@ -46,6 +46,7 @@
           :data="deptList"
           row-key="deptId"
           default-expand-all
+          border
           :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
         >
           <el-table-column prop="deptName" label="部门名称" />
