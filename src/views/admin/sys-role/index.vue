@@ -376,10 +376,12 @@ export default {
     getMenuAllCheckedKeys() {
       // 目前被选中的菜单节点
       const checkedKeys = this.$refs.menu.getHalfCheckedKeys()
+      console.log('目前被选中的菜单节点', checkedKeys)
       // 半选中的菜单节点
       const halfCheckedKeys = this.$refs.menu.getCheckedKeys()
-      checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys)
-      return checkedKeys
+      console.log('半选中的菜单节点', halfCheckedKeys)
+      // checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys)
+      return halfCheckedKeys
     },
     // 所有部门节点数据
     getDeptAllCheckedKeys() {
