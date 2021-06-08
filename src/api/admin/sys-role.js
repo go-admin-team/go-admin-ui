@@ -47,9 +47,14 @@ export function dataScope(data) {
 // 角色状态修改
 export function changeRoleStatus(roleId, status) {
   const data = {
+    roleId,
     status
   }
-  return updateRole(data, roleId)
+  return request({
+    url: '/api/v1/role-status',
+    method: 'put',
+    data: data
+  })
 }
 
 // 删除角色

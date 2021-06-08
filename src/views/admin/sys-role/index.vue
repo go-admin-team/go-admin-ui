@@ -417,17 +417,18 @@ export default {
     },
     // 角色状态修改
     handleStatusChange(row) {
-      const text = row.status === '0' ? '启用' : '停用'
+      const text = row.status === '2' ? '启用' : '停用'
       this.$confirm('确认要"' + text + '""' + row.roleName + '"角色吗?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
         return changeRoleStatus(row.roleId, row.status)
-      }).then(() => {
-        this.msgSuccess(text + '成功')
+      }).then((res) => {
+        console.log('res', res)
+        this.msgSuccess(res.msg)
       }).catch(function() {
-        row.status = row.status === '0' ? '1' : '0'
+        row.status = row.status === '2' ? '1' : '2'
       })
     },
     // 取消按钮
@@ -528,7 +529,7 @@ export default {
             this.form.menuIds = this.getMenuAllCheckedKeys()
             updateRole(this.form, this.form.roleId).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('修改成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -539,7 +540,7 @@ export default {
             this.form.menuIds = this.getMenuAllCheckedKeys()
             addRole(this.form).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('新增成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -557,7 +558,7 @@ export default {
         console.log(this.getDeptAllCheckedKeys())
         dataScope(this.form).then(response => {
           if (response.code === 200) {
-            this.msgSuccess('修改成功')
+            this.msgSuccess(response.msg)
             this.openDataScope = false
             this.getList()
           } else {
@@ -574,10 +575,10 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delRole(roleIds)
-      }).then(() => {
+        return delRole({ 'ids': roleIds })
+      }).then((response) => {
         this.getList()
-        this.msgSuccess('删除成功')
+        this.msgSuccess(response.msg)
       }).catch(function() {})
     },
     /** 导出按钮操作 */
