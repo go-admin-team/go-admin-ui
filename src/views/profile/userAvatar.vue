@@ -54,7 +54,7 @@
 <script>
 import store from '@/store'
 import { VueCropper } from 'vue-cropper'
-import { uploadAvatar } from '@/api/system/sysuser'
+import { uploadAvatar } from '@/api/admin/sys-user'
 
 export default {
   components: { VueCropper },
@@ -120,7 +120,7 @@ export default {
           if (response.code === 200) {
             this.open = false
             this.options.img = process.env.VUE_APP_BASE_API + response.data
-            this.msgSuccess('修改成功')
+            this.msgSuccess(response.msg)
           } else {
             this.msgError(response.msg)
           }

@@ -41,7 +41,6 @@ export default {
     },
     handleFileConfirm(e) {
       this.dialogVisible = false
-      console.log(e)
       this.$emit('successCBK', e)
     }
   }

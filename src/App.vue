@@ -19,11 +19,3 @@ var _hmt = _hmt || [];
 })();
 </script>
 
-<style lang="scss">
-  // .el-dialog__wrapper{
-  //   display: flex;
-  //   justify-content: center;
-  //   align-items: center;
-  // }
-</style>
-

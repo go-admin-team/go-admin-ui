@@ -383,8 +383,6 @@ export default {
       this.uploadShow = false
     },
     handleTableAction(a, b) {
-      console.log(typeof b)
-      console.log(a)
       this.rightData.currentData = a
       this.handleAction(b)
     },
@@ -444,7 +442,6 @@ export default {
       }
     },
     handleBlur(a, b) {
-      console.log(a, b)
       if (this.tableData.length > 0) {
         this.tableData.forEach(item => {
           item.open = false

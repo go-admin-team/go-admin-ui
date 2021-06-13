@@ -127,7 +127,6 @@ export default {
               status: true,
               node: this.rightData.currentData
             }
-            console.log(this.rename)
           }
         },
         {
@@ -216,7 +215,6 @@ export default {
         node: ''
       }
       d.label = this.$refs.nodeInput.value
-      console.log(d)
       sysfiledirAcionEdit({
         id: d.id,
         label: d.label,

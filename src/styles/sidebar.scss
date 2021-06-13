@@ -8,6 +8,7 @@
   }
 
   .sidebar-container {
+    -webkit-transition: width .28s;
     transition: width 0.28s;
     width: $sideBarWidth !important;
     background-color: $menuBg;
@@ -19,7 +20,8 @@
     left: 0;
     z-index: 1001;
     overflow: hidden;
-    box-shadow: 2px 0 6px rgba(0,21,41,.35);
+    -webkit-box-shadow: 2px 0 6px rgba(0, 21, 41, .35);
+    box-shadow: 2px 0 6px rgba(0, 21, 41, .35);
 
     // reset element-ui css
     .horizontal-collapse-transition {
@@ -64,43 +66,42 @@
       width: 100% !important;
     }
 
+    .el-menu-item,
+    .el-submenu__title {
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+    }
+
     // menu hover
     .submenu-title-noDropdown,
     .el-submenu__title {
       &:hover {
-        background-color: rgba(0,0,0,0.06)!important;
-        // background-color: transparent!important;
+        background-color: rgba(0, 0, 0, 0.06) !important;
       }
     }
 
-    .is-active>.el-submenu__title {
-      // color: $subMenuActiveText !important;
+    & .theme-dark .is-active>.el-submenu__title {
+      color: $subMenuActiveText !important;
     }
 
     & .nest-menu .el-submenu>.el-submenu__title,
     & .el-submenu .el-menu-item {
       min-width: $sideBarWidth !important;
-      // background-color: $subMenuBg !important;
-      position: relative;
 
-     &:hover {
-        background-color: rgba(0,0,0,0.06)!important;
-        // &::before{
-        //   content: "";
-        //   position: absolute;
-        //   top: 0;
-        //   bottom: 0;
-        //   width: 2px;
-        //   background-color: $menuActiveText;
-        //   height: 100%;
-        //   right: 0;
-        // }
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.06) !important;
       }
     }
-  }
 
-  .el-submenu{
-    background-color: transparent!important;
+    & .theme-dark .nest-menu .el-submenu>.el-submenu__title,
+    & .theme-dark .el-submenu .el-menu-item {
+      background-color: $subMenuBg !important;
+
+      &:hover {
+        background-color: $subMenuHover !important;
+      }
+    }
   }
 
   .hideSidebar {
@@ -135,9 +136,6 @@
           margin-left: 20px;
         }
 
-        .el-submenu__icon-arrow {
-          display: none;
-        }
       }
     }
 
@@ -194,6 +192,14 @@
   &>.el-menu {
     .svg-icon {
       margin-right: 16px;
+    }
+  }
+
+  .nest-menu .el-submenu>.el-submenu__title,
+  .el-menu-item {
+    &:hover {
+      // you can use $subMenuHover
+      background-color: rgba(0, 0, 0, 0.06) !important;
     }
   }
 

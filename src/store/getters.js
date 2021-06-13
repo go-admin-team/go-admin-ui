@@ -11,6 +11,9 @@ const getters = {
   roles: state => state.user.roles,
   permisaction: state => state.user.permisaction,
   permission_routes: state => state.permission.routes,
+  topbarRouters: state => state.permission.topbarRouters,
+  defaultRoutes: state => state.permission.defaultRoutes,
+  sidebarRouters: state => state.permission.sidebarRouters,
   errorLogs: state => state.errorLog.logs,
   appInfo: state => state.system.info
 }

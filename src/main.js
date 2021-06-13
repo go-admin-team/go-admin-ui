@@ -15,9 +15,9 @@ import store from './store'
 import router from './router'
 import permission from './directive/permission'
 
-import { getDicts } from '@/api/system/dict/data'
+import { getDicts } from '@/api/admin/dict/data'
 import { getItems, setItems } from '@/api/table'
-import { getConfigKey } from '@/api/system/config'
+import { getConfigKey } from '@/api/admin/sys-config'
 import { parseTime, resetForm, addDateRange, selectDictLabel, download, selectItemsLabel } from '@/utils/costum'
 
 import './icons' // icon
@@ -75,6 +75,11 @@ import VueDND from 'awe-dnd'
 Vue.use(VueDND)
 
 import 'remixicon/fonts/remixicon.css'
+
+console.info(`欢迎使用go-admin，谢谢您对我们的支持，在使用过程中如果有什么问题，
+请访问https://github.com/go-admin-team/go-admin 或者
+ https://github.com/go-admin-team/go-admin-ui 向我们反馈，
+ 谢谢！`)
 
 // register global utility filters
 Object.keys(filters).forEach(key => {
