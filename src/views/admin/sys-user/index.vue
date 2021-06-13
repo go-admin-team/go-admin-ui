@@ -596,7 +596,7 @@ export default {
           if (this.form.userId !== undefined) {
             updateUser(this.form).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('修改成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -606,7 +606,7 @@ export default {
           } else {
             addUser(this.form).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('新增成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -626,9 +626,14 @@ export default {
         type: 'warning'
       }).then(function() {
         return delUser({ 'ids': Ids })
-      }).then(() => {
-        this.getList()
-        this.msgSuccess('删除成功')
+      }).then((response) => {
+        if (response.code === 200) {
+          this.msgSuccess(response.msg)
+          this.open = false
+          this.getList()
+        } else {
+          this.msgError(response.msg)
+        }
       }).catch(function() {})
     },
     /** 导出按钮操作 */

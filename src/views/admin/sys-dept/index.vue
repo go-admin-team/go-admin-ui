@@ -312,7 +312,7 @@ export default {
           if (this.form.deptId !== undefined) {
             updateDept(this.form, this.form.deptId).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('修改成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -322,7 +322,7 @@ export default {
           } else {
             addDept(this.form).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('新增成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -346,12 +346,15 @@ export default {
       )
         .then(function() {
           return delDept(row.deptId)
-        })
-        .then(() => {
-          this.getList()
-          this.msgSuccess('删除成功')
-        })
-        .catch(function() {})
+        }).then((response) => {
+          if (response.code === 200) {
+            this.msgSuccess(response.msg)
+            this.open = false
+            this.getList()
+          } else {
+            this.msgError(response.msg)
+          }
+        }).catch(function() {})
     }
   }
 }

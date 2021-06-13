@@ -49,9 +49,53 @@
           </el-table-column>
           <el-table-column prop="sort" label="排序" width="60px" />
           <el-table-column prop="permission" label="权限标识" :show-overflow-tooltip="true">
-            <template slot-scope="scope">
+            <!-- <template slot-scope="scope">
               <span v-if="scope.row.permission==''">-</span>
               <span v-else>{{ scope.row.permission }}</span>
+           > -->
+            <template slot-scope="scope">
+              <el-popover v-if="scope.row.sysApi.length>0" trigger="hover" placement="top">
+                <el-table
+                  :data="scope.row.sysApi"
+                  border
+                  style="width: 100%"
+                >
+                  <el-table-column
+                    prop="title"
+                    label="title"
+                    width="260px"
+                  >
+                    <template slot-scope="scope">
+                      <span v-if="scope.row.type=='SYS' && scope.row.title!=''"><el-tag type="success">{{ '['+scope.row.type +'] '+ scope.row.title }}</el-tag></span>
+                      <span v-if="scope.row.type!='SYS' && scope.row.title!=''"><el-tag type="">{{ '['+scope.row.type +'] '+scope.row.title }}</el-tag></span>
+                      <span v-if="scope.row.title==''"><el-tag type="danger">暂无</el-tag></span>
+
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    prop="path"
+                    label="path"
+                    width="270px"
+                  >
+                    <template slot-scope="scope">
+                      <el-tag v-if="scope.row.action=='GET'">{{ scope.row.action }}</el-tag>
+                      <el-tag v-if="scope.row.action=='POST'" type="success">{{ scope.row.action }}</el-tag>
+                      <el-tag v-if="scope.row.action=='PUT'" type="warning">{{ scope.row.action }}</el-tag>
+                      <el-tag v-if="scope.row.action=='DELETE'" type="danger">{{ scope.row.action }}</el-tag>
+                      {{ scope.row.path }}
+                    </template>
+                  </el-table-column>
+
+                </el-table>
+                <div slot="reference" class="name-wrapper">
+                  <span v-if="scope.row.permission==''">-</span>
+                  <span v-else>{{ scope.row.permission }}</span>
+                </div>
+              </el-popover>
+              <span v-else>
+                <span v-if="scope.row.permission==''">-</span>
+                <span v-else>{{ scope.row.permission }}</span>
+              </span>
             </template>
           </el-table-column>
           <el-table-column prop="path" label="组建路径" :show-overflow-tooltip="true">
@@ -285,8 +329,8 @@
                         key: 'id',
                         label: 'title'
                       }"
-                      :titles="['Source', 'Target']"
-                      :button-texts="['到左边', '到右边 ']"
+                      :titles="['未授权', '已授权']"
+                      :button-texts="['收回', '授权 ']"
                       :format="{
                         noChecked: '${total}',
                         hasChecked: '${checked}/${total}'
@@ -295,7 +339,7 @@
                       :data="sysapiList"
                       @change="handleChange"
                     >
-                      <span slot-scope="{ option }">{{ option.id }} - {{ option.title }}</span>
+                      <span slot-scope="{ option }">{{ option.title }}</span>
                     </el-transfer>
                   </el-form-item>
                 </el-col>
@@ -399,29 +443,28 @@ export default {
     },
     getApiList() {
       this.loading = true
-      listSysApi({ 'pageSize': 10000 }).then(response => {
+      listSysApi({ 'pageSize': 10000, 'type': 'BUS' }).then(response => {
         this.sysapiList = response.data.list
-        // this.total = response.data.count
         this.loading = false
       }
       )
     },
     handleClose(done) {
-      if (this.loading) {
-        return
-      }
-      this.$confirm('需要提交表单吗？')
-        .then(_ => {
-          this.loading = true
-          this.timer = setTimeout(() => {
-            done()
-            // 动画关闭需要一定的时间
-            setTimeout(() => {
-              this.loading = false
-            }, 400)
-          }, 1000)
-        })
-        .catch(_ => {})
+      // if (this.loading) {
+      //   return
+      // }
+      // this.$confirm('需要提交表单吗？')
+      //   .then(_ => {
+      //     this.loading = true
+      //     this.timer = setTimeout(() => {
+      //       done()
+      //       // 动画关闭需要一定的时间
+      //       setTimeout(() => {
+      //         this.loading = false
+      //       }, 400)
+      //     }, 1000)
+      //   })
+      //   .catch(_ => {})
     },
     // 选择图标
     selected(name) {
@@ -522,7 +565,7 @@ export default {
           if (this.form.menuId !== undefined) {
             updateMenu(this.form, this.form.menuId).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('修改成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -532,7 +575,7 @@ export default {
           } else {
             addMenu(this.form).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('新增成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -551,11 +594,15 @@ export default {
         type: 'warning'
       }).then(function() {
         var Ids = (row.menuId && [row.menuId]) || this.ids
-
         return delMenu({ 'ids': Ids })
-      }).then(() => {
-        this.getList()
-        this.msgSuccess('删除成功')
+      }).then((response) => {
+        if (response.code === 200) {
+          this.msgSuccess(response.msg)
+          this.open = false
+          this.getList()
+        } else {
+          this.msgError(response.msg)
+        }
       }).catch(function() {})
     }
   }
@@ -569,7 +616,7 @@ export default {
   margin-left:0;
 }
 .panel .el-transfer-panel{
-  width: 260px;
+  width: 310px;
 }
 
 .el-col {

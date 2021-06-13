@@ -275,9 +275,14 @@ export default {
         type: 'warning'
       }).then(function() {
         return delSysOperlog({ 'ids': operIds })
-      }).then(() => {
-        this.getList()
-        this.msgSuccess('删除成功')
+      }).then((response) => {
+        if (response.code === 200) {
+          this.msgSuccess(response.msg)
+          this.open = false
+          this.getList()
+        } else {
+          this.msgError(response.msg)
+        }
       }).catch(function() {})
     },
     /** 清空按钮操作 */
@@ -288,9 +293,14 @@ export default {
         type: 'warning'
       }).then(function() {
         return cleanOperlog()
-      }).then(() => {
-        this.getList()
-        this.msgSuccess('清空成功')
+      }).then((response) => {
+        if (response.code === 200) {
+          this.msgSuccess(response.msg)
+          this.open = false
+          this.getList()
+        } else {
+          this.msgError(response.msg)
+        }
       }).catch(function() {})
     },
     /** 导出按钮操作 */

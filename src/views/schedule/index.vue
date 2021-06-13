@@ -470,7 +470,7 @@ export default {
             this.form.jobType = parseInt(this.form.jobType)
             updateSysJob(this.form).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('修改成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -484,7 +484,7 @@ export default {
             this.form.jobType = parseInt(this.form.jobType)
             addSysJob(this.form).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('新增成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -504,11 +504,15 @@ export default {
         type: 'warning'
       }).then(function() {
         return delSysJob({ 'ids': Ids })
-      }).then(() => {
-        this.getList()
-        this.msgSuccess('删除成功')
-      }).catch(function() {
-      })
+      }).then((response) => {
+        if (response.code === 200) {
+          this.msgSuccess(response.msg)
+          this.open = false
+          this.getList()
+        } else {
+          this.msgError(response.msg)
+        }
+      }).catch(function() {})
     },
     /** 开始按钮操作 */
     handleStart(row) {
@@ -518,11 +522,15 @@ export default {
         type: 'warning'
       }).then(function() {
         return startJob(row.jobId)
-      }).then(() => {
-        this.getList()
-        this.msgSuccess('启动成功')
-      }).catch(function() {
-      })
+      }).then((response) => {
+        if (response.code === 200) {
+          this.msgSuccess(response.msg)
+          this.open = false
+          this.getList()
+        } else {
+          this.msgError(response.msg)
+        }
+      }).catch(function() {})
     },
     /** 停止按钮操作 */
     handleRemove(row) {
@@ -532,11 +540,15 @@ export default {
         type: 'warning'
       }).then(function() {
         return removeJob(row.jobId)
-      }).then(() => {
-        this.getList()
-        this.msgSuccess('关闭成功')
-      }).catch(function() {
-      })
+      }).then((response) => {
+        if (response.code === 200) {
+          this.msgSuccess(response.msg)
+          this.open = false
+          this.getList()
+        } else {
+          this.msgError(response.msg)
+        }
+      }).catch(function() {})
     },
     handleLog() {
       this.$router.push({ name: 'job_log', params: { }})

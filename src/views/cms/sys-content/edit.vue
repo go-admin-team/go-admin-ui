@@ -127,7 +127,7 @@ export default {
           this.form.sort = parseInt(this.form.sort)
           updateSysContent(this.form).then(response => {
             if (response.code === 200) {
-              this.msgSuccess('修改成功')
+              this.msgSuccess(response.msg)
               this.$store.dispatch('tagsView/delView', this.$route)
               this.$router.go(-1)
             } else {

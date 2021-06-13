@@ -287,7 +287,7 @@ export default {
           if (this.form.postId !== undefined) {
             updatePost(this.form, this.form.postId).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('修改成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -297,7 +297,7 @@ export default {
           } else {
             addPost(this.form).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('新增成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -317,9 +317,14 @@ export default {
         type: 'warning'
       }).then(function() {
         return delPost(postIds)
-      }).then(() => {
-        this.getList()
-        this.msgSuccess('删除成功')
+      }).then((response) => {
+        if (response.code === 200) {
+          this.msgSuccess(response.msg)
+          this.open = false
+          this.getList()
+        } else {
+          this.msgError(response.msg)
+        }
       }).catch(function() {})
     },
     /** 导出按钮操作 */

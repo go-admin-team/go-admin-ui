@@ -310,7 +310,7 @@ export default {
           if (this.form.id !== undefined) {
             updateSysChinaAreaData(this.form).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('修改成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -320,7 +320,7 @@ export default {
           } else {
             addSysChinaAreaData(this.form).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('新增成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -341,11 +341,15 @@ export default {
         type: 'warning'
       }).then(function() {
         return delSysChinaAreaData({ 'ids': Ids })
-      }).then(() => {
-        this.getList()
-        this.msgSuccess('删除成功')
-      }).catch(function() {
-      })
+      }).then((response) => {
+        if (response.code === 200) {
+          this.msgSuccess(response.msg)
+          this.open = false
+          this.getList()
+        } else {
+          this.msgError(response.msg)
+        }
+      }).catch(function() {})
     }
   }
 }

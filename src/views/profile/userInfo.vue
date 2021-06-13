@@ -62,7 +62,7 @@ export default {
         if (valid) {
           updateUser(this.user).then(response => {
             if (response.code === 200) {
-              this.msgSuccess('修改成功')
+              this.msgSuccess(response.msg)
             } else {
               this.msgError(response.msg)
             }

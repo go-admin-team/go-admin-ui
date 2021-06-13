@@ -272,21 +272,21 @@ export default {
   },
   methods: {
     handleClose(done) {
-      if (this.loading) {
-        return
-      }
-      this.$confirm('需要提交表单吗？')
-        .then(_ => {
-          this.loading = true
-          this.timer = setTimeout(() => {
-            done()
-            // 动画关闭需要一定的时间
-            setTimeout(() => {
-              this.loading = false
-            }, 400)
-          }, 2000)
-        })
-        .catch(_ => {})
+      // if (this.loading) {
+      //   return
+      // }
+      // this.$confirm('需要提交表单吗？')
+      //   .then(_ => {
+      //     this.loading = true
+      //     this.timer = setTimeout(() => {
+      //       done()
+      //       // 动画关闭需要一定的时间
+      //       setTimeout(() => {
+      //         this.loading = false
+      //       }, 400)
+      //     }, 2000)
+      //   })
+      //   .catch(_ => {})
     },
     /** 查询参数列表 */
     getList() {
@@ -382,7 +382,7 @@ export default {
           if (this.form.id !== undefined) {
             updateSysApi(this.form).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('修改成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -392,7 +392,7 @@ export default {
           } else {
             addSysApi(this.form).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('新增成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -413,11 +413,15 @@ export default {
         type: 'warning'
       }).then(function() {
         return delSysApi({ 'ids': Ids })
-      }).then(() => {
-        this.getList()
-        this.msgSuccess('删除成功')
-      }).catch(function() {
-      })
+      }).then((response) => {
+        if (response.code === 200) {
+          this.msgSuccess(response.msg)
+          this.open = false
+          this.getList()
+        } else {
+          this.msgError(response.msg)
+        }
+      }).catch(function() {})
     }
   }
 }

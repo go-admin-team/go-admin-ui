@@ -69,7 +69,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:sysRole:edit']"
+              v-permisaction="['admin:sysRole:update']"
               type="success"
               icon="el-icon-edit"
               size="mini"
@@ -133,14 +133,14 @@
           >
             <template slot-scope="scope">
               <el-button
-                v-permisaction="['admin:sysRole:edit']"
+                v-permisaction="['admin:sysRole:update']"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
                 @click="handleUpdate(scope.row)"
               >修改</el-button>
               <el-button
-                v-permisaction="['admin:sysRole:edit']"
+                v-permisaction="['admin:sysRole:update']"
                 size="mini"
                 type="text"
                 icon="el-icon-circle-check"

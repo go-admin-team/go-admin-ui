@@ -300,7 +300,7 @@ export default {
           if (this.form.dictCode !== undefined) {
             updateData(this.form).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('修改成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -310,7 +310,7 @@ export default {
           } else {
             addData(this.form).then(response => {
               if (response.code === 200) {
-                this.msgSuccess('新增成功')
+                this.msgSuccess(response.msg)
                 this.open = false
                 this.getList()
               } else {
@@ -330,9 +330,14 @@ export default {
         type: 'warning'
       }).then(function() {
         return delData(dictCodes)
-      }).then(() => {
-        this.getList()
-        this.msgSuccess('删除成功')
+      }).then((response) => {
+        if (response.code === 200) {
+          this.msgSuccess(response.msg)
+          this.open = false
+          this.getList()
+        } else {
+          this.msgError(response.msg)
+        }
       }).catch(function() {})
     },
     /** 导出按钮操作 */
