@@ -84,7 +84,6 @@
             label="ip地址"
             align="center"
             prop="ipaddr"
-            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="top">
