@@ -616,7 +616,7 @@ export default {
   margin-left:0;
 }
 .panel .el-transfer-panel{
-  width: 310px;
+  width: 300px;
 }
 
 .el-col {
