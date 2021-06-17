@@ -4,13 +4,15 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="上级编码" prop="pId"><el-input
-            v-model="queryParams.pId"
-            placeholder="请输入上级编码"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
+          <el-form-item label="上级编码" prop="pId">
+            <el-cascader
+              v-model="queryParams.pId"
+              :options="syschinaareadataList"
+              :props="defaultProps"
+              style="width:260px;"
+              size="small"
+              @change="handleChange"
+            />
           </el-form-item>
           <el-form-item label="名称" prop="name"><el-input
             v-model="queryParams.name"
@@ -62,18 +64,20 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="syschinaareadataList" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" /><el-table-column
+        <el-table
+          v-loading="loading"
+          :data="syschinaareadataList"
+          border
+          row-key="id"
+          :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+        >
+          <el-table-column
             label="编码"
             align="center"
             prop="id"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="上级编码"
-            align="center"
-            prop="pId"
-            :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="名称"
             align="center"
             prop="name"
@@ -100,14 +104,6 @@
             </template>
           </el-table-column>
         </el-table>
-
-        <pagination
-          v-show="total>0"
-          :total="total"
-          :page.sync="queryParams.pageIndex"
-          :limit.sync="queryParams.pageSize"
-          @pagination="getList"
-        />
 
         <!-- 添加或修改对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="500px">
@@ -164,7 +160,6 @@
             <el-button @click="cancel">取 消</el-button>
           </div>
         </el-dialog>
-        <FileChoose ref="fileChoose" :dialog-form-visible="fileOpen" @confirm="getImgList" @close="fileClose" />
       </el-card>
     </template>
   </BasicLayout>
@@ -172,12 +167,10 @@
 
 <script>
 import { addSysChinaAreaData, delSysChinaAreaData, getSysChinaAreaData, listSysChinaAreaData, updateSysChinaAreaData } from '@/api/syschinaareadata'
-import FileChoose from '@/components/FileChoose'
 
 export default {
   name: 'SysChinaAreaData',
   components: {
-    FileChoose
   },
   data() {
     return {
@@ -189,8 +182,6 @@ export default {
       single: true,
       // 非多个禁用
       multiple: true,
-      // 总条数
-      total: 0,
       // 弹出层标题
       title: '',
       // 是否显示弹出层
@@ -198,32 +189,28 @@ export default {
       isEdit: false,
       fileOpen: false,
       fileIndex: undefined,
+      defaultProps: {
+        children: 'children',
+        label: 'name',
+        value: 'id'
+      },
       // 类型数据字典
       typeOptions: [],
       syschinaareadataList: [],
-
-      // 关系表类型
-
       // 查询参数
       queryParams: {
         pageIndex: 1,
         pageSize: 10,
         pId: undefined,
         name: undefined
-
       },
       // 表单参数
       form: {
       },
       // 表单校验
-      rules: { pId:
-                [
-                  { required: true, message: '上级编码不能为空', trigger: 'blur' }
-                ],
-      name:
-                [
-                  { required: true, message: '名称不能为空', trigger: 'blur' }
-                ]
+      rules: {
+        pId: [{ required: true, message: '上级编码不能为空', trigger: 'blur' }],
+        name: [{ required: true, message: '名称不能为空', trigger: 'blur' }]
       }
     }
   },
@@ -235,8 +222,7 @@ export default {
     getList() {
       this.loading = true
       listSysChinaAreaData(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        this.syschinaareadataList = response.data.list
-        this.total = response.data.count
+        this.syschinaareadataList = response.data
         this.loading = false
       }
       )
@@ -258,12 +244,6 @@ export default {
         deleteTime: undefined
       }
       this.resetForm('form')
-    },
-    getImgList: function() {
-      this.form[this.fileIndex] = this.$refs['fileChoose'].resultList[0].fullUrl
-    },
-    fileClose: function() {
-      this.fileOpen = false
     },
     // 关系
     // 文件

@@ -84,32 +84,21 @@
             label="ip地址"
             align="center"
             prop="ipaddr"
-            :show-overflow-tooltip="true"
-          />
-          <el-table-column
-            label="归属地"
-            align="center"
-            prop="loginLocation"
-            :show-overflow-tooltip="true"
-          />
-          <el-table-column
-            label="浏览器"
-            align="center"
-            prop="browser"
-            :show-overflow-tooltip="true"
-          />
-          <el-table-column
-            label="系统"
-            align="center"
-            prop="os"
-            :show-overflow-tooltip="true"
-          />
-          <el-table-column
-            label="固件"
-            align="center"
-            prop="platform"
-            :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <el-popover trigger="hover" placement="top">
+                <p>IP: {{ scope.row.ipaddr }}</p>
+                <p>归属地: {{ scope.row.loginLocation }}</p>
+                <p>浏览器: {{ scope.row.browser }}</p>
+                <p>系统: {{ scope.row.os }}</p>
+                <p>固件: {{ scope.row.platform }}</p>
+                <div slot="reference" class="name-wrapper">
+                  {{ scope.row.ipaddr }}
+                </div>
+              </el-popover>
+            </template>
+          </el-table-column>
+
           <el-table-column
             label="登录时间"
             align="center"
@@ -185,7 +174,8 @@ export default {
         username: undefined,
         status: undefined,
         ipaddr: undefined,
-        loginLocation: undefined
+        loginLocation: undefined,
+        createdAtOrder: 'desc'
       },
       // 表单参数
       form: {

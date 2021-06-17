@@ -66,7 +66,6 @@
           <el-table-column
             label="Request info"
             prop="operUrl"
-            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="top">
@@ -219,7 +218,8 @@ export default {
         title: undefined,
         operName: undefined,
         businessType: undefined,
-        status: undefined
+        status: undefined,
+        createdAtOrder: 'desc'
       }
     }
   },
