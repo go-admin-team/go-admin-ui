@@ -322,7 +322,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delType(dictIds)
+        return delType({ 'ids': dictIds })
       }).then(() => {
         this.getList()
         this.msgSuccess('删除成功')
