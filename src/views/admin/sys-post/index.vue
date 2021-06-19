@@ -87,7 +87,7 @@
           <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat">
             <template slot-scope="scope">
               <el-tag
-                :type="scope.row.status === '1' ? 'danger' : 'success'"
+                :type="scope.row.status === 1 ? 'danger' : 'success'"
                 disable-transitions
               >{{ statusFormat(scope.row) }}</el-tag>
             </template>
@@ -242,7 +242,7 @@ export default {
         postCode: undefined,
         postName: undefined,
         sort: 0,
-        status: '0',
+        status: '1',
         remark: undefined
       }
       this.resetForm('form')
@@ -276,6 +276,7 @@ export default {
       const postId = row.postId || this.ids
       getPost(postId).then(response => {
         this.form = response.data
+        this.form.status = String(this.form.status)
         this.open = true
         this.title = '修改岗位'
       })
@@ -284,6 +285,7 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
+          this.form.status = parseInt(this.form.status)
           if (this.form.postId !== undefined) {
             updatePost(this.form, this.form.postId).then(response => {
               if (response.code === 200) {
@@ -310,13 +312,14 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const postIds = row.postId || this.ids
-      this.$confirm('是否确认删除岗位编号为"' + postIds + '"的数据项?', '警告', {
+      // const postIds = row.postId || this.ids
+      const Ids = (row.postId && [row.postId]) || this.ids
+      this.$confirm('是否确认删除岗位编号为"' + Ids + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delPost(postIds)
+        return delPost({ 'ids': Ids })
       }).then((response) => {
         if (response.code === 200) {
           this.msgSuccess(response.msg)
