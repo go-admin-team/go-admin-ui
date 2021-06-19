@@ -246,7 +246,7 @@ export default {
         id: undefined,
         dictName: undefined,
         dictType: undefined,
-        status: '0',
+        status: '2',
         remark: undefined
       }
       this.resetForm('form')
@@ -281,6 +281,7 @@ export default {
       const dictId = row.id || this.ids
       getType(dictId).then(response => {
         this.form = response.data
+        this.form.status = String(this.form.status)
         this.open = true
         this.title = '修改字典类型'
         this.isEdit = true
@@ -290,6 +291,7 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
+          this.form.status = parseInt(this.form.status)
           if (this.form.id !== undefined) {
             updateType(this.form).then(response => {
               if (response.code === 200) {
