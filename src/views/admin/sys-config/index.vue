@@ -197,7 +197,7 @@
                 >{{ dict.dictLabel }}</el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item label="是否前台显示" prop="isFrontend">
+            <el-form-item label="前台显示" prop="isFrontend">
               <el-select v-model="form.isFrontend" placeholder="是否前台显示" clearable size="small">
                 <el-option label="是" value="1" />
                 <el-option label="否" value="2" />
@@ -302,7 +302,7 @@ export default {
         configKey: undefined,
         configValue: undefined,
         configType: 'Y',
-        isFrontend: 1,
+        isFrontend: '1',
         remark: undefined
       }
       this.resetForm('form')
