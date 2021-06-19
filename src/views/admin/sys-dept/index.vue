@@ -54,7 +54,7 @@
           <el-table-column prop="status" label="状态" :formatter="statusFormat" width="100">
             <template slot-scope="scope">
               <el-tag
-                :type="scope.row.status === '1' ? 'danger' : 'success'"
+                :type="scope.row.status === 1 ? 'danger' : 'success'"
                 disable-transitions
               >{{ statusFormat(scope.row) }}</el-tag>
             </template>
@@ -185,7 +185,8 @@ export default {
         status: undefined
       },
       // 表单参数
-      form: {},
+      form: {
+      },
       // 表单校验
       rules: {
         parentId: [
@@ -271,11 +272,11 @@ export default {
         deptId: undefined,
         parentId: undefined,
         deptName: undefined,
-        sorc: undefined,
+        sort: 10,
         leader: undefined,
         phone: undefined,
         email: undefined,
-        status: '0'
+        status: '2'
       }
     },
     /** 搜索按钮操作 */
@@ -300,6 +301,8 @@ export default {
 
       getDept(row.deptId).then(response => {
         this.form = response.data
+        this.form.status = String(this.form.status)
+        this.form.sort = String(this.form.sort)
         this.open = true
         this.title = '修改部门'
         this.isEdit = true
@@ -309,6 +312,8 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
+          this.form.status = parseInt(this.form.status)
+          this.form.sort = parseInt(this.form.sort)
           if (this.form.deptId !== undefined) {
             updateDept(this.form, this.form.deptId).then(response => {
               if (response.code === 200) {
