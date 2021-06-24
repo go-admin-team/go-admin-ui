@@ -82,7 +82,6 @@
           <el-select v-model="info.isAuth">
             <el-option label="true" value="1" />
             <el-option label="false" value="2" />
-
           </el-select>
         </el-form-item>
       </el-col>
@@ -97,7 +96,6 @@
           <el-select v-model="info.isDataScope" disabled="">
             <el-option label="true" value="1" />
             <el-option label="false" value="2" />
-
           </el-select>
         </el-form-item>
       </el-col>
@@ -110,9 +108,8 @@
             </el-tooltip>
           </span>
           <el-select v-model="info.isActions">
-            <el-option label="true" value="1" />
+            <!-- <el-option label="true" value="1" /> -->
             <el-option label="false" value="2" />
-
           </el-select>
         </el-form-item>
       </el-col>
