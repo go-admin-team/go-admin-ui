@@ -46,16 +46,16 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="插入" width="50">
+          <el-table-column label="编辑" width="50">
             <template slot-scope="scope">
               <el-checkbox v-model="scope.row.isInsert" true-label="1" false-label="0" />
             </template>
           </el-table-column>
-          <el-table-column label="编辑" width="70" :render-header="renderHeadeUpdate" :cell-style="{'text-align':'center'}">
+          <!-- <el-table-column label="编辑" width="70" :render-header="renderHeadeUpdate" :cell-style="{'text-align':'center'}">
             <template slot-scope="scope">
               <el-checkbox v-model="scope.row.isEdit" true-label="1" false-label="0" />
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column label="列表" width="70" :render-header="renderHeadeList" :cell-style="{'text-align':'center'}">
             <template slot-scope="scope">
               <el-checkbox v-model="scope.row.isList" true-label="1" false-label="0" />
@@ -91,7 +91,7 @@
                 <el-option label="文本框" value="input" />
                 <el-option label="下拉框" value="select" />
                 <el-option label="单选框" value="radio" />
-                <el-option label="文件选择" value="file" />
+                <!-- <el-option label="文件选择" value="file" /> -->
                 <!-- <el-option label="复选框" value="checkbox" />
                 <el-option label="日期控件" value="datetime" />-->
                 <el-option label="文本域" value="textarea" />

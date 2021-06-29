@@ -108,20 +108,15 @@
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="top">
                 <p>键值: {{ scope.row.configValue }}</p>
-                <p>UI:  <el-tag v-if="scope.row.isFrontend=='0'">{{ scope.row.isFrontend }}</el-tag>
-                  <el-tag v-if="scope.row.isFrontend=='1'" type="success">{{ scope.row.isFrontend }}</el-tag>
-                  {{ scope.row.isFrontend }}</p>
+                <p>UI参数:  <el-tag v-if="scope.row.isFrontend=='2'">否</el-tag>
+                  <el-tag v-if="scope.row.isFrontend=='1'" type="success">是</el-tag>
+                </p>
                 <div slot="reference" class="name-wrapper">
                   {{ scope.row.configKey }}
                 </div>
               </el-popover>
             </template>
           </el-table-column>
-          <!-- <el-table-column
-            label="参数键值"
-            align="center"
-            prop="configValue"
-          /> -->
           <el-table-column
             label="内置"
             sortable="custom"
