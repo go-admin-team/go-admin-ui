@@ -93,7 +93,7 @@
               <i class="el-icon-question" />
             </el-tooltip>
           </span>
-          <el-select v-model="info.isDataScope" disabled="">
+          <el-select v-model="info.isDataScope" disabled>
             <el-option label="true" value="1" />
             <el-option label="false" value="2" />
           </el-select>
@@ -107,7 +107,7 @@
               <i class="el-icon-question" />
             </el-tooltip>
           </span>
-          <el-select v-model="info.isActions">
+          <el-select v-model="info.isActions" disabled>
             <!-- <el-option label="true" value="1" /> -->
             <el-option label="false" value="2" />
           </el-select>
