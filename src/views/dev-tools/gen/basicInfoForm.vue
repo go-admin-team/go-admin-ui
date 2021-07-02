@@ -62,16 +62,19 @@ export default {
     return {
       rules: {
         tableName: [
-          { required: true, message: '请输入表名称', trigger: 'blur' }
+          { required: true, message: '请输入表名称', trigger: 'blur' },
+          { pattern: /^[a-z\._]*$/g, trigger: 'blur', message: '只允许小写字母,举例 sys_demo 格式'}
         ],
         tableComment: [
           { required: true, message: '请输入表描述', trigger: 'blur' }
         ],
         className: [
-          { required: true, message: '请输入实体类名称', trigger: 'blur' }
+          { required: true, message: '请输入实体类名称', trigger: 'blur' },
+          { pattern: /^[A-Z][A-z0-9]*$/g, trigger: 'blur', message: '必须以大写字母开头,举例 SysDemo 格式'}
         ],
         functionAuthor: [
-          { required: true, message: '请输入作者', trigger: 'blur' }
+          { required: true, message: '请输入作者', trigger: 'blur' },
+          { pattern: /^[A-Za-z]+$/, trigger: 'blur', message: '校验规则:  只允许输入字母 a-z 或大写 A-Z'}
         ]
       }
     }
