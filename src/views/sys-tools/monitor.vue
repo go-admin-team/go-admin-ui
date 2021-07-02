@@ -69,10 +69,42 @@
             <span>服务器信息</span>
           </div>
           <div class="monitor">
+            <Cell label="主机名称" :value="info.os.hostName" border />
             <Cell label="操作系统" :value="info.os.goOs" border />
             <Cell label="服务器IP" :value="info.os.ip" border />
             <Cell label="系统架构" :value="info.os.arch" border />
             <Cell label="CPU" :value="info.cpu.cpuInfo[0].modelName" />
+          </div>
+        </el-card>
+
+        <el-card>
+          <div slot="header">
+            <span>磁盘状态</span>
+          </div>
+          <div class="el-table el-table--enable-row-hover el-table--medium">
+            <table cellspacing="0" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th class="is-leaf"><div class="cell">盘符路径</div></th>
+                  <th class="is-leaf"><div class="cell">文件系统</div></th>
+                  <th class="is-leaf"><div class="cell">总大小</div></th>
+
+                  <th class="is-leaf"><div class="cell">可用大小</div></th>
+                  <th class="is-leaf"><div class="cell">已用大小</div></th>
+                  <th class="is-leaf"><div class="cell">已用百分比</div></th>
+                </tr>
+              </thead>
+              <tbody v-if="info.diskList">
+                <tr v-for="(sysFile,index) in info.diskList" :key="index">
+                  <td><div class="cell">{{ sysFile.path }}</div></td>
+                  <td><div class="cell">{{ sysFile.fstype }}</div></td>
+                  <td><div class="cell">{{ sysFile.total }}M</div></td>
+                  <td><div class="cell">{{ sysFile.free }}M</div></td>
+                  <td><div class="cell">{{ sysFile.used }}M</div></td>
+                  <td><div class="cell" :class="{'text-danger': sysFile.usedPercent > 80}">{{ sysFile.usedPercent }}%</div></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </el-card>
 
@@ -102,6 +134,7 @@ export default {
       getServer().then(ret => {
         if (ret.code === 200) {
           this.info = ret
+          console.log('1111111',this.info);
         }
       })
     }
