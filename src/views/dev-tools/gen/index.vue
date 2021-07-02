@@ -12,10 +12,10 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="表描述" prop="tableComment">
+          <el-form-item label="菜单名称" prop="tableComment">
             <el-input
               v-model="queryParams.tableComment"
-              placeholder="请输入表描述"
+              placeholder="请输入菜单名称"
               clearable
               size="small"
               @keyup.enter.native="handleQuery"
@@ -77,14 +77,14 @@
             width="130"
           />
           <el-table-column
-            label="表描述"
+            label="菜单名称"
             align="center"
             prop="tableComment"
             :show-overflow-tooltip="true"
             width="130"
           />
           <el-table-column
-            label="实体"
+            label="模型名称"
             align="center"
             prop="className"
             :show-overflow-tooltip="true"
