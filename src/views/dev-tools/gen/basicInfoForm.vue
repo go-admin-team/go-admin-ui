@@ -3,22 +3,22 @@
     <el-row>
       <el-col :span="12">
         <el-form-item label="表名称" prop="tableName">
-          <el-input v-model="info.tableName" placeholder="请输入仓库名称" />
+          <el-input v-model="info.tableName" placeholder="请输入表名称" />
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="表描述" prop="tableComment">
-          <el-input v-model="info.tableComment" placeholder="请输入" />
+        <el-form-item label="菜单名称" prop="tableComment">
+          <el-input v-model="info.tableComment" placeholder="请输入菜单名称" />
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="实体类名称" prop="className">
+        <el-form-item label="模型名称" prop="className">
           <el-input v-model="info.className" placeholder="请输入" />
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="作者" prop="functionAuthor">
-          <el-input v-model="info.functionAuthor" placeholder="请输入" />
+        <el-form-item label="作者名称" prop="functionAuthor">
+          <el-input v-model="info.functionAuthor" placeholder="请输入作者名称" />
         </el-form-item>
       </el-col>
       <el-col :span="12">
@@ -62,16 +62,19 @@ export default {
     return {
       rules: {
         tableName: [
-          { required: true, message: '请输入表名称', trigger: 'blur' }
+          { required: true, message: '请输入表名称', trigger: 'blur' },
+          { pattern: /^[a-z\._]*$/g, trigger: 'blur', message: '只允许小写字母,举例 sys_demo 格式'}
         ],
         tableComment: [
-          { required: true, message: '请输入表描述', trigger: 'blur' }
+          { required: true, message: '请输入菜单名称', trigger: 'blur' }
         ],
         className: [
-          { required: true, message: '请输入实体类名称', trigger: 'blur' }
+          { required: true, message: '请输入模型名称', trigger: 'blur' },
+          { pattern: /^[A-Z][A-z0-9]*$/g, trigger: 'blur', message: '必须以大写字母开头,举例 SysDemo 格式'}
         ],
         functionAuthor: [
-          { required: true, message: '请输入作者', trigger: 'blur' }
+          { required: true, message: '请输入作者', trigger: 'blur' },
+          { pattern: /^[A-Za-z]+$/, trigger: 'blur', message: '校验规则:  只允许输入字母 a-z 或大写 A-Z'}
         ]
       }
     }
