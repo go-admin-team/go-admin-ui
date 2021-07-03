@@ -72,12 +72,12 @@
             <template slot="append">...</template>
           </el-input>
         </el-form-item>
-        <el-alert
+        <!-- <el-alert
           title="接口地址示例"
           description="[get]api/{version}/{接口路径} \r\n [post]"
           type="success"
           show-icon
-        />
+        /> -->
       </el-col>
       <!-- <el-col :span="12">
         <el-form-item prop="isDataScope">

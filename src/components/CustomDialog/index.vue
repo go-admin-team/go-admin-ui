@@ -66,7 +66,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  /deep/ .el-dialog__body{
+  ::v-deep .el-dialog__body{
     padding: 20px!important;
   }
 
@@ -74,17 +74,17 @@ export default {
     margin: 0!important;
   }
 
-  /deep/ .el-dialog__header {
+  ::v-deep .el-dialog__header {
     border-bottom: 1px solid #e8e8e8;
   }
 
-  /deep/ .el-dialog__footer{
+  ::v-deep .el-dialog__footer{
     border-top: 1px solid #e8e8e8;
     padding: 10px 20px!important;
     box-sizing: border-box;
   }
 
-  /deep/ .el-dialog__title{
+  ::v-deep .el-dialog__title{
     font-size: 16px;
   }
 </style>

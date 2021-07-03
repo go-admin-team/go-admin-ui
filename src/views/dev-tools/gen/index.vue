@@ -402,7 +402,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
- .el-dialog-container ::deep{
+ .el-dialog-container ::v-deep{
    height:600px;
    overflow: hidden;
    .el-scrollbar__view{
@@ -419,8 +419,8 @@ export default {
      display: none;
    }
  }
- ::deep .el-dialog__body{
-    padding: 0;
+ ::v-deep .el-dialog__body{
+    padding: 0 20px;
     margin:0;
   }
 

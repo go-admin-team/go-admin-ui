@@ -49,10 +49,6 @@
           </el-table-column>
           <el-table-column prop="sort" label="排序" width="60px" />
           <el-table-column prop="permission" label="权限标识" :show-overflow-tooltip="true">
-            <!-- <template slot-scope="scope">
-              <span v-if="scope.row.permission==''">-</span>
-              <span v-else>{{ scope.row.permission }}</span>
-           > -->
             <template slot-scope="scope">
               <el-popover v-if="scope.row.sysApi.length>0" trigger="hover" placement="top">
                 <el-table

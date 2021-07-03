@@ -302,7 +302,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  /deep/ .el-table{
+  ::v-deep .el-table{
     margin-top: 10px;
     thead {
       th{
