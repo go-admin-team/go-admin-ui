@@ -207,3 +207,7 @@
 .el-tabs__item {
   font-size: 13px;
 }
+
+.delete-popconfirm{
+  margin-left: 10px;
+  }

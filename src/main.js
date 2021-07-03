@@ -10,6 +10,10 @@ import './styles/element-variables.scss'
 import '@/styles/index.scss' // global css
 import '@/styles/admin.scss'
 
+import VueCodemirror from 'vue-codemirror'
+import 'codemirror/lib/codemirror.css'
+Vue.use(VueCodemirror)
+
 import App from './App'
 import store from './store'
 import router from './router'

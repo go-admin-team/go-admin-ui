@@ -42,11 +42,11 @@
               </div>
               <div class="monitor">
                 <div class="monitor-header">
-                  <el-progress :color="$store.state.settings.theme" type="circle" :percentage=" Number(( info.disk.free / info.disk.total * 100).toFixed(2))" />
+                  <el-progress :color="$store.state.settings.theme" type="circle" :percentage=" Number(( (info.disk.total-info.disk.free) / info.disk.total * 100).toFixed(2))" />
                 </div>
                 <div class="monitor-footer">
                   <Cell label="总磁盘" :value="info.disk.total+'G'" border />
-                  <Cell label="已用磁盘" :value="info.disk.free+'G'" />
+                  <Cell label="已用磁盘" :value="info.disk.total-info.disk.free+'G'" />
                 </div>
               </div>
             </el-card>
@@ -74,7 +74,7 @@
             <Cell label="服务器IP" :value="info.os.ip" border />
             <Cell label="系统架构" :value="info.os.arch" border />
             <Cell label="CPU" :value="info.cpu.cpuInfo[0].modelName" border />
-            <Cell label="当前时间" :value="info.os.time"/>
+            <Cell label="当前时间" :value="info.os.time" />
           </div>
         </el-card>
 
