@@ -5,6 +5,11 @@
         <basic-info-form ref="basicInfo" :info="info" />
       </el-tab-pane>
       <el-tab-pane label="字段信息" name="cloum">
+        <el-alert
+          title="⚠️表字段中的id、create_by、update_by、created_at、updated_at、deleted_at的字段在此列表中已经隐藏"
+          type="warning"
+          show-icon
+        />
         <el-table :data="columns" :max-height="tableHeight" style="width: 100%">
           <el-table-column fixed label="序号" type="index" width="50" />
           <el-table-column

@@ -10,6 +10,10 @@ import './styles/element-variables.scss'
 import '@/styles/index.scss' // global css
 import '@/styles/admin.scss'
 
+import VueCodemirror from 'vue-codemirror'
+import 'codemirror/lib/codemirror.css'
+Vue.use(VueCodemirror)
+
 import App from './App'
 import store from './store'
 import router from './router'
@@ -18,7 +22,7 @@ import permission from './directive/permission'
 import { getDicts } from '@/api/admin/dict/data'
 import { getItems, setItems } from '@/api/table'
 import { getConfigKey } from '@/api/admin/sys-config'
-import { parseTime, resetForm, addDateRange, selectDictLabel, download, selectItemsLabel } from '@/utils/costum'
+import { parseTime, resetForm, addDateRange, selectDictLabel, /* download,*/ selectItemsLabel } from '@/utils/costum'
 
 import './icons' // icon
 import './permission' // permission control
@@ -47,7 +51,7 @@ Vue.prototype.resetForm = resetForm
 Vue.prototype.addDateRange = addDateRange
 Vue.prototype.selectDictLabel = selectDictLabel
 Vue.prototype.selectItemsLabel = selectItemsLabel
-Vue.prototype.download = download
+// Vue.prototype.download = download
 
 // 全局组件挂载
 Vue.component('Pagination', Pagination)

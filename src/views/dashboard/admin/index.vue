@@ -162,7 +162,7 @@ export default {
   }
 }
 
-/deep/ .el-tabs__item{
+::v-deep .el-tabs__item{
    padding-left: 16px!important;
    height: 50px;
    line-height: 50px;

@@ -12,10 +12,10 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="表描述" prop="tableComment">
+          <el-form-item label="菜单名称" prop="tableComment">
             <el-input
               v-model="queryParams.tableComment"
-              placeholder="请输入表描述"
+              placeholder="请输入菜单名称"
               clearable
               size="small"
               @keyup.enter.native="handleQuery"
@@ -77,14 +77,14 @@
             width="130"
           />
           <el-table-column
-            label="表描述"
+            label="菜单名称"
             align="center"
             prop="tableComment"
             :show-overflow-tooltip="true"
             width="130"
           />
           <el-table-column
-            label="实体"
+            label="模型名称"
             align="center"
             prop="className"
             :show-overflow-tooltip="true"
@@ -98,47 +98,71 @@
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
-
-                type="text"
-                size="small"
-                icon="el-icon-view"
-                @click="handlePreview(scope.row)"
-              >预览</el-button>
-              <el-button
-
-                type="text"
-                size="small"
-                icon="el-icon-view"
-                @click="handleToProject(scope.row)"
-              >代码生成</el-button>
-              <el-button
-
-                type="text"
-                size="small"
-                icon="el-icon-view"
-                @click="handleToApiFile(scope.row)"
-              >配置迁移脚本</el-button>
-              <el-button
-
-                type="text"
-                size="small"
-                icon="el-icon-view"
-                @click="handleToDB(scope.row)"
-              >配置生成</el-button>
-              <el-button
-
                 type="text"
                 size="small"
                 icon="el-icon-edit"
                 @click="handleEditTable(scope.row)"
               >编辑</el-button>
               <el-button
-
                 type="text"
                 size="small"
-                icon="el-icon-delete"
-                @click="handleDelete(scope.row)"
-              >删除</el-button>
+                icon="el-icon-view"
+                @click="handlePreview(scope.row)"
+              >预览</el-button>
+              <el-popconfirm
+                class="delete-popconfirm"
+                title="正在使用代码生成请确认?"
+                confirm-button-text="生成"
+                @onConfirm="handleToProject(scope.row)"
+              >
+                <el-button
+                  slot="reference"
+                  type="text"
+                  size="small"
+                  icon="el-icon-view"
+                >代码生成</el-button>
+              </el-popconfirm>
+
+              <el-popconfirm
+                class="delete-popconfirm"
+                title="正在使用代码生成配置迁移脚本请确认?"
+                confirm-button-text="生成"
+                @onConfirm="handleToApiFile(scope.row)"
+              >
+                <el-button
+                  slot="reference"
+                  type="text"
+                  size="small"
+                  icon="el-icon-view"
+                >配置迁移脚本</el-button>
+              </el-popconfirm>
+
+              <el-popconfirm
+                class="delete-popconfirm"
+                title="正在使用【菜单以及API生成到数据库】请确认?"
+                confirm-button-text="写入DB"
+                @onConfirm="handleToDB(scope.row)"
+              >
+                <el-button
+                  slot="reference"
+                  type="text"
+                  size="small"
+                  icon="el-icon-view"
+                >配置生成</el-button>
+              </el-popconfirm>
+
+              <el-popconfirm
+                class="delete-popconfirm"
+                title="确认删除数据项？"
+                @onConfirm="handleSingleDelete(scope.row)"
+              >
+                <el-button
+                  slot="reference"
+                  type="text"
+                  size="small"
+                  icon="el-icon-delete"
+                >删除</el-button>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
@@ -153,9 +177,20 @@
 
       <!-- 预览界面 -->
 
-      <el-dialog :title="preview.title" :visible.sync="preview.open" top="5vh">
+      <el-dialog class="preview" :title="preview.title" :visible.sync="preview.open" fullscreen>
         <div class="el-dialog-container">
-          <el-tabs v-model="preview.activeName">
+          <div class="tag-group">
+            <!-- eslint-disable-next-line vue/valid-v-for -->
+            <el-tag v-for="(value, key) in preview.data" @click="codeChange(key)">
+              <template>
+                {{ key.substring(key.lastIndexOf('/')+1,key.indexOf('.go.template')) }}
+              </template>
+            </el-tag>
+          </div>
+          <div id="codemirror">
+            <codemirror ref="cmEditor" :value="codestr" :options="cmOptions" />
+          </div>
+          <!-- <el-tabs v-model="preview.activeName" tab-position="left">
             <el-tab-pane
               v-for="(value, key) in preview.data"
               :key="key"
@@ -163,14 +198,10 @@
               :name="key.substring(key.lastIndexOf('/')+1,key.indexOf('.template'))"
             >
 
-              <pre class="pre">
-                <el-scrollbar>
-                 {{ value }}
-                 </el-scrollbar>
-              </pre>
+              <pre class="pre"/>
 
             </el-tab-pane>
-          </el-tabs>
+            </el-tabs> -->
         </div>
 
       </el-dialog>
@@ -183,12 +214,28 @@
 import { listTable, previewTable, delTable, toDBTable, toProjectTableCheckRole, apiToFile } from '@/api/tools/gen'
 import importTable from './importTable'
 import { downLoadFile } from '@/utils/zipdownload'
+import { codemirror } from 'vue-codemirror'
+import 'codemirror/theme/material-palenight.css'
+
+require('codemirror/mode/javascript/javascript')
+import 'codemirror/mode/javascript/javascript'
+import 'codemirror/mode/go/go'
+import 'codemirror/mode/vue/vue'
 
 export default {
   name: 'Gen',
-  components: { importTable },
+  components: { importTable, codemirror },
   data() {
     return {
+      cmOptions: {
+        tabSize: 4,
+        theme: 'material-palenight',
+        mode: 'text/javascript',
+        lineNumbers: true,
+        line: true
+        // more CodeMirror options...
+      },
+      codestr: '',
       // 遮罩层
       loading: true,
       // 唯一标识符
@@ -244,6 +291,18 @@ export default {
       }
       )
     },
+    codeChange(e) {
+      if (e.indexOf('js') > -1) {
+        this.cmOptions.mode = 'text/javascript'
+      }
+      if (e.indexOf('model') > -1 || e.indexOf('router') > -1 || e.indexOf('api') > -1 || e.indexOf('service') > -1 || e.indexOf('dto') > -1) {
+        this.cmOptions.mode = 'text/x-go'
+      }
+      if (e.indexOf('vue') > -1) {
+        this.cmOptions.mode = 'text/x-vue'
+      }
+      this.codestr = this.preview.data[e]
+    },
     /** 搜索按钮操作 */
     handleQuery() {
       this.queryParams.pageIndex = 1
@@ -273,38 +332,21 @@ export default {
       previewTable(row.tableId).then(response => {
         this.preview.data = response.data
         this.preview.open = true
+        this.codeChange('template/api.go.template')
       })
     },
     handleToProject(row) {
-      this.$confirm('正在使用代码生成请确认?', '提示', {
-        confirmButtonText: '生成',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(function() {
-        return toProjectTableCheckRole(row.tableId, false)
-      }).then((response) => {
+      toProjectTableCheckRole(row.tableId, false).then((response) => {
         this.msgSuccess(response.msg)
       }).catch(function() {})
     },
     handleToApiFile(row) {
-      this.$confirm('正在使用代码生成配置迁移脚本请确认?', '提示', {
-        confirmButtonText: '生成',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(function() {
-        return apiToFile(row.tableId, true)
-      }).then((response) => {
+      apiToFile(row.tableId, true).then((response) => {
         this.msgSuccess(response.msg)
       }).catch(function() {})
     },
     handleToDB(row) {
-      this.$confirm('正在使用【菜单以及API生成到数据库】请确认?', '提示', {
-        confirmButtonText: '写入DB',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(function() {
-        return toDBTable(row.tableId)
-      }).then((response) => {
+      toDBTable(row.tableId).then((response) => {
         this.msgSuccess(response.msg)
       }).catch(function() {})
     },
@@ -338,13 +380,25 @@ export default {
           this.msgError(response.msg)
         }
       }).catch(function() {})
+    },
+    handleSingleDelete(row) {
+      const tableIds = row.tableId || this.ids
+      delTable(tableIds).then((response) => {
+        if (response.code === 200) {
+          this.msgSuccess(response.msg)
+          this.open = false
+          this.getList()
+        } else {
+          this.msgError(response.msg)
+        }
+      }).catch(function() {})
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
- .el-dialog-container /deep/{
+ .el-dialog-container ::v-deep{
    height:600px;
    overflow: hidden;
    .el-scrollbar__view{
@@ -361,4 +415,26 @@ export default {
      display: none;
    }
  }
+ ::v-deep .el-dialog__body{
+    padding: 0 20px;
+    margin:0;
+  }
+
+   .tag-group .el-tag{
+    margin-left: 10px;
+  }
+
+</style>
+
+<style lang="scss">
+  #codemirror {
+      height: auto;
+      margin: 0;
+      overflow: auto;
+    }
+  .CodeMirror {
+      overflow:auto;
+      border: 1px solid #eee;
+      height: 600px;
+    }
 </style>
