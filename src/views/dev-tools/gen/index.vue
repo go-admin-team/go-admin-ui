@@ -291,10 +291,6 @@ export default {
       }
       )
     },
-    // onCmCodeChange(newCode) {
-    //   console.log('this is new code', newCode)
-    //   this.code = newCode
-    // },
     codeChange(e) {
       if (e.indexOf('js') > -1) {
         this.cmOptions.mode = 'text/javascript'
@@ -336,7 +332,7 @@ export default {
       previewTable(row.tableId).then(response => {
         this.preview.data = response.data
         this.preview.open = true
-        this.codeChange('template/api.go')
+        this.codeChange('template/api.go.template')
       })
     },
     handleToProject(row) {
