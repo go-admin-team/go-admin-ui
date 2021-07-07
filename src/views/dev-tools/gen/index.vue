@@ -399,7 +399,6 @@ export default {
 
 <style lang="scss" scoped>
  .el-dialog-container ::v-deep{
-   height:600px;
    overflow: hidden;
    .el-scrollbar__view{
      height: 100%;
@@ -419,11 +418,16 @@ export default {
     padding: 0 20px;
     margin:0;
   }
-
-   .tag-group .el-tag{
+  .tag-group {
+    margin: 0 0 10px -10px;
+  }
+  .tag-group .el-tag{
     margin-left: 10px;
   }
 
+  .el-tag {
+    cursor: pointer;
+  }
 </style>
 
 <style lang="scss">
@@ -433,7 +437,6 @@ export default {
       overflow: auto;
     }
   .CodeMirror {
-      overflow:auto;
       border: 1px solid #eee;
       height: 600px;
     }
