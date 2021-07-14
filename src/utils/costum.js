@@ -64,8 +64,8 @@ export function addDateRange(params, dateRange) {
 export function selectDictLabel(datas, value) {
   var actions = []
   Object.keys(datas).map((key) => {
-    if (datas[key].dictValue === ('' + value)) {
-      actions.push(datas[key].dictLabel)
+    if (datas[key].value === ('' + value)) {
+      actions.push(datas[key].label)
       return false
     }
   })
