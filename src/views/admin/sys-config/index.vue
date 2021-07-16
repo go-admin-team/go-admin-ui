@@ -27,9 +27,9 @@
             <el-select v-model="queryParams.configType" placeholder="系统内置" clearable size="small">
               <el-option
                 v-for="dict in typeOptions"
-                :key="dict.dictValue"
-                :label="dict.dictLabel"
-                :value="dict.dictValue"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
               />
             </el-select>
           </el-form-item>
@@ -187,9 +187,9 @@
               <el-radio-group v-model="form.configType">
                 <el-radio
                   v-for="dict in typeOptions"
-                  :key="dict.dictValue"
-                  :label="dict.dictValue"
-                >{{ dict.dictLabel }}</el-radio>
+                  :key="dict.value"
+                  :label="dict.value"
+                >{{ dict.label }}</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="前台显示" prop="isFrontend">

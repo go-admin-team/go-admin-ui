@@ -23,9 +23,9 @@
               >
                 <el-option
                   v-for="dict in jobGroupOptions"
-                  :key="dict.dictValue"
-                  :label="dict.dictLabel"
-                  :value="dict.dictValue"
+                  :key="dict.value"
+                  :label="dict.label"
+                  :value="dict.value"
                 />
               </el-select>
             </el-form-item>
@@ -38,9 +38,9 @@
               >
                 <el-option
                   v-for="dict in statusOptions"
-                  :key="dict.dictValue"
-                  :label="dict.dictLabel"
-                  :value="dict.dictValue"
+                  :key="dict.value"
+                  :label="dict.label"
+                  :value="dict.value"
                 />
               </el-select>
             </el-form-item>
@@ -213,9 +213,9 @@
                     >
                       <el-option
                         v-for="dict in jobGroupOptions"
-                        :key="dict.dictValue"
-                        :label="dict.dictLabel"
-                        :value="dict.dictValue"
+                        :key="dict.value"
+                        :label="dict.label"
+                        :value="dict.value"
                       />
                     </el-select>
                   </el-form-item>
@@ -298,9 +298,9 @@
                     >
                       <el-option
                         v-for="dict in statusOptions"
-                        :key="dict.dictValue"
-                        :label="dict.dictLabel"
-                        :value="dict.dictValue"
+                        :key="dict.value"
+                        :label="dict.label"
+                        :value="dict.value"
                       />
                     </el-select>
                   </el-form-item>
