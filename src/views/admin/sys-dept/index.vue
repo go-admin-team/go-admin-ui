@@ -198,6 +198,9 @@ export default {
         sort: [
           { required: true, message: '菜单顺序不能为空', trigger: 'blur' }
         ],
+        leader: [
+          { required: true, message: '负责人不能为空', trigger: 'blur' }
+        ],
         email: [
           {
             type: 'email',
