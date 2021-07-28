@@ -51,9 +51,10 @@ export function updateDept(data, id) {
 }
 
 // 删除部门
-export function delDept(deptId) {
+export function delDept(data) {
   return request({
-    url: '/api/v1/dept/' + deptId,
-    method: 'delete'
+    url: '/api/v1/dept',
+    method: 'delete',
+    data: data
   })
 }
