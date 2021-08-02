@@ -378,13 +378,13 @@ export default {
     // 所有菜单节点数据
     getMenuAllCheckedKeys() {
       // 目前被选中的菜单节点
-      const checkedKeys = this.$refs.menuTree.getHalfCheckedKeys()
+      const checkedKeys = this.$refs.menuTree.getCheckedKeys()
       console.log('目前被选中的菜单节点', checkedKeys)
       // 半选中的菜单节点
-      const halfCheckedKeys = this.$refs.menuTree.getCheckedKeys()
+      const halfCheckedKeys = this.$refs.menuTree.getHalfCheckedKeys()
       console.log('半选中的菜单节点', halfCheckedKeys)
-      // checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys)
-      return halfCheckedKeys
+      checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys)
+      return checkedKeys
     },
     // 所有部门节点数据
     getDeptAllCheckedKeys() {
@@ -402,9 +402,22 @@ export default {
         this.menuOptions = []
       } else {
         this.$nextTick(() => {
-          this.$refs.menuTree.setCheckedKeys(checkedKeys)
+          this.setMenuCheckedKeys(checkedKeys)
         })
       }
+    },
+    /** 回显菜单树，仅设置叶子节点的选中状态 */
+    setMenuCheckedKeys(val) {
+      this.$refs.menuTree.setCheckedKeys([])
+      this.$nextTick(() => {
+        const that = this
+        val.forEach((i, n) => {
+          const node = that.$refs.menuTree.getNode(i)
+          if (node.isLeaf) {
+            that.$refs.menuTree.setChecked(node, true)
+          }
+        })
+      })
     },
     /** 根据角色ID查询部门树结构 */
     getRoleDeptTreeselect(roleId) {
