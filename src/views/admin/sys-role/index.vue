@@ -194,6 +194,7 @@
                 show-checkbox
                 node-key="id"
                 :empty-text="menuOptionsAlert"
+                style="height:171px;overflow-y:auto;overflow-x:hidden;"
               />
             </el-form-item>
             <el-form-item label="备注">
