@@ -10,6 +10,8 @@ export default {
 }
 </script>
 <script>
+// 声明: 百度统计统计相关下载使用量无别的用途
+// 可自行删除
 var _hmt = _hmt || [];
 (function() {
   var hm = document.createElement("script");

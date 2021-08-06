@@ -94,7 +94,7 @@
               </span>
             </template>
           </el-table-column>
-          <el-table-column prop="path" label="组建路径" :show-overflow-tooltip="true">
+          <el-table-column prop="path" label="组件路径" :show-overflow-tooltip="true">
             <template slot-scope="scope">
               <span v-if="scope.row.menuType=='A'">{{ scope.row.path }}</span>
               <span v-else>{{ scope.row.component }}</span>
@@ -144,7 +144,7 @@
         <el-drawer
           ref="drawer"
           :title="title"
-          :before-close="handleClose"
+          :before-close="cancel"
           :visible.sync="open"
           direction="rtl"
           custom-class="demo-drawer"
