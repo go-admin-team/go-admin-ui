@@ -125,20 +125,6 @@
 
               <el-popconfirm
                 class="delete-popconfirm"
-                title="正在使用代码生成配置迁移脚本请确认?"
-                confirm-button-text="生成"
-                @onConfirm="handleToApiFile(scope.row)"
-              >
-                <el-button
-                  slot="reference"
-                  type="text"
-                  size="small"
-                  icon="el-icon-view"
-                >配置迁移脚本</el-button>
-              </el-popconfirm>
-
-              <el-popconfirm
-                class="delete-popconfirm"
                 title="正在使用【菜单以及API生成到数据库】请确认?"
                 confirm-button-text="写入DB"
                 @onConfirm="handleToDB(scope.row)"
@@ -148,7 +134,21 @@
                   type="text"
                   size="small"
                   icon="el-icon-view"
-                >配置生成</el-button>
+                >生成配置</el-button>
+              </el-popconfirm>
+
+              <el-popconfirm
+                class="delete-popconfirm"
+                title="正在使用代码生成配置迁移脚本请确认?"
+                confirm-button-text="生成"
+                @onConfirm="handleToApiFile(scope.row)"
+              >
+                <el-button
+                  slot="reference"
+                  type="text"
+                  size="small"
+                  icon="el-icon-view"
+                >生成迁移脚本</el-button>
               </el-popconfirm>
 
               <el-popconfirm
