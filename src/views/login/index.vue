@@ -26,13 +26,6 @@
         <div class="login-time" v-text="currentTime" />
         <img :src="sysInfo.sys_app_logo" alt="" class="img">
         <p class="title" v-text="sysInfo.sys_app_name" />
-        <div class="login-main">
-          <!-- <div class="mt-5"> -->
-          <Link class="text-black mr-4">Privacy Policy</Link>
-          <Link class="text-black mr-4">Contact</Link>
-          <Link class="text-black">© 2021 DexignZone</Link>
-          <!-- </div> -->
-        </div>
       </div>
       <div class="login-border">
         <div class="login-main">
