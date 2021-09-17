@@ -459,7 +459,7 @@ $cursor: #fff;
       border-radius: 0px;
       padding: 12px 5px 12px 15px;
       height: 46px;
-      caret-color: #333;
+      # caret-color: #333;
       background-color: #24292d;
       color: #fff;
       &:-webkit-autofill {
