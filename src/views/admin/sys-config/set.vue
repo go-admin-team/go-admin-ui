@@ -129,6 +129,11 @@ export default {
             this.msgSuccess(response.msg)
             this.open = false
             this.getList()
+            const { sys_app_name, sys_app_logo } = this.form
+            this.$store.commit('system/SET_INFO', {
+              sys_app_logo,
+              sys_app_name
+            })
           } else {
             this.msgError(response.msg)
           }
