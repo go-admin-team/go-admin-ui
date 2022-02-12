@@ -582,7 +582,7 @@ export default {
       }).then(({ value }) => {
         resetUserPwd(row.userId, value).then(response => {
           if (response.code === 200) {
-            this.msgSuccess('修改成功，新密码是：' + value)
+            this.msgSuccess(response.msg)
           } else {
             this.msgError(response.msg)
           }
