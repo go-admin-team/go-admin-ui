@@ -36,18 +36,18 @@
                   </el-row>
                   <el-row :gutter="10">
                     <el-col :sm="12" :md="12" class="line">
-                      <el-col :sm="6" :md="6">
+                      <el-col :sm="8" :md="8">
                         下载<i class="el-icon-caret-bottom" />
                       </el-col>
-                      <el-col :sm="18" :md="18" class="line-value">
+                      <el-col :sm="16" :md="16" class="line-value">
                         {{ info.net.in }}KB
                       </el-col>
                     </el-col>
                     <el-col :sm="12" :md="12" class="line">
-                      <el-col :sm="6" :md="6">
+                      <el-col :sm="8" :md="8">
                         上传<i class="el-icon-caret-top" />
                       </el-col>
-                      <el-col :sm="18" :md="18" class="line-value">
+                      <el-col :sm="16" :md="16" class="line-value">
                         {{ info.net.out }}KB
                       </el-col>
                     </el-col>
