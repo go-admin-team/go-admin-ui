@@ -163,8 +163,8 @@ export default {
       cookiePassword: '',
       refreshParticles: true,
       loginForm: {
-        username: 'admin',
-        password: '123456',
+        username: '',
+        password: '',
         rememberMe: false,
         code: '',
         uuid: ''
@@ -306,7 +306,7 @@ export default {
 /* 修复input 背景不协调 和光标变色 */
 /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
 
-$bg: #283443;
+$bg: #24292d;
 $light_gray: #fff;
 $cursor: #fff;
 
@@ -320,12 +320,24 @@ $cursor: #fff;
   width: 100%;
   height: 100%;
   margin: 0 auto;
-  background: url("../../assets/login.png") no-repeat;
-  background-color: #0e6cff;
   position: relative;
   background-size: cover;
   height: 100vh;
   background-position: 50%;
+  background: url("../../assets/login/bg-login.jpg") no-repeat;
+  z-index: 1;
+}
+.login-container:after {
+  content: "";
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    left: 0;
+    top: 0;
+    background: rgba(0,0,0,.5);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    z-index: -1;
 }
 
 #particles-js {
@@ -353,7 +365,10 @@ $cursor: #fff;
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
-  background-color: rgba(64, 158, 255, 0);
+  background-color: #fff;
+  background-image: url("../../assets/login/bg-login.png");
+  background-repeat: no-repeat;
+    background-position: bottom;
   color: #fff;
   float: left;
   width: 50%;
@@ -370,7 +385,7 @@ $cursor: #fff;
     left: 25px;
     top: 25px;
     width: 100%;
-    color: #fff;
+    color: #222!important;
     opacity: 0.9;
     font-size: 18px;
     overflow: hidden;
@@ -386,7 +401,7 @@ $cursor: #fff;
 
 .login-left .title {
   text-align: center;
-  color: #fff;
+  color: #222!important;
   letter-spacing: 2px;
   font-size: 16px;
   font-weight: 600;
@@ -405,7 +420,7 @@ $cursor: #fff;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
   color: #fff;
-  background-color: hsla(0, 0%, 100%, 0.9);
+  background-color: #24292d;
   width: 50%;
   float: left;
 }
@@ -416,7 +431,7 @@ $cursor: #fff;
 }
 
 .login-title {
-  color: #333;
+  color: #fff!important;
   margin-bottom: 40px;
   font-weight: 500;
   font-size: 22px;
@@ -438,15 +453,15 @@ $cursor: #fff;
     width: 85%;
 
     input {
-      background: transparent;
+      // background: transparent;
       border: 0px;
       -webkit-appearance: none;
       border-radius: 0px;
       padding: 12px 5px 12px 15px;
-      color: #333;
-      height: 47px;
-      caret-color: #333;
-
+      height: 46px;
+      # caret-color: #333;
+      background-color: #24292d;
+      color: #fff;
       &:-webkit-autofill {
         box-shadow: 0 0 0px 1000px $bg inset !important;
         -webkit-text-fill-color: $cursor !important;
@@ -456,12 +471,12 @@ $cursor: #fff;
 
   .el-form-item {
     border: 1px solid rgba(0, 0, 0, 0.1);
-    background: rgba(255, 255, 255, 0.8);
+    border-color: #3e454d;
     border-radius: 5px;
     color: #454545;
   }
 }
-$bg: #2d3a4b;
+$bg: #24292d;
 $dark_gray: #889aa4;
 $light_gray: #eee;
 
@@ -534,5 +549,14 @@ $light_gray: #eee;
       width: 100%;
     }
   }
+}
+// 重新定义按钮样式
+.el-button--primary {
+  background-color: #13b497;
+  border-color: #13b497;
+}
+.el-button--primary:hover {
+  background-color: #0f917a;
+  border-color: #0e8670;
 }
 </style>
