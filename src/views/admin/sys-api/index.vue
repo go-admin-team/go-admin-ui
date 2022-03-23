@@ -145,7 +145,7 @@
         <el-drawer
           ref="drawer"
           :title="title"
-          :before-close="handleClose"
+          :before-close="cancel"
           :visible.sync="open"
           direction="rtl"
           custom-class="demo-drawer"
