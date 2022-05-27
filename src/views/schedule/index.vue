@@ -156,7 +156,7 @@
                 >修改
                 </el-button>
                 <el-button
-                  v-if="scope.row.entry_id!==0"
+                  v-if="scope.row.entry_id!==0&& scope.row.status!=1"
                   v-permisaction="['job:sysJob:remove']"
                   size="mini"
                   type="text"
@@ -165,7 +165,7 @@
                 >停止
                 </el-button>
                 <el-button
-                  v-if="scope.row.entry_id==0"
+                  v-if="scope.row.entry_id==0 && scope.row.status!=1"
                   v-permisaction="['job:sysJob:start']"
                   size="mini"
                   type="text"
