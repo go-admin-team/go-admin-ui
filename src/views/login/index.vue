@@ -146,6 +146,37 @@
       <br>
       <social-sign />
     </el-dialog>
+    <div
+      id="bottom_layer"
+      class="s-bottom-layer s-isindex-wrap"
+      style="visibility: visible; width: 100%"
+    >
+      <div class="s-bottom-layer-content">
+
+        <div class="lh">
+          <a class="text-color" href="https://beian.miit.gov.cn" target="_blank">
+            沪ICP备14028854号-1
+          </a>
+        </div>
+        <div class="open-content-info">
+          <div class="tip-hover-panel" style="top: -18px; right: -12px">
+            <div class="rest_info_tip">
+              <div class="tip-wrapper">
+                <div class="lh tip-item" style="display: none">
+                  <a
+                    class="text-color"
+                    href="https://beian.miit.gov.cn"
+                    target="_blank"
+                  >
+                    沪ICP备14028854号-1
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -309,6 +340,127 @@ export default {
 $bg: #283443;
 $light_gray: #fff;
 $cursor: #fff;
+
+#bottom_layer {
+  visibility: hidden;
+  width: 3000px;
+  position: fixed;
+  z-index: 302;
+  bottom: 0;
+  left: 0;
+  height: 39px;
+  padding-top: 1px;
+  zoom: 1;
+  margin: 0;
+  line-height: 39px;
+  // background: #0e6cff;
+}
+#bottom_layer .lh {
+  display: inline-block;
+  margin-right: 14px;
+}
+#bottom_layer .lh .emphasize {
+  text-decoration: underline;
+  font-weight: 700;
+}
+#bottom_layer .lh:last-child {
+  margin-left: -2px;
+  margin-right: 0;
+}
+#bottom_layer .lh.activity {
+  font-weight: 700;
+  text-decoration: underline;
+}
+#bottom_layer a {
+  font-size: 12px;
+  text-decoration: none;
+}
+#bottom_layer .text-color {
+  color: #bbb;
+}
+#bottom_layer .aria-img {
+  width: 49px;
+  height: 20px;
+  margin-bottom: -5px;
+}
+#bottom_layer a:hover {
+  color: #fff;
+}
+#bottom_layer .s-bottom-layer-content {
+  margin: 0 17px;
+  text-align: center;
+}
+#bottom_layer .s-bottom-layer-content .auto-transform-line {
+  display: inline;
+}
+#bottom_layer .s-bottom-layer-content .auto-transform-line:first-child {
+  margin-right: 14px;
+}
+.s-bottom-space {
+  position: static;
+  width: 100%;
+  height: 40px;
+  margin: 23px auto 12px;
+}
+#bottom_layer .open-content-info a:hover {
+  color: #fff;
+}
+#bottom_layer .open-content-info .text-color {
+  color: #626675;
+}
+.open-content-info {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+}
+.open-content-info > span {
+  cursor: pointer;
+  font-size: 14px;
+}
+.open-content-info > span:hover {
+  color: #fff;
+}
+.open-content-info .tip-hover-panel {
+  position: absolute;
+  display: none;
+  padding-bottom: 18px;
+}
+.open-content-info .tip-hover-panel .rest_info_tip {
+  max-width: 560px;
+  padding: 8px 12px 8px 12px;
+  background: #fff;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+.open-content-info .tip-hover-panel .rest_info_tip .tip-wrapper {
+  white-space: nowrap;
+  line-height: 20px;
+}
+.open-content-info .tip-hover-panel .rest_info_tip .tip-wrapper .tip-item {
+  height: 20px;
+  line-height: 20px;
+}
+.open-content-info
+  .tip-hover-panel
+  .rest_info_tip
+  .tip-wrapper
+  .tip-item:last-child {
+  margin-right: 0;
+}
+@media screen and (max-width: 515px) {
+  .open-content-info {
+    width: 16px;
+  }
+  .open-content-info .tip-hover-panel {
+    right: -16px !important;
+  }
+}
+.footer {
+  background-color: #0e6cff;
+  margin-bottom: -20px;
+}
 
 .login-container {
   display: -webkit-box;
@@ -524,7 +676,7 @@ $light_gray: #eee;
       box-sizing: border-box;
       box-shadow: none;
     }
-    .login-main{
+    .login-main {
       width: 80%;
     }
     .login-left {
