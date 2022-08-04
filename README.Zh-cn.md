@@ -124,6 +124,14 @@ git clone https://github.com/go-admin-team/go-admin-ui.git
 
 ### 启动说明
 
+#### 环境要求
+
+go 1.17 
+
+node版本: v14.16.0
+
+npm版本: 6.14.11
+
 #### 服务端启动说明
 
 ```bash
@@ -214,6 +222,7 @@ env GOOS=linux GOARCH=amd64 go build main.go
 ### UI交互端启动说明
 
 ```bash
+
 # 安装依赖
 npm install
 
