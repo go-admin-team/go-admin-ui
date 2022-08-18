@@ -350,7 +350,6 @@ export default {
       const ID = row.id || this.ids
       getConfig(ID).then(response => {
         this.form = response.data
-        this.form.isFrontend = String(this.form.isFrontend)
         this.open = true
         this.title = '修改参数'
         this.isEdit = true
@@ -360,7 +359,6 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-          this.form.isFrontend = parseInt(this.form.isFrontend)
           if (this.form.id !== undefined) {
             updateConfig(this.form).then(response => {
               if (response.code === 200) {
