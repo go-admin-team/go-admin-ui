@@ -94,7 +94,7 @@ export default {
           trigger: 'change'
         }]
       },
-      sys_app_logoAction: 'http://localhost:8000/api/v1/public/uploadFile',
+      sys_app_logoAction: process.env.VUE_APP_BASE_API + '/api/v1/public/uploadFile',
       sys_app_logofileList: [],
       sys_index_skinNameOptions: [{
         'label': '蓝色',
