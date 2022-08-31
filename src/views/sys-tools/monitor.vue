@@ -136,14 +136,19 @@ export default {
         { color: '#e6a23c', percentage: 60 },
         { color: '#1989fa', percentage: 80 },
         { color: '#F56C6C', percentage: 100 }
-      ]
+      ],
+      timer: null
     }
   },
   created() {
     this.getServerInfo()
-    setInterval(() => {
+    this.timer = setInterval(() => {
       this.getServerInfo()
     }, 5000)
+  },
+  beforeDestroy() {
+    clearInterval(this.timer)
+    this.timer = null
   },
   methods: {
     getServerInfo() {
