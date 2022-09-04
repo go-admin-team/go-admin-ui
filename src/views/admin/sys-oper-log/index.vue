@@ -138,7 +138,7 @@
         />
 
         <!-- 操作日志详细 -->
-        <el-dialog title="操作日志详细" :visible.sync="open" width="700px">
+        <el-dialog title="操作日志详细" :visible.sync="open" width="700px" :close-on-click-modal="false">
           <el-form ref="form" :model="form" label-width="100px" size="mini">
             <el-row>
               <el-col :span="24">

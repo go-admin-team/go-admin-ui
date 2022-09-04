@@ -177,7 +177,7 @@
 
       <!-- 预览界面 -->
 
-      <el-dialog class="preview" :title="preview.title" :visible.sync="preview.open" fullscreen>
+      <el-dialog class="preview" :title="preview.title" :visible.sync="preview.open" :close-on-click-modal="false" fullscreen>
         <div class="el-dialog-container">
           <div class="tag-group">
             <!-- eslint-disable-next-line vue/valid-v-for -->
