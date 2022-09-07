@@ -73,9 +73,33 @@ export default {
   mounted() {
     this.initTags()
     this.addTags()
-    this.isActive()
+    this.beforeUnload()
   },
   methods: {
+    // 刷新前缓存tab
+    beforeUnload() {
+      // 监听页面刷新
+      window.addEventListener('beforeunload', () => {
+        const tabViews = this.visitedViews.map(item => {
+          return {
+            fullPath: item.fullPath,
+            hash: item.hash,
+            meta: { ...item.meta },
+            name: item.name,
+            params: { ...item.params },
+            path: item.path,
+            query: { ...item.query },
+            title: item.title
+          }
+        })
+        sessionStorage.setItem('tabViews', JSON.stringify(tabViews))
+      })
+      // 页面初始化加载判断缓存中是否有数据
+      const oldViews = JSON.parse(sessionStorage.getItem('tabViews')) || []
+      if (oldViews.length > 0) {
+        this.$store.state.tagsView.visitedViews = oldViews
+      }
+    },
     handleTagsOver(index) {
       const tags = document.querySelectorAll('.tags-item')
       const item = tags[index - 1]
