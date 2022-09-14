@@ -138,7 +138,7 @@
       </div>
     </div>
 
-    <el-dialog title="Or connect with" :visible.sync="showDialog">
+    <el-dialog title="Or connect with" :visible.sync="showDialog" :close-on-click-modal="false">
       Can not be simulated on local, so please combine you own business
       simulation! ! !
       <br>
