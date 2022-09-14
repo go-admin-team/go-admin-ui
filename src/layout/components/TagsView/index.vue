@@ -73,6 +73,7 @@ export default {
   mounted() {
     this.initTags()
     this.addTags()
+    this.isActive()
     this.beforeUnload()
   },
   methods: {
