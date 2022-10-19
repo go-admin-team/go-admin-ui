@@ -1,0 +1,27 @@
+{
+  "name": "quark_arco",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^4.7.0",
+    "axios": "^0.26.1",
+    "pinia": "^2.0.14",
+    "vue": "^3.2.25",
+    "vue-router": "^4.0.14"
+  },
+  "devDependencies": {
+    "@arco-design/web-vue": "^2.24.1",
+    "@vitejs/plugin-vue": "^2.3.1",
+    "eslint": "^8.15.0",
+    "eslint-plugin-vue": "^9.0.1",
+    "mockjs": "^1.1.0",
+    "sass": "^1.50.1",
+    "vite": "^2.9.5",
+    "vite-plugin-mock": "^2.9.6"
+  }
+}

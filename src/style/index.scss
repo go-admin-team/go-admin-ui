@@ -1,0 +1,52 @@
+// main-container 全局样式
+.app-container {
+  flex: 1;
+  padding: 20px 20px 12px 20px;
+  background-color: #fff;
+  border-radius: 5px;
+}
+
+// 表格操作栏样式
+.arco-table-th:last-child .arco-table-th-item-title {
+  margin-left: 16px;
+}
+
+// 数字输入框样式
+.arco-input-number .arco-input {
+  text-align: center;
+}
+
+// Table Tag 样式
+// .arco-table-td .arco-table-cell .arco-tag {
+//   margin-left: -8px;
+// }
+
+
+// 滚动条整体部分
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+  background-color: transparent
+}
+
+// 滚动条外层轨道
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+}
+
+// 滚动条滑块
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, .2);
+  border-radius: 10px;
+  transition: all .3s ease-in-out;
+}
+
+// 链接标签样式
+a {
+  text-decoration: none;
+  color: #165DFF;
+}
+
+a:hover {
+  color: #4080FF;
+}
