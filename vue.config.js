@@ -7,7 +7,7 @@ function resolve(dir) {
   return path.join(__dirname, dir)
 }
 
-const name = defaultSettings.title || 'vue Element Admin' // page title
+const name = defaultSettings.title || 'go-dmin' // page title
 
 // If your port is set to 80,
 // use administrator privileges to execute the command line.
@@ -16,7 +16,7 @@ const name = defaultSettings.title || 'vue Element Admin' // page title
 // port = 9527 npm run dev OR npm run dev --port = 9527
 const port = process.env.port || process.env.npm_config_port || 9527 // dev port
 
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
+// const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
 
 // All configuration item explanations can be find in https://cli.vuejs.org/config/
 module.exports = {
@@ -49,8 +49,8 @@ module.exports = {
         threshold: 10240, // 对超过10kb的数据进行压缩
         deleteOriginalAssets: false, // 是否删除原文件
         minRatio: 0.8
-      }),
-      new MonacoWebpackPlugin()
+      })
+      // new MonacoWebpackPlugin()
     ],
     name: name,
     resolve: {
