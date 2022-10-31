@@ -11,6 +11,14 @@ const routes = [
     component: Layout,
     children: [
       {
+        path: '/profile',
+        name: 'profile',
+        component: () => import('../views/profile/index.vue'),
+        meta: {
+          title: '个人设置',
+        },
+      },
+      {
         path: '/403',
         name: '403',
         component: () => import('../views/error-page/403.vue'),
@@ -32,14 +40,6 @@ const routes = [
         component: () => import('../views/error-page/500.vue'),
         meta: {
           title: '找不到页面',
-        },
-      },
-      {
-        path: '/profile',
-        name: 'profile',
-        component: () => import('../views/profile/index.vue'),
-        meta: {
-          name: '个人信息',
         },
       },
     ]
