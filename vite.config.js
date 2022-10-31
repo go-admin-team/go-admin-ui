@@ -17,6 +17,8 @@ export default defineConfig({
     }
   },
   server: {
+    host: true,
+    port: 1798,
     proxy: {
       '/api/v1': {
         target: 'http://127.0.0.1:8000',
@@ -30,5 +32,6 @@ export default defineConfig({
         additionalData: `@import "@/style/variables.scss";`
       }
     }
-  }
+  },
+  publicDir: '/public'
 });

@@ -9,24 +9,45 @@ const routes = [
     name: '/',
     redirect: 'admin',
     component: Layout,
+    children: [
+      {
+        path: '/403',
+        name: '403',
+        component: () => import('../views/error-page/403.vue'),
+        meta: {
+          title: '找不到页面',
+        },
+      },
+      {
+        path: '/404',
+        name: '404',
+        component: () => import('../views/error-page/404.vue'),
+        meta: {
+          title: '找不到页面',
+        },
+      },
+      {
+        path: '/500',
+        name: '500',
+        component: () => import('../views/error-page/500.vue'),
+        meta: {
+          title: '找不到页面',
+        },
+      },
+      {
+        path: '/profile',
+        name: 'profile',
+        component: () => import('../views/profile/index.vue'),
+        meta: {
+          name: '个人信息',
+        },
+      },
+    ]
   },
   {
     path: '/login',
     name: 'login',
     component: () => import('../views/login/index.vue'),
-  },
-  {
-    path: '/404',
-    name: '404',
-    component: () => import('../views/error-page/404.vue'),
-  },
-  {
-    path: '/profile',
-    name: 'profile',
-    component: () => import('../views/profile/index.vue'),
-    meta: {
-      name: '个人信息',
-    },
   },
 ];
 
@@ -70,9 +91,9 @@ router.afterEach((to) => {
 
   // 修改网页标题
   if (to.name !== 'login') {
-    document.title = `${to.meta.title}-${store.sysConfig.sys_app_title}`;
+    document.title = `${to.meta.title} - ${store.sysConfig.sys_app_name}`;
   } else {
-    document.title = store.sysConfig.sys_app_title;
+    document.title = store.sysConfig.sys_app_name;
   }
 });
 export default router;

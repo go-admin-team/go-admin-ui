@@ -1,9 +1,7 @@
 <template>
   <div class="sider-logo">
     <img :src="store.sysConfig.sys_app_logo" />
-    <span class="sider-title" v-if="!props.collapsed">{{
-      store.sysConfig.sys_app_title
-    }}</span>
+    <span class="sider-title" v-if="!props.collapsed">{{store.sysConfig.sys_app_name}}</span>
   </div>
   <a-menu
     class="menu"
@@ -61,7 +59,7 @@ onBeforeMount(() => {
   display: flex;
   justify-content: center;
   padding-bottom: 8px;
-  border-bottom: 1px solid #e4e4e4;
+  border-bottom: 1px solid var(--color-neutral-3);
   & img {
     height: 32px;
   }
@@ -72,7 +70,7 @@ onBeforeMount(() => {
   display: flex;
   align-items: center;
   font-size: 16px;
-  color: $primary-font-color;
+  color: var(--color-text-1);
 }
 
 .left-side {
@@ -87,5 +85,11 @@ onBeforeMount(() => {
   &:hover {
     background-color: #e5e5e5;
   }
+}
+</style>
+
+<style lang="scss">
+.arco-menu-indent {
+  width: 30px;
 }
 </style>

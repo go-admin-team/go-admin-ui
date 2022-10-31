@@ -24,8 +24,8 @@ export const useUserStore = defineStore('user', {
     async getUserInfo() {
       try {
         const res = await getInfo();
-        // window.sessionStorage.setItem('userInfo', res.data);
-        window.sessionStorage.setItem('uid', res.data.userId);
+        // window.sessionStorage.setItem('uid', res.data.userId);
+        window.localStorage.setItem('uid', res.data.userId);
         this.userInfo = res.data;
       } catch (err) {
         console.error(err);
@@ -40,5 +40,9 @@ export const useUserStore = defineStore('user', {
         console.error(err);
       }
     }
+  },
+  userLogout() {
+    this.token = null;
+    this.userInfo = null;
   }
 })

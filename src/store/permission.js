@@ -52,5 +52,8 @@ export const usePermissionStore = defineStore('permisson', {
       this.setMenuList(res.data);
       this.addRouters = await this.GenerateRoutes(res.data);
     },
+    ClearMenuList() {
+      this.menuList = [];
+    }
   },
 });

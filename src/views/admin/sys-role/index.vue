@@ -235,9 +235,7 @@ const handleQuery = async () => {
   const { count, list, pageIndex, pageSize } = res.data;
 
   tableData.value = list;
-  pager.total = count;
-  pager.pageIndex = pageIndex;
-  pager.pageSize = pageSize;
+  Object.assign(pager, { count, pageIndex, pageSize });
 };
 
 // 重置查询

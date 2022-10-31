@@ -43,9 +43,10 @@
         'show-total': true,
         'show-jumper': true,
         'show-page-size': true,
-        total: pager.total,
+        total: pager.count,
         current: currentPage,
       }"
+      row-key="id"
       @page-change="handlePageChange"
       @page-size-change="handlePageSizeChange"
     > 
@@ -65,7 +66,7 @@
     <a-drawer
       :visible="drawerVisible"
       :width="450"
-      @ok="handleDrawerSubmit"
+      @before-ok="handleDrawerSubmit"
       @cancel="handleDrawerCancel"
     >
       <template #title> 修改接口管理 </template>
@@ -109,7 +110,7 @@
 <script setup>
 import { reactive, ref, getCurrentInstance, onMounted, nextTick } from 'vue';
 import { IconSearch, IconLoop } from '@arco-design/web-vue/es/icon';
-import { getSysApi } from '@/api/admin/sys-api';
+import { getSysApi,addSysApi,updateSysApi } from '@/api/admin/sys-api';
 
 const { proxy } = getCurrentInstance();
 
@@ -118,7 +119,7 @@ const currentPage = ref(1);
 
 // Pager
 const pager = {
-  total: 0,
+  count: 0,
   pageIndex: 1,
   pageSize: 10,
 };
@@ -149,13 +150,24 @@ const columns = [
 const tableData = ref([]);
 
 // Drawer 确定事件
-const handleDrawerSubmit = () => {
-  proxy.$refs.drawerFormRef.validate((valid) => {
+// 异步关闭Modal需要调用 done()
+const handleDrawerSubmit = (done) => {
+  proxy.$refs.drawerFormRef.validate(async (valid) => {
     if (!valid) {
-      proxy.$message.success('数据更新成功');
-      drawerVisible.value = false;
+      let res;
+      if (!drawerForm.id) {
+        res = await addSysApi(drawerForm);
+        proxy.$message.success(res.msg);
+      } else {
+        res = await updateSysApi(drawerForm, drawerForm.id);
+        proxy.$message.success(res.msg);
+        drawerVisible.value = false;
+      }
+      done();
+      getSysApiInfo(pager);
     } else {
-      proxy.$message.error('数据校验失败');
+      proxy.$message.error('表单校验失败');
+      done(false);
     }
   });
 };
@@ -181,7 +193,7 @@ const handlResetQuery = () => {
 // 修改
 const handleUpdate = async (record) => {
   drawerVisible.value = true;
-
+  // updateSysApi(record);
   await nextTick();
   Object.assign(drawerForm, record);
 };
@@ -210,7 +222,7 @@ const getSysApiInfo = async (params = {}) => {
   const { list, count, pageIndex, pageSize } = res.data;
 
   tableData.value = list;
-  Object.assign(pager, { total: count, pageIndex, pageSize });
+  Object.assign(pager, { count, pageIndex, pageSize });
 };
 
 onMounted(() => {

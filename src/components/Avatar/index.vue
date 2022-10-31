@@ -6,7 +6,7 @@
       </a-avatar>
       <div class="user-info">
         <div class="user-info-name">{{ userInfo.name }}</div>
-        <div class="user-info-desc">{{ userInfo.introduction }}</div>
+        <!-- <div class="user-info-desc">{{ userInfo.introduction }}</div> -->
       </div>
     </div>
     <template #content>
@@ -62,10 +62,12 @@ const handleLogout = () => {
   .user-info {
     margin-left: 10px;
     &-name {
-      color: $primary-font-color;
+      color: var(--color-text-1);
+      font-weight: 700;
+      padding-top: 8px;
     }
     &-desc {
-      color: $secondary-font-color;
+      color: var(--color-text-1);
       font-size: 12px;
       line-height: 1.4;
     }

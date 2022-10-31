@@ -40,15 +40,18 @@
     <a-table
       :columns="columns"
       :data="tableData"
-      :row-selection="{ type: 'checkbox', showCheckedAll: true }"
-      row-key="postId"
       :pagination="{
         'show-total': true,
         'show-jumper': true,
         'show-page-size': true,
         total: pager.total,
+        current: currentPage,
       }"
+      :row-selection="{ type: 'checkbox', showCheckedAll: true }"
+      row-key="postId"
       @selection-change="selectionChange"
+      @page-change="handlePageChange"
+      @page-size-change="handlePageSizeChange"
     >
       <template #createdAt="{ record }">
         {{ parseTime(record.createdAt) }}
@@ -72,8 +75,8 @@
       v-model:visible="modalVisible"
       :title="modalTitle"
       title-align="start"
-      :on-before-ok="handleBeforeOk"
-      @close="handleResetModalForm"
+      @before-ok="handleSubmit"
+      @close="() => {$refs.modalFormRef.resetFields(); modalForm.postId = null;}"
     >
       <a-form :model="modalForm" :rules="rules" ref="modalFormRef">
         <a-form-item field="postName" label="岗位名称">
@@ -111,13 +114,13 @@ import { parseTime } from '@/utils/parseTime';
 
 const { proxy } = getCurrentInstance();
 
+const currentPage = ref(1);
 // Pager
 const pager = {
   total: 0,
   pageIndex: 1,
   pageSize: 10,
 };
-
 // form
 const queryForm = reactive({});
 const modalForm = reactive({
@@ -168,6 +171,28 @@ const handleUpdate = async (record) => {
   Object.assign(modalForm, record);
 };
 
+// Modal ok
+// 异步关闭Modal需要调用 done()
+const handleSubmit = (done) => {
+  proxy.$refs.modalFormRef.validate(async (valid) => {
+    if (!valid) {
+      let res;
+      if (!modalForm.postId) {
+        res = await addPost(modalForm);
+        proxy.$message.success(res.msg);
+      } else {
+        res = await updatePost(modalForm, modalForm.postId);
+        proxy.$message.success(res.msg);
+      }
+      done();
+      getPostInfo(pager);
+    } else {
+      proxy.$message.error('表单校验失败');
+      done(false);
+    }
+  });
+};
+
 // 批量删除
 const handleBatchDelete = () => {
   if (batchList.length !== 0) {
@@ -178,7 +203,7 @@ const handleBatchDelete = () => {
       onOk: async () => {
         const res = await removePost({ ids: batchList });
         proxy.$message.success(res.msg);
-        getPostInfo();
+        getPostInfo(pager);
       },
       onCancel: () => {
         proxy.$message.info('已取消批量删除数据');
@@ -196,31 +221,28 @@ const handleDelete = async ({ postId }) => {
   getPostInfo();
 };
 
-// Modal ok
-// 异步关闭Modal需要调用 done()
-const handleBeforeOk = (done) => {
-  proxy.$refs.modalFormRef.validate(async (valid) => {
-    if (!valid) {
-      let res;
-      if (!modalForm.postId) {
-        res = await addPost(modalForm);
-        proxy.$message.success(res.msg);
-      } else {
-        res = await updatePost(modalForm, modalForm.postId);
-        proxy.$message.success(res.msg);
-      }
-      done();
-      getPostInfo();
-    } else {
-      proxy.$message.error('表单校验失败');
-      done(false);
-    }
-  });
-};
 
 // Table 勾选数据
 const selectionChange = (rowKeys) => {
   batchList = rowKeys;
+};
+
+/**
+ * 分页改变
+ * @param {Number} [page]
+ */
+ const handlePageChange = (page) => {
+  pager.pageIndex = page;
+
+  // 修改当前页码
+  currentPage.value = page;
+  getPostInfo({ ...pager, ...queryForm });
+};
+
+// 每页数据量
+const handlePageSizeChange = (pageSize) => {
+  pager.pageSize = pageSize;
+  getPostInfo({ ...pager, ...queryForm });
 };
 
 // 获取岗位信息
@@ -230,9 +252,7 @@ const getPostInfo = async (params = {}) => {
 
   // Pager
   const { count, pageIndex, pageSize } = res.data;
-  pager.total = count;
-  pager.pageIndex = pageIndex;
-  pager.pageSize = pageSize;
+  Object.assign(pager, { total: count, pageIndex, pageSize });
 };
 
 // 查询岗位信息
@@ -251,13 +271,6 @@ const handleResetQuery = () => {
   proxy.$refs.queryFormRef.resetFields();
 
   getPostInfo(queryForm);
-}
-
-// 重置ModalForm
-const handleResetModalForm = () => {
-  proxy.$refs.modalFormRef.resetFields();
-
-  modalForm.postId = null;
 }
 
 onMounted(() => {

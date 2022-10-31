@@ -5,7 +5,7 @@
         <div class="login-pic">
           <div>
             <img
-              src="https://image.akiraka.net/Quark/login/login_left_bg.jpeg"
+              src="/public/login_left_bg.jpg"
             />
           </div>
         </div>
@@ -13,10 +13,10 @@
           <div class="login-form-container">
             <div class="account-top">
               <div class="account-top-logo">
-                <img src="https://image.akiraka.net/Quark/login/logo.png" />
+                <img :src="store.sysConfig.sys_app_logo" />
                 <span class="project-title">用户登录</span>
               </div>
-              <div class="account-top-desc">Akiraka</div>
+              <div class="account-top-desc">青，取之于蓝而青于蓝;冰，水为之而寒于水；</div>
             </div>
             <!-- 登录表单 -->
             <a-form
@@ -93,7 +93,7 @@
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue';
 import { IconUser, IconLock, IconSafe } from '@arco-design/web-vue/es/icon';
 import { login, getCaptcha } from '@/api/admin/login';
-import { useUserStore } from '../../store/userInfo';
+import { useUserStore } from '@/store/userInfo';
 
 const { proxy } = getCurrentInstance();
 const store = useUserStore();

@@ -9,7 +9,4 @@
 </template>
 
 <style lang="scss">
-.app-main {
-  display: flex;
-}
 </style>
