@@ -17,6 +17,12 @@ jobs:
       - name: install
         run: yarn
 
+      - name: install sass-migrator
+        run: npm install -g sass-migrator
+
+      - name: sass-migrator division **/*.scss 
+        run: sass-migrator division **/*.scss 
+
       - name: Build
         run: npm run build:prod
 
