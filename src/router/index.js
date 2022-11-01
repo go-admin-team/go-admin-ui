@@ -1,4 +1,4 @@
-import { createWebHashHistory, createRouter } from 'vue-router';
+import { createWebHashHistory, createRouter, createWebHistory } from 'vue-router';
 import Layout from '../layout/index.vue';
 import { useUserStore } from '../store/userInfo';
 import { usePermissionStore } from '../store/permission';
@@ -52,8 +52,10 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
-  routes,
+  // createWebHashHistory URL 带井号
+  // createWebHistory URL 去井号
+  history: createWebHistory(),
+  routes: routes,
 });
 
 // beforeEach router

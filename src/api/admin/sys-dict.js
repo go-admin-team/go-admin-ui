@@ -33,3 +33,11 @@ export function updateDictType(data, id) {
     data,
   })
 }
+
+// 获取字典选择框列表
+export function optionselect() {
+  return request({
+    url: '/api/v1/dict/type-option-select',
+    method: 'get'
+  })
+}
