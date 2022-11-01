@@ -12,11 +12,11 @@
                       type="success"
                       effect="dark"
                     >
-                      {{ info.location }}
+                      Runing
                     </el-tag>
                   </el-col>
                   <el-col :sm="24" :md="8" class="" style="line-height:28px;text-align:center;">
-                    Aliyun
+                    {{ info.location }}
                   </el-col>
                 </el-row>
               </div>
@@ -36,20 +36,24 @@
                   </el-row>
                   <el-row :gutter="10">
                     <el-col :sm="12" :md="12" class="line">
-                      <el-col :sm="8" :md="8">
-                        下载<i class="el-icon-caret-bottom" />
-                      </el-col>
-                      <el-col :sm="16" :md="16" class="line-value">
-                        {{ info.net.in }}KB
-                      </el-col>
+                      <el-row>
+                        <el-col span="12" :sm="8" :md="8" xs="12">
+                          下载<i class="el-icon-caret-bottom" />
+                        </el-col>
+                        <el-col span="12" :sm="16" :md="16" xs="12" class="line-value">
+                          {{ info.net.in }}KB
+                        </el-col>
+                      </el-row>
                     </el-col>
                     <el-col :sm="12" :md="12" class="line">
-                      <el-col :sm="8" :md="8">
-                        上传<i class="el-icon-caret-top" />
-                      </el-col>
-                      <el-col :sm="16" :md="16" class="line-value">
-                        {{ info.net.out }}KB
-                      </el-col>
+                      <el-row border>
+                        <el-col span="12" :sm="6" :md="8">
+                          上传<i class="el-icon-caret-top" />
+                        </el-col>
+                        <el-col span="12" :sm="6" :md="16" class="line-value">
+                          {{ info.net.out }}KB
+                        </el-col>
+                      </el-row>
                     </el-col>
                   </el-row>
                   <el-row :gutter="10" class="monitor-progress">
@@ -144,7 +148,7 @@ export default {
     this.getServerInfo()
     this.timer = setInterval(() => {
       this.getServerInfo()
-    }, 5000)
+    }, 1000)
   },
   beforeDestroy() {
     clearInterval(this.timer)
@@ -166,8 +170,9 @@ export default {
 .line{
   line-height: 49px;
   font-size: 14px ;
-  padding-left: 0px !important;
-  padding-right: 0px !important;
+  padding-left: 5px !important;
+  padding-right: 5px !important;
+  border-bottom: 1px solid #e6ebf5;
   .line-value{
     text-align: right;
     color: #969799;
