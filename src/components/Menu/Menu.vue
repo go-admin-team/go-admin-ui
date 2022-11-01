@@ -20,7 +20,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/store/userInfo';
 import { usePermissionStore } from '@/store/permission';
 
-import SubMenu from './subMenu.vue';
+import SubMenu from './SubMenu.vue';
 
 const store = useUserStore();
 const permissionStore = usePermissionStore();
