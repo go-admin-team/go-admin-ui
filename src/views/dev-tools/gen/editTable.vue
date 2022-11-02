@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <a-form :model="dataInfo" ref="modalFormRef" auto-label-width size="mini">
+    <a-form :model="dataInfo" :rules="rules" ref="modalFormRef" auto-label-width size="mini">
       <a-card bordered>
         <!-- 卡片插槽 开始 -->
         <template #actions>
@@ -275,6 +275,42 @@ import { optionselect as getDictOptionselect } from '@/api/admin/sys-dict'
 import { getGenTable, updateGenTable, getTableTree } from '@/api/tools/gen';
 
 const { proxy } = getCurrentInstance();
+
+// Rules
+const rules = {
+  tableName: [
+    { required: true, message: '请输入表名称' },
+    { match: /^[a-z\._]*$/g, message: '只允许小写字母,例如 sys_demo 格式'}
+  ],
+  tableComment: [
+    { required: true, message: '请输入菜单名称' },
+  ],
+  className: [
+    { required: true, message: '请输入模型名称' },
+    { match: /^[A-Z][A-z0-9]*$/g, message: '只允许小写字母,例如 sys_demo 格式'}
+  ],
+  functionAuthor: [
+    { required: true, message: '请输入作者' },
+    { match: /^[A-Za-z]+$/, message: '必须以大写字母开头,例如 SysDemo 格式'}
+  ],
+  tplCategory: [
+    { required: true, message: '请选择生成模板' },
+  ],
+  packageName: [
+    { required: true, message: '请输入生成包路径' },
+  ],
+  moduleName: [
+    { required: true, message: '请输入生成模块名' },
+    { match: /^[a-z\-]*[a-z]$/g, message: '只允许小写字母,例如 sys-demo 格式'}
+  ],
+  businessName: [
+    { required: true, message: '请输入生成业务名' },
+    { match: /^[a-z][A-Za-z]+$/, message: '校验规则:  只允许输入字母 a-z 或大写 A-Z ，并且小写字母开头'}
+  ],
+  functionName: [
+    { required: true, message: '请输入生成功能名' },
+  ],
+}
 
 // 字符串转布尔类型
 const stringToBool = (value) => {
