@@ -12,7 +12,7 @@
       </a-form-item>
       <a-form-item>
         <a-space>
-          <a-button type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
+          <a-button v-has="'admin:sysDept:query'" type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
           <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
         </a-space>
       </a-form-item>
@@ -21,7 +21,7 @@
     <a-divider />
 
     <div class="action">
-      <a-button type="primary" @click="handleAdd()"><icon-plus /> 新增</a-button>
+      <a-button v-has="'admin:sysDept:add'" type="primary" @click="handleAdd()"><icon-plus /> 新增</a-button>
     </div>
 
     <!-- 异步数据需要defualt-expanded-keys 传入所有行Key才能默认展开 -->
@@ -40,10 +40,10 @@
         {{ parseTime(record.createdAt) }}
       </template>
       <template #action="{ record }">
-        <a-button type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
-        <a-button type="text" @click="handleAdd(record)"><icon-plus /> 新增</a-button>
+        <a-button v-has="'admin:sysDept:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
+        <a-button v-has="'admin:sysDept:add'" type="text" @click="handleAdd(record)"><icon-plus /> 新增</a-button>
         <a-popconfirm content="是否删除该条数据?" type="warning" @ok="handleDelete(record)" >
-          <a-button type="text"><icon-delete /> 删除</a-button>
+          <a-button v-has="'admin:sysDept:remove'" type="text"><icon-delete /> 删除</a-button>
         </a-popconfirm>
       </template>
     </a-table>

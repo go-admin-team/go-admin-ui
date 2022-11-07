@@ -22,7 +22,7 @@
       </a-form-item>
       <a-form-item>
         <a-space>
-          <a-button type="primary">搜索</a-button>
+          <a-button v-has="'admin:sysDictData:query'" type="primary">搜索</a-button>
           <a-button>重置</a-button>
         </a-space>
       </a-form-item>
@@ -31,7 +31,7 @@
     <a-divider />
 
     <div class="table-action">
-      <a-button type="primary" @click="handleAdd">新增</a-button>
+      <a-button v-has="'admin:sysDictData:add'" type="primary" @click="handleAdd">新增</a-button>
     </div>
 
     <a-table
@@ -51,9 +51,9 @@
       </template>
 
       <template #action="{ record }">
-        <a-button type="text" @click="handleEdit(record)">修改</a-button>
+        <a-button v-has="'admin:sysDictData:edit'" type="text" @click="handleEdit(record)">修改</a-button>
         <a-popconfirm content="是否删除当前数据？" type="warning" @ok="handleDelete([record.dictCode])">
-          <a-button type="text" status="danger">删除</a-button>
+          <a-button v-has="'admin:sysDictData:remove'" type="text" status="danger">删除</a-button>
         </a-popconfirm>
       </template>
 

@@ -25,8 +25,8 @@
 
     <div class="action">
       <a-space>
-        <a-button type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
-        <a-button type="primary" status="danger" @click="handleBatchDelete"><icon-delete /> 批量删除</a-button>
+        <a-button v-has="'admin:sysRole:add'" type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
+        <a-button v-has="'admin:sysRole:remove'" type="primary" status="danger" @click="handleBatchDelete"><icon-delete /> 批量删除</a-button>
         <a-button type="primary" status="warning" disabled><icon-download /> 导出</a-button>
       </a-space>
     </div>
@@ -56,10 +56,10 @@
       </template>
       <template #action="{ record }">
         <a-space>
-          <a-button type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
-          <a-button type="text" @click="handleDataScope(record)"><icon-check-circle />  数据权限 </a-button>
+          <a-button v-has="'admin:sysRole:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
+          <a-button v-has="'admin:sysRole:update'" type="text" @click="handleDataScope(record)"><icon-check-circle />  数据权限 </a-button>
           <a-popconfirm content="是否确定删除该角色？" type="warning" position="lt" @ok="handleDelete(record)">
-            <a-button v-if="!record.admin" type="text"><icon-delete /> 删除</a-button>
+            <a-button v-has="'admin:sysRole:remove'" v-if="!record.admin" type="text"><icon-delete /> 删除</a-button>
           </a-popconfirm>
         </a-space>
       </template>

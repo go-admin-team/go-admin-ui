@@ -7,6 +7,9 @@ import '@arco-design/web-vue/dist/arco.css';
 import router from './router/';
 import { parseTime } from '@/utils/parseTime';
 
+// Directive
+import permission from '@/directive/permission/permission';
+
 // 引入 Arco 图标库
 import * as ArcoIconModules from '@arco-design/web-vue/es/icon';
 
@@ -15,6 +18,8 @@ console.log(import.meta.env);
 // Initialize the Pinia instance
 const pinia = createPinia();
 const app = createApp(App);
+
+app.directive('has', permission.checkPermission);
 
 // 挂载全局变量
 app.config.globalProperties.message = Message;

@@ -23,7 +23,7 @@ export const usePermissionStore = defineStore('permisson', {
 
       routeList.forEach((item) => {
         const route = {};
-        if (item.visible == 0) {
+        // if (item.visible == 0) {
           if (item.menuType === 'M' || item.menuType === 'C') {
             route.path = item.path;
             route.name = item.menuName;
@@ -42,7 +42,7 @@ export const usePermissionStore = defineStore('permisson', {
             route.children = this.GenerateRoutes(item.children);
           }
           routes.push(route);
-        }
+        // }
       });
 
       return routes;

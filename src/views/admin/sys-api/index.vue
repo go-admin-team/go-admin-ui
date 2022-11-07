@@ -17,7 +17,7 @@
       </a-form-item>
       <a-form-item>
         <a-space size="medium">
-          <a-button type="primary" @click="handleQuery">
+          <a-button v-has="'admin:sysApi:query'" type="primary" @click="handleQuery">
             <template #icon>
               <icon-search />
             </template>
@@ -58,7 +58,7 @@
       </template>
       <template #createdAt="{ record }"> {{ parseTime(record.createdAt) }}</template>
       <template #action="{ record }">
-        <a-button type="text" @click="handleUpdate(record)"><icon-edit /> 修改 </a-button>
+        <a-button v-has="'admin:sysApi:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改 </a-button>
       </template>
     </a-table>
 

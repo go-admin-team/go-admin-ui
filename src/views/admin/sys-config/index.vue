@@ -32,8 +32,8 @@
 
     <div class="action">
       <a-space>
-        <a-button type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
-        <a-button type="primary" status="danger" disabled><icon-delete /> 删除</a-button>
+        <a-button v-has="'admin:sysConfig:add'" type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
+        <a-button v-has="'admin:sysConfig:remove'" type="primary" status="danger" disabled><icon-delete /> 删除</a-button>
         <a-button type="primary" status="warning" disabled><icon-download /> 导出</a-button>
       </a-space>
     </div>
@@ -61,9 +61,9 @@
       </template>
 
       <template #action="{ record }">
-        <a-button type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
+        <a-button v-has="'admin:sysConfig:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
         <a-popconfirm content="是否删除该条数据？"  @ok="handleDelete([record.id])" position="lt" type="warning">
-          <a-button type="text"><icon-delete /> 删除</a-button>
+          <a-button v-has="'admin:sysConfig:remove'" type="text"><icon-delete /> 删除</a-button>
         </a-popconfirm>
       </template>
     </a-table>

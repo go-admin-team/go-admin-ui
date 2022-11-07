@@ -12,7 +12,7 @@
       </a-form-item>
       <a-form-item>
         <a-space>
-          <a-button type="primary" @click="handleQuery">搜索</a-button>
+          <a-button v-has="'admin:sysMenu:query'" type="primary" @click="handleQuery">搜索</a-button>
           <a-button @click="$refs.queryFormRef.resetFields()">重置</a-button>
         </a-space>
       </a-form-item>
@@ -23,7 +23,7 @@
     <!-- action -->
     <div class="action">
       <a-space>
-        <a-button type="primary" @click="handleAddMenu">新增菜单</a-button>
+        <a-button v-has="'admin:sysMenu:add'" type="primary" @click="handleAddMenu">新增菜单</a-button>
       </a-space>
     </div>
 
@@ -42,17 +42,10 @@
         <a-tag v-else color="red">隐藏</a-tag>
       </template>
       <template #action="{ record }">
-        <a-button type="text" @click="handleAddMenu(record.menuId)"
-          >新增</a-button
-        >
-        <a-button type="text" @click="handleUpdate(record)">修改</a-button>
-        <a-popconfirm
-          position="lt"
-          content="是否删除该条数据？"
-          type="warning"
-          @ok="handleDelete(record)"
-        >
-          <a-button type="text">删除</a-button>
+        <a-button v-has="'admin:sysMenu:add'" type="text" @click="handleAddMenu(record.menuId)">新增</a-button>
+        <a-button v-has="'admin:sysMenu:edit'" type="text" @click="handleUpdate(record)">修改</a-button>
+        <a-popconfirm position="lt" content="是否删除该条数据？" type="warning" @ok="handleDelete(record)" >
+          <a-button v-has="'admin:sysMenu:remove'" type="text">删除</a-button>
         </a-popconfirm>
       </template>
     </a-table>

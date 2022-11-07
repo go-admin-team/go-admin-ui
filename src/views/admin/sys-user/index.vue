@@ -25,7 +25,7 @@
       <a-divider direction="vertical" :style="{ height: '30px' }" />
       <a-form-item class="form-action">
         <a-space size="medium">
-          <a-button type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
+          <a-button v-has="'admin:sysUser:query'" type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
           <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
         </a-space>
       </a-form-item>
@@ -43,8 +43,8 @@
       <a-col :span="20">
         <!-- Action -->
         <a-space class="action">
-          <a-button type="primary" @click="handleAdd" data-test="newUser"><icon-plus /> 新增</a-button>
-          <a-button type="primary" status="danger" @click="handleBatchDelete"><icon-delete /> 批量删除</a-button>
+          <a-button v-has="'admin:sysUser:add'" type="primary" @click="handleAdd" data-test="newUser"><icon-plus /> 新增</a-button>
+          <a-button v-has="'admin:sysUser:remove'" type="primary" status="danger" @click="handleBatchDelete"><icon-delete /> 批量删除</a-button>
         </a-space>
 
         <!-- Table -->
@@ -78,11 +78,11 @@
             {{ parseTime(record.createdAt) }}
           </template>
           <template #action="{ record }">
-            <a-button type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
+            <a-button v-has="'admin:sysUser:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
             <a-popconfirm content="是否确认删除该用户？" type="warning" @ok="handleDelete([record.userId])">
-              <a-button type="text"><icon-delete /> 删除</a-button>
+              <a-button v-has="'admin:sysUser:remove'" type="text"><icon-delete /> 删除</a-button>
             </a-popconfirm>
-            <a-button type="text" @click="handleReset(record.userId)"><icon-refresh /> 重置</a-button>
+            <a-button v-has="'admin:sysUser:resetPassword'" type="text" @click="handleReset(record.userId)"><icon-refresh /> 重置</a-button>
           </template>
         </a-table>
       </a-col>

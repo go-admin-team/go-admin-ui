@@ -21,8 +21,8 @@
       </a-form-item>
       <a-form-item>
         <a-space>
-          <a-button type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
-          <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
+          <a-button v-has="'admin:sysDictType:query'" type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
+          <a-button v-has="'admin:sysDictType:query'" @click="handleResetQuery"><icon-loop /> 重置</a-button>
         </a-space>
       </a-form-item>
     </a-form>
@@ -31,8 +31,8 @@
 
     <div class="action">
       <a-space>
-        <a-button type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
-        <a-button type="primary" status="danger" @click="handleBatchDelete"><icon-delete /> 批量删除</a-button>
+        <a-button v-has="'admin:sysDictType:add'" type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
+        <a-button v-has="'system:sysdicttype:remove'" type="primary" status="danger" @click="handleBatchDelete"><icon-delete /> 批量删除</a-button>
         <a-button type="primary" status="warning" disabled><icon-download /> 导出</a-button>
       </a-space>
     </div>
@@ -72,9 +72,9 @@
       </template>
 
       <template #action="{ record }">
-        <a-button type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
+        <a-button v-has="'admin:sysDictType:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
         <a-popconfirm content="是否删除该条数据？" type="warning" @ok="handleDelete([record.id])">
-          <a-button type="text"><icon-delete /> 删除</a-button>
+          <a-button v-has="'system:sysdicttype:remove'" type="text"><icon-delete /> 删除</a-button>
         </a-popconfirm>
       </template>
     </a-table>

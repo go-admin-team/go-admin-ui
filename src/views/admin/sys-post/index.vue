@@ -19,7 +19,7 @@
       </a-form-item>
       <a-form-item>
         <a-space>
-          <a-button type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
+          <a-button v-has="'admin:sysPost:query'" type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
           <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
         </a-space>
       </a-form-item>
@@ -30,8 +30,8 @@
     <!-- action -->
     <div class="action">
       <a-space>
-        <a-button type="primary" @click="handleAdd"><icon-plus /> 新增 </a-button>
-        <a-button type="primary" status="danger" @click="handleBatchDelete"><icon-delete /> 批量删除 </a-button>
+        <a-button v-has="'admin:sysPost:add'" type="primary" @click="handleAdd"><icon-plus /> 新增 </a-button>
+        <a-button v-has="'admin:sysPost:remove'" type="primary" status="danger" @click="handleBatchDelete"><icon-delete /> 批量删除 </a-button>
         <a-button type="primary" status="warning" disabled><icon-download /> 导出 </a-button>
       </a-space>
     </div>
@@ -62,9 +62,9 @@
       </template>
       <template #action="{ record }">
         <a-space>
-          <a-button type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
+          <a-button v-has="'admin:sysPost:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
           <a-popconfirm content="是否删除该岗位？" type="warning"  @ok="handleDelete(record)">
-            <a-button type="text"><icon-delete /> 删除</a-button>
+            <a-button v-has="'admin:sysPost:remove'" type="text"><icon-delete /> 删除</a-button>
           </a-popconfirm>
         </a-space>
       </template>
