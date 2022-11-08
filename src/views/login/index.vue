@@ -16,7 +16,7 @@
                 <img :src="store.sysConfig.sys_app_logo" />
                 <span class="project-title">用户登录</span>
               </div>
-              <div class="account-top-desc">青，取之于蓝而青于蓝;冰，水为之而寒于水；</div>
+              <div class="account-top-desc">横看成峰侧成岭 远近高低各不同</div>
             </div>
             <!-- 登录表单 -->
             <a-form
