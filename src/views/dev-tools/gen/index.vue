@@ -109,60 +109,38 @@
                 icon="el-icon-view"
                 @click="handlePreview(scope.row)"
               >预览</el-button>
-              <el-popconfirm
-                class="delete-popconfirm"
-                title="正在使用代码生成请确认?"
-                confirm-button-text="生成"
-                @onConfirm="handleToProject(scope.row)"
-              >
                 <el-button
                   slot="reference"
                   type="text"
                   size="small"
                   icon="el-icon-view"
+                  @click="handleToProject(scope.row)"
                 >代码生成</el-button>
-              </el-popconfirm>
 
-              <el-popconfirm
-                class="delete-popconfirm"
-                title="正在使用【菜单以及API生成到数据库】请确认?"
-                confirm-button-text="写入DB"
-                @onConfirm="handleToDB(scope.row)"
-              >
                 <el-button
                   slot="reference"
                   type="text"
                   size="small"
                   icon="el-icon-view"
+                  @click="handleToDB(scope.row)"
                 >生成配置</el-button>
-              </el-popconfirm>
 
-              <el-popconfirm
-                class="delete-popconfirm"
-                title="正在使用代码生成配置迁移脚本请确认?"
-                confirm-button-text="生成"
-                @onConfirm="handleToApiFile(scope.row)"
-              >
+     
                 <el-button
                   slot="reference"
                   type="text"
                   size="small"
                   icon="el-icon-view"
+                   @click="handleToApiFile(scope.row)"
                 >生成迁移脚本</el-button>
-              </el-popconfirm>
-
-              <el-popconfirm
-                class="delete-popconfirm"
-                title="确认删除数据项？"
-                @onConfirm="handleSingleDelete(scope.row)"
-              >
+                
                 <el-button
                   slot="reference"
                   type="text"
                   size="small"
                   icon="el-icon-delete"
+                  @click="handleSingleDelete(scope.row)"
                 >删除</el-button>
-              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
