@@ -8,28 +8,28 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ant-design/icons": "^4.7.0",
-    "@codemirror/lang-html": "^6.1.3",
-    "@codemirror/lang-javascript": "^6.1.1",
+    "@ant-design/icons": "^4.8.0",
+    "@codemirror/lang-html": "^6.4.0",
+    "@codemirror/lang-javascript": "^6.1.2",
     "@codemirror/lang-json": "^6.0.1",
     "@codemirror/theme-one-dark": "^6.1.0",
-    "axios": "^1.1.3",
+    "axios": "^1.2.1",
     "codemirror": "^6.0.1",
     "i": "^0.3.7",
-    "npm": "^8.19.3",
-    "pinia": "^2.0.23",
-    "vue": "^3.2.41",
+    "npm": "^9.2.0",
+    "pinia": "^2.0.27",
+    "vue": "^3.2.45",
     "vue-codemirror": "^6.1.1",
     "vue-router": "^4.1.6"
   },
   "devDependencies": {
-    "@arco-design/web-vue": "^2.38.1",
+    "@arco-design/web-vue": "^2.39.2",
     "@vitejs/plugin-vue": "^3.0.1",
-    "eslint": "^8.27.0",
-    "eslint-plugin-vue": "^9.6.0",
+    "eslint": "^8.29.0",
+    "eslint-plugin-vue": "^9.8.0",
     "mockjs": "^1.1.0",
-    "sass": "^1.56.0",
-    "vite": "^3.2.3",
+    "sass": "^1.56.1",
+    "vite": "^3.2.5",
     "vite-plugin-mock": "^2.9.6"
   }
 }
