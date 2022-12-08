@@ -31,6 +31,16 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response) => {
     const res = response.data;
+    const store = useUserStore();
+    if (res.code === 401) {
+      Message.error({
+        content: 'Token 已过期, 请重新登陆',
+        duration: 3000
+      });
+      // 重定向路由到登陆页面
+      store.userLogout();
+      return router.push('/login');
+    }
 
     if (res.code !== 200) {
       Message.error({
