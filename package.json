@@ -13,23 +13,23 @@
     "@codemirror/lang-javascript": "^6.1.2",
     "@codemirror/lang-json": "^6.0.1",
     "@codemirror/theme-one-dark": "^6.1.0",
-    "axios": "^1.2.1",
+    "axios": "^1.2.2",
     "codemirror": "^6.0.1",
     "i": "^0.3.7",
     "npm": "^9.2.0",
-    "pinia": "^2.0.27",
+    "pinia": "^2.0.28",
     "vue": "^3.2.45",
     "vue-codemirror": "^6.1.1",
     "vue-router": "^4.1.6"
   },
   "devDependencies": {
-    "@arco-design/web-vue": "^2.39.2",
-    "@vitejs/plugin-vue": "^3.0.1",
-    "eslint": "^8.29.0",
+    "@arco-design/web-vue": "^2.41.0",
+    "@vitejs/plugin-vue": "^4.0.0",
+    "eslint": "^8.31.0",
     "eslint-plugin-vue": "^9.8.0",
     "mockjs": "^1.1.0",
-    "sass": "^1.56.1",
-    "vite": "^3.2.5",
+    "sass": "^1.57.1",
+    "vite": "^4.0.4",
     "vite-plugin-mock": "^2.9.6"
   }
 }
