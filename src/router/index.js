@@ -27,8 +27,8 @@ const routes = [
         },
       },
       {
-        path: '/404',
-        name: '404',
+        hide: true,
+        path: '/:catchAll(.*)',
         component: () => import('../views/error-page/404.vue'),
         meta: {
           title: '找不到页面',
@@ -79,7 +79,9 @@ router.beforeEach(async (to, from, next) => {
       permissionStore.addRouters.forEach((route) => {
         router.addRoute('/', route);
       });
-      next(to.fullPath);
+      // next(to.fullPath);
+      // 如果 addRoute 并未完成，路由守卫会一层一层的执行执行，直到 addRoute 完成，找到对应的路由
+      next({ ...to, replace: true })
     } else {
       next();
     }
