@@ -281,4 +281,9 @@ onMounted(async () => {
     height: auto;
   }
 }
+
+// 20230105 自动填充背景色问题
+:deep(.arco-input-wrapper .arco-input.arco-input-size-medium) {
+  box-shadow: 0 0 0px 1000px #fff inset;
+}
 </style>
