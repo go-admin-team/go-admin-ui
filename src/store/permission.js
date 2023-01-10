@@ -30,7 +30,7 @@ export const usePermissionStore = defineStore('permisson', {
             if (item.menuType === 'M') {
               route.component = modules[`../views/index.vue`];
             } else if (item.menuType === 'C') {
-              route.component = modules[`../views${item.component}.vue`];
+              route.component = modules[`../views${item.component}.vue`] || modules['../views/error-page/888.vue'];
             }
             route.meta = {
               title: item.title,
