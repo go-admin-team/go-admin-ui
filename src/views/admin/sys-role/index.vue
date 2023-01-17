@@ -71,7 +71,7 @@
       :title="title"
       title-align="start"
       @before-ok="handleBeforeOk"
-      @close="handleResetModalForm"
+      @close="handleCancel"
     >
       <a-form :model="modalForm" :rules="rules" ref="modalFormRef">
         <a-form-item field="roleName" label="角色名称">
@@ -116,6 +116,7 @@
       :title="title"
       title-align="start"
       @before-ok="handleScopeBeforeOk"
+      @close="handleCancel"
     >
       <a-form :model="scopeForm">
         <a-form-item field="roleName" label="角色名称">
@@ -348,11 +349,13 @@ const handleScopeBeforeOk = async (done) => {
   getRoleInfo();
 };
 
-// 重置 Modal Form数据
-const handleResetModalForm = () => {
-  proxy.$refs.modalFormRef.resetFields();
-
+ // 重置数据表单
+ const handleCancel = () => {
+  modalVisible.value = false;
+  modalForm.roleId = null;
+  scopeForm.roleId = null;
   checkedKeys.value = [];
+  proxy.$refs.modalFormRef.resetFields();
 };
 
 // 获取角色信息
