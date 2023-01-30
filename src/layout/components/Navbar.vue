@@ -23,7 +23,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import Avatar from '../../components/Avatar/index.vue';
+import Avatar from './Avatar/index.vue';
 import {
   IconMenuFold,
   IconMenuUnfold,
