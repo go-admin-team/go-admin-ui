@@ -8,7 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ant-design/icons": "^4.8.0",
+    "@ant-design/icons": "^5.0.1",
     "@codemirror/lang-html": "^6.4.0",
     "@codemirror/lang-javascript": "^6.1.2",
     "@codemirror/lang-json": "^6.0.1",
