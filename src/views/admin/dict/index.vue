@@ -32,7 +32,7 @@
     <div class="action">
       <a-space>
         <a-button v-has="'admin:sysDictType:add'" type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
-        <a-button v-has="'system:sysdicttype:remove'" type="primary" status="danger" @click="handleBatchDelete"><icon-delete /> 批量删除</a-button>
+        <a-button v-has="'system:sysdicttype:remove'" type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除</a-button>
         <a-button type="primary" status="warning" disabled><icon-download /> 导出</a-button>
       </a-space>
     </div>
@@ -42,19 +42,9 @@
       :columns="tableColumns"
       :data="tableData"
       :row-selection="{ type: 'checkbox', showCheckedAll: true }"
-      :pagination="{
-        'show-total': true,
-        'show-jumper': true,
-        'show-page-size': true,
-        current: currentPage,
-        total: pager.total,
-      }"
+      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.total, current: currentPage }"
       row-key="id"
-      @selection-change="
-        (rowKey) => {
-          batchDelList = rowKey;
-        }
-      "
+      @selection-change="(selection) => {deleteData = selection;}" 
       @page-change="handlePageChange"
       @page-size-change="handlePageSizeChange"
     >
@@ -73,9 +63,7 @@
 
       <template #action="{ record }">
         <a-button v-has="'admin:sysDictType:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
-        <a-popconfirm content="是否删除该条数据？" type="warning" @ok="handleDelete([record.id])">
-          <a-button v-has="'system:sysdicttype:remove'" type="text"><icon-delete /> 删除</a-button>
-        </a-popconfirm>
+        <a-button v-has="'admin:sysDictType:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.id];  }"><icon-edit /> 删除</a-button>
       </template>
     </a-table>
 
@@ -116,19 +104,32 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <!-- Akiraka 20230223 删除与批量删除 开始 -->
+    <DeleteModal 
+      :data="deleteData" 
+      :visible="deleteVisible" 
+      :apiDelete="removeDictType" 
+      @deleteVisibleChange="() => deleteVisible = false"
+    />
+    <!-- Akiraka 20230223 删除与批量删除 结束 -->
   </div>
 </template>
 
 <script setup>
-import { reactive, ref, getCurrentInstance, nextTick, onMounted } from 'vue';
+import { reactive, ref, getCurrentInstance, nextTick, onMounted, watch } from 'vue';
+import { getDictType, addDictType, removeDictType, updateDictType } from '@/api/admin/sys-dict';
 
-// api
-import {
-  getDictType,
-  addDictType,
-  removeDictType,
-  updateDictType,
-} from '@/api/admin/sys-dict';
+// Akiraka 20230210 删除数据
+const deleteData = ref([])
+// Akiraka 20230210 删除对话框
+const deleteVisible = ref(false)
+// Akiraka 20230210 监听删除事件
+watch(() => deleteVisible.value ,(value) => {
+  if ( value == false ) {
+    getSysDictTypeInfo({ ...pager, ...queryForm });
+  }
+})
 
 const { proxy } = getCurrentInstance();
 
@@ -141,8 +142,6 @@ const pager = {
   pageSize: 10,
 };
 
-// Delete List
-const batchDelList = ref([]);
 // form
 const modalForm = reactive({
   status: 2,
@@ -208,22 +207,6 @@ const handleAdd = () => {
   modalTitle.value = '新增字典';
 };
 
-// 批量删除
-const handleBatchDelete = () => {
-  if (batchDelList.value.length === 0) {
-    proxy.$message.info('请选择要删除的数据！');
-  } else {
-    proxy.$modal.warning({
-      title: '警告',
-      content: '是否删除当前选中的数据？',
-      hideCancel: false,
-      onOk: () => {
-        handleDelete(batchDelList.value);
-      },
-    });
-  }
-};
-
 // 修改
 const handleUpdate = async (record) => {
   modalVisible.value = true;
@@ -258,17 +241,6 @@ const handleSubmit = (done) => {
       done(false);
     }
   });
-};
-
-/**
- * 删除请求
- * @param {Array} idList
- */
-const handleDelete = async (ids) => {
-  if (!Array.isArray(ids)) return false;
-  const res = await removeDictType({ ids });
-  proxy.$message.success(res.msg);
-  getSysDictTypeInfo(pager);
 };
 
 // 获取字典数据

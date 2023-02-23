@@ -42,13 +42,7 @@
         <a-button type="text" @click="handleUpdate(record)">修改</a-button>
         <a-button type="text" status="success" v-if="record.entry_id == 0" @click="handleStart(record.jobId)">启动</a-button>
         <a-button type="text" status="danger" v-if="record.entry_id !== 0" @click="handleStop(record.jobId)">停止</a-button>
-        <a-popconfirm
-          content="是否删除当前数据?"
-          type="warning"
-          @ok="handleDelete([record.jobId])"
-        >
-          <a-button type="text" status="danger">删除</a-button>
-        </a-popconfirm>
+        <a-button type="text" status="danger" @click="() => { deleteVisible = true; deleteData = [record.jobId];  }">删除</a-button>
       </template>
     </a-table>
 
@@ -120,19 +114,32 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <!-- Akiraka 20230223 删除与批量删除 开始 -->
+    <DeleteModal 
+      :data="deleteData" 
+      :visible="deleteVisible" 
+      :apiDelete="delSysJob" 
+      @deleteVisibleChange="() => deleteVisible = false"
+    />
+    <!-- Akiraka 20230223 删除与批量删除 结束 -->
   </div>
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, getCurrentInstance } from 'vue';
-import {
-  listSysJob,
-  addSysJob,
-  updateSysJob,
-  delSysJob,
-  startJob,
-  removeJob
-} from '@/api/sys-job';
+import { reactive, ref, onMounted, getCurrentInstance, watch } from 'vue';
+import { listSysJob, addSysJob, updateSysJob, delSysJob, startJob, removeJob } from '@/api/sys-job';
+
+// Akiraka 20230210 删除数据
+const deleteData = ref([])
+// Akiraka 20230210 删除对话框
+const deleteVisible = ref(false)
+// Akiraka 20230210 监听删除事件
+watch(() => deleteVisible.value ,(value) => {
+  if ( value == false ) {
+    getSysJobListInfo(queryForm);
+  }
+})
 
 const { proxy } = getCurrentInstance();
 
@@ -191,17 +198,6 @@ const handleUpdate = (record) => {
   modalTitle.value = '修改任务';
 
   Object.assign(modalForm, record);
-};
-
-/**
- * 删除定时任务
- * @params {Array} ids
- */
-const handleDelete = async (ids) => {
-  const res = await delSysJob({ ids });
-  proxy.$message.success(res.msg);
-
-  getSysJobListInfo();
 };
 
 // 启动定时任务

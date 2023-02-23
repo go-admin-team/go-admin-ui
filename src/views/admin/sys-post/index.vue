@@ -31,7 +31,7 @@
     <div class="action">
       <a-space>
         <a-button v-has="'admin:sysPost:add'" type="primary" @click="handleAdd"><icon-plus /> 新增 </a-button>
-        <a-button v-has="'admin:sysPost:remove'" type="primary" status="danger" @click="handleBatchDelete"><icon-delete /> 批量删除 </a-button>
+        <a-button v-has="'admin:sysPost:remove'" type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除 </a-button>
         <a-button type="primary" status="warning" disabled><icon-download /> 导出 </a-button>
       </a-space>
     </div>
@@ -40,16 +40,10 @@
     <a-table
       :columns="columns"
       :data="tableData"
-      :pagination="{
-        'show-total': true,
-        'show-jumper': true,
-        'show-page-size': true,
-        total: pager.total,
-        current: currentPage,
-      }"
+      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.total, current: currentPage }"
       :row-selection="{ type: 'checkbox', showCheckedAll: true }"
       row-key="postId"
-      @selection-change="selectionChange"
+      @selection-change="(selection) => {deleteData = selection;}" 
       @page-change="handlePageChange"
       @page-size-change="handlePageSizeChange"
     >
@@ -63,9 +57,7 @@
       <template #action="{ record }">
         <a-space>
           <a-button v-has="'admin:sysPost:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
-          <a-popconfirm content="是否删除该岗位？" type="warning"  @ok="handleDelete(record)">
-            <a-button v-has="'admin:sysPost:remove'" type="text"><icon-delete /> 删除</a-button>
-          </a-popconfirm>
+          <a-button v-has="'admin:sysPost:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.postId];  }"><icon-delete /> 删除</a-button>
         </a-space>
       </template>
     </a-table>
@@ -104,13 +96,33 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <!-- Akiraka 20230223 删除与批量删除 开始 -->
+    <DeleteModal 
+      :data="deleteData" 
+      :visible="deleteVisible" 
+      :apiDelete="removePost" 
+      @deleteVisibleChange="() => deleteVisible = false"
+    />
+    <!-- Akiraka 20230223 删除与批量删除 结束 -->
   </div>
 </template>
 
 <script setup>
-import { reactive, ref, getCurrentInstance, onMounted, nextTick } from 'vue';
+import { reactive, ref, getCurrentInstance, onMounted, nextTick, watch } from 'vue';
 import { getPost, addPost, removePost, updatePost } from '@/api/admin/post';
 import { parseTime } from '@/utils/parseTime';
+
+// Akiraka 20230210 删除数据
+const deleteData = ref([])
+// Akiraka 20230210 删除对话框
+const deleteVisible = ref(false)
+// Akiraka 20230210 监听删除事件
+watch(() => deleteVisible.value ,(value) => {
+  if ( value == false ) {
+    getPostInfo(pager);
+  }
+})
 
 const { proxy } = getCurrentInstance();
 
@@ -212,19 +224,6 @@ const handleBatchDelete = () => {
   } else {
     proxy.$message.error('请勾选需要删除的数据！');
   }
-};
-
-// 删除
-const handleDelete = async ({ postId }) => {
-  const res = await removePost({ ids: [postId] });
-  proxy.$message.success(res.msg);
-  getPostInfo();
-};
-
-
-// Table 勾选数据
-const selectionChange = (rowKeys) => {
-  batchList = rowKeys;
 };
 
 /**

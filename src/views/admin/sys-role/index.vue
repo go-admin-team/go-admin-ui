@@ -26,7 +26,7 @@
     <div class="action">
       <a-space>
         <a-button v-has="'admin:sysRole:add'" type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
-        <a-button v-has="'admin:sysRole:remove'" type="primary" status="danger" @click="handleBatchDelete"><icon-delete /> 批量删除</a-button>
+        <a-button v-has="'admin:sysRole:remove'" type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除</a-button>
         <a-button type="primary" status="warning" disabled><icon-download /> 导出</a-button>
       </a-space>
     </div>
@@ -34,15 +34,10 @@
     <a-table
       :columns="columns"
       :data="tableData"
-      :pagination="{
-        'show-total': true,
-        'show-jumper': true,
-        'show-page-size': true,
-        total: pager.total,
-        current: currentPage,
-      }"
+      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.total, current: currentPage }"
       row-key="roleId"
       :row-selection="{ type: 'checkbox', showCheckedAll: true }"
+      @selection-change="(selection) => {deleteData = selection;}" 
       @select="handleSelect"
       @page-change="handlePageChange"
       @page-size-change="handlePageSizeChange"
@@ -58,9 +53,7 @@
         <a-space>
           <a-button v-has="'admin:sysRole:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
           <a-button v-has="'admin:sysRole:update'" type="text" @click="handleDataScope(record)"><icon-check-circle />  数据权限 </a-button>
-          <a-popconfirm content="是否确定删除该角色？" type="warning" position="lt" @ok="handleDelete(record)">
-            <a-button v-has="'admin:sysRole:remove'" v-if="!record.admin" type="text"><icon-delete /> 删除</a-button>
-          </a-popconfirm>
+          <a-button v-has="'admin:sysRole:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.roleId];  }"><icon-check-circle />  删除 </a-button>
         </a-space>
       </template>
     </a-table>
@@ -137,19 +130,32 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <!-- Akiraka 20230223 删除与批量删除 开始 -->
+    <DeleteModal 
+      :data="deleteData" 
+      :visible="deleteVisible" 
+      :apiDelete="removeRole" 
+      @deleteVisibleChange="() => deleteVisible = false"
+    />
+    <!-- Akiraka 20230223 删除与批量删除 结束 -->
   </div>
 </template>
 
 <script setup>
-import { onMounted, reactive, ref, getCurrentInstance, nextTick } from 'vue';
-import {
-  getRole,
-  addRole,
-  updateRole,
-  removeRole,
-  updateRoleScoped,
-  getRoleMenuTree,
-} from '@/api/admin/role';
+import { onMounted, reactive, ref, getCurrentInstance, nextTick, watch } from 'vue';
+import { getRole, addRole, updateRole, removeRole, updateRoleScoped, getRoleMenuTree } from '@/api/admin/role';
+
+// Akiraka 20230210 删除数据
+const deleteData = ref([])
+// Akiraka 20230210 删除对话框
+const deleteVisible = ref(false)
+// Akiraka 20230210 监听删除事件
+watch(() => deleteVisible.value ,(value) => {
+  if ( value == false ) {
+    getRoleInfo({ ...pager, ...queryForm });
+  }
+})
 
 const { proxy } = getCurrentInstance();
 
@@ -275,28 +281,6 @@ const handleDataScope = async (record) => {
   const { roleKey, roleName, dataScope, roleId } = record;
   await nextTick();
   Object.assign(scopeForm, { roleKey, roleName, dataScope, roleId });
-};
-
-// 单个删除
-const handleDelete = async ({ roleId }) => {
-  const res = await removeRole({ ids: [roleId] });
-  proxy.$message.success(res.msg);
-  getRoleInfo();
-};
-
-// 批量删除
-const handleBatchDelete = async () => {
-  if (batchDeleteList.value.length !== 0) {
-    proxy.$modal.warning({
-      title: '提示',
-      content: '是否删除选中的数据？',
-    });
-    const res = await removeRole({ ids: batchDeleteList.value });
-    proxy.$message.success(res.msg);
-    getRoleInfo();
-  } else {
-    proxy.$message.error('请勾选要删除的数据');
-  }
 };
 
 /**

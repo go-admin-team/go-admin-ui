@@ -44,7 +44,7 @@
         <!-- Action -->
         <a-space class="action">
           <a-button v-has="'admin:sysUser:add'" type="primary" @click="handleAdd" data-test="newUser"><icon-plus /> 新增</a-button>
-          <a-button v-has="'admin:sysUser:remove'" type="primary" status="danger" @click="handleBatchDelete"><icon-delete /> 批量删除</a-button>
+          <a-button v-has="'admin:sysUser:remove'" type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除</a-button>
         </a-space>
 
         <!-- Table -->
@@ -53,13 +53,9 @@
           :data="tableData"
           :bordered="false"
           :row-selection="{ type: 'checkbox', showCheckedAll: true }"
-          row-key="userId"
-          :pagination="{
-            'show-total': true,
-            'show-jumper': true,
-            'show-page-size': true,
-          }"
-          @selection-change="selectionChange"
+          :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.total, current: currentPage }"
+          row-key="userId" 
+          @selection-change="(selection) => {deleteData = selection;}" 
           @page-change="handlePageChange"
           @page-size-change="handlePageSizeChange"
         >
@@ -79,9 +75,7 @@
           </template>
           <template #action="{ record }">
             <a-button v-has="'admin:sysUser:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
-            <a-popconfirm content="是否确认删除该用户？" type="warning" @ok="handleDelete([record.userId])">
-              <a-button v-has="'admin:sysUser:remove'" type="text"><icon-delete /> 删除</a-button>
-            </a-popconfirm>
+            <a-button v-has="'admin:sysUser:edit'" type="text" @click="() => { deleteVisible = true; deleteData = [record.userId];  }"><icon-delete /> 删除</a-button>
             <a-button v-has="'admin:sysUser:resetPassword'" type="text" @click="handleReset(record.userId)"><icon-refresh /> 重置</a-button>
           </template>
         </a-table>
@@ -223,37 +217,44 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <!-- Akiraka 20230223 删除与批量删除 开始 -->
+    <DeleteModal 
+      :data="deleteData" 
+      :visible="deleteVisible" 
+      :apiDelete="removeUser" 
+      @deleteVisibleChange="() => deleteVisible = false"
+    />
+    <!-- Akiraka 20230223 删除与批量删除 结束 -->
   </div>
 </template>
 
 <script setup>
-import { reactive, ref, getCurrentInstance, onMounted } from 'vue';
-
-// Arco UI Icon
+import { reactive, ref, getCurrentInstance, onMounted, watch } from 'vue';
 import { IconSearch, IconLoop } from '@arco-design/web-vue/es/icon';
-
-// Components
 import TreeDept from './components/TreeDept.vue';
-
-// Api
-import {
-  getUser,
-  addUser,
-  updateUser,
-  removeUser,
-  updateUserStatus,
-  resetUserPwd,
-} from '@/api/admin/sys-user';
+import { getUser, addUser, updateUser, removeUser, updateUserStatus, resetUserPwd } from '@/api/admin/sys-user';
 import { getRole } from '@/api/admin/role';
 import { getPost } from '@/api/admin/post';
 import { getDept } from '@/api/admin/sys-dept';
+
+// Akiraka 20230210 删除数据
+const deleteData = ref([])
+// Akiraka 20230210 删除对话框
+const deleteVisible = ref(false)
+// Akiraka 20230210 监听删除事件
+watch(() => deleteVisible.value ,(value) => {
+  if ( value == false ) {
+    getSysUserInfo({ ...pager, ...queryForm });
+  }
+})
 
 const { proxy } = getCurrentInstance();
 
 // Query
 const { queryForm, handleQuery, handleResetQuery } = useQueryData();
 // ApiInfo
-const { getSysPostInfo, getSysRoleInfo, getSysDeptTreeInfo, getSysUserInfo } =
+const { currentPage, getSysPostInfo, getSysRoleInfo, getSysDeptTreeInfo, getSysUserInfo } =
   useApiInfo();
 
 // Pager
@@ -279,10 +280,8 @@ const {
   treeDeptData,
   roleList,
   postList,
-  selectionChange,
   handlePageChange,
   handlePageSizeChange,
-  handleBatchDelete,
   handleSwitchChange,
 } = useTableList();
 
@@ -293,7 +292,6 @@ const {
   modalVisible,
   modalTitle,
   handleAdd,
-  handleDelete,
   handleUpdate,
   handleBeforeOk,
   handleModalCancel,
@@ -374,6 +372,7 @@ function useResetPwd() {
 }
 
 function useApiInfo() {
+  const currentPage = ref(1);
   // Pager
   const pager = {
     total: 0,
@@ -414,6 +413,7 @@ function useApiInfo() {
   };
 
   return {
+    currentPage,
     pager,
     getSysPostInfo,
     getSysRoleInfo,
@@ -470,14 +470,6 @@ function useTableList() {
   // Table Data
   const tableData = ref([]);
 
-  // Table Select Keys
-  let selectedKeys = ref([]);
-
-  // Table Selection Change
-  const selectionChange = (keys) => {
-    selectedKeys.value = keys;
-  };
-
   /**
    * 分页改变
    * @param {Number} [page]
@@ -515,32 +507,14 @@ function useTableList() {
     });
   };
 
-  // 批量删除
-  const handleBatchDelete = () => {
-    if (selectedKeys.value.length === 0) {
-      proxy.$notification.error('请选择要删除的数据！');
-    } else {
-      proxy.$modal.warning({
-        title: '提示',
-        content: `是否删除当前编号为: ${selectedKeys.value} 数据？`,
-        hideCancel: false,
-        onOk: () => {
-          handleDelete(selectedKeys.value);
-        },
-      });
-    }
-  };
-
   return {
     treeDeptData,
     roleList,
     postList,
     columns,
     tableData,
-    selectionChange,
     handlePageChange,
     handlePageSizeChange,
-    handleBatchDelete,
     handleSwitchChange,
   };
 }
@@ -587,16 +561,6 @@ function useModalOperate() {
     Object.assign(modalForm, val);
   };
 
-  /**
-   * 删除用户
-   * @param {Array} ids
-   */
-  const handleDelete = async (ids) => {
-    const res = await removeUser({ ids });
-    proxy.$message.success(res.msg);
-    getSysUserInfo();
-  };
-
   // 重置Form
   const resetForm = (formEl) => {
     if (!formEl) return;
@@ -630,7 +594,6 @@ function useModalOperate() {
     modalVisible,
     modalTitle,
     handleAdd,
-    handleDelete,
     handleUpdate,
     handleBeforeOk,
     handleModalCancel,

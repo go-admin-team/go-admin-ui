@@ -44,9 +44,7 @@
       <template #action="{ record }">
         <a-button v-has="'admin:sysMenu:add'" type="text" @click="handleAddMenu(record.menuId)">新增</a-button>
         <a-button v-has="'admin:sysMenu:edit'" type="text" @click="handleUpdate(record)">修改</a-button>
-        <a-popconfirm position="lt" content="是否删除该条数据？" type="warning" @ok="handleDelete(record)" >
-          <a-button v-has="'admin:sysMenu:remove'" type="text">删除</a-button>
-        </a-popconfirm>
+        <a-button v-has="'admin:sysMenu:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.menuId];  }">删除</a-button>
       </template>
     </a-table>
 
@@ -185,24 +183,35 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <!-- Akiraka 20230223 删除与批量删除 开始 -->
+    <DeleteModal 
+      :data="deleteData" 
+      :visible="deleteVisible" 
+      :apiDelete="removeMenu" 
+      @deleteVisibleChange="() => deleteVisible = false"
+    />
+    <!-- Akiraka 20230223 删除与批量删除 结束 -->
   </div>
 </template>
 
 <script setup>
-import {
-  onMounted,
-  reactive,
-  ref,
-  getCurrentInstance,
-  computed,
-} from 'vue';
-// 引入 Arco 图标库
+import { onMounted, reactive, ref, getCurrentInstance, computed, watch } from 'vue';
 import * as ArcoIconModules from '@arco-design/web-vue/es/icon';
-
-// Api
 import { getMenu } from '@/api/admin/menu';
 import { getSysApi } from '@/api/admin/sys-api';
 import { addMenu, removeMenu, updateMenu, getMenuDetails } from '@/api/admin/menu';
+
+// Akiraka 20230210 删除数据
+const deleteData = ref([])
+// Akiraka 20230210 删除对话框
+const deleteVisible = ref(false)
+// Akiraka 20230210 监听删除事件
+watch(() => deleteVisible.value ,(value) => {
+  if ( value == false ) {
+    getSysMenuInfo(queryForm);
+  }
+})
 
 const { proxy } = getCurrentInstance();
 
@@ -266,13 +275,6 @@ const handleAddMenu = (parentId = null) => {
 // TreeSearchFilter
 const filterTreeNode = (searchVal, nodeData) => {
   return nodeData.title.indexOf(searchVal) > -1;
-};
-
-// 删除菜单
-const handleDelete = async ({ menuId }) => {
-  const res = await removeMenu({ ids: [menuId] });
-  proxy.$message.success(res.msg);
-  getSysMenuInfo();
 };
 
 // 修改菜单

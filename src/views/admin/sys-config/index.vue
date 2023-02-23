@@ -41,13 +41,7 @@
     <a-table
       :data="tableData"
       :columns="columns"
-      :pagination="{
-        'show-total': true,
-        'show-jumper': true,
-        'show-page-size': true,
-        total: pager.total,
-        current: currentPage,
-      }"
+      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.total, current: currentPage }"
       @page-change="handlePageChange"
       @page-size-change="handlePageSizeChange"
     >
@@ -62,9 +56,7 @@
 
       <template #action="{ record }">
         <a-button v-has="'admin:sysConfig:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
-        <a-popconfirm content="是否删除该条数据？"  @ok="handleDelete([record.id])" position="lt" type="warning">
-          <a-button v-has="'admin:sysConfig:remove'" type="text"><icon-delete /> 删除</a-button>
-        </a-popconfirm>
+        <a-button v-has="'admin:sysConfig:edit'" type="text" @click="() => { deleteVisible = true; deleteData = [record.id];  }"><icon-delete /> 删除</a-button>
       </template>
     </a-table>
 
@@ -111,19 +103,32 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <!-- Akiraka 20230223 删除与批量删除 开始 -->
+    <DeleteModal 
+      :data="deleteData" 
+      :visible="deleteVisible" 
+      :apiDelete="removeSysConfig" 
+      @deleteVisibleChange="() => deleteVisible = false"
+    />
+    <!-- Akiraka 20230223 删除与批量删除 结束 -->
   </div>
 </template>
 
 <script setup>
-import { onMounted, reactive, ref, getCurrentInstance } from 'vue';
+import { onMounted, reactive, ref, getCurrentInstance, watch } from 'vue';
+import { getSysConfig, addSysConfig, removeSysConfig, updateSysConfig } from '@/api/admin/sys-config';
 
-// Api
-import {
-  getSysConfig,
-  addSysConfig,
-  removeSysConfig,
-  updateSysConfig,
-} from '@/api/admin/sys-config';
+// Akiraka 20230210 删除数据
+const deleteData = ref([])
+// Akiraka 20230210 删除对话框
+const deleteVisible = ref(false)
+// Akiraka 20230210 监听删除事件
+watch(() => deleteVisible.value ,(value) => {
+  if ( value == false ) {
+    getSysConfigInfo(pager);
+  }
+})
 
 const { proxy } = getCurrentInstance();
 
@@ -293,16 +298,6 @@ const handleSubmit = (data) => {
       reject(err);
     }
   });
-};
-
-/**
- * 删除
- * @param {Array} ids
- */
-const handleDelete = async (ids) => {
-  const res = await removeSysConfig({ ids });
-  proxy.$message.success(res.msg);
-  getSysConfigInfo();
 };
 
 // 重置表单

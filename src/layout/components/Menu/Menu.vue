@@ -59,7 +59,7 @@ onBeforeMount(() => {
   display: flex;
   justify-content: center;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255,255,255,0.17);
+  border-bottom: 1px solid var(--color-text-4);
   & img {
     height: 32px;
   }
@@ -70,7 +70,6 @@ onBeforeMount(() => {
   display: flex;
   align-items: center;
   font-size: 16px;
-  font-weight: 700;
   color: var(--color-text-4);
 }
 

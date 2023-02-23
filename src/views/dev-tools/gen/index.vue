@@ -22,23 +22,16 @@
     <div class="action">
       <a-space>
         <a-button type="primary" @click="openImportTable"><icon-plus /> 导入 </a-button>
-        <a-button type="primary" status="danger" @click="handleDelete"><icon-delete /> 批量删除</a-button>
+        <a-button type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除</a-button>
       </a-space>
     </div>
 
     <!-- table -->
     <a-table
       :data="tableData"
-      :pagination="{
-        'show-total': true,
-        'show-jumper': true,
-        'show-page-size': true,
-        total: pager.count,
-        current: currentPage,
-      }"
       :row-selection="{ type: 'checkbox', showCheckedAll: true }"
       row-key="tableId"
-      @selection-change="(selection) => {ids = selection;}" 
+      @selection-change="(selection) => {deleteData = selection;}" 
       @page-change="handlePageChange"
       @page-size-change="handlePageSizeChange"
     >
@@ -61,7 +54,7 @@
               <a-popconfirm content="正在使用代码生成配置迁移脚本请确认?" okText="迁移" type="warning" @ok="handleToApiFile(record)">
                 <a-button size="small">生成迁移脚本 </a-button>
               </a-popconfirm>
-              <a-button size="small" @click="handleDelete(record)">删除</a-button>
+              <a-button size="small" @click="() => { deleteVisible = true; deleteData = [record.jobId];  }">删除</a-button>
             </a-button-group>
           </template>
         </a-table-column>
@@ -79,18 +72,37 @@
       <!-- 代码编辑器 -->
       <codemirror v-model="codestr"  :style="{ height: '600px' }" :autofocus="true" :indent-with-tab="true" :tab-size="2" :extensions="extensions" />
     </a-modal>
+
+    <!-- Akiraka 20230223 删除与批量删除 开始 -->
+    <DeleteModal 
+      :data="deleteData" 
+      :visible="deleteVisible" 
+      :apiDelete="delTable" 
+      @deleteVisibleChange="() => deleteVisible = false"
+    />
+    <!-- Akiraka 20230223 删除与批量删除 结束 -->
   </div>
 </template>
 
 <script setup>
-import { reactive, ref, getCurrentInstance, onMounted, nextTick } from 'vue';
+import { reactive, ref, getCurrentInstance, onMounted, nextTick, watch } from 'vue';
 import importTable from './importTable.vue'
 import { listTable,previewTable,delTable,apiToFile,toProjectTableCheckRole,toDBTable } from '@/api/tools/gen';
 import { parseTime } from '@/utils/parseTime';
-
 import { Codemirror } from 'vue-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 import { oneDark } from '@codemirror/theme-one-dark'
+
+// Akiraka 20230210 删除数据
+const deleteData = ref([])
+// Akiraka 20230210 删除对话框
+const deleteVisible = ref(false)
+// Akiraka 20230210 监听删除事件
+watch(() => deleteVisible.value ,(value) => {
+  if ( value == false ) {
+    getSysConfigInfo(pager);
+  }
+})
 
 const { proxy } = getCurrentInstance();
 
@@ -174,29 +186,6 @@ const handleResetQuery = () => {
   getListTable(queryForm);
 }
 
-// 选中数组
-const ids = ref([]);
-// 删除与批量删除
-const handleDelete = (row) => {
-  let Ids = (row.tableId && [row.tableId]) || ids.value
-  if (Ids.length !== 0) {
-    proxy.$modal.warning({
-      title: '提示',
-      content: '是否确认删除编号为 ' + Ids + ' 的数据项?',
-      hideCancel: false,
-      onOk: async () => {
-        await delTable(Ids);
-        proxy.$message.success("选择数据删除成功");
-        getListTable(pager);
-      },
-      onCancel: () => {
-        proxy.$message.info('删除操作已取消');
-      },
-    });
-  } else {
-    proxy.$message.error('请勾选需要删除的数据！');
-  }
-};
 // 按钮块
 // 编辑
 const handleEditTable = (row) => {

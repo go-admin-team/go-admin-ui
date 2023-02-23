@@ -42,9 +42,7 @@
       <template #action="{ record }">
         <a-button v-has="'admin:sysDept:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
         <a-button v-has="'admin:sysDept:add'" type="text" @click="handleAdd(record)"><icon-plus /> 新增</a-button>
-        <a-popconfirm content="是否删除该条数据?" type="warning" @ok="handleDelete(record)" >
-          <a-button v-has="'admin:sysDept:remove'" type="text"><icon-delete /> 删除</a-button>
-        </a-popconfirm>
+        <a-button v-has="'admin:sysDept:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.deptId];  }"><icon-delete /> 删除</a-button>
       </template>
     </a-table>
 
@@ -86,12 +84,32 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <!-- Akiraka 20230223 删除与批量删除 开始 -->
+    <DeleteModal 
+      :data="deleteData" 
+      :visible="deleteVisible" 
+      :apiDelete="removeDept" 
+      @deleteVisibleChange="() => deleteVisible = false"
+    />
+    <!-- Akiraka 20230223 删除与批量删除 结束 -->
   </div>
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, getCurrentInstance, nextTick } from 'vue';
+import { reactive, ref, onMounted, getCurrentInstance, nextTick, watch } from 'vue';
 import { getDept, addDept, removeDept, updateDept } from '@/api/admin/sys-dept';
+
+// Akiraka 20230210 删除数据
+const deleteData = ref([])
+// Akiraka 20230210 删除对话框
+const deleteVisible = ref(false)
+// Akiraka 20230210 监听删除事件
+watch(() => deleteVisible.value ,(value) => {
+  if ( value == false ) {
+    getDeptInfo(queryForm);
+  }
+})
 
 const { proxy } = getCurrentInstance();
 
@@ -160,13 +178,6 @@ const handleAdd = ({ deptId, status = 2 } = {}) => {
   modalTitle.value = '新增部门';
 
   if (deptId) Object.assign(modalForm, {parentId: deptId, status});
-};
-
-// 删除
-const handleDelete = async ({ deptId }) => {
-  const res = await removeDept({ ids: [deptId] });
-  proxy.$message.success(res.msg);
-  getDeptInfo();
 };
 
 // 修改

@@ -37,13 +37,7 @@
     <a-table
       :data="tableData"
       :columns="columns"
-      :pagination="{
-        'show-total': true,
-        'show-jumper': true,
-        'show-page-size': true,
-        current: currentPage,
-        total: pager.total,
-      }"
+      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.total, current: currentPage }"
       @page-change="handlePageChange"
     >
       <template #createdAt="{ record }">
@@ -52,9 +46,7 @@
 
       <template #action="{ record }">
         <a-button v-has="'admin:sysDictData:edit'" type="text" @click="handleEdit(record)">修改</a-button>
-        <a-popconfirm content="是否删除当前数据？" type="warning" @ok="handleDelete([record.dictCode])">
-          <a-button v-has="'admin:sysDictData:remove'" type="text" status="danger">删除</a-button>
-        </a-popconfirm>
+        <a-button v-has="'admin:sysDictData:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.dictCode];  }">删除</a-button>
       </template>
 
       <template #status="{ record }">
@@ -105,13 +97,33 @@
         </a-form-item>
       </a-form>
     </a-modal>
+    <!-- Akiraka 20230223 删除与批量删除 开始 -->
+    <DeleteModal 
+      :data="deleteData" 
+      :visible="deleteVisible" 
+      :apiDelete="deleteDictData" 
+      @deleteVisibleChange="() => deleteVisible = false"
+    />
+    <!-- Akiraka 20230223 删除与批量删除 结束 -->
   </div>
 </template>
 
 <script setup>
-import { reactive, ref, getCurrentInstance, onBeforeMount } from 'vue';
+import { reactive, ref, getCurrentInstance, onBeforeMount, watch } from 'vue';
 import { getDictData, addDictData, updateDictData, deleteDictData } from '@/api/admin/sys-dict-data';
 import { getDictType } from '@/api/admin/sys-dict';
+
+// Akiraka 20230210 删除数据
+const deleteData = ref([])
+// Akiraka 20230210 删除对话框
+const deleteVisible = ref(false)
+// Akiraka 20230210 监听删除事件
+watch(() => deleteVisible.value ,(value) => {
+  if ( value == false ) {
+    getDictDataInfo({...proxy.$route.params, ...pager});
+  }
+})
+
 
 const { proxy } = getCurrentInstance();
 
@@ -199,14 +211,6 @@ const handleSubmit = async () => {
     res = await addDictData(modalForm);
   }
   
-  proxy.$message.success(res.msg);
-  getDictDataInfo({...proxy.$route.params, ...pager});
-}
-
-// 删除字典数据
-const handleDelete = async (ids) => {
-  const res = await deleteDictData({ids});
-
   proxy.$message.success(res.msg);
   getDictDataInfo({...proxy.$route.params, ...pager});
 }

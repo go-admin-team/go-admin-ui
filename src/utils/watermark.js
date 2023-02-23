@@ -22,7 +22,7 @@ let setWatermark = (str) => {
   let div = document.createElement('div')
   div.id = id
   div.style.pointerEvents = 'none'
-  div.style.top = '50px'
+  div.style.top = '35px'
   div.style.left = '200px'
   div.style.position = 'fixed'
   div.style.zIndex = '100000'
