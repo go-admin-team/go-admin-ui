@@ -76,7 +76,7 @@
             <a-form-item field="parentId" label="上级菜单">
               <a-tree-select
                 v-model="modalForm.parentId"
-                :data="tableData"
+                :data="selectTreeData"
                 :field-names="{ key: 'menuId', icon: '_' }"
                 :allow-search="true"
                 :filter-tree-node="filterTreeNode"
@@ -257,6 +257,8 @@ const columns = [
 ];
 const tableData = ref([]);
 
+const selectTreeData = ref([]);
+
 // Transfer Data
 const transferData = ref([]);
 
@@ -310,6 +312,7 @@ const handleSubmit = (done) => {
 const getSysMenuInfo = async (params = {}) => {
   const res = await getMenu(params);
   tableData.value = res.data;
+  selectTreeData.value = [{"title": "根", "menuId": 0, "parentId": 0, children: res.data}]
 };
 
 // 获取API接口信息
