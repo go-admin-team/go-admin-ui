@@ -18,6 +18,7 @@
 
     <a-table
       :data="tableData"
+      :bordered="false"
       :pagination="{
         'show-total': true,
         'show-jumper': true,

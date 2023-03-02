@@ -1,79 +1,82 @@
 <template>
   <div class="app-container">
-    <a-form :model="queryForm" ref="queryFormRef" layout="inline">
-      <a-form-item field="status" label="状态">
-        <a-select
-          v-model="queryForm.status"
-          placeholder="请选择系统操作日志状态"
-        >
-          <a-option :value="2">正常</a-option>
-          <a-option :value="1">关闭</a-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item field="createdAt" label="创建时间">
-        <a-range-picker
-          disabled
-          v-model="queryForm.createdAt"
-          style="width: 254px"
-        />
-      </a-form-item>
-      <a-form-item>
-        <a-space>
-          <a-button type="primary" @click="handleQuery"
-            ><icon-search /> 搜索</a-button
+    <a-card :bordered="false" class="general-card">
+      <a-form :model="queryForm" ref="queryFormRef" layout="inline">
+        <a-form-item field="status" label="状态">
+          <a-select
+            v-model="queryForm.status"
+            placeholder="请选择系统操作日志状态"
           >
-          <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
+            <a-option :value="2">正常</a-option>
+            <a-option :value="1">关闭</a-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item field="createdAt" label="创建时间">
+          <a-range-picker
+            disabled
+            v-model="queryForm.createdAt"
+            style="width: 254px"
+          />
+        </a-form-item>
+        <a-form-item>
+          <a-space>
+            <a-button type="primary" @click="handleQuery"
+              ><icon-search /> 搜索</a-button
+            >
+            <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
+          </a-space>
+        </a-form-item>
+      </a-form>
+
+      <a-divider />
+
+      <div class="action">
+        <a-space>
+          <a-button
+            type="primary"
+            status="danger"
+            @click="handleBatchDelete"
+            :disabled="selectedKeys.length === 0"
+            ><icon-delete /> 批量删除</a-button
+          >
         </a-space>
-      </a-form-item>
-    </a-form>
+      </div>
 
-    <a-divider />
-
-    <div class="action">
-      <a-space>
-        <a-button
-          type="primary"
-          status="danger"
-          @click="handleBatchDelete"
-          :disabled="selectedKeys.length === 0"
-          ><icon-delete /> 批量删除</a-button
-        >
-      </a-space>
-    </div>
-
-    <a-table
-      :data="tableData"
-      :columns="columns"
-      :row-selection="{ type: 'checkbox', showCheckedAll: true }"
-      row-key="id"
-      :pagination="{
-        'show-total': true,
-        'show-jumper': true,
-        'show-page-size': true,
-        current: currentPage,
-        total: pager.total,
-      }"
-      v-model:selectedKeys="selectedKeys"
-      @page-change="handlePageChange"
-      @page-size-change="handlePageSizeChange"
-    >
-      <template #status="{ record }">
-        <a-tag v-if="record.status == 2" color="green">正常</a-tag>
-        <a-tag v-if="record.status == 1" color="red">关闭</a-tag>
-      </template>
-      <template #operTime="{ record }">
-        {{ parseTime(record.operTime) }}
-      </template>
-      <template #action="{ record }">
-        <a-popconfirm
-          content="是否删除当前数据？"
-          type="warning"
-          @ok="removeSysOperaLogInfo([record.id])"
-        >
-          <a-button type="text" status="danger">删除</a-button>
-        </a-popconfirm>
-      </template>
-    </a-table>
+      <a-table
+        :data="tableData"
+        :columns="columns"
+        :bordered="false"
+        :row-selection="{ type: 'checkbox', showCheckedAll: true }"
+        row-key="id"
+        :pagination="{
+          'show-total': true,
+          'show-jumper': true,
+          'show-page-size': true,
+          current: currentPage,
+          total: pager.total,
+        }"
+        v-model:selectedKeys="selectedKeys"
+        @page-change="handlePageChange"
+        @page-size-change="handlePageSizeChange"
+      >
+        <template #status="{ record }">
+          <a-tag v-if="record.status == 2" color="green">正常</a-tag>
+          <a-tag v-if="record.status == 1" color="red">关闭</a-tag>
+        </template>
+        <template #operTime="{ record }">
+          {{ parseTime(record.operTime) }}
+        </template>
+        <template #action="{ record }">
+          <a-popconfirm
+            content="是否删除当前数据？"
+            type="warning"
+            @ok="removeSysOperaLogInfo([record.id])"
+          >
+            <a-button type="text" status="danger">删除</a-button>
+          </a-popconfirm>
+        </template>
+      </a-table>
+    </a-card>
   </div>
 </template>
 

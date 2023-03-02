@@ -64,3 +64,12 @@ export function getCurrentUser(uid) {
     method: 'get'
   })
 }
+
+// 用户头像上传
+export function uploadAvatar(data) {
+  return request({
+    url: '/api/v1/user/avatar',
+    method: 'post',
+    data: data
+  })
+}

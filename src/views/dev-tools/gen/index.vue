@@ -1,66 +1,75 @@
 <template>
   <div class="app-container">
-    <a-form :model="queryForm" ref="queryFormRef" layout="inline">
-      <a-form-item field="tableName" label="表名称">
-        <a-input v-model="queryForm.tableName" placeholder="请输入表名称" />
-      </a-form-item>
-      <a-form-item field="tableComment" label="表描述">
-        <a-input v-model="queryForm.tableComment" placeholder="请输入描述" />
-      </a-form-item>
-      <a-form-item>
+    <a-card :bordered="false" class="general-card">
+      <a-form :model="queryForm" ref="queryFormRef" layout="inline">
+        <a-form-item field="tableName" label="表名称">
+          <a-input v-model="queryForm.tableName" placeholder="请输入表名称" />
+        </a-form-item>
+        <a-form-item field="tableComment" label="表描述">
+          <a-input v-model="queryForm.tableComment" placeholder="请输入描述" />
+        </a-form-item>
+        <a-form-item>
+          <a-space>
+            <a-button type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
+            <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
+            
+          </a-space>
+        </a-form-item>
+      </a-form>
+
+      <a-divider />
+
+      <!-- action -->
+      <div class="action">
         <a-space>
-          <a-button type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
-          <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
-          
+          <a-button type="primary" @click="openImportTable"><icon-plus /> 导入 </a-button>
+          <a-button type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除</a-button>
         </a-space>
-      </a-form-item>
-    </a-form>
+      </div>
 
-    <a-divider />
-
-    <!-- action -->
-    <div class="action">
-      <a-space>
-        <a-button type="primary" @click="openImportTable"><icon-plus /> 导入 </a-button>
-        <a-button type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除</a-button>
-      </a-space>
-    </div>
-
-    <!-- table -->
-    <a-table
-      :data="tableData"
-      :row-selection="{ type: 'checkbox', showCheckedAll: true }"
-      row-key="tableId"
-      @selection-change="(selection) => {deleteData = selection;}" 
-      @page-change="handlePageChange"
-      @page-size-change="handlePageSizeChange"
-    >
-      <template #columns>
-        <a-table-column title="序号" data-index="tableId" :width="180" ellipsis tooltip/>
-        <a-table-column title="表名称" data-index="tableName" :width="180" ellipsis tooltip/>
-        <a-table-column title="表描述" data-index="tableComment" :width="180" ellipsis tooltip/>
-        <a-table-column title="模型名称" data-index="className" :width="180" ellipsis tooltip/>
-        <a-table-column title="动作" :width="370" align="center" >
-          <template #cell="{ record }">
-            <a-button-group>
-              <a-button size="small" @click="handleEditTable(record)">编辑</a-button>
-              <a-button size="small" @click="handlePreview(record)">预览</a-button>
-              <a-popconfirm content="正在使用代码生成请确认?" okText="生成" type="warning" @ok="handleToProject(record)">
-                <a-button size="small">代码生成 </a-button>
-              </a-popconfirm>
-              <a-popconfirm content="正在使用【菜单以及API生成到数据库】请确认?" okText="写入DB" type="warning" @ok="handleToDB(record)">
-                <a-button size="small">生成配置 </a-button>
-              </a-popconfirm>
-              <a-popconfirm content="正在使用代码生成配置迁移脚本请确认?" okText="迁移" type="warning" @ok="handleToApiFile(record)">
-                <a-button size="small">生成迁移脚本 </a-button>
-              </a-popconfirm>
-              <a-button size="small" @click="() => { deleteVisible = true; deleteData = [record.jobId];  }">删除</a-button>
-            </a-button-group>
-          </template>
-        </a-table-column>
-      </template>
-    </a-table>
-
+      <!-- table -->
+      <a-table
+        :data="tableData"
+        :bordered="false"
+        :pagination="{
+          'show-total': true,
+          'show-jumper': true,
+          'show-page-size': true,
+          total: pager.count,
+          current: currentPage,
+        }"
+        :row-selection="{ type: 'checkbox', showCheckedAll: true }"
+        row-key="tableId"
+        @selection-change="(selection) => {deleteData = selection;}"
+        @page-change="handlePageChange"
+        @page-size-change="handlePageSizeChange"
+      >
+        <template #columns>
+          <a-table-column title="序号" data-index="tableId" :width="180" ellipsis tooltip/>
+          <a-table-column title="表名称" data-index="tableName" :width="180" ellipsis tooltip/>
+          <a-table-column title="表描述" data-index="tableComment" :width="180" ellipsis tooltip/>
+          <a-table-column title="模型名称" data-index="className" :width="180" ellipsis tooltip/>
+          <a-table-column title="动作" :width="370" align="center" >
+            <template #cell="{ record }">
+              <a-button-group>
+                <a-button size="small" @click="handleEditTable(record)">编辑</a-button>
+                <a-button size="small" @click="handlePreview(record)">预览</a-button>
+                <a-popconfirm content="正在使用代码生成请确认?" okText="生成" type="warning" @ok="handleToProject(record)">
+                  <a-button size="small">代码生成 </a-button>
+                </a-popconfirm>
+                <a-popconfirm content="正在使用【菜单以及API生成到数据库】请确认?" okText="写入DB" type="warning" @ok="handleToDB(record)">
+                  <a-button size="small">生成配置 </a-button>
+                </a-popconfirm>
+                <a-popconfirm content="正在使用代码生成配置迁移脚本请确认?" okText="迁移" type="warning" @ok="handleToApiFile(record)">
+                  <a-button size="small">生成迁移脚本 </a-button>
+                </a-popconfirm>
+              <a-button size="small" @click="() => { deleteVisible = true; deleteData = [record.tableId];  }">删除</a-button>
+              </a-button-group>
+            </template>
+          </a-table-column>
+        </template>
+      </a-table>
+    </a-card>
     <!-- 导入对话框 -->
     <import-table v-model:visible="modalVisible" />
 
@@ -75,7 +84,7 @@
 
     <!-- Akiraka 20230223 删除与批量删除 开始 -->
     <DeleteModal 
-      :data="deleteData" 
+      :data="toRaw(deleteData)" 
       :visible="deleteVisible" 
       :apiDelete="delTable" 
       @deleteVisibleChange="() => deleteVisible = false"
@@ -85,10 +94,11 @@
 </template>
 
 <script setup>
-import { reactive, ref, getCurrentInstance, onMounted, nextTick, watch } from 'vue';
+import { reactive, ref, toRaw, getCurrentInstance, onMounted, nextTick, watch } from 'vue';
 import importTable from './importTable.vue'
 import { listTable,previewTable,delTable,apiToFile,toProjectTableCheckRole,toDBTable } from '@/api/tools/gen';
 import { parseTime } from '@/utils/parseTime';
+
 import { Codemirror } from 'vue-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 import { oneDark } from '@codemirror/theme-one-dark'
@@ -100,10 +110,9 @@ const deleteVisible = ref(false)
 // Akiraka 20230210 监听删除事件
 watch(() => deleteVisible.value ,(value) => {
   if ( value == false ) {
-    getSysConfigInfo(pager);
+    getListTable(pager);
   }
 })
-
 const { proxy } = getCurrentInstance();
 
 const currentPage = ref(1);
@@ -190,7 +199,7 @@ const handleResetQuery = () => {
 // 编辑
 const handleEditTable = (row) => {
   const tableId = row.tableId || this.ids[0]
-  proxy.$router.push({ path: '/dev-tools/editTable', query: { tableId: tableId }})
+  proxy.$router.push({ path: '/admin/dev-tools/editTable', query: { tableId: tableId }})
 }
 // 预览代码参数
 // 预览代码对话框

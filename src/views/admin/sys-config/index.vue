@@ -1,65 +1,73 @@
 <template>
   <div class="app-container">
-    <a-form :model="queryForm" ref="queryFormRef" layout="inline">
-      <a-form-item field="configName" label="参数名称">
-        <a-input
-          v-model="queryForm.configName"
-          placeholder="请输入参数名称"
-        ></a-input>
-      </a-form-item>
-      <a-form-item field="configKey" label="参数键名">
-        <a-input
-          v-model="queryForm.configKey"
-          placeholder="请输入参数键名"
-        ></a-input>
-      </a-form-item>
-      <a-form-item field="configType" label="系统内置">
-        <a-select v-model="queryForm.configType" placeholder="选择系统内置">
-          <a-option value="Y">是</a-option>
-          <a-option value="N">否</a-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item>
+    <a-card :bordered="false" class="general-card">
+      <a-form :model="queryForm" ref="queryFormRef" layout="inline">
+        <a-form-item field="configName" label="参数名称">
+          <a-input
+            v-model="queryForm.configName"
+            placeholder="请输入参数名称"
+          ></a-input>
+        </a-form-item>
+        <a-form-item field="configKey" label="参数键名">
+          <a-input
+            v-model="queryForm.configKey"
+            placeholder="请输入参数键名"
+          ></a-input>
+        </a-form-item>
+        <a-form-item field="configType" label="系统内置">
+          <a-select v-model="queryForm.configType" placeholder="选择系统内置">
+            <a-option value="Y">是</a-option>
+            <a-option value="N">否</a-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item>
+          <a-space>
+            <a-button type="primary" @click="handleQuery()"><icon-search /> 搜索</a-button>
+            <a-button @click="handleResetQuery()"><icon-loop /> 重置</a-button>
+          </a-space>
+        </a-form-item>
+      </a-form>
+
+      <!-- 分割线 -->
+      <a-divider />
+
+      <div class="action">
         <a-space>
-          <a-button type="primary" @click="handleQuery()"><icon-search /> 搜索</a-button>
-          <a-button @click="handleResetQuery()"><icon-loop /> 重置</a-button>
+          <a-button v-has="'admin:sysConfig:add'" type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
+          <a-button v-has="'admin:sysConfig:remove'" type="primary" status="danger" disabled><icon-delete /> 删除</a-button>
+          <a-button type="primary" status="warning" disabled><icon-download /> 导出</a-button>
         </a-space>
-      </a-form-item>
-    </a-form>
+      </div>
 
-    <!-- 分割线 -->
-    <a-divider />
+      <a-table
+        :data="tableData"
+        :columns="columns"
+        :bordered="false"
+        :pagination="{
+          'show-total': true,
+          'show-jumper': true,
+          'show-page-size': true,
+          total: pager.total,
+          current: currentPage,
+        }"
+        @page-change="handlePageChange"
+        @page-size-change="handlePageSizeChange"
+      >
+        <template #configType="{ record }">
+          <a-tag v-if="record.configType === 'Y'" color="green">是</a-tag>
+          <a-tag v-else-if="record.configType === 'N'" color="red">否</a-tag>
+        </template>
 
-    <div class="action">
-      <a-space>
-        <a-button v-has="'admin:sysConfig:add'" type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
-        <a-button v-has="'admin:sysConfig:remove'" type="primary" status="danger" disabled><icon-delete /> 删除</a-button>
-        <a-button type="primary" status="warning" disabled><icon-download /> 导出</a-button>
-      </a-space>
-    </div>
+        <template #createdAt="{ record }">
+          {{ parseTime(record.createdAt) }}
+        </template>
 
-    <a-table
-      :data="tableData"
-      :columns="columns"
-      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.total, current: currentPage }"
-      @page-change="handlePageChange"
-      @page-size-change="handlePageSizeChange"
-    >
-      <template #configType="{ record }">
-        <a-tag v-if="record.configType === 'Y'" color="green">是</a-tag>
-        <a-tag v-else-if="record.configType === 'N'" color="red">否</a-tag>
-      </template>
-
-      <template #createdAt="{ record }">
-        {{ parseTime(record.createdAt) }}
-      </template>
-
-      <template #action="{ record }">
-        <a-button v-has="'admin:sysConfig:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
+        <template #action="{ record }">
+          <a-button v-has="'admin:sysConfig:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
         <a-button v-has="'admin:sysConfig:edit'" type="text" @click="() => { deleteVisible = true; deleteData = [record.id];  }"><icon-delete /> 删除</a-button>
-      </template>
-    </a-table>
-
+        </template>
+      </a-table>
+    </a-card>
     <a-modal
       v-model:visible="visible"
       :title="title"

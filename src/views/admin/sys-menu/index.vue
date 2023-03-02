@@ -1,53 +1,54 @@
 <template>
   <div class="app-container">
-    <a-form :model="queryForm" ref="queryFormRef" layout="inline">
-      <a-form-item field="menuName" label="菜单名称">
-        <a-input v-model="queryForm.menuName" placeholder="请输入菜单名称" />
-      </a-form-item>
-      <a-form-item field="visible" label="状态">
-        <a-select v-model="queryForm.visible" placeholder="请选择菜单状态">
-          <a-option value="0">显示</a-option>
-          <a-option value="1">隐藏</a-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item>
+    <a-card :bordered="false" class="general-card">
+      <a-form :model="queryForm" ref="queryFormRef" layout="inline">
+        <a-form-item field="menuName" label="菜单名称">
+          <a-input v-model="queryForm.menuName" placeholder="请输入菜单名称" />
+        </a-form-item>
+        <a-form-item field="visible" label="状态">
+          <a-select v-model="queryForm.visible" placeholder="请选择菜单状态">
+            <a-option value="0">显示</a-option>
+            <a-option value="1">隐藏</a-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item>
+          <a-space>
+            <a-button v-has="'admin:sysMenu:query'" type="primary" @click="handleQuery">搜索</a-button>
+            <a-button @click="$refs.queryFormRef.resetFields()">重置</a-button>
+          </a-space>
+        </a-form-item>
+      </a-form>
+
+      <a-divider />
+
+      <!-- action -->
+      <div class="action">
         <a-space>
-          <a-button v-has="'admin:sysMenu:query'" type="primary" @click="handleQuery">搜索</a-button>
-          <a-button @click="$refs.queryFormRef.resetFields()">重置</a-button>
+          <a-button v-has="'admin:sysMenu:add'" type="primary" @click="handleAddMenu">新增菜单</a-button>
         </a-space>
-      </a-form-item>
-    </a-form>
+      </div>
 
-    <a-divider />
-
-    <!-- action -->
-    <div class="action">
-      <a-space>
-        <a-button v-has="'admin:sysMenu:add'" type="primary" @click="handleAddMenu">新增菜单</a-button>
-      </a-space>
-    </div>
-
-    <!-- table -->
-    <a-table :columns="columns" :data="tableData" row-key="menuId">
-      <template #icon="{ record }">
-        <component :is="record.icon" :style="{ fontSize: '18px' }"></component>
-      </template>
-      <template #menutype="{ record }">
-        <span v-if="record.menuType === 'M'">目录</span>
-        <span v-else-if="record.menuType === 'C'">菜单</span>
-        <span v-else-if="record.menuType === 'F'">按钮</span>
-      </template>
-      <template #visible="{ record }">
-        <a-tag v-if="record.visible == 0" color="green">显示</a-tag>
-        <a-tag v-else color="red">隐藏</a-tag>
-      </template>
-      <template #action="{ record }">
-        <a-button v-has="'admin:sysMenu:add'" type="text" @click="handleAddMenu(record.menuId)">新增</a-button>
-        <a-button v-has="'admin:sysMenu:edit'" type="text" @click="handleUpdate(record)">修改</a-button>
+      <!-- table -->
+      <a-table :columns="columns" :data="tableData" row-key="menuId" :bordered="false">
+        <template #icon="{ record }">
+          <component :is="record.icon" :style="{ fontSize: '18px' }"></component>
+        </template>
+        <template #menutype="{ record }">
+          <span v-if="record.menuType === 'M'">目录</span>
+          <span v-else-if="record.menuType === 'C'">菜单</span>
+          <span v-else-if="record.menuType === 'F'">按钮</span>
+        </template>
+        <template #visible="{ record }">
+          <a-tag v-if="record.visible == 0" color="green">显示</a-tag>
+          <a-tag v-else color="red">隐藏</a-tag>
+        </template>
+        <template #action="{ record }">
+          <a-button v-has="'admin:sysMenu:add'" type="text" @click="handleAddMenu(record.menuId)">新增</a-button>
+          <a-button v-has="'admin:sysMenu:edit'" type="text" @click="handleUpdate(record)">修改</a-button>
         <a-button v-has="'admin:sysMenu:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.menuId];  }">删除</a-button>
-      </template>
-    </a-table>
-
+        </template>
+      </a-table>
+    </a-card>
     <!-- modal -->
     <a-modal
       v-model:visible="modalVisible"

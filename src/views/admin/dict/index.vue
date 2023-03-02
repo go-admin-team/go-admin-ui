@@ -1,72 +1,74 @@
 <template>
   <div class="app-container">
-    <a-form :model="queryForm" ref="queryFormRef" layout="inline">
-      <a-form-item field="dictName" label="字典名称">
-        <a-input
-          v-model="queryForm.dictName"
-          placeholder="请输入字典名称"
-        ></a-input>
-      </a-form-item>
-      <a-form-item field="dictType" label="字典类型">
-        <a-input
-          v-model="queryForm.dictType"
-          placeholder="请输入字典类型"
-        ></a-input>
-      </a-form-item>
-      <a-form-item field="status" label="状态">
-        <a-select v-model="queryForm.status" placeholder="请选择字典状态">
-          <a-option :value="2">正常</a-option>
-          <a-option :value="1">停用</a-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item>
+    <a-card :bordered="false" class="general-card">
+      <a-form :model="queryForm" ref="queryFormRef" layout="inline">
+        <a-form-item field="dictName" label="字典名称">
+          <a-input
+            v-model="queryForm.dictName"
+            placeholder="请输入字典名称"
+          ></a-input>
+        </a-form-item>
+        <a-form-item field="dictType" label="字典类型">
+          <a-input
+            v-model="queryForm.dictType"
+            placeholder="请输入字典类型"
+          ></a-input>
+        </a-form-item>
+        <a-form-item field="status" label="状态">
+          <a-select v-model="queryForm.status" placeholder="请选择字典状态">
+            <a-option :value="2">正常</a-option>
+            <a-option :value="1">停用</a-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item>
+          <a-space>
+            <a-button v-has="'admin:sysDictType:query'" type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
+            <a-button v-has="'admin:sysDictType:query'" @click="handleResetQuery"><icon-loop /> 重置</a-button>
+          </a-space>
+        </a-form-item>
+      </a-form>
+
+      <a-divider />
+
+      <div class="action">
         <a-space>
-          <a-button v-has="'admin:sysDictType:query'" type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
-          <a-button v-has="'admin:sysDictType:query'" @click="handleResetQuery"><icon-loop /> 重置</a-button>
-        </a-space>
-      </a-form-item>
-    </a-form>
-
-    <a-divider />
-
-    <div class="action">
-      <a-space>
-        <a-button v-has="'admin:sysDictType:add'" type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
+          <a-button v-has="'admin:sysDictType:add'" type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
         <a-button v-has="'system:sysdicttype:remove'" type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除</a-button>
-        <a-button type="primary" status="warning" disabled><icon-download /> 导出</a-button>
-      </a-space>
-    </div>
+          <a-button type="primary" status="warning" disabled><icon-download /> 导出</a-button>
+        </a-space>
+      </div>
 
-    <!-- table -->
-    <a-table
-      :columns="tableColumns"
-      :data="tableData"
-      :row-selection="{ type: 'checkbox', showCheckedAll: true }"
-      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.total, current: currentPage }"
-      row-key="id"
-      @selection-change="(selection) => {deleteData = selection;}" 
-      @page-change="handlePageChange"
-      @page-size-change="handlePageSizeChange"
-    >
-      <template #dictType="{ record }">
-        <router-link :to="`/admin/dict/data/${record.dictType}`">{{ record.dictType }}</router-link>
-      </template>
+      <!-- table -->
+      <a-table
+        :columns="tableColumns"
+        :data="tableData"
+        :bordered="false"
+        :row-selection="{ type: 'checkbox', showCheckedAll: true }"
+        :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.total, current: currentPage }"
+        row-key="id"
+        @selection-change="(selection) => {deleteData = selection;}" 
+        @page-change="handlePageChange"
+        @page-size-change="handlePageSizeChange"
+      >
+        <template #dictType="{ record }">
+          <router-link :to="`/admin/dict/data/${record.dictType}`">{{ record.dictType }}</router-link>
+        </template>
 
-      <template #status="{ record }">
-        <a-tag v-if="record.status == 2" color="green">正常</a-tag>
-        <a-tag v-else color="red">停用</a-tag>
-      </template>
+        <template #status="{ record }">
+          <a-tag v-if="record.status == 2" color="green">正常</a-tag>
+          <a-tag v-else color="red">停用</a-tag>
+        </template>
 
-      <template #createdAt="{ record }">
-        {{ parseTime(record.createdAt) }}
-      </template>
+        <template #createdAt="{ record }">
+          {{ parseTime(record.createdAt) }}
+        </template>
 
-      <template #action="{ record }">
-        <a-button v-has="'admin:sysDictType:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
+        <template #action="{ record }">
+          <a-button v-has="'admin:sysDictType:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
         <a-button v-has="'admin:sysDictType:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.id];  }"><icon-edit /> 删除</a-button>
-      </template>
-    </a-table>
-
+        </template>
+      </a-table>
+    </a-card>
     <!-- Modal弹框 -->
     <a-modal
       v-model:visible="modalVisible"

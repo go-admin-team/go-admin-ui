@@ -1,14 +1,12 @@
 <template>
-  <div class="sider-logo">
-    <img :src="store.sysConfig.sys_app_logo" />
-    <span class="sider-title" v-if="!props.collapsed">{{store.sysConfig.sys_app_name}}</span>
-  </div>
   <a-menu
     class="menu"
     @menu-item-click="handleMenuClick"
+    @collapse="handleMenuCollapse"
     :default-open-keys="['/admin']"
     :default-selected-keys="defaultSelectKeys"
     :auto-open-selected="true"
+    show-collapse-button
   >
     <sub-menu :menu-list="permissionStore.menuList" />
   </a-menu>
@@ -24,7 +22,6 @@ import SubMenu from './SubMenu.vue';
 
 const store = useUserStore();
 const permissionStore = usePermissionStore();
-
 const props = defineProps({
   collapsed: {
     type: Boolean,
@@ -47,48 +44,32 @@ const keepDefaultSelect = () => {
 const handleMenuClick = (key) => {
   router.push(key);
 };
-
+const emit = defineEmits(['collapse']);
+const handleMenuCollapse = () => {
+  emit('collapse');
+}
 onBeforeMount(() => {
   keepDefaultSelect();
 });
 </script>
 
-<style lang="scss" scoped>
-.sider-logo {
-  margin: 10px 0;
-  display: flex;
-  justify-content: center;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--color-text-4);
-  & img {
-    height: 32px;
-  }
-}
-
-.sider-title {
-  margin-left: 10px;
-  display: flex;
-  align-items: center;
-  font-size: 16px;
-  color: var(--color-text-4);
-}
-
-.left-side {
-  height: 50px;
-  width: 50px;
-  font-size: 18px;
-  line-height: 50px;
-  text-align: center;
-  transition: all 0.3s ease-in-out;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #e5e5e5;
-  }
-}
-</style>
-
 <style lang="scss">
+.arco-menu {
+  height: calc(100vh - 60px);
+      ::-webkit-scrollbar {
+        width: 12px;
+        height: 4px;
+      }
+      ::-webkit-scrollbar-thumb {
+        border: 4px solid transparent;
+        background-clip: padding-box;
+        border-radius: 7px;
+        background-color: var(--color-text-4);
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: var(--color-text-3);
+      }
+}
 .arco-menu-indent {
   width: 30px;
 }

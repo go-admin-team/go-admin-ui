@@ -2,6 +2,7 @@ import { join } from 'path'
 import { defineConfig } from 'vite';
 import { viteMockServe } from 'vite-plugin-mock';
 import vue from '@vitejs/plugin-vue';
+import svgLoader from 'vite-svg-loader';
 import { VuetifyResolver } from 'unplugin-vue-components/resolvers';
 import Components from 'unplugin-vue-components/vite';
 
@@ -12,6 +13,7 @@ export default defineConfig({
     viteMockServe({
       mockPath: '/mock',
     }),
+    svgLoader(),
     viteMockServe({
       mockPath: '/mock',
     }),

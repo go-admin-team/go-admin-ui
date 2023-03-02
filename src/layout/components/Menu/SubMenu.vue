@@ -1,24 +1,26 @@
 <template>
   <template v-for="menu in props.menuList" :key="menu.menuId">
-    <a-sub-menu
-      v-if="menu.children && menu.menuType == 'M' && menu.visible == 0"
+    <a-menu-item
+        v-if="menu.menuType == 'C' && !menu.children && menu.visible === '0' && isRouteParams(menu.path)"
+        :key="menu.path"
+        >
+        <template #icon v-if="menu.parentId === 0"><svg-raw :name="menu.icon"/></template>{{ menu.title }}
+    </a-menu-item>
+    <template v-else>
+      <a-sub-menu
+      v-if="menu.menuType == 'M' && menu.visible == 0"
       :key="menu.path"
     >
-      <template #icon>
-        <component :is="menu.icon" />
-      </template>
+      <template #icon v-if="menu.parentId === 0"><svg-raw :name="menu.icon"/></template>
       <template #title>{{ menu.title }}</template>
       <sub-menu :menuList="menu.children" />
     </a-sub-menu>
-    <a-menu-item
-      v-if="menu.menuType == 'C' && menu.visible && isRouteParams(menu.path)"
-      :key="menu.path"
-      >{{ menu.title }}</a-menu-item>
+    </template>
   </template>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed } from 'vue';
 
 const props = defineProps({
   menuList: {
@@ -35,3 +37,11 @@ const isRouteParams = computed(() => {
   }
 })
 </script>
+
+<style lang="scss" scoped>
+  svg {
+    width: 16px;
+    height: 16px;
+    fill: var(--color-text-3);
+  }
+</style>
