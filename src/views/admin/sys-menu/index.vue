@@ -292,11 +292,20 @@ const handleSubmit = (done) => {
     if (!err) {
       let res;
       if (Reflect.has(modalForm, 'menuId')) {
-        res = await updateMenu(modalForm, modalForm.menuId);
+        const { code, msg } = await updateMenu(modalForm, modalForm.menuId);
+        if (code == 200 ) {
+          proxy.$notification.success('更新成功');
+        } else {
+          proxy.$notification.error(msg);
+        }
       } else {
-        res = await addMenu(modalForm);
+        const { code, msg } = await addMenu(modalForm);
+        if (code == 200 ) {
+          proxy.$notification.success('新增成功');
+        } else {
+          proxy.$notification.error(msg);
+        }
       }
-      proxy.$message.success(res.msg);
       done();
       getSysMenuInfo();
     } else {

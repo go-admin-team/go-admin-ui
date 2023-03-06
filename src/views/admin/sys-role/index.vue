@@ -34,7 +34,7 @@
     <a-table
       :columns="columns"
       :data="tableData"
-      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.total, current: currentPage }"
+      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }"
       row-key="roleId"
       :row-selection="{ type: 'checkbox', showCheckedAll: true }"
       @selection-change="(selection) => {deleteData = selection;}" 
@@ -162,7 +162,7 @@ const { proxy } = getCurrentInstance();
 const currentPage = ref(1);
 // Pager
 const pager = {
-  total: 0,
+  count: 0,
   pageIndex: 1,
   pageSize: 10,
 };
@@ -310,11 +310,20 @@ const handleBeforeOk = (done) => {
       modalForm.menuIds = checkedKeys.value;
       let res;
       if (modalForm.roleId) {
-        res = await updateRole(modalForm, modalForm.roleId);
+        const { code, msg } = await updateRole(modalForm, modalForm.roleId);
+        if (code == 200 ) {
+          proxy.$notification.success('更新成功');
+        } else {
+          proxy.$notification.error(msg);
+        }
       } else {
-        res = await addRole(modalForm);
+        const { code, msg } = await addRole(modalForm);
+        if (code == 200 ) {
+          proxy.$notification.success('新增成功');
+        } else {
+          proxy.$notification.error(msg);
+        }
       }
-      proxy.$message.success(res.msg);
       getRoleInfo();
       done();
     } else {
@@ -344,11 +353,13 @@ const handleScopeBeforeOk = async (done) => {
 
 // 获取角色信息
 const getRoleInfo = async (params = {}) => {
-  const res = await getRole(params);
-  const { count, list, pageIndex, pageSize } = res.data;
-  tableData.value = list;
-
-  Object.assign(pager, { total: count, pageIndex, pageSize });
+  const { data, code, msg } = await getRole(params);
+  if ( code == 200 ) {
+    tableData.value = data.list;
+    Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
+  } else {
+    proxy.$notification.error(msg);
+  }
 };
 
 // 获取角色菜单信息

@@ -53,7 +53,7 @@
           :data="tableData"
           :bordered="false"
           :row-selection="{ type: 'checkbox', showCheckedAll: true }"
-          :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.total, current: currentPage }"
+          :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }"
           row-key="userId" 
           @selection-change="(selection) => {deleteData = selection;}" 
           @page-change="handlePageChange"
@@ -258,11 +258,11 @@ const { currentPage, getSysPostInfo, getSysRoleInfo, getSysDeptTreeInfo, getSysU
   useApiInfo();
 
 // Pager
-const pager = {
-  total: 0,
+const pager = reactive({
+  count: 0,
   pageIndex: 1,
   pageSize: 10
-}
+});
 
 // Reset Pwd
 const {
@@ -373,25 +373,18 @@ function useResetPwd() {
 
 function useApiInfo() {
   const currentPage = ref(1);
-  // Pager
-  const pager = {
-    total: 0,
-    pageIndex: 1,
-    pageSize: 10,
-  };
-
   /**
    * 获取用户信息
    * @param {*} [params]
    */
   const getSysUserInfo = async (params = {}) => {
-    const res = await getUser(params);
-    const { count, pageIndex, pageSize, list } = res.data;
-
-    tableData.value = list;
-    pager.total = count;
-    pager.pageIndex = pageIndex;
-    pager.pageSize = pageSize;
+    const { data, code, msg } = await getUser(params);
+    if ( code == 200 ) {
+      tableData.value = data.list;
+      Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
+    } else {
+      proxy.$notification.error(msg);
+    }
   };
 
   // 获取角色信息
@@ -414,7 +407,6 @@ function useApiInfo() {
 
   return {
     currentPage,
-    pager,
     getSysPostInfo,
     getSysRoleInfo,
     getSysDeptTreeInfo,
@@ -571,13 +563,21 @@ function useModalOperate() {
   const handleBeforeOk = (done) => {
     proxy.$refs.modalFormRef.validate(async (valid) => {
       if (!valid) {
-        let res;
         if (!modalForm.userId) {
-          res = await addUser(modalForm);
+          const { code, msg } = await addUser(modalForm);
+          if (code == 200 ) {
+            proxy.$notification.success('新增成功');
+          } else {
+            proxy.$notification.error(msg);
+          }
         } else {
-          res = await updateUser(modalForm, modalForm.userId);
+          const { code, msg } = await updateUser(modalForm, modalForm.userId);
+          if (code == 200 ) {
+            proxy.$notification.success('更新成功');
+          } else {
+            proxy.$notification.error(msg);
+          }
         }
-        proxy.$message.success(res.msg);
         done();
         proxy.$refs.modalFormRef.resetFields();
         getSysUserInfo();

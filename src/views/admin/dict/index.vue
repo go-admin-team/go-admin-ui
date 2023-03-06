@@ -42,7 +42,7 @@
       :columns="tableColumns"
       :data="tableData"
       :row-selection="{ type: 'checkbox', showCheckedAll: true }"
-      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.total, current: currentPage }"
+      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }"
       row-key="id"
       @selection-change="(selection) => {deleteData = selection;}" 
       @page-change="handlePageChange"
@@ -73,7 +73,7 @@
       title-align="start"
       :title="modalTitle"
       @before-ok="handleSubmit"
-      @cancel="$refs.modalFormRef.resetFields()"
+      @close="$refs.modalFormRef.resetFields()"
     >
       <a-form :model="modalForm" ref="modalFormRef">
         <a-form-item field="dictName" label="字典名称">
@@ -137,7 +137,7 @@ const currentPage = ref(1);
 
 // pager
 const pager = {
-  total: 0,
+  count: 0,
   pageIndex: 1,
   pageSize: 10,
 };
@@ -223,16 +223,25 @@ const handleSubmit = (done) => {
       try {
         let res;
         if (Reflect.has(modalForm, 'id')) {
-          res = await updateDictType(modalForm, modalForm.id);
+          const { code, msg } = await updateDictType(modalForm, modalForm.id);
+          if (code == 200 ) {
+            proxy.$notification.success('更新成功');
+          } else {
+            proxy.$notification.error(msg);
+          }
         } else {
-          res = await addDictType(modalForm);
+          const { code, msg } = await addDictType(modalForm);
           currentPage.value = Math.ceil(++pager.total / pager.pageSize);
           pager.pageIndex = currentPage.value;
+          if (code == 200 ) {
+            proxy.$notification.success('新增成功');
+          } else {
+            proxy.$notification.error(msg);
+          }
         }
-        proxy.$message.success(res.msg);
-        proxy.$refs.modalFormRef.resetFields();
-        done();
+        modalVisible.value = false;
         getSysDictTypeInfo(pager);
+        done();
       } catch (e) {
         done(false);
       }
@@ -245,12 +254,13 @@ const handleSubmit = (done) => {
 
 // 获取字典数据
 const getSysDictTypeInfo = async (params = {}) => {
-  const res = await getDictType(params);
-  tableData.value = res.data.list;
-
-  pager.total = res.data.count;
-  pager.pageIndex = res.data.pageIndex;
-  pager.pageSize = res.data.pageSize;
+  const { data, code, msg } = await getDictType(params);
+  if ( code == 200 ) {
+    tableData.value = data.list;
+    Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
+  } else {
+    proxy.$notification.error(msg);
+  }
 };
 
 onMounted(() => {

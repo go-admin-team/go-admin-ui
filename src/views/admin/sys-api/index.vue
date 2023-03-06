@@ -156,13 +156,21 @@ const handleDrawerSubmit = (done) => {
     if (!valid) {
       let res;
       if (!drawerForm.id) {
-        res = await addSysApi(drawerForm);
-        proxy.$message.success(res.msg);
+        const { code, msg } = await addSysApi(drawerForm);
+        if (code == 200 ) {
+          proxy.$notification.success('新增成功');
+        } else {
+          proxy.$notification.error(msg);
+        }
       } else {
-        res = await updateSysApi(drawerForm, drawerForm.id);
-        proxy.$message.success(res.msg);
-        drawerVisible.value = false;
+        const { code, msg } = await updateSysApi(drawerForm, drawerForm.id);
+        if (code == 200 ) {
+          proxy.$notification.success('修改成功');
+        } else {
+          proxy.$notification.error(msg);
+        }
       }
+      drawerVisible.value = false;
       done();
       getSysApiInfo(pager);
     } else {
@@ -218,11 +226,13 @@ const handlePageSizeChange = (pageSize) => {
 
 // 获取接口信息
 const getSysApiInfo = async (params = {}) => {
-  const res = await getSysApi(params);
-  const { list, count, pageIndex, pageSize } = res.data;
-
-  tableData.value = list;
-  Object.assign(pager, { count, pageIndex, pageSize });
+  const { data, code, msg } = await getSysApi(params);
+  if ( code == 200 ) {
+    tableData.value = data.list;
+    Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
+  } else {
+    proxy.$notification.error(msg);
+  }
 };
 
 onMounted(() => {

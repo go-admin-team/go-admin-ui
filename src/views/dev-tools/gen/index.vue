@@ -162,11 +162,13 @@ const handlePageSizeChange = (pageSize) => {
 
 // 获取列表数据
 const getListTable = async (params = {}) => {
-  const res = await listTable(params);
-  tableData.value = res.data.list;
-  // Pager
-  const { count, pageIndex, pageSize } = res.data;
-  Object.assign(pager, { count, pageIndex, pageSize });
+  const { data, code, msg } = await listTable(params);
+  if ( code == 200 ) {
+    tableData.value = data.list;
+    Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
+  } else {
+    proxy.$notification.error(msg);
+  }
 };
 
 // 查询列表信息
