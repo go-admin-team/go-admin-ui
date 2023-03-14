@@ -198,11 +198,19 @@ const handleSubmit = (done) => {
     if (!valid) {
       let res;
       if (!modalForm.postId) {
-        res = await addPost(modalForm);
-        proxy.$message.success(res.msg);
+        const { code, msg } = await addPost(modalForm);
+        if (code == 200 ) {
+          proxy.$notification.success('新增成功');
+        } else {
+          proxy.$notification.error(msg);
+        }
       } else {
-        res = await updatePost(modalForm, modalForm.postId);
-        proxy.$message.success(res.msg);
+        const { code, msg } = await updatePost(modalForm, modalForm.postId);
+        if (code == 200 ) {
+          proxy.$notification.success('更新成功');
+        } else {
+          proxy.$notification.error(msg);
+        }
       }
       done();
       getPostInfo(pager);
@@ -254,12 +262,13 @@ const handlePageSizeChange = (pageSize) => {
 
 // 获取岗位信息
 const getPostInfo = async (params = {}) => {
-  const res = await getPost(params);
-  tableData.value = res.data.list;
-
-  // Pager
-  const { count, pageIndex, pageSize } = res.data;
-  Object.assign(pager, { total: count, pageIndex, pageSize });
+  const { data, code, msg } = await getPost(params);
+  if ( code == 200 ) {
+    tableData.value = data.list;
+    Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
+  } else {
+    proxy.$notification.error(msg);
+  }
 };
 
 // 查询岗位信息

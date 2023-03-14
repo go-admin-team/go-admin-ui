@@ -27,7 +27,7 @@
       <div class="action">
         <a-space>
           <a-button v-has="'admin:sysRole:add'" type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
-        <a-button v-has="'admin:sysRole:remove'" type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除</a-button>
+          <a-button v-has="'admin:sysRole:remove'" type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除</a-button>
           <a-button type="primary" status="warning" disabled><icon-download /> 导出</a-button>
         </a-space>
       </div>
@@ -170,7 +170,7 @@ const { proxy } = getCurrentInstance();
 const currentPage = ref(1);
 // Pager
 const pager = {
-  total: 0,
+  count: 0,
   pageIndex: 1,
   pageSize: 10,
 };
@@ -318,11 +318,20 @@ const handleBeforeOk = (done) => {
       modalForm.menuIds = checkedKeys.value;
       let res;
       if (modalForm.roleId) {
-        res = await updateRole(modalForm, modalForm.roleId);
+        const { code, msg } = await updateRole(modalForm, modalForm.roleId);
+        if (code == 200 ) {
+          proxy.$notification.success('更新成功');
+        } else {
+          proxy.$notification.error(msg);
+        }
       } else {
-        res = await addRole(modalForm);
+        const { code, msg } = await addRole(modalForm);
+        if (code == 200 ) {
+          proxy.$notification.success('新增成功');
+        } else {
+          proxy.$notification.error(msg);
+        }
       }
-      proxy.$message.success(res.msg);
       getRoleInfo();
       done();
     } else {
@@ -352,11 +361,13 @@ const handleScopeBeforeOk = async (done) => {
 
 // 获取角色信息
 const getRoleInfo = async (params = {}) => {
-  const res = await getRole(params);
-  const { count, list, pageIndex, pageSize } = res.data;
-  tableData.value = list;
-
-  Object.assign(pager, { total: count, pageIndex, pageSize });
+  const { data, code, msg } = await getRole(params);
+  if ( code == 200 ) {
+    tableData.value = data.list;
+    Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
+  } else {
+    proxy.$notification.error(msg);
+  }
 };
 
 // 获取角色菜单信息

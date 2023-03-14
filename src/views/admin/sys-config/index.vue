@@ -64,7 +64,7 @@
 
         <template #action="{ record }">
           <a-button v-has="'admin:sysConfig:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
-        <a-button v-has="'admin:sysConfig:edit'" type="text" @click="() => { deleteVisible = true; deleteData = [record.id];  }"><icon-delete /> 删除</a-button>
+          <a-button v-has="'admin:sysConfig:edit'" type="text" @click="() => { deleteVisible = true; deleteData = [record.id];  }"><icon-delete /> 删除</a-button>
         </template>
       </a-table>
     </a-card>
@@ -143,7 +143,7 @@ const { proxy } = getCurrentInstance();
 const currentPage = ref(1);
 
 const pager = {
-  total: 0,
+  count: 0,
   pageIndex: 1,
   pageSize: 10,
 };
@@ -282,12 +282,13 @@ function useModal() {
 
 // 获取系统配置
 const getSysConfigInfo = async (params = {}) => {
-  const res = await getSysConfig(params);
-  tableData.value = res.data.list;
-
-  pager.total = res.data.count;
-  pager.pageIndex = res.data.pageIndex;
-  pager.pageSize = res.data.pageSize;
+  const { data, code, msg } = await getSysConfig(params);
+  if ( code == 200 ) {
+    tableData.value = data.list;
+    Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
+  } else {
+    proxy.$notification.error(msg);
+  }
 };
 
 // 提交
@@ -296,11 +297,19 @@ const handleSubmit = (data) => {
     try {
       let res;
       if (!data.id) {
-        res = await addSysConfig(data);
-        resolve('添加成功');
+        const { code, msg } = await addSysConfig(data);
+        if (code == 200 ) {
+          proxy.$notification.success('新增成功');
+        } else {
+          proxy.$notification.error(msg);
+        }
       } else {
-        res = await updateSysConfig(data, data.id);
-        resolve('更新成功');
+        const { code, msg } = await updateSysConfig(data, data.id);
+        if (code == 200 ) {
+          proxy.$notification.success('修改成功');
+        } else {
+          proxy.$notification.error(msg);
+        }
       }
     } catch (err) {
       reject(err);

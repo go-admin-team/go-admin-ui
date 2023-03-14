@@ -37,7 +37,7 @@
     <a-table
       :data="tableData"
       :columns="columns"
-      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.total, current: currentPage }"
+      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }"
       @page-change="handlePageChange"
     >
       <template #createdAt="{ record }">
@@ -132,7 +132,7 @@ const currentPage = ref(1);
 
 // 分页
 const pager = {
-  total: 0,
+  count: 0,
   pageIndex: 1,
   pageSize: 10,
 };
@@ -204,11 +204,20 @@ const handleBeforeOk = (done) => {
 // 提交表单
 const handleSubmit = async () => {
   let res;
-
   if (modalForm.dictCode) {
-    res = await updateDictData(modalForm, modalForm.dictCode);
+    const { code, msg } = await updateDictData(modalForm, modalForm.dictCode);
+    if ( code == 200 ) {
+      proxy.$notification.success('修改成功');
+    } else {
+      proxy.$notification.error(msg);
+    }
   } else {
-    res = await addDictData(modalForm);
+    const { code, msg } = await addDictData(modalForm);
+    if (code == 200 ) {
+      proxy.$notification.success('新增成功');
+    } else {
+      proxy.$notification.error(msg);
+    }
   }
   
   proxy.$message.success(res.msg);
@@ -224,11 +233,13 @@ const handlePageChange = (pagerIndex) => {
 
 // 获取字典数据
 const getDictDataInfo = async (params = {}) => {
-  const res = await getDictData(params);
-  const { count, list, pageIndex, pageSize } = res.data;
-
-  tableData.value = list;
-  Object.assign(pager, { total: count, pageIndex, pageSize });
+  const { data, code, msg } = await getDictData(params);
+  if ( code == 200 ) {
+    tableData.value = data.list;
+    Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
+  } else {
+    proxy.$notification.error(msg);
+  }
 };
 
 // 获取字典类型

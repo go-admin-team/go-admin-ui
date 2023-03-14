@@ -223,11 +223,20 @@ const handleBeforeOk = (done) => {
     if (!err) {
       let res;
       if (Reflect.has(modalForm, 'deptId')) {
-        res = await updateDept(modalForm, modalForm.deptId);
+        const { code, msg } = await updateDept(modalForm, modalForm.deptId);
+        if (code == 200 ) {
+          proxy.$notification.success('修改成功');
+        } else {
+          proxy.$notification.error(msg);
+        }
       } else {
-        res = await addDept(modalForm);
+        const { code, msg } = await addDept(modalForm);
+        if (code == 200 ) {
+          proxy.$notification.success('新增成功');
+        } else {
+          proxy.$notification.error(msg);
+        }
       }
-      proxy.$message.success(res.msg);
       done();
       getDeptInfo();
     } else {
@@ -239,8 +248,12 @@ const handleBeforeOk = (done) => {
 
 // 获取部门信息
 const getDeptInfo = async (params = {}) => {
-  const res = await getDept(params);
-  tableData.value = deepDelChildren(res.data);
+  const { data, code, msg } = await getDept(params);
+  if ( code == 200 ) {
+    tableData.value = deepDelChildren(data);
+  } else {
+    proxy.$notification.error(msg);
+  }
 };
 
 onMounted(() => {

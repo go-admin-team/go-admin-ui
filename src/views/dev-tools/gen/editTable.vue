@@ -378,8 +378,12 @@ const handleSubmit = () => {
 
   proxy.$refs.modalFormRef.validate(async (valid) => {
     if (!valid) {
-      const { success } = await updateGenTable(genTable);
-      if (success) proxy.$message.success('信息修改成功');
+      const { code, msg } = await updateGenTable(genTable);
+      if (code == 200 ) {
+        proxy.$notification.success('修改成功');
+      } else {
+        proxy.$notification.error(msg);
+      }
       // 成功调用关闭方法
       close()
     } else {

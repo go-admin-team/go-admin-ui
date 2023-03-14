@@ -131,10 +131,13 @@ const pager = {
 
 // 获取列表数据
 const getDbTables = async (params = {}) => {
-  const res = await listDbTable(params);
-  tableData.value = res.data.list;
-  const { count, pageIndex, pageSize } = res.data;
-  Object.assign(pager, { count, pageIndex, pageSize });
+  const { data, code, msg } = await listDbTable(params);
+  if ( code == 200 ) {
+    tableData.value = data.list;
+    Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
+  } else {
+    proxy.$notification.error(msg);
+  }
 };
 
 onMounted(() => {

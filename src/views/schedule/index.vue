@@ -34,7 +34,7 @@
         <a-button type="primary" @click="handleAdd">新增定时任务</a-button>
       </div>
 
-      <a-table :data="tableData" :bordered="false" :columns="columns">
+      <a-table :data="tableData" :bordered="false" :columns="columns" :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }">
         <template #status="{ record }">
           <a-tag v-if="record.status == 2" color="green">正常</a-tag>
           <a-tag v-if="record.status == 1" color="red">停用</a-tag>
@@ -144,6 +144,14 @@ watch(() => deleteVisible.value ,(value) => {
 
 const { proxy } = getCurrentInstance();
 
+const currentPage = ref(1);
+// Pager
+const pager = {
+  count: 0,
+  pageIndex: 1,
+  pageSize: 10,
+};
+
 const queryForm = reactive({});
 const modalForm = reactive({
   concurrent: 1,
@@ -231,23 +239,33 @@ const onBeforeOk = (done) => {
 
 // Modal 触发ok事件
 const handleOk = async () => {
-  let res;
   if (modalForm.jobId) {
-    res = await updateSysJob(modalForm);
+    const { code, msg } = await updateSysJob(modalForm);
+    if (code == 200 ) {
+      proxy.$notification.success('修改成功');
+    } else {
+      proxy.$notification.error(msg);
+    }
   } else {
-    res = await addSysJob(modalForm);
+    const { code, msg } = await addSysJob(modalForm);
+    if (code == 200 ) {
+      proxy.$notification.success('新增成功');
+    } else {
+      proxy.$notification.error(msg);
+    }
   }
-  proxy.$message.success(res.msg);
-
   getSysJobListInfo();
 };
 
 // 获取系统任务信息
 const getSysJobListInfo = async (params = {}) => {
-  const res = await listSysJob(params);
-  const { count, list, pageIndex, pageSize } = res.data;
-
-  tableData.value = list;
+  const { data, code, msg } = await listSysJob(params);
+  if ( code == 200 ) {
+    tableData.value = data.list;
+    Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
+  } else {
+    proxy.$notification.error(msg);
+  }
 };
 
 
