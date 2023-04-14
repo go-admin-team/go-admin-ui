@@ -1,8 +1,8 @@
 <template>
   <div class="card-wrapper">
-    <a-row :gutter="16">
+    <a-row :gutter="12">
       <a-col :span="12">
-        <a-card title="服务器信息" :bordered="false" class="general-card">
+        <a-card title="服务器信息">
           <div class="card-item card-item-server">
             <span class="card-item-title">主机名称</span>
             <span class="card-item-desc">{{ SystemInfo?.os?.hostName}}</span>
@@ -31,7 +31,7 @@
       </a-col>
 
       <a-col :span="12">
-        <a-card :title="SystemInfo.location" :bordered="false" class="general-card">
+        <a-card :title="SystemInfo.location">
           <a-row :gutter="12">
             <a-col :span="12">
               <div class="card-item">
@@ -129,7 +129,6 @@ onMounted(() => {
 <style lang="scss" scoped>
 .card-wrapper {
   width: 100%;
-  padding: 20px;
 }
 
 .card-item {

@@ -1,53 +1,51 @@
 <template>
   <div class="app-container">
-    <a-card :bordered="false" class="general-card">
-      <a-form :model="queryForm" ref="queryFormRef" layout="inline">
-        <a-form-item field="deptName" label="部门名称">
-          <a-input v-model="queryForm.deptName" placeholder="请输入部门名称" />
-        </a-form-item>
-        <a-form-item field="status" label="部门状态">
-          <a-select v-model="queryForm.status" placeholder="请选择部门状态">
-            <a-option :value="2">正常</a-option>
-            <a-option :value="1">停用</a-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item>
-          <a-space>
-            <a-button v-has="'admin:sysDept:query'" type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
-            <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
-          </a-space>
-        </a-form-item>
-      </a-form>
+    <a-form :model="queryForm" ref="queryFormRef" layout="inline">
+      <a-form-item field="deptName" label="部门名称">
+        <a-input v-model="queryForm.deptName" placeholder="请输入部门名称" @press-enter="handleQuery" />
+      </a-form-item>
+      <a-form-item field="status" label="部门状态">
+        <a-select v-model="queryForm.status" placeholder="请选择部门状态">
+          <a-option :value="2">正常</a-option>
+          <a-option :value="1">停用</a-option>
+        </a-select>
+      </a-form-item>
+      <a-form-item>
+        <a-space>
+          <a-button v-has="'admin:sysDept:query'" type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
+          <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
+        </a-space>
+      </a-form-item>
+    </a-form>
 
-      <a-divider />
+    <a-divider />
 
-      <div class="action">
-        <a-button v-has="'admin:sysDept:add'" type="primary" @click="handleAdd()"><icon-plus /> 新增</a-button>
-      </div>
+    <div class="action">
+      <a-button v-has="'admin:sysDept:add'" type="primary" @click="handleAdd()"><icon-plus /> 新增</a-button>
+    </div>
 
-      <!-- 异步数据需要defualt-expanded-keys 传入所有行Key才能默认展开 -->
-      <a-table
-        :columns="columns"
-        :data="tableData"
-        :bordered="false"
-        :pagination="false"
-        :default-expanded-keys="[1]"
-        row-key="deptId"
-      >
-        <template #status="{ record }">
-          <a-tag color="green" v-if="record.status === 2">正常</a-tag>
-          <a-tag color="red" v-else> 停用 </a-tag>
-        </template>
-        <template #createdAt="{ record }">
-          {{ parseTime(record.createdAt) }}
-        </template>
-        <template #action="{ record }">
-          <a-button v-has="'admin:sysDept:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
-          <a-button v-has="'admin:sysDept:add'" type="text" @click="handleAdd(record)"><icon-plus /> 新增</a-button>
+    <!-- 异步数据需要defualt-expanded-keys 传入所有行Key才能默认展开 -->
+    <a-table
+      :columns="columns"
+      :data="tableData"
+      :pagination="false"
+      :default-expanded-keys="[1]"
+      row-key="deptId"
+    >
+      <template #status="{ record }">
+        <a-tag color="green" v-if="record.status === 2">正常</a-tag>
+        <a-tag color="red" v-else> 停用 </a-tag>
+      </template>
+      <template #createdAt="{ record }">
+        {{ parseTime(record.createdAt) }}
+      </template>
+      <template #action="{ record }">
+        <a-button v-has="'admin:sysDept:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
+        <a-button v-has="'admin:sysDept:add'" type="text" @click="handleAdd(record)"><icon-plus /> 新增</a-button>
         <a-button v-has="'admin:sysDept:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.deptId];  }"><icon-delete /> 删除</a-button>
-        </template>
-      </a-table>
-    </a-card>
+      </template>
+    </a-table>
+
     <!-- Modal -->
     <a-modal
       v-model:visible="modalVisible"

@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <a-form :model="dataInfo" :rules="rules" ref="modalFormRef" auto-label-width size="mini">
-      <a-card :bordered="false" class="general-card">
+      <a-card bordered>
         <!-- 卡片插槽 开始 -->
         <template #actions>
           <a-button type="primary" @click="handleSubmit" long>提交</a-button>
@@ -59,16 +59,16 @@
 
           <a-tab-pane key="2" title="字段信息">
             <a-alert type="warning" style="margin-bottom: 16px;">表字段中的id、create_by、update_by、created_at、updated_at、deleted_at的字段在此列表中已经隐藏.</a-alert>
-            <a-table  :data="tableData" :bordered="false" :virtual-list-props="{height:600}" :pagination="false" :scrollbar="true" :scroll="{minWidth: '200%'}">
+            <a-table  :data="tableData" :virtual-list-props="{height:600}" :pagination="false" :scroll="{x: '100%'}">
               <template #columns>
                 <!-- <a-table-column title="序号" data-index="tableId" :width="180" ellipsis tooltip/> -->
-                <a-table-column title="字段列名" data-index="columnName" :width="100" :ellipsis="true" :tooltip="true" fixed="left"/>
-                <a-table-column title="字段描述" :width="200" fixed="left">
+                <a-table-column title="字段列名" data-index="columnName"/>
+                <a-table-column title="字段描述" :width="120">
                   <template #cell="{ record }">
                     <a-input v-model="record.columnComment" />
                   </template>
                 </a-table-column>
-                <a-table-column title="物理类型" data-index="columnType"  align="center"  :width="120" :ellipsis="true" :tooltip="true"/>
+                <a-table-column title="物理类型" data-index="columnType"  align="center"  :width="120" />
                 <a-table-column title="go类型"  align="center"  :width="140">
                   <template #cell="{ record }">
                     <a-select v-model="record.goType" placeholder="请选择 ...">
@@ -163,7 +163,7 @@
                   <template #cell="{ record }">
                     <a-select v-model="record.dictType" allow-clear allow-search placeholder="请选择">
                       <a-option v-for="dict in dictOptions" :key="dict.dictType" :label="dict.dictName" :value="dict.dictType" >
-                        <a-descriptions :column="1" size="mini" layout="vertical" :label-style="{'width':'200px','font-size':'13px', 'padding-top':'5px'}" :value-style="{'width':'200px','font-size':'13px', 'padding-bottom':'5px'}">
+                        <a-descriptions :column="1" size="mini">
                           <a-descriptions-item :label="dict.dictName">
                           {{ dict.dictType }}
                           </a-descriptions-item>
@@ -176,8 +176,8 @@
                   <template #cell="{ record }">
                     <a-select v-model="record.fkTableName" allow-clear allow-search placeholder="请选择" @change="handleChangeConfig(record)">
                       <a-option v-for="table in tableTree" :key="table.tableName" :label="table.tableName" :value="table.tableName">
-                        <span style="margin-right: 5px; font-size: 12px;">{{ table.tableName }}</span><br/>
-                        <span style="color: #8492a6; font-size: 13px">{{ table.tableComment }}</span>
+                        <span style="float: left; margin-right: 5px; font-size: 12px;">{{ table.tableName }}</span>
+                        <span style="float: right; color: #8492a6; font-size: 13px">{{ table.tableComment }}</span>
                       </a-option>
                     </a-select>
                   </template>
@@ -394,7 +394,7 @@ const handleSubmit = () => {
 
 /** 关闭按钮 */
 const close = () => {
-  proxy.$router.push({ path: '/admin/dev-tools/gen', query: { t: Date.now() }})
+  proxy.$router.push({ path: '/dev-tools/gen', query: { t: Date.now() }})
 }
 
 onMounted(() => {

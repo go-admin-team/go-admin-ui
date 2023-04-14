@@ -1,25 +1,22 @@
 <template>
-  <a-row :gutter="16" class="dict-wrapper">
-    <a-col :span="12">
-      <a-card :bordered="false" class="general-card">
+  <a-row :gutter="8" class="dict-wrapper">
+    <a-col :span="8">
+      <a-card hoverable>
         <div style="text-align: center;">
           <a-space direction="vertical" fill>
-            <a-avatar :size="120" @click="handleModifyAvatar" class="user-avatar" title="点击修改头像">
-                <img alt="avatar" :src="userAvatarURL"/>
+            <a-avatar :size="120">
+              <template v-if="userInfoForm.user.avatar == '' ">
+                <img alt="avatar" :src="store.sysConfig.sys_user_avatar" />
+              </template>
+              <template v-else>
+                <img alt="avatar" :src="userInfoForm.user.avatar"/>
+              </template>
             </a-avatar>
-            <Cropper
-              :visible="CropperOpt.visible"
-              title="修改我的头像"
-              :width="500"
-              :originImageURL="userAvatarURL"
-              @confirm="handleModifyAvatarConfirm"
-              @cancel="handleModifyAvatarCancel"
-            ></Cropper>
             <a-typography-title :heading="6">{{userInfoForm.user.nickName}}</a-typography-title>
           </a-space>
         </div>
         <a-divider />
-        <a-card :bordered="false" class="general-card">
+        <a-card :bordered="false">
           <a-descriptions title="用户详情" :column="1">
             <a-descriptions-item label="用户昵称">{{userInfoForm.user.nickName}}</a-descriptions-item>
             <a-descriptions-item label="登录账号">{{userInfoForm.user.username}}</a-descriptions-item>
@@ -40,8 +37,8 @@
         </a-card>
       </a-card>
     </a-col>
-    <a-col :span="12">
-      <a-card :bordered="false" class="general-card">
+    <a-col :span="16">
+      <a-card hoverable>
         <a-tabs>
           <a-tab-pane key="1">
             <template #title>
@@ -79,13 +76,13 @@
             <a-card hoverable :bordered="false">
               <a-form :model="userPwdForm"  :rules="rules" ref="userPwdFormRef" label-align="left" auto-label-width>
                 <a-form-item field="oldPassword" label="旧密码">
-                  <a-input-password v-model="userPwdForm.oldPassword" placeholder="请输入旧密码" ></a-input-password>
+                  <a-input v-model="userPwdForm.oldPassword" placeholder="请输入旧密码" />
                 </a-form-item>
                 <a-form-item field="newPassword" label="新密码">
-                  <a-input-password v-model="userPwdForm.newPassword" placeholder="请输入新密码" ></a-input-password>
+                  <a-input v-model="userPwdForm.newPassword" placeholder="请输入新密码" />
                 </a-form-item>
                 <a-form-item field="confirmPassword" label="确认密码">
-                  <a-input-password v-model="userPwdForm.confirmPassword" placeholder="请输入确认密码" ></a-input-password>
+                  <a-input v-model="userPwdForm.confirmPassword" placeholder="请输入确认密码" />
                 </a-form-item>
                 <a-form-item>
                   <a-space>
@@ -99,8 +96,6 @@
       </a-card>
     </a-col>
   </a-row>
-
-
 </template>
 
 <script setup>
@@ -108,15 +103,12 @@ import { onMounted, reactive, ref, getCurrentInstance } from 'vue';
 import { useUserStore } from '@/store/userInfo';
 import { updateUser } from '@/api/admin/sys-user';
 import { getUserProfile,putUserPwd } from '@/api/profile/profile';
-import { uploadAvatar } from '@/api/admin/sys-user';
-import { useGlobalProperties } from '@/hooks/globalVar';
-import Cropper from '@/components/Cropper';
 
 // use Store
 const store = useUserStore();
 
+// 获取当前实例
 const { proxy } = getCurrentInstance();
-const globalProperties = useGlobalProperties();
 
 const userInfoForm = ref({
   user: {},
@@ -124,7 +116,6 @@ const userInfoForm = ref({
   roles: []
 });
 
-const userAvatarURL = ref('');
 const userPwdForm = reactive({});
 
 // 默认表单
@@ -132,28 +123,29 @@ const modalForm = reactive({});
 
 // Rules
 const rules = {
-  nickName: [{ required: true, message: '用户昵称不能为空', trigger: 'blur' }],
+  nickName: [{ required: true, message: '请输入用户昵称' }],
   phone: [
-    { required: true, message: '手机号码不能为空', trigger: 'blur' },
-    { match: /^1[3456789]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur'}
+    { required: true, message: '请输入联系手机' },
+    // { match: /^1[3456789]\d{9}$/, message: '校验规则: 13011112222'}
   ],
   email: [
-    { required: true, message: '邮箱不能为空', trigger: 'blur' },
-    { match: /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/, message: '请输入正确的邮箱地址', trigger: 'blur'}
+    { required: true, message: '请输入邮箱' },
+    // { match: /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/, message: '校验规则: aka@aka.com'}
   ],
   sex: [
     { required: true, message: '请选择性别' },
+    // { match: /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/, message: '校验规则: aka@aka.com'}
   ],
   oldPassword: [
-    { required: true, message: '旧密码不能为空', trigger: 'blur' },
+    { required: true, message: '输入旧密码' },
+    // { match: /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/, message: '校验规则: aka@aka.com'}
   ],
   newPassword: [
-    { required: true, message: '新密码不能为空', trigger: 'blur' },
-    { minLength: 6, maxLength: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
+    { required: true, message: '输入新密码' },
+    // { match: /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/, message: '校验规则: aka@aka.com'}
   ],
   confirmPassword: [
-    { required: true, message: '新密码确认不能为空', trigger: 'blur' },
-    { message: '两次输入的密码不一致', validator: (value, cb) => {
+    { required: true, message: '确认新密码', validator: (value, cb) => {
         return new Promise(resolve => {
           window.setTimeout(() => {
             if (userPwdForm.newPassword !== value) {
@@ -162,22 +154,28 @@ const rules = {
             resolve()
           }, 1)
         })
-      } },
-    { minLength: 6, maxLength: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' },
+      } }
+    // { match: /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/, message: '校验规则: aka@aka.com'}
   ],
 };
+
+const equalToPassword = (value, callback) => {
+  if (modalForm.newPassword !== value) {
+    cb('两次输入的密码不一致')
+    console.log("aaa")
+  } else {
+    cb('密码输入正确')
+    console.log("bbb")
+  }
+}
 
 // handleSubmit 新增与修改按钮方法 20220713
 const handleSubmit = () => {
   proxy.$refs.modalFormRef.validate(async (valid) => {
     if (!valid) {
-      const { code, msg } = await updateUser(modalForm);
-      if (code === 200) {
-        proxy.$message.success(msg);
-        getCurrentUserInfo();
-      } else {
-        proxy.$message.error(`${msg}`);
-      }
+      const { success } = await updateUser(modalForm);
+      if (success) proxy.$message.success('信息修改成功');
+      getCurrentUserInfo();
     } else {
       proxy.$message.error('表单校验失败');
     }
@@ -188,13 +186,10 @@ const handleSubmit = () => {
 const handleSubmitUserPwd = () => {
   proxy.$refs.userPwdFormRef.validate(async (valid) => {
     if (!valid) {
-      const { code, msg } = await putUserPwd(userPwdForm);
-      if (code === 200) {
-        proxy.$message.success(msg);
-        getCurrentUserInfo();
-      } else {
-        proxy.$message.error(`${msg}`);
-      }
+      const { res } = await putUserPwd(userPwdForm);
+      console.loh("success",res)
+      if (success) proxy.$message.success('密码修改成功');
+      getCurrentUserInfo();
     } else {
       proxy.$message.error('表单校验失败');
     }
@@ -202,47 +197,38 @@ const handleSubmitUserPwd = () => {
 };
 
 const getCurrentUserInfo = async () => {
-  const res = await getUserProfile();
-  userInfoForm.value = res.data;
+  const res = await getUserProfile()
+  userInfoForm.value = res.data
   Object.assign(modalForm, res.data.user);
-  userAvatarURL.value = `${globalProperties.CDNDomain}${userInfoForm.value.user.avatar ? userInfoForm.value.user.avatar : store.userInfo.avatar}`;
 };
 
-const CropperOpt = reactive({
-  visible: false
-});
-const handleModifyAvatar = () => {
-  CropperOpt.visible = true;
-}
-
-const handleModifyAvatarCancel = () => {
-  CropperOpt.visible = false;
-}
-
-const handleModifyAvatarConfirm = async(blob) => {
-  const formData = new FormData();
-  formData.append('upload[]', blob);
-  const res = await uploadAvatar(formData);
-  const { code, msg, data } = res;
-  if (code === 200) {
-    proxy.$message.success(msg);
-    CropperOpt.visible = false;
-    userAvatarURL.value = `${globalProperties.CDNDomain}/${data}`;
-    store.userInfo.avatar = `${data}`;
-  } else {
-    proxy.$message.error(`${msg}`);
-  }
-}
 onMounted(() => {
   getCurrentUserInfo();
 });
 </script>
 
-<style lang="scss" scoped>
-.dict-wrapper {
-  padding:20px;
+<style lang="scss">
+.userinfo-row {
+  font-size: 14px;
+  line-height: 1.5;
+  .userinfo-item {
+    &-label {
+      width: 140px;
+      color: #4e5969;
+      text-align: right;
+    }
+    &-value {
+      width: 140px;
+      color: $primary-font-color;
+    }
+    div {
+      display: inline-block;
+    }
+  }
 }
-.user-avatar {
-  cursor: pointer;
+
+.userinfo-form {
+  width: 520px;
+  margin: 0 auto;
 }
 </style>

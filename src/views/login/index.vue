@@ -16,6 +16,7 @@
                 <img :src="store.sysConfig.sys_app_logo" />
                 <span class="project-title">用户登录</span>
               </div>
+              <div class="account-top-desc">横看成峰侧成岭 远近高低各不同</div>
             </div>
             <!-- 登录表单 -->
             <a-form
@@ -70,6 +71,7 @@
                 </div>
               </div>
               <a-space direction="vertical" size="medium">
+                <a-checkbox>记住密码</a-checkbox>
                 <a-button
                   size="large"
                   type="primary"
@@ -169,6 +171,7 @@ onMounted(async () => {
 
 // 输入框重写
 .arco-input-wrapper {
+  border-radius: 20px;
   height: 40px;
   border: 1px solid #ddd;
   background: #fff;
@@ -190,13 +193,20 @@ onMounted(async () => {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  background: var(--color-bg-2);
+  padding: 15px;
+  background: #9053c7;
+  background: linear-gradient(-135deg, #c850c0, #4158d0);
 }
 .account-wrap-login {
-  height: 100vh;
+  width: 960px;
+  height: 554px;
+  // background: #fff;
+  border-radius: 10px;
   overflow: hidden;
   display: flex;
   flex-wrap: wrap;
+  // justify-content:space-between;
+  // padding:30px 95px 33px
 }
 .account-wrap-login .login-pic {
   background-color: #0259e6 !important;
@@ -204,20 +214,20 @@ onMounted(async () => {
   align-items: center;
   flex-direction: column;
   justify-content: center;
-  width: 480px;
+  width: 50%;
 }
 .account-wrap-login .login-pic img {
   max-width: 100%;
 }
 .account-wrap-login .login-form {
-  width: calc(100vw - 480px);
+  width: 50%;
   display: flex;
   flex-direction: column;
   background: #fff;
 }
 .account-wrap-login .login-form-container {
   margin: auto;
-  width: 320px;
+  width: 100%;
 }
 .account-wrap-login .login-form-title {
   padding-bottom: 15px;
@@ -246,10 +256,23 @@ onMounted(async () => {
   width: 45px;
 }
 .account-wrap-login .account-top-logo .project-title {
+  background: linear-gradient(
+    92.06deg,
+    #33c2ff -17.9%,
+    #1e6fff 43.39%,
+    #1e6fff 99.4%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   font-size: 24px;
   line-height: 1.25;
   font-weight: 500;
   margin-left: 10px;
+}
+.account-wrap-login .account-top-desc {
+  font-size: 14px;
+  color: #808695;
+  margin-bottom: 20px;
 }
 @media (max-width: 640px) {
   .account-wrap-login {

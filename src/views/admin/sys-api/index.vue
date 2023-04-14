@@ -1,69 +1,66 @@
 <template>
   <div class="app-container">
-    <a-card :bordered="false" class="general-card">
-      <a-form :model="queryForm" ref="queryFormRef" layout="inline">
-        <a-form-item field="title" label="标题">
-          <a-input v-model="queryForm.title" placeholder="请输入标题" />
-        </a-form-item>
-        <a-form-item field="path" label="地址">
-          <a-input v-model="queryForm.path" placeholder="请输入地址" />
-        </a-form-item>
-        <a-form-item field="action" label="类型">
-          <a-select v-model="queryForm.action" placeholder="请选择类型">
-            <a-option>GET</a-option>
-            <a-option>POST</a-option>
-            <a-option>PUT</a-option>
-            <a-option>DELETE</a-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item>
-          <a-space size="medium">
-            <a-button v-has="'admin:sysApi:query'" type="primary" @click="handleQuery">
-              <template #icon>
-                <icon-search />
-              </template>
-              搜索
-            </a-button>
-            <a-button @click="handlResetQuery">
-              <template #icon>
-                <icon-loop />
-              </template>
-              重置
-            </a-button>
-          </a-space>
-        </a-form-item>
-      </a-form>
+    <a-form :model="queryForm" ref="queryFormRef" layout="inline">
+      <a-form-item field="title" label="标题">
+        <a-input v-model="queryForm.title" placeholder="请输入标题" @press-enter="handleQuery" />
+      </a-form-item>
+      <a-form-item field="path" label="地址">
+        <a-input v-model="queryForm.path" placeholder="请输入地址" @press-enter="handleQuery" />
+      </a-form-item>
+      <a-form-item field="action" label="类型">
+        <a-select v-model="queryForm.action" placeholder="请选择类型">
+          <a-option>GET</a-option>
+          <a-option>POST</a-option>
+          <a-option>PUT</a-option>
+          <a-option>DELETE</a-option>
+        </a-select>
+      </a-form-item>
+      <a-form-item>
+        <a-space size="medium">
+          <a-button v-has="'admin:sysApi:query'" type="primary" @click="handleQuery">
+            <template #icon>
+              <icon-search />
+            </template>
+            搜索
+          </a-button>
+          <a-button @click="handlResetQuery">
+            <template #icon>
+              <icon-loop />
+            </template>
+            重置
+          </a-button>
+        </a-space>
+      </a-form-item>
+    </a-form>
 
-      <a-divider />
+    <a-divider />
 
-      <!-- Table -->
-      <a-table
-        :columns="columns"
-        :data="tableData"
-        :bordered="false"
-        :pagination="{
-          'show-total': true,
-          'show-jumper': true,
-          'show-page-size': true,
-          total: pager.count,
-          current: currentPage,
-        }"
-        row-key="id"
-        @page-change="handlePageChange"
-        @page-size-change="handlePageSizeChange"
-      > 
-        <template #reqType="{ record }">
-          <a-tag v-if="record.action.toLowerCase() === 'get'" color="cyan">{{record.action}}</a-tag>
-          <a-tag v-else-if="record.action.toLowerCase() === 'post'" color="gold" >{{ record.action }}</a-tag>
-          <a-tag v-else-if="record.action.toLowerCase() === 'put'" color="green"  >{{ record.action }}</a-tag>
-          <a-tag  v-else-if="record.action.toLowerCase() === 'delete'" color="pinkpurple" >{{ record.action }}</a-tag>
-        </template>
-        <template #createdAt="{ record }"> {{ parseTime(record.createdAt) }}</template>
-        <template #action="{ record }">
-          <a-button v-has="'admin:sysApi:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改 </a-button>
-        </template>
-      </a-table>
-    </a-card>
+    <!-- Table -->
+    <a-table
+      :columns="columns"
+      :data="tableData"
+      :pagination="{
+        'show-total': true,
+        'show-jumper': true,
+        'show-page-size': true,
+        total: pager.count,
+        current: currentPage,
+      }"
+      row-key="id"
+      @page-change="handlePageChange"
+      @page-size-change="handlePageSizeChange"
+    > 
+      <template #reqType="{ record }">
+        <a-tag v-if="record.action.toLowerCase() === 'get'" color="cyan">{{record.action}}</a-tag>
+        <a-tag v-else-if="record.action.toLowerCase() === 'post'" color="gold" >{{ record.action }}</a-tag>
+        <a-tag v-else-if="record.action.toLowerCase() === 'put'" color="green"  >{{ record.action }}</a-tag>
+        <a-tag  v-else-if="record.action.toLowerCase() === 'delete'" color="pinkpurple" >{{ record.action }}</a-tag>
+      </template>
+      <template #createdAt="{ record }"> {{ parseTime(record.createdAt) }}</template>
+      <template #action="{ record }">
+        <a-button v-has="'admin:sysApi:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改 </a-button>
+      </template>
+    </a-table>
 
     <!-- Drawer -->
     <a-drawer

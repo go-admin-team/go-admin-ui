@@ -59,7 +59,7 @@ export function previewTable(tableId) {
 // 删除表数据
 export function delTable(tableId) {
   return request({
-    url: '/api/v1/sys/tables/info/' + tableId.ids,
+    url: '/api/v1/sys/tables/info/' + tableId,
     method: 'delete'
   })
 }

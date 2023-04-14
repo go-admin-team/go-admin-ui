@@ -1,75 +1,63 @@
 <template>
   <div class="app-container">
-    <a-card :bordered="false" class="general-card">
-      <a-form :model="queryForm" ref="queryFormRef" layout="inline">
-        <a-form-item field="postCode" label="岗位编码">
-          <a-input v-model="queryForm.postCode" placeholder="请输入岗位编码" />
-        </a-form-item>
-        <a-form-item field="postName" label="岗位名称">
-          <a-input v-model="queryForm.postName" placeholder="请输入岗位名称" />
-        </a-form-item>
-        <a-form-item field="status" label="岗位状态">
-          <a-select
-            v-model="queryForm.status"
-            placeholder="请选择岗位状态"
-            :style="{ width: '181px' }"
-          >
-            <a-option :value="2">正常</a-option>
-            <a-option :value="1">停用</a-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item>
-          <a-space>
-            <a-button v-has="'admin:sysPost:query'" type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
-            <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
-          </a-space>
-        </a-form-item>
-      </a-form>
-
-      <a-divider />
-
-      <!-- action -->
-      <div class="action">
+    <a-form :model="queryForm" ref="queryFormRef" layout="inline">
+      <a-form-item field="postCode" label="岗位编码">
+        <a-input v-model="queryForm.postCode" placeholder="请输入岗位编码" @press-enter="handleQuery" />
+      </a-form-item>
+      <a-form-item field="postName" label="岗位名称">
+        <a-input v-model="queryForm.postName" placeholder="请输入岗位名称" @press-enter="handleQuery" />
+      </a-form-item>
+      <a-form-item field="status" label="岗位状态">
+        <a-select v-model="queryForm.status" placeholder="请选择岗位状态" :style="{ width: '181px' }">
+          <a-option :value="2">正常</a-option>
+          <a-option :value="1">停用</a-option>
+        </a-select>
+      </a-form-item>
+      <a-form-item>
         <a-space>
-          <a-button v-has="'admin:sysPost:add'" type="primary" @click="handleAdd"><icon-plus /> 新增 </a-button>
-        <a-button v-has="'admin:sysPost:remove'" type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除 </a-button>
-          <a-button type="primary" status="warning" disabled><icon-download /> 导出 </a-button>
+          <a-button v-has="'admin:sysPost:query'" type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
+          <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
         </a-space>
-      </div>
+      </a-form-item>
+    </a-form>
 
-      <!-- table -->
-      <a-table
-        :columns="columns"
-        :data="tableData"
-        :bordered="false"
-        :pagination="{
-          'show-total': true,
-          'show-jumper': true,
-          'show-page-size': true,
-          total: pager.total,
-          current: currentPage,
-        }"
-        :row-selection="{ type: 'checkbox', showCheckedAll: true }"
-        row-key="postId"
-        @selection-change="(selection) => {deleteData = selection;}" 
-        @page-change="handlePageChange"
-        @page-size-change="handlePageSizeChange"
-      >
-        <template #createdAt="{ record }">
-          {{ parseTime(record.createdAt) }}
-        </template>
-        <template #status="{ record }">
-          <a-tag v-if="record.status == 2" color="green">正常</a-tag>
-          <a-tag v-else color="red">停用</a-tag>
-        </template>
-        <template #action="{ record }">
-          <a-space>
-            <a-button v-has="'admin:sysPost:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
+    <a-divider />
+
+    <!-- action -->
+    <div class="action">
+      <a-space>
+        <a-button v-has="'admin:sysPost:add'" type="primary" @click="handleAdd"><icon-plus /> 新增 </a-button>
+        <a-button v-has="'admin:sysPost:remove'" type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除 </a-button>
+        <a-button type="primary" status="warning" disabled><icon-download /> 导出 </a-button>
+      </a-space>
+    </div>
+
+    <!-- table -->
+    <a-table
+      :columns="columns"
+      :data="tableData"
+      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.total, current: currentPage }"
+      :row-selection="{ type: 'checkbox', showCheckedAll: true }"
+      row-key="postId"
+      @selection-change="(selection) => {deleteData = selection;}" 
+      @page-change="handlePageChange"
+      @page-size-change="handlePageSizeChange"
+    >
+      <template #createdAt="{ record }">
+        {{ parseTime(record.createdAt) }}
+      </template>
+      <template #status="{ record }">
+        <a-tag v-if="record.status == 2" color="green">正常</a-tag>
+        <a-tag v-else color="red">停用</a-tag>
+      </template>
+      <template #action="{ record }">
+        <a-space>
+          <a-button v-has="'admin:sysPost:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
           <a-button v-has="'admin:sysPost:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.postId];  }"><icon-delete /> 删除</a-button>
-          </a-space>
-        </template>
-      </a-table>
-    </a-card>
+        </a-space>
+      </template>
+    </a-table>
+
     <!-- Modal -->
     <a-modal
       v-model:visible="modalVisible"

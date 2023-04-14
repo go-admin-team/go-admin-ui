@@ -2,17 +2,10 @@
   <div class="app-container">
     <a-form :model="queryForm" layout="inline">
       <a-form-item field="dictType" label="字典名称">
-        <a-select
-          v-model="queryForm.dictType"
-          :options="dictTypeOptions"
-          :field-names="{ value: 'dictType', label: 'dictName' }"
-        ></a-select>
+        <a-select v-model="queryForm.dictType" :options="dictTypeOptions" :field-names="{ value: 'dictType', label: 'dictName' }" />
       </a-form-item>
       <a-form-item field="dictTag" label="字典标签">
-        <a-input
-          v-model="queryForm.dictTag"
-          placeholder="请输入字典标签"
-        ></a-input>
+        <a-input v-model="queryForm.dictTag" placeholder="请输入字典标签" />
       </a-form-item>
       <a-form-item field="status" label="字典状态">
         <a-select v-model="queryForm.status" placeholder="请选择字典状态">

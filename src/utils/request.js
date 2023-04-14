@@ -4,8 +4,8 @@ import { useUserStore } from '../store/userInfo'
 
 // create an axios instance
 const service = axios.create({
-  baseURL: import.meta.env.VITE_APP_BASE_URL,
-  timeout: 2000,
+  baseUrl: import.meta.env.VITE_APP_BASE_URL,
+  timeout: 8000,
 });
 
 // request interceptor
@@ -39,7 +39,7 @@ service.interceptors.response.use(
       });
       // 重定向路由到登陆页面
       store.userLogout();
-      window.location.href = '/login';
+      return router.push('/login');
     }
 
     if (res.code !== 200) {

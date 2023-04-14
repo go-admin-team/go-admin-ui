@@ -1,31 +1,16 @@
 <template>
   <div class="navbar">
-    <div class="left-side">
-      <a-space>
-        <img
-          alt="logo"
-          :src="store.sysConfig.sys_app_logo"
-          class="logo"
-        />
-        <a-typography-title
-          :style="{ margin: 0, fontSize: '18px' }"
-          :heading="5"
-        >
-        {{store.sysConfig.sys_app_name}}
-        </a-typography-title>
-      </a-space>
+    <div class="left-side" @click="onCollapse">
+      <icon-menu-fold v-if="!props.collapsed" />
+      <icon-menu-unfold v-else />
     </div>
     <ul class="right-side">
       <li>
-        <a-button
-          class="nav-btn"
-          type="outline"
-          :shape="'circle'"
-          @click="handleToggleTheme"
-        >
+        <a-button shape="circle" @click="handleDarkTheme">
           <template #icon>
-            <icon-moon-fill v-if="!isDark" />
-            <icon-sun-fill v-else />
+            <component
+              :is="!darkTheme ? IconSunFill : IconMoonFill"
+            ></component>
           </template>
         </a-button>
       </li>
@@ -37,41 +22,62 @@
 </template>
 
 <script setup>
-import { useUserStore } from '@/store/userInfo';
+import { ref } from 'vue';
 import Avatar from './Avatar/index.vue';
-import {useDark, useToggle } from '@vueuse/core';
+import {
+  IconMenuFold,
+  IconMenuUnfold,
+  IconSunFill,
+  IconMoonFill,
+} from '@arco-design/web-vue/es/icon';
 
-const store = useUserStore();
-const isDark = useDark({
-  selector: 'body',
-  attribute: 'arco-theme',
-  valueDark: 'dark',
-  valueLight: 'light',
-  storageKey: 'arco-theme'
+const darkTheme = ref(false);
+
+const props = defineProps({
+  collapsed: Boolean,
 });
-const toggleTheme = useToggle(isDark);
-const handleToggleTheme= () => {
-  toggleTheme();
-}
+
+const emit = defineEmits(['onCollapse']);
+
+const onCollapse = () => {
+  emit('onCollapse');
+};
+
+// 切换亮色和暗色
+const handleDarkTheme = () => {
+  const theme = document.body.getAttribute('arco-theme');
+  if (!theme) {
+    document.body.setAttribute('arco-theme', 'dark');
+    darkTheme.value = true;
+  } else {
+    document.body.removeAttribute('arco-theme');
+    darkTheme.value = false;
+  }
+};
 </script>
 
 <style lang="scss" scoped>
 .navbar {
   display: flex;
-  height: 100%;
   justify-content: space-between;
-  border-bottom: 1px solid var(--color-border);
-  background-color: var(--color-bg-2);
+  height: 50px;
+  border-bottom: 1px solid #e5e6eb;
+  box-shadow: 0 2px 5px 0 rgba(0,0,0, .1);
+
   .left-side {
-    display: flex;
-    height:60px;
-    align-items: center;
-    padding-left: 20px;
-    .logo {
-      width:40px;
-      height:40px;
+    height: 50px;
+    width: 50px;
+    font-size: 18px;
+    line-height: 50px;
+    text-align: center;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #e5e5e5;
     }
   }
+
   .right-side {
     list-style: none;
     display: flex;
@@ -81,11 +87,6 @@ const handleToggleTheme= () => {
       display: flex;
       align-items: center;
       padding: 10px;
-    }
-    .nav-btn {
-      border-color: rgb(var(--gray-2));
-      color: rgb(var(--gray-8));
-      font-size: 16px;
     }
   }
 }

@@ -1,52 +1,48 @@
 <template>
   <div class="app-container">
-    <a-card :bordered="false" class="general-card">
-      <a-form :model="queryForm" ref="queryFormRef" layout="inline">
-        <a-form-item field="jobName" label="任务名称">
-          <a-input
-            v-model="queryForm.jobName"
-            placeholder="请输入任务名称"
-          ></a-input>
-        </a-form-item>
-        <a-form-item field="jobGroup" label="任务分组">
-          <a-select v-model="queryForm.jobGroup" placeholder="请选择任务分组">
-            <a-option value="DEFAULT">默认</a-option>
-            <a-option value="SYSTEM">系统</a-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item field="status" label="状态">
-          <a-select v-model="queryForm.status" placeholder="请选择任务状态">
-            <a-option :value="2">正常</a-option>
-            <a-option :value="1">关闭</a-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item>
-          <a-space>
-            <a-button type="primary" @click="handleQuery">查询</a-button>
-            <a-button @click="handleResetQuery">重置</a-button>
-          </a-space>
-        </a-form-item>
-      </a-form>
+    <a-form :model="queryForm" ref="queryFormRef" layout="inline">
+      <a-form-item field="jobName" label="任务名称">
+        <a-input v-model="queryForm.jobName" placeholder="请输入任务名称" @press-enter="handleQuery" />
+      </a-form-item>
+      <a-form-item field="jobGroup" label="任务分组">
+        <a-select v-model="queryForm.jobGroup" placeholder="请选择任务分组">
+          <a-option value="DEFAULT">默认</a-option>
+          <a-option value="SYSTEM">系统</a-option>
+        </a-select>
+      </a-form-item>
+      <a-form-item field="status" label="状态">
+        <a-select v-model="queryForm.status" placeholder="请选择任务状态">
+          <a-option :value="2">正常</a-option>
+          <a-option :value="1">关闭</a-option>
+        </a-select>
+      </a-form-item>
+      <a-form-item>
+        <a-space>
+          <a-button type="primary" @click="handleQuery">查询</a-button>
+          <a-button @click="handleResetQuery">重置</a-button>
+        </a-space>
+      </a-form-item>
+    </a-form>
 
-      <a-divider />
+    <a-divider />
 
-      <div class="table-action">
-        <a-button type="primary" @click="handleAdd">新增定时任务</a-button>
-      </div>
+    <div class="table-action">
+      <a-button type="primary" @click="handleAdd">新增定时任务</a-button>
+    </div>
 
-      <a-table :data="tableData" :bordered="false" :columns="columns" :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }">
-        <template #status="{ record }">
-          <a-tag v-if="record.status == 2" color="green">正常</a-tag>
-          <a-tag v-if="record.status == 1" color="red">停用</a-tag>
-        </template>
-        <template #action="{ record }">
-          <a-button type="text" @click="handleUpdate(record)">修改</a-button>
-          <a-button type="text" status="success" v-if="record.entry_id == 0" @click="handleStart(record.jobId)">启动</a-button>
-          <a-button type="text" status="danger" v-if="record.entry_id !== 0" @click="handleStop(record.jobId)">停止</a-button>
+    <a-table :data="tableData" :columns="columns"  :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }">
+      <template #status="{ record }">
+        <a-tag v-if="record.status == 2" color="green">正常</a-tag>
+        <a-tag v-if="record.status == 1" color="red">停用</a-tag>
+      </template>
+      <template #action="{ record }">
+        <a-button type="text" @click="handleUpdate(record)">修改</a-button>
+        <a-button type="text" status="success" v-if="record.entry_id == 0" @click="handleStart(record.jobId)">启动</a-button>
+        <a-button type="text" status="danger" v-if="record.entry_id !== 0" @click="handleStop(record.jobId)">停止</a-button>
         <a-button type="text" status="danger" @click="() => { deleteVisible = true; deleteData = [record.jobId];  }">删除</a-button>
-        </template>
-      </a-table>
-    </a-card>
+      </template>
+    </a-table>
+
     <a-modal
       v-model:visible="modalVisible"
       title-align="start"

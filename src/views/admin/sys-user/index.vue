@@ -1,88 +1,87 @@
 <template>
   <div class="app-container">
-    <a-card :bordered="false" class="general-card">
-      <!-- Query -->
-      <a-form ref="queryFormRef" :model="queryForm" layout="inline">
-        <a-form-item field="deptName" label="部门名称">
-          <a-input v-model="queryForm.deptName" placeholder="请输入部门名称" />
-        </a-form-item>
-        <a-form-item field="username" label="用户名称">
-          <a-input v-model="queryForm.username" placeholder="请输入用户名称" />
-        </a-form-item>
-        <a-form-item field="phone" label="手机号码">
-          <a-input v-model="queryForm.phone" placeholder="请输入用户手机号" />
-        </a-form-item>
-        <a-form-item field="status" label="用户状态">
-          <a-select
-            v-model="queryForm.status"
-            placeholder="请选择用户状态"
-            :style="{ width: '205px' }"
-          >
-            <a-option value="2">正常</a-option>
-            <a-option value="1">停用</a-option>
-          </a-select>
-        </a-form-item>
+    <!-- Query -->
+    <a-form ref="queryFormRef" :model="queryForm" layout="inline">
+      <a-form-item field="deptName" label="部门名称">
+        <a-input v-model="queryForm.deptName" placeholder="请输入部门名称" @press-enter="handleQuery" />
+      </a-form-item>
+      <a-form-item field="username" label="用户名称">
+        <a-input v-model="queryForm.username" placeholder="请输入用户名称" @press-enter="handleQuery" />
+      </a-form-item>
+      <a-form-item field="phone" label="手机号码">
+        <a-input v-model="queryForm.phone" placeholder="请输入用户手机号" @press-enter="handleQuery" />
+      </a-form-item>
+      <a-form-item field="status" label="用户状态">
+        <a-select
+          v-model="queryForm.status"
+          placeholder="请选择用户状态"
+          :style="{ width: '205px' }"
+        >
+          <a-option value="2">正常</a-option>
+          <a-option value="1">停用</a-option>
+        </a-select>
+      </a-form-item>
 
-        <a-divider direction="vertical" :style="{ height: '30px' }" />
-        <a-form-item class="form-action">
-          <a-space size="medium">
-            <a-button v-has="'admin:sysUser:query'" type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
-            <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
-          </a-space>
-        </a-form-item>
-      </a-form>
+      <a-divider direction="vertical" :style="{ height: '30px' }" />
+      <a-form-item class="form-action">
+        <a-space size="medium">
+          <a-button v-has="'admin:sysUser:query'" type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
+          <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
+        </a-space>
+      </a-form-item>
+    </a-form>
 
-      <!-- divider -->
-      <a-divider />
+    <!-- divider -->
+    <a-divider />
 
-      <!-- Table -->
-      <a-row>
-        <a-col :span="4">
-          <!-- tree组件只在组件第一次渲染时展开，此处等待数据加载完成再渲染组件 -->
-          <tree-dept v-if="treeDeptData" :data="treeDeptData" @node-click="getSysUserInfo" />
-        </a-col>
-        <a-col :span="20">
-          <!-- Action -->
-          <a-space class="action">
-            <a-button v-has="'admin:sysUser:add'" type="primary" @click="handleAdd" data-test="newUser"><icon-plus /> 新增</a-button>
+    <!-- Table -->
+    <a-row>
+      <a-col :span="4">
+        <!-- tree组件只在组件第一次渲染时展开，此处等待数据加载完成再渲染组件 -->
+        <tree-dept v-if="treeDeptData" :data="treeDeptData" @node-click="getSysUserInfo" />
+      </a-col>
+      <a-col :span="20">
+        <!-- Action -->
+        <a-space class="action">
+          <a-button v-has="'admin:sysUser:add'" type="primary" @click="handleAdd" data-test="newUser"><icon-plus /> 新增</a-button>
           <a-button v-has="'admin:sysUser:remove'" type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除</a-button>
-          </a-space>
+        </a-space>
 
-          <!-- Table -->
-          <a-table
-            :columns="columns"
-            :data="tableData"
-            :bordered="false"
-            :row-selection="{ type: 'checkbox', showCheckedAll: true }"
-            :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.total, current: currentPage }"
+        <!-- Table -->
+        <a-table
+          :columns="columns"
+          :data="tableData"
+          :bordered="false"
+          :row-selection="{ type: 'checkbox', showCheckedAll: true }"
+          :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }"
           row-key="userId" 
-          @selection-change="(selection) => {deleteData = selection;}"
-            @page-change="handlePageChange"
-            @page-size-change="handlePageSizeChange"
-          >
-            <template #dept="{ record }">
-              {{ record.deptName }}
-            </template>
-            <template #status="{ record }">
-              <a-switch
-                v-model="record.status"
-                checked-value="2"
-                unchecked-value="1"
-                @change="handleSwitchChange(record)"
-              />
-            </template>
-            <template #createdAt="{ record }">
-              {{ parseTime(record.createdAt) }}
-            </template>
-            <template #action="{ record }">
-              <a-button v-has="'admin:sysUser:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
+          @selection-change="(selection) => {deleteData = selection;}" 
+          @page-change="handlePageChange"
+          @page-size-change="handlePageSizeChange"
+        >
+          <template #dept="{ record }">
+            {{ record.dept.deptName }}
+          </template>
+          <template #status="{ record }">
+            <a-switch
+              v-model="record.status"
+              checked-value="2"
+              unchecked-value="1"
+              @change="handleSwitchChange(record)"
+            />
+          </template>
+          <template #createdAt="{ record }">
+            {{ parseTime(record.createdAt) }}
+          </template>
+          <template #action="{ record }">
+            <a-button v-has="'admin:sysUser:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
             <a-button v-has="'admin:sysUser:edit'" type="text" @click="() => { deleteVisible = true; deleteData = [record.userId];  }"><icon-delete /> 删除</a-button>
-              <a-button v-has="'admin:sysUser:resetPassword'" type="text" @click="handleReset(record.userId)"><icon-refresh /> 重置</a-button>
-            </template>
-          </a-table>
-        </a-col>
-      </a-row>
-    </a-card>
+            <a-button v-has="'admin:sysUser:resetPassword'" type="text" @click="handleReset(record.userId)"><icon-refresh /> 重置</a-button>
+          </template>
+        </a-table>
+      </a-col>
+    </a-row>
+
     <!-- Modal -->
     <a-modal
       v-model:visible="modalVisible"
