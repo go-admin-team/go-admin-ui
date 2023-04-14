@@ -36,7 +36,7 @@
     <a-table
       :columns="columns"
       :data="tableData"
-      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.total, current: currentPage }"
+      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }"
       :row-selection="{ type: 'checkbox', showCheckedAll: true }"
       row-key="postId"
       @selection-change="(selection) => {deleteData = selection;}" 
@@ -125,7 +125,7 @@ const { proxy } = getCurrentInstance();
 const currentPage = ref(1);
 // Pager
 const pager = {
-  total: 0,
+  count: 0,
   pageIndex: 1,
   pageSize: 10,
 };

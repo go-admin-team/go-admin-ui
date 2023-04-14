@@ -169,17 +169,15 @@ const { queryForm, handleQuery } = useQueryData();
 const currentPage = ref(1);
 // 表格分页
 const pager = {
-  total: 0,
+  count: 0,
   current: 1,
   pageSize: 10,
 };
-
 
 // QueryModel
 function useQueryData() {
   // 表单查询
   const queryForm = reactive({});
-
   const handleQuery = () => {
     getSysMenuInfo(queryForm);
   };

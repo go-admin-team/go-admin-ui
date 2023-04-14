@@ -225,7 +225,7 @@ const handleSubmit = (done) => {
           }
         } else {
           const { code, msg } = await addDictType(modalForm);
-          currentPage.value = Math.ceil(++pager.total / pager.pageSize);
+          currentPage.value = Math.ceil(++pager.count / pager.pageSize);
           pager.pageIndex = currentPage.value;
           if (code == 200 ) {
             proxy.$notification.success('新增成功');

@@ -1,3 +1,20 @@
+*::before {
+  margin: 0;
+  padding: 0;
+}
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+img {
+  vertical-align: middle;
+}
+ul {
+  padding: 0px 0px 0px 16px;
+}
+// li {
+//   list-style: none;
+// }
+
 // main-container 全局样式
 .app-container {
   flex: 1;
@@ -16,17 +33,16 @@
   text-align: center;
 }
 
-// Table Tag 样式
-// .arco-table-td .arco-table-cell .arco-tag {
-//   margin-left: -8px;
+// Table 操作栏样式覆盖
+// .arco-table-th:last-child .arco-table-cell {
+//   margin-left: 15px;
 // }
-
 
 // 滚动条整体部分
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-  background-color: transparent
+  width: 6px;
+  height: 6px;
+  background-color: transparent;
 }
 
 // 滚动条外层轨道
@@ -36,9 +52,12 @@
 
 // 滚动条滑块
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, .2);
-  border-radius: 10px;
-  transition: all .3s ease-in-out;
+  border-radius: 5px;
+	background-color: rgba(157, 165, 183, 0.4);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(157, 165, 183, 0.7);
 }
 
 // 链接标签样式
@@ -49,4 +68,9 @@ a {
 
 a:hover {
   color: #4080FF;
+}
+
+// 表格操作栏样式
+.action {
+  margin-bottom: 16px;
 }

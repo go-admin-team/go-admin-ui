@@ -1,7 +1,7 @@
 // Dark Theme
 
 $dark-bg-1: #17171A;
-$color-bg-2: #232324;
+$color-bg-2: #393A3C;
 $color-bg-3: #2a2a2b;
 $color-bg-4: #313132;
 $color-bg-5: #373739;
@@ -24,7 +24,7 @@ body[arco-theme='dark'] {
   .navbar {
     border-bottom: 1px solid $--color-text-4;
     .left-side {
-      background-color: $color-bg-2;
+      // background-color: $color-bg-2;
       color: $--color-text-1;
       &:hover {
         background-color: $color-bg-5;

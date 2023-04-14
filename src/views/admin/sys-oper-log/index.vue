@@ -51,7 +51,7 @@
         'show-jumper': true,
         'show-page-size': true,
         current: currentPage,
-        total: pager.total,
+        total: pager.count,
       }"
       v-model:selectedKeys="selectedKeys"
       @page-change="handlePageChange"
@@ -88,7 +88,7 @@ const currentPage = ref(1);
 
 // 分页
 const pager = {
-  total: 0,
+  count: 0,
   pageIndex: 1,
   pageSize: 10,
 };
