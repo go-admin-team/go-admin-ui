@@ -196,7 +196,6 @@ const handleBeforeOk = (done) => {
 
 // 提交表单
 const handleSubmit = async () => {
-  let res;
   if (modalForm.dictCode) {
     const { code, msg } = await updateDictData(modalForm, modalForm.dictCode);
     if ( code == 200 ) {
@@ -212,8 +211,6 @@ const handleSubmit = async () => {
       proxy.$notification.error(msg);
     }
   }
-  
-  proxy.$message.success(res.msg);
   getDictDataInfo({...proxy.$route.params, ...pager});
 }
 
