@@ -101,10 +101,14 @@ router.afterEach((to) => {
     document.title = store.sysConfig.sys_app_name;
   }
 
-  // Akiraka 20230117 加载水印
-  if ( store.userInfo.name != undefined ) {
-    Watermark.set(store.userInfo.name)
-  } else {
+  // Vincent 2023004 修复加载水印的bug 
+  if (store.userInfo != undefined){
+    if ( store.userInfo.name != undefined ) {
+      Watermark.set(store.userInfo.name)
+    } else {
+      Watermark.out() // 清除水印
+    }
+  } else{
     Watermark.out() // 清除水印
   }
 });

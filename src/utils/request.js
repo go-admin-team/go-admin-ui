@@ -13,12 +13,11 @@ service.interceptors.request.use(
   (config) => {
     // Store 必须在拦截器内部导入，在外部导入会显示 Pinia 未初始化
     const store = useUserStore();
-
     // 设置请求头部 Authorization
     if (store.token) {
       config.headers['Authorization'] = 'Bearer ' + store.token;
+      config.headers['Content-Type'] = 'application/json'
     }
-    
     return config;
   },
   (error) => {
@@ -30,36 +29,28 @@ service.interceptors.request.use(
 // response interceptor
 service.interceptors.response.use(
   (response) => {
-    const res = response.data;
+    return response.data;
+  },
+  (error) => {
     const store = useUserStore();
-    if (res.code === 401) {
+    const { code, msg } = error.response.data;
+    // 如果过期则退出登录
+    if (code === 401) {
       Message.error({
         content: 'Token 已过期, 请重新登陆',
         duration: 3000
       });
       // 重定向路由到登陆页面
       store.userLogout();
+      // Akiraka 20230410 重定向到登录页面
       return router.push('/login');
-    }
-
-    if (res.code !== 200) {
-      Message.error({
-        content: res.msg,
-        duration: 3000,
-      });
-
-      return Promise.reject(new Error(res.msg));
     } else {
-      return res;
+      Message.error({
+        content: error.message,
+        duration: 3000
+      })
+      return Promise.reject(msg);
     }
-  },
-  (error) => {
-    console.error(`err: ${error}`);
-    Message.error({
-      content: error.message,
-      duration: 3000
-    })
-    return Promise.reject(error);
   }
 );
 

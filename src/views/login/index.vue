@@ -125,25 +125,26 @@ const handleLogin = () => {
   proxy.$refs.loginFormRef.validate(async (valid) => {
     if (!valid) {
       try {
-        const res = await login(loginForm);
-        await store.setToken(res.token);
-        proxy.$message.success({
-          content: '登陆成功',
-          duration: 2000,
-        });
-        setTimeout(() => {
-          proxy.$router.push('/admin/sys-api');
-          loading.value = false;
-        }, 500);
+        const { code, token, msg } = await login(loginForm);
+        if ( code == 200 ) {
+          await store.setToken(token);
+          proxy.$message.success({
+            content: '登陆成功',
+            duration: 2000,
+          });
+          setTimeout(() => {
+            proxy.$router.push('/admin/sys-api');
+            loading.value = false;
+          }, 500);
+        } else {
+          proxy.$message.error(`登陆失败：${msg}`);
+        }
       } catch (err) {
-        proxy.$message.error(`登陆失败：${err}`);
+        // 登录失败 重新获取验证码
         loadCaptcha();
-        loginForm.code = '';
+      } finally {
         loading.value = false;
       }
-    } else {
-      loading.value = false;
-      return false;
     }
   });
 };
