@@ -215,7 +215,6 @@ const handleSubmit = (done) => {
   proxy.$refs.modalFormRef.validate(async (err) => {
     if (!err) {
       try {
-        let res;
         if (Reflect.has(modalForm, 'id')) {
           const { code, msg } = await updateDictType(modalForm, modalForm.id);
           if (code == 200 ) {
