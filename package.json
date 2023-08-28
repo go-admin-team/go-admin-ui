@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.0.1",
+    "@arco-themes/vue-go-admin": "^0.0.1",
     "@codemirror/lang-html": "^6.4.3",
     "@codemirror/lang-javascript": "^6.1.7",
     "@codemirror/lang-json": "^6.0.1",
@@ -26,13 +27,13 @@
     "vue-router": "^4.1.6"
   },
   "devDependencies": {
-    "@arco-design/web-vue": "^2.45.3",
+    "@arco-design/web-vue": "^2.50.2",
     "@vitejs/plugin-vue": "^4.2.1",
-    "unplugin-vue-components": "^0.24.1",
-    "eslint": "^8.40.0",
-    "eslint-plugin-vue": "^9.12.0",
+    "eslint": "^8.48.0",
+    "eslint-plugin-vue": "^9.17.0",
     "mockjs": "^1.1.0",
     "sass": "^1.62.1",
+    "unplugin-vue-components": "^0.25.1",
     "vite": "^4.3.5",
     "vite-plugin-mock": "^3.0.0",
     "vite-svg-loader": "^4.0.0"

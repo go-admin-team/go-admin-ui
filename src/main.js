@@ -3,7 +3,7 @@ import { createPinia } from 'pinia';
 import App from './App.vue';
 import ArcoVue from '@arco-design/web-vue';
 import { Message, Modal, Notification } from '@arco-design/web-vue';
-import '@arco-design/web-vue/dist/arco.css';
+import '@arco-themes/vue-go-admin/css/arco.css';
 import router from './router/';
 import { parseTime } from '@/utils/parseTime';
 

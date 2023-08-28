@@ -1,6 +1,6 @@
 <template>
   <a-layout :style="{ height: '100vh' }">
-    <a-layout-sider theme="dark" breakpoint="lg" :width="220" collapsible :collapsed="collapsed" @collapse="onCollapse">
+    <a-layout-sider breakpoint="lg" :width="220" collapsible :collapsed="collapsed" @collapse="onCollapse">
       <Menu :collapsed="collapsed" />
     </a-layout-sider>
     <a-layout>
@@ -32,6 +32,6 @@ const onCollapse = () => {
 
 .layout-content {
   padding: 16px;
-  background-color: #f2f3f5;
+  background-color: #ffffff;
 }
 </style>
