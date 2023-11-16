@@ -131,7 +131,7 @@ const pager = {
 // 获取列表数据
 const getDbTables = async (params = {}) => {
   const { data, code, msg } = await listDbTable(params);
-  if ( code == 200 ) {
+  if ( code === 200 ) {
     tableData.value = data.list;
     Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
   } else {

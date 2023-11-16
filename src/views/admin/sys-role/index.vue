@@ -1,62 +1,81 @@
 <template>
-  <div class="app-container">
-    <a-form :model="queryForm" ref="queryFormRef" layout="inline">
-      <a-form-item field="roleName" label="角色名称">
-        <a-input v-model="queryForm.roleName" placeholder="请输入角色名称" @press-enter="handleQuery" />
-      </a-form-item>
-      <a-form-item field="roleKey" label="权限字符">
-        <a-input v-model="queryForm.roleKey" placeholder="请输入权限字符" @press-enter="handleQuery" />
-      </a-form-item>
-      <a-form-item field="status" label="状态">
-        <a-select v-model="queryForm.status" placeholder="请选择角色状态">
-          <a-option :value="2">正常</a-option>
-          <a-option :value="1">停用</a-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item>
-        <a-space>
-          <a-button type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
-          <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
-        </a-space>
-      </a-form-item>
-    </a-form>
-
-    <a-divider />
-
-    <div class="action">
-      <a-space>
-        <a-button v-has="'admin:sysRole:add'" type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
-        <a-button v-has="'admin:sysRole:remove'" type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除</a-button>
-        <a-button type="primary" status="warning" disabled><icon-download /> 导出</a-button>
-      </a-space>
-    </div>
-
-    <a-table
-      :columns="columns"
-      :data="tableData"
-      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }"
-      row-key="roleId"
-      :row-selection="{ type: 'checkbox', showCheckedAll: true }"
-      @selection-change="(selection) => {deleteData = selection;}" 
-      @select="handleSelect"
-      @page-change="handlePageChange"
-      @page-size-change="handlePageSizeChange"
-    >
-      <template #status="{ record }">
-        <a-tag v-if="record.status == 2" color="green">正常</a-tag>
-        <a-tag v-else color="red">停用</a-tag>
-      </template>
-      <template #createdAt="{ record }">
-        {{ parseTime(record.createdAt) }}
-      </template>
-      <template #action="{ record }">
-        <a-space>
-          <a-button v-has="'admin:sysRole:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
-          <a-button v-has="'admin:sysRole:update'" type="text" @click="handleDataScope(record)"><icon-check-circle />  数据权限 </a-button>
-          <a-button v-has="'admin:sysRole:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.roleId];  }"><icon-check-circle />  删除 </a-button>
+  <div class="container">
+    <a-card :bordered="false" class="cardStyle" style="margin-bottom: 16px;">
+      <a-list-item-meta>
+        <template #title>
+          <div class="akaInfoTitle">角色管理</div>
+        </template>
+        <template #description>
+          <div class="akaInfoDesc">在这里管理用户所绑定的角色关系</div>
+        </template>
+        <template #avatar>
+          <div style="border-radius: 100px 0 100px 100px; background-color: #eff4f9; padding: 6px;">
+            <Iconify icon="eos-icons:role-binding-outlined" style="color: black;" width="48" height="48" />
+          </div>
+        </template>
+      </a-list-item-meta>
+      <a-divider />
+      <a-card-meta>
+        <template #avatar>
+          <a-form :model="queryForm" ref="queryFormRef" layout="inline">
+            <a-form-item field="roleName" label="角色名称">
+              <a-input v-model="queryForm.roleName" placeholder="请输入角色名称" @press-enter="handleQuery" />
+            </a-form-item>
+            <a-form-item field="roleKey" label="权限字符">
+              <a-input v-model="queryForm.roleKey" placeholder="请输入权限字符" @press-enter="handleQuery" />
+            </a-form-item>
+            <a-form-item field="status" label="状态">
+              <a-select v-model="queryForm.status" placeholder="请选择角色状态">
+                <a-option :value="2">正常</a-option>
+                <a-option :value="1">停用</a-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item>
+              <a-space>
+                <a-button type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
+                <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
+              </a-space>
+            </a-form-item>
+          </a-form>
+        </template>
+      </a-card-meta>
+      <template #actions>
+        <a-space class="action">
+          <a-button v-has="'admin:sysRole:add'" type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
+          <a-button v-has="'admin:sysRole:remove'" type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除</a-button>
+          <a-button type="primary" status="warning" disabled><icon-download /> 导出</a-button>
         </a-space>
       </template>
-    </a-table>
+    </a-card>
+
+    <a-card :bordered="false" class="cardStyle">
+      <a-table
+        :columns="columns"
+        :data="tableData"
+        :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }"
+        row-key="roleId"
+        :row-selection="{ type: 'checkbox', showCheckedAll: true }"
+        @selection-change="(selection) => {deleteData = selection;}"
+        @select="handleSelect"
+        @page-change="handlePageChange"
+        @page-size-change="handlePageSizeChange"
+      >
+        <template #status="{ record }">
+          <a-tag v-if="record.status == 2" color="green">正常</a-tag>
+          <a-tag v-else color="red">停用</a-tag>
+        </template>
+        <template #createdAt="{ record }">
+          {{ parseTime(record.createdAt) }}
+        </template>
+        <template #action="{ record }">
+          <a-space>
+            <a-button v-has="'admin:sysRole:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
+            <a-button v-has="'admin:sysRole:update'" type="text" @click="handleDataScope(record)"><icon-check-circle />  数据权限 </a-button>
+            <a-button v-has="'admin:sysRole:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.roleId];  }"><icon-check-circle />  删除 </a-button>
+          </a-space>
+        </template>
+      </a-table>
+    </a-card>
 
     <!-- Role Modal -->
     <a-modal
@@ -145,6 +164,7 @@
 <script setup>
 import { onMounted, reactive, ref, getCurrentInstance, nextTick, watch } from 'vue';
 import { getRole, addRole, updateRole, removeRole, updateRoleScoped, getRoleMenuTree } from '@/api/admin/role';
+import {IconLoop, IconSearch} from "@arco-design/web-vue/es/icon";
 
 // Akiraka 20230210 删除数据
 const deleteData = ref([])
@@ -152,7 +172,7 @@ const deleteData = ref([])
 const deleteVisible = ref(false)
 // Akiraka 20230210 监听删除事件
 watch(() => deleteVisible.value ,(value) => {
-  if ( value == false ) {
+  if ( value === false ) {
     getRoleInfo({ ...pager, ...queryForm });
   }
 })
@@ -311,14 +331,14 @@ const handleBeforeOk = (done) => {
       let res;
       if (modalForm.roleId) {
         const { code, msg } = await updateRole(modalForm, modalForm.roleId);
-        if (code == 200 ) {
+        if (code === 200 ) {
           proxy.$notification.success('更新成功');
         } else {
           proxy.$notification.error(msg);
         }
       } else {
         const { code, msg } = await addRole(modalForm);
-        if (code == 200 ) {
+        if (code === 200 ) {
           proxy.$notification.success('新增成功');
         } else {
           proxy.$notification.error(msg);
@@ -354,7 +374,7 @@ const handleScopeBeforeOk = async (done) => {
 // 获取角色信息
 const getRoleInfo = async (params = {}) => {
   const { data, code, msg } = await getRole(params);
-  if ( code == 200 ) {
+  if ( code === 200 ) {
     tableData.value = data.list;
     Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
   } else {

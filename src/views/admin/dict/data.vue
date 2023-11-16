@@ -1,52 +1,73 @@
 <template>
-  <div class="app-container">
-    <a-form :model="queryForm" layout="inline">
-      <a-form-item field="dictType" label="字典名称">
-        <a-select v-model="queryForm.dictType" :options="dictTypeOptions" :field-names="{ value: 'dictType', label: 'dictName' }" />
-      </a-form-item>
-      <a-form-item field="dictTag" label="字典标签">
-        <a-input v-model="queryForm.dictTag" placeholder="请输入字典标签" />
-      </a-form-item>
-      <a-form-item field="status" label="字典状态">
-        <a-select v-model="queryForm.status" placeholder="请选择字典状态">
-          <a-option :value="2">正常</a-option>
-          <a-option :value="1">关闭</a-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item>
-        <a-space>
-          <a-button v-has="'admin:sysDictData:query'" type="primary">搜索</a-button>
-          <a-button>重置</a-button>
+  <div class="container">
+    <a-card :bordered="false" class="cardStyle" style="margin-bottom: 16px;">
+      <a-list-item-meta>
+        <template #title>
+          <div class="akaInfoTitle">字典管理</div>
+        </template>
+        <template #description>
+          <div class="akaInfoDesc">管理数据绑定字典</div>
+        </template>
+        <template #avatar>
+          <div style="border-radius: 100px 0 100px 100px; background-color: #eff4f9; padding: 6px;">
+            <Iconify icon="fluent-mdl2:dictionary" style="color: black;" width="48" height="48" />
+          </div>
+        </template>
+      </a-list-item-meta>
+      <a-divider />
+      <a-card-meta>
+        <template #avatar>
+          <a-form :model="queryForm" layout="inline">
+            <a-form-item field="dictType" label="字典名称">
+              <a-select v-model="queryForm.dictType" :options="dictTypeOptions" :field-names="{ value: 'dictType', label: 'dictName' }" />
+            </a-form-item>
+            <a-form-item field="dictTag" label="字典标签">
+              <a-input v-model="queryForm.dictTag" placeholder="请输入字典标签" />
+            </a-form-item>
+            <a-form-item field="status" label="字典状态">
+              <a-select v-model="queryForm.status" placeholder="请选择字典状态">
+                <a-option :value="2">正常</a-option>
+                <a-option :value="1">关闭</a-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item>
+              <a-space>
+                <a-button v-has="'admin:sysDictData:query'" type="primary">搜索</a-button>
+                <a-button>重置</a-button>
+              </a-space>
+            </a-form-item>
+          </a-form>
+        </template>
+      </a-card-meta>
+      <template #actions>
+        <a-space class="action">
+          <a-button v-has="'admin:sysDictData:add'" type="primary" @click="handleAdd">新增</a-button>
         </a-space>
-      </a-form-item>
-    </a-form>
-
-    <a-divider />
-
-    <div class="table-action">
-      <a-button v-has="'admin:sysDictData:add'" type="primary" @click="handleAdd">新增</a-button>
-    </div>
-
-    <a-table
-      :data="tableData"
-      :columns="columns"
-      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }"
-      @page-change="handlePageChange"
-    >
-      <template #createdAt="{ record }">
-        {{ parseTime(record.createdAt) }}
       </template>
+    </a-card>
 
-      <template #action="{ record }">
-        <a-button v-has="'admin:sysDictData:edit'" type="text" @click="handleEdit(record)">修改</a-button>
-        <a-button v-has="'admin:sysDictData:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.dictCode];  }">删除</a-button>
-      </template>
+    <a-card :bordered="false" class="cardStyle">
+      <a-table
+        :data="tableData"
+        :columns="columns"
+        :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }"
+        @page-change="handlePageChange"
+      >
+        <template #createdAt="{ record }">
+          {{ parseTime(record.createdAt) }}
+        </template>
 
-      <template #status="{ record }">
-        <a-tag v-if="record.status == 2" color="green">正常</a-tag>
-        <a-tag v-else-if="record.status == 1" color="red">停用</a-tag>
-      </template>
-    </a-table>
+        <template #action="{ record }">
+          <a-button v-has="'admin:sysDictData:edit'" type="text" @click="handleEdit(record)">修改</a-button>
+          <a-button v-has="'admin:sysDictData:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.dictCode];  }">删除</a-button>
+        </template>
+
+        <template #status="{ record }">
+          <a-tag v-if="record.status == 2" color="green">正常</a-tag>
+          <a-tag v-else-if="record.status == 1" color="red">停用</a-tag>
+        </template>
+      </a-table>
+    </a-card>
 
     <a-modal
       v-model:visible="modalVisible"
@@ -105,6 +126,7 @@
 import { reactive, ref, getCurrentInstance, onBeforeMount, watch } from 'vue';
 import { getDictData, addDictData, updateDictData, deleteDictData } from '@/api/admin/sys-dict-data';
 import { getDictType } from '@/api/admin/sys-dict';
+import {IconLoop, IconSearch} from "@arco-design/web-vue/es/icon";
 
 // Akiraka 20230210 删除数据
 const deleteData = ref([])
@@ -112,7 +134,7 @@ const deleteData = ref([])
 const deleteVisible = ref(false)
 // Akiraka 20230210 监听删除事件
 watch(() => deleteVisible.value ,(value) => {
-  if ( value == false ) {
+  if ( value === false ) {
     getDictDataInfo({...proxy.$route.params, ...pager});
   }
 })
@@ -198,14 +220,14 @@ const handleBeforeOk = (done) => {
 const handleSubmit = async () => {
   if (modalForm.dictCode) {
     const { code, msg } = await updateDictData(modalForm, modalForm.dictCode);
-    if ( code == 200 ) {
+    if ( code === 200 ) {
       proxy.$notification.success('修改成功');
     } else {
       proxy.$notification.error(msg);
     }
   } else {
     const { code, msg } = await addDictData(modalForm);
-    if (code == 200 ) {
+    if (code === 200 ) {
       proxy.$notification.success('新增成功');
     } else {
       proxy.$notification.error(msg);
@@ -224,7 +246,7 @@ const handlePageChange = (pagerIndex) => {
 // 获取字典数据
 const getDictDataInfo = async (params = {}) => {
   const { data, code, msg } = await getDictData(params);
-  if ( code == 200 ) {
+  if ( code === 200 ) {
     tableData.value = data.list;
     Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
   } else {

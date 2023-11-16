@@ -1,65 +1,82 @@
 <template>
-  <div class="app-container">
-    <a-form :model="queryForm" ref="queryFormRef" layout="inline">
-      <a-form-item field="tableName" label="表名称">
-        <a-input v-model="queryForm.tableName" placeholder="请输入表名称" @press-enter="handleQuery" />
-      </a-form-item>
-      <a-form-item field="tableComment" label="表描述">
-        <a-input v-model="queryForm.tableComment" placeholder="请输入描述" @press-enter="handleQuery" />
-      </a-form-item>
-      <a-form-item>
-        <a-space>
-          <a-button type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
-          <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
-          
+  <div class="container">
+    <a-card :bordered="false" class="cardStyle" style="margin-bottom: 16px;">
+      <a-list-item-meta>
+        <template #title>
+          <div class="akaInfoTitle">代码生成</div>
+        </template>
+        <template #description>
+          <div class="akaInfoDesc">根据需求快速生成业务代码</div>
+        </template>
+        <template #avatar>
+          <div style="border-radius: 100px 0 100px 100px; background-color: #eff4f9; padding: 6px;">
+            <Iconify icon="ph:code-fill" style="color: black;" width="48" height="48" />
+          </div>
+        </template>
+      </a-list-item-meta>
+      <a-divider />
+      <a-card-meta>
+        <template #avatar>
+          <a-form :model="queryForm" ref="queryFormRef" layout="inline">
+            <a-form-item field="tableName" label="表名称">
+              <a-input v-model="queryForm.tableName" placeholder="请输入表名称" @press-enter="handleQuery" />
+            </a-form-item>
+            <a-form-item field="tableComment" label="表描述">
+              <a-input v-model="queryForm.tableComment" placeholder="请输入描述" @press-enter="handleQuery" />
+            </a-form-item>
+            <a-form-item>
+              <a-space>
+                <a-button type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
+                <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
+
+              </a-space>
+            </a-form-item>
+          </a-form>
+        </template>
+      </a-card-meta>
+      <template #actions>
+        <a-space class="action">
+          <a-button type="primary" @click="openImportTable"><icon-plus /> 导入 </a-button>
+          <a-button type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除</a-button>
         </a-space>
-      </a-form-item>
-    </a-form>
-
-    <a-divider />
-
-    <!-- action -->
-    <div class="action">
-      <a-space>
-        <a-button type="primary" @click="openImportTable"><icon-plus /> 导入 </a-button>
-        <a-button type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除</a-button>
-      </a-space>
-    </div>
-
-    <!-- table -->
-    <a-table
-      :data="tableData"
-      :row-selection="{ type: 'checkbox', showCheckedAll: true }"
-      row-key="tableId"
-      @selection-change="(selection) => {deleteData = selection;}" 
-      @page-change="handlePageChange"
-      @page-size-change="handlePageSizeChange"
-    >
-      <template #columns>
-        <a-table-column title="序号" data-index="tableId" :width="180" ellipsis tooltip/>
-        <a-table-column title="表名称" data-index="tableName" :width="180" ellipsis tooltip/>
-        <a-table-column title="表描述" data-index="tableComment" :width="180" ellipsis tooltip/>
-        <a-table-column title="模型名称" data-index="className" :width="180" ellipsis tooltip/>
-        <a-table-column title="动作" :width="370" align="center" >
-          <template #cell="{ record }">
-            <a-button-group>
-              <a-button size="small" @click="handleEditTable(record)">编辑</a-button>
-              <a-button size="small" @click="handlePreview(record)">预览</a-button>
-              <a-popconfirm content="正在使用代码生成请确认?" okText="生成" type="warning" @ok="handleToProject(record)">
-                <a-button size="small">代码生成 </a-button>
-              </a-popconfirm>
-              <a-popconfirm content="正在使用【菜单以及API生成到数据库】请确认?" okText="写入DB" type="warning" @ok="handleToDB(record)">
-                <a-button size="small">生成配置 </a-button>
-              </a-popconfirm>
-              <a-popconfirm content="正在使用代码生成配置迁移脚本请确认?" okText="迁移" type="warning" @ok="handleToApiFile(record)">
-                <a-button size="small">生成迁移脚本 </a-button>
-              </a-popconfirm>
-              <a-button size="small" @click="() => { deleteVisible = true; deleteData = [record.jobId];  }">删除</a-button>
-            </a-button-group>
-          </template>
-        </a-table-column>
       </template>
-    </a-table>
+    </a-card>
+
+    <a-card :bordered="false" class="cardStyle">
+      <a-table
+        :data="tableData"
+        :row-selection="{ type: 'checkbox', showCheckedAll: true }"
+        row-key="tableId"
+        @selection-change="(selection) => {deleteData = selection;}"
+        @page-change="handlePageChange"
+        @page-size-change="handlePageSizeChange"
+      >
+        <template #columns>
+          <a-table-column title="序号" data-index="tableId" :width="180" ellipsis tooltip/>
+          <a-table-column title="表名称" data-index="tableName" :width="180" ellipsis tooltip/>
+          <a-table-column title="表描述" data-index="tableComment" :width="180" ellipsis tooltip/>
+          <a-table-column title="模型名称" data-index="className" :width="180" ellipsis tooltip/>
+          <a-table-column title="动作" :width="370" align="center" >
+            <template #cell="{ record }">
+              <a-button-group>
+                <a-button size="small" @click="handleEditTable(record)">编辑</a-button>
+                <a-button size="small" @click="handlePreview(record)">预览</a-button>
+                <a-popconfirm content="正在使用代码生成请确认?" okText="生成" type="warning" @ok="handleToProject(record)">
+                  <a-button size="small">代码生成 </a-button>
+                </a-popconfirm>
+                <a-popconfirm content="正在使用【菜单以及API生成到数据库】请确认?" okText="写入DB" type="warning" @ok="handleToDB(record)">
+                  <a-button size="small">生成配置 </a-button>
+                </a-popconfirm>
+                <a-popconfirm content="正在使用代码生成配置迁移脚本请确认?" okText="迁移" type="warning" @ok="handleToApiFile(record)">
+                  <a-button size="small">生成迁移脚本 </a-button>
+                </a-popconfirm>
+                <a-button size="small" @click="() => { deleteVisible = true; deleteData = [record.jobId];  }">删除</a-button>
+              </a-button-group>
+            </template>
+          </a-table-column>
+        </template>
+      </a-table>
+    </a-card>
 
     <!-- 导入对话框 -->
     <import-table v-model:visible="modalVisible" />
@@ -99,7 +116,7 @@ const deleteData = ref([])
 const deleteVisible = ref(false)
 // Akiraka 20230210 监听删除事件
 watch(() => deleteVisible.value ,(value) => {
-  if ( value == false ) {
+  if ( value === false ) {
     getSysConfigInfo(pager);
   }
 })
@@ -163,7 +180,7 @@ const handlePageSizeChange = (pageSize) => {
 // 获取列表数据
 const getListTable = async (params = {}) => {
   const { data, code, msg } = await listTable(params);
-  if ( code == 200 ) {
+  if ( code === 200 ) {
     tableData.value = data.list;
     Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
   } else {

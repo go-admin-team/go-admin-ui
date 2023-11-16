@@ -1,47 +1,68 @@
 <template>
-  <div class="app-container">
-    <a-form :model="queryForm" ref="queryFormRef" layout="inline">
-      <a-form-item field="jobName" label="任务名称">
-        <a-input v-model="queryForm.jobName" placeholder="请输入任务名称" @press-enter="handleQuery" />
-      </a-form-item>
-      <a-form-item field="jobGroup" label="任务分组">
-        <a-select v-model="queryForm.jobGroup" placeholder="请选择任务分组">
-          <a-option value="DEFAULT">默认</a-option>
-          <a-option value="SYSTEM">系统</a-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item field="status" label="状态">
-        <a-select v-model="queryForm.status" placeholder="请选择任务状态">
-          <a-option :value="2">正常</a-option>
-          <a-option :value="1">关闭</a-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item>
-        <a-space>
-          <a-button type="primary" @click="handleQuery">查询</a-button>
-          <a-button @click="handleResetQuery">重置</a-button>
+  <div class="container">
+    <a-card :bordered="false" class="cardStyle" style="margin-bottom: 16px;">
+      <a-list-item-meta>
+        <template #title>
+          <div class="akaInfoTitle">定时任务</div>
+        </template>
+        <template #description>
+          <div class="akaInfoDesc">定时执行任务满足需求</div>
+        </template>
+        <template #avatar>
+          <div style="border-radius: 100px 0 100px 100px; background-color: #eff4f9; padding: 6px;">
+            <Iconify icon="eos-icons:cronjob" style="color: black;" width="48" height="48" />
+          </div>
+        </template>
+      </a-list-item-meta>
+      <a-divider />
+      <a-card-meta>
+        <template #avatar>
+          <a-form :model="queryForm" ref="queryFormRef" layout="inline">
+            <a-form-item field="jobName" label="任务名称">
+              <a-input v-model="queryForm.jobName" placeholder="请输入任务名称" @press-enter="handleQuery" />
+            </a-form-item>
+            <a-form-item field="jobGroup" label="任务分组">
+              <a-select v-model="queryForm.jobGroup" placeholder="请选择任务分组">
+                <a-option value="DEFAULT">默认</a-option>
+                <a-option value="SYSTEM">系统</a-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item field="status" label="状态">
+              <a-select v-model="queryForm.status" placeholder="请选择任务状态">
+                <a-option :value="2">正常</a-option>
+                <a-option :value="1">关闭</a-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item>
+              <a-space>
+                <a-button type="primary" @click="handleQuery">查询</a-button>
+                <a-button @click="handleResetQuery">重置</a-button>
+              </a-space>
+            </a-form-item>
+          </a-form>
+        </template>
+      </a-card-meta>
+      <template #actions>
+        <a-space class="action">
+          <a-button type="primary" @click="handleAdd">新增定时任务</a-button>
         </a-space>
-      </a-form-item>
-    </a-form>
-
-    <a-divider />
-
-    <div class="table-action">
-      <a-button type="primary" @click="handleAdd">新增定时任务</a-button>
-    </div>
-
-    <a-table :data="tableData" :columns="columns"  :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }">
-      <template #status="{ record }">
-        <a-tag v-if="record.status == 2" color="green">正常</a-tag>
-        <a-tag v-if="record.status == 1" color="red">停用</a-tag>
       </template>
-      <template #action="{ record }">
-        <a-button type="text" @click="handleUpdate(record)">修改</a-button>
-        <a-button type="text" status="success" v-if="record.entry_id == 0" @click="handleStart(record.jobId)">启动</a-button>
-        <a-button type="text" status="danger" v-if="record.entry_id !== 0" @click="handleStop(record.jobId)">停止</a-button>
-        <a-button type="text" status="danger" @click="() => { deleteVisible = true; deleteData = [record.jobId];  }">删除</a-button>
-      </template>
-    </a-table>
+    </a-card>
+
+    <a-card :bordered="false" class="cardStyle">
+      <a-table :data="tableData" :columns="columns"  :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }">
+        <template #status="{ record }">
+          <a-tag v-if="record.status == 2" color="green">正常</a-tag>
+          <a-tag v-if="record.status == 1" color="red">停用</a-tag>
+        </template>
+        <template #action="{ record }">
+          <a-button type="text" @click="handleUpdate(record)">修改</a-button>
+          <a-button type="text" status="success" v-if="record.entry_id == 0" @click="handleStart(record.jobId)">启动</a-button>
+          <a-button type="text" status="danger" v-if="record.entry_id !== 0" @click="handleStop(record.jobId)">停止</a-button>
+          <a-button type="text" status="danger" @click="() => { deleteVisible = true; deleteData = [record.jobId];  }">删除</a-button>
+        </template>
+      </a-table>
+    </a-card>
 
     <a-modal
       v-model:visible="modalVisible"
@@ -126,6 +147,7 @@
 <script setup>
 import { reactive, ref, onMounted, getCurrentInstance, watch } from 'vue';
 import { listSysJob, addSysJob, updateSysJob, delSysJob, startJob, removeJob } from '@/api/sys-job';
+import {IconLoop, IconSearch} from "@arco-design/web-vue/es/icon";
 
 // Akiraka 20230210 删除数据
 const deleteData = ref([])
@@ -133,7 +155,7 @@ const deleteData = ref([])
 const deleteVisible = ref(false)
 // Akiraka 20230210 监听删除事件
 watch(() => deleteVisible.value ,(value) => {
-  if ( value == false ) {
+  if ( value === false ) {
     getSysJobListInfo(queryForm);
   }
 })
@@ -237,14 +259,14 @@ const onBeforeOk = (done) => {
 const handleOk = async () => {
   if (modalForm.jobId) {
     const { code, msg } = await updateSysJob(modalForm);
-    if (code == 200 ) {
+    if (code === 200 ) {
       proxy.$notification.success('修改成功');
     } else {
       proxy.$notification.error(msg);
     }
   } else {
     const { code, msg } = await addSysJob(modalForm);
-    if (code == 200 ) {
+    if (code === 200 ) {
       proxy.$notification.success('新增成功');
     } else {
       proxy.$notification.error(msg);
@@ -256,7 +278,7 @@ const handleOk = async () => {
 // 获取系统任务信息
 const getSysJobListInfo = async (params = {}) => {
   const { data, code, msg } = await listSysJob(params);
-  if ( code == 200 ) {
+  if ( code === 200 ) {
     tableData.value = data.list;
     Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
   } else {

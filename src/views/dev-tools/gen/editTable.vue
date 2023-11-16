@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <a-form :model="dataInfo" :rules="rules" ref="modalFormRef" auto-label-width size="mini">
-      <a-card bordered>
+      <a-card :bordered="false" class="cardStyle">
         <!-- 卡片插槽 开始 -->
         <template #actions>
           <a-button type="primary" @click="handleSubmit" long>提交</a-button>
@@ -314,7 +314,7 @@ const rules = {
 
 // 字符串转布尔类型
 const stringToBool = (value) => {
-  if (value == "1") {
+  if (value === "1") {
     return true
   } else {
     return false
@@ -379,7 +379,7 @@ const handleSubmit = () => {
   proxy.$refs.modalFormRef.validate(async (valid) => {
     if (!valid) {
       const { code, msg } = await updateGenTable(genTable);
-      if (code == 200 ) {
+      if (code === 200 ) {
         proxy.$notification.success('修改成功');
       } else {
         proxy.$notification.error(msg);

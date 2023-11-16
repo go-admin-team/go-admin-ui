@@ -1,65 +1,83 @@
 <template>
-  <div class="app-container">
-    <a-form :model="queryForm" ref="queryFormRef" layout="inline">
-      <a-form-item field="dictName" label="字典名称">
-        <a-input v-model="queryForm.dictName" placeholder="请输入字典名称" @press-enter="handleQuery" />
-      </a-form-item>
-      <a-form-item field="dictType" label="字典类型">
-        <a-input v-model="queryForm.dictType" placeholder="请输入字典类型" @press-enter="handleQuery" />
-      </a-form-item>
-      <a-form-item field="status" label="状态">
-        <a-select v-model="queryForm.status" placeholder="请选择字典状态">
-          <a-option :value="2">正常</a-option>
-          <a-option :value="1">停用</a-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item>
-        <a-space>
-          <a-button v-has="'admin:sysDictType:query'" type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
-          <a-button v-has="'admin:sysDictType:query'" @click="handleResetQuery"><icon-loop /> 重置</a-button>
+  <div class="container">
+    <a-card :bordered="false" class="cardStyle" style="margin-bottom: 16px;">
+      <a-list-item-meta>
+        <template #title>
+          <div class="akaInfoTitle">字典管理</div>
+        </template>
+        <template #description>
+          <div class="akaInfoDesc">管理数据绑定字典</div>
+        </template>
+        <template #avatar>
+          <div style="border-radius: 100px 0 100px 100px; background-color: #eff4f9; padding: 6px;">
+            <Iconify icon="fluent-mdl2:dictionary" style="color: black;" width="48" height="48" />
+          </div>
+        </template>
+      </a-list-item-meta>
+      <a-divider />
+      <a-card-meta>
+        <template #avatar>
+          <a-form :model="queryForm" ref="queryFormRef" layout="inline">
+            <a-form-item field="dictName" label="字典名称">
+              <a-input v-model="queryForm.dictName" placeholder="请输入字典名称" @press-enter="handleQuery" />
+            </a-form-item>
+            <a-form-item field="dictType" label="字典类型">
+              <a-input v-model="queryForm.dictType" placeholder="请输入字典类型" @press-enter="handleQuery" />
+            </a-form-item>
+            <a-form-item field="status" label="状态">
+              <a-select v-model="queryForm.status" placeholder="请选择字典状态">
+                <a-option :value="2">正常</a-option>
+                <a-option :value="1">停用</a-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item>
+              <a-space>
+                <a-button v-has="'admin:sysDictType:query'" type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
+                <a-button v-has="'admin:sysDictType:query'" @click="handleResetQuery"><icon-loop /> 重置</a-button>
+              </a-space>
+            </a-form-item>
+          </a-form>
+        </template>
+      </a-card-meta>
+      <template #actions>
+        <a-space class="action">
+          <a-button v-has="'admin:sysDictType:add'" type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
+          <a-button v-has="'system:sysdicttype:remove'" type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除</a-button>
+          <a-button type="primary" status="warning" disabled><icon-download /> 导出</a-button>
         </a-space>
-      </a-form-item>
-    </a-form>
-
-    <a-divider />
-
-    <div class="action">
-      <a-space>
-        <a-button v-has="'admin:sysDictType:add'" type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
-        <a-button v-has="'system:sysdicttype:remove'" type="primary" status="danger" @click="() => { deleteVisible = true; }"><icon-delete /> 批量删除</a-button>
-        <a-button type="primary" status="warning" disabled><icon-download /> 导出</a-button>
-      </a-space>
-    </div>
-
-    <!-- table -->
-    <a-table
-      :columns="tableColumns"
-      :data="tableData"
-      :row-selection="{ type: 'checkbox', showCheckedAll: true }"
-      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }"
-      row-key="id"
-      @selection-change="(selection) => {deleteData = selection;}" 
-      @page-change="handlePageChange"
-      @page-size-change="handlePageSizeChange"
-    >
-      <template #dictType="{ record }">
-        <router-link :to="`/admin/dict/data/${record.dictType}`">{{ record.dictType }}</router-link>
       </template>
+    </a-card>
 
-      <template #status="{ record }">
-        <a-tag v-if="record.status == 2" color="green">正常</a-tag>
-        <a-tag v-else color="red">停用</a-tag>
-      </template>
+    <a-card :bordered="false" class="cardStyle">
+      <a-table
+        :columns="tableColumns"
+        :data="tableData"
+        :row-selection="{ type: 'checkbox', showCheckedAll: true }"
+        :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }"
+        row-key="id"
+        @selection-change="(selection) => {deleteData = selection;}"
+        @page-change="handlePageChange"
+        @page-size-change="handlePageSizeChange"
+      >
+        <template #dictType="{ record }">
+          <router-link :to="`/admin/dict/data/${record.dictType}`">{{ record.dictType }}</router-link>
+        </template>
 
-      <template #createdAt="{ record }">
-        {{ parseTime(record.createdAt) }}
-      </template>
+        <template #status="{ record }">
+          <a-tag v-if="record.status == 2" color="green">正常</a-tag>
+          <a-tag v-else color="red">停用</a-tag>
+        </template>
 
-      <template #action="{ record }">
-        <a-button v-has="'admin:sysDictType:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
-        <a-button v-has="'admin:sysDictType:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.id];  }"><icon-edit /> 删除</a-button>
-      </template>
-    </a-table>
+        <template #createdAt="{ record }">
+          {{ parseTime(record.createdAt) }}
+        </template>
+
+        <template #action="{ record }">
+          <a-button v-has="'admin:sysDictType:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
+          <a-button v-has="'admin:sysDictType:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.id];  }"><icon-edit /> 删除</a-button>
+        </template>
+      </a-table>
+    </a-card>
 
     <!-- Modal弹框 -->
     <a-modal
@@ -113,6 +131,7 @@
 <script setup>
 import { reactive, ref, getCurrentInstance, nextTick, onMounted, watch } from 'vue';
 import { getDictType, addDictType, removeDictType, updateDictType } from '@/api/admin/sys-dict';
+import {IconLoop, IconSearch} from "@arco-design/web-vue/es/icon";
 
 // Akiraka 20230210 删除数据
 const deleteData = ref([])
@@ -120,7 +139,7 @@ const deleteData = ref([])
 const deleteVisible = ref(false)
 // Akiraka 20230210 监听删除事件
 watch(() => deleteVisible.value ,(value) => {
-  if ( value == false ) {
+  if ( value === false ) {
     getSysDictTypeInfo({ ...pager, ...queryForm });
   }
 })
@@ -217,7 +236,7 @@ const handleSubmit = (done) => {
       try {
         if (Reflect.has(modalForm, 'id')) {
           const { code, msg } = await updateDictType(modalForm, modalForm.id);
-          if (code == 200 ) {
+          if (code === 200 ) {
             proxy.$notification.success('更新成功');
           } else {
             proxy.$notification.error(msg);
@@ -226,7 +245,7 @@ const handleSubmit = (done) => {
           const { code, msg } = await addDictType(modalForm);
           currentPage.value = Math.ceil(++pager.count / pager.pageSize);
           pager.pageIndex = currentPage.value;
-          if (code == 200 ) {
+          if (code === 200 ) {
             proxy.$notification.success('新增成功');
           } else {
             proxy.$notification.error(msg);
@@ -248,7 +267,7 @@ const handleSubmit = (done) => {
 // 获取字典数据
 const getSysDictTypeInfo = async (params = {}) => {
   const { data, code, msg } = await getDictType(params);
-  if ( code == 200 ) {
+  if ( code === 200 ) {
     tableData.value = data.list;
     Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
   } else {

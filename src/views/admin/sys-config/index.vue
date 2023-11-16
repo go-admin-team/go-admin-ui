@@ -1,64 +1,82 @@
 <template>
-  <div class="app-container">
-    <a-form :model="queryForm" ref="queryFormRef" layout="inline">
-      <a-form-item field="configName" label="参数名称">
-        <a-input
-          v-model="queryForm.configName"
-          placeholder="请输入参数名称"
-        ></a-input>
-      </a-form-item>
-      <a-form-item field="configKey" label="参数键名">
-        <a-input
-          v-model="queryForm.configKey"
-          placeholder="请输入参数键名"
-        ></a-input>
-      </a-form-item>
-      <a-form-item field="configType" label="系统内置">
-        <a-select v-model="queryForm.configType" placeholder="选择系统内置">
-          <a-option value="Y">是</a-option>
-          <a-option value="N">否</a-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item>
-        <a-space>
-          <a-button type="primary" @click="handleQuery()"><icon-search /> 搜索</a-button>
-          <a-button @click="handleResetQuery()"><icon-loop /> 重置</a-button>
+  <div class="container">
+    <a-card :bordered="false" class="cardStyle" style="margin-bottom: 16px;">
+      <a-list-item-meta>
+        <template #title>
+          <div class="akaInfoTitle">参数管理</div>
+        </template>
+        <template #description>
+          <div class="akaInfoDesc">在这里管理系统参数</div>
+        </template>
+        <template #avatar>
+          <div style="border-radius: 100px 0 100px 100px; background-color: #eff4f9; padding: 6px;">
+            <Iconify icon="ooui:function-argument-ltr" style="color: black;" width="48" height="48" />
+          </div>
+        </template>
+      </a-list-item-meta>
+      <a-divider />
+      <a-card-meta>
+        <template #avatar>
+          <a-form :model="queryForm" ref="queryFormRef" layout="inline">
+            <a-form-item field="configName" label="参数名称">
+              <a-input
+                v-model="queryForm.configName"
+                placeholder="请输入参数名称"
+              ></a-input>
+            </a-form-item>
+            <a-form-item field="configKey" label="参数键名">
+              <a-input
+                v-model="queryForm.configKey"
+                placeholder="请输入参数键名"
+              ></a-input>
+            </a-form-item>
+            <a-form-item field="configType" label="系统内置">
+              <a-select v-model="queryForm.configType" placeholder="选择系统内置">
+                <a-option value="Y">是</a-option>
+                <a-option value="N">否</a-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item>
+              <a-space>
+                <a-button type="primary" @click="handleQuery()"><icon-search /> 搜索</a-button>
+                <a-button @click="handleResetQuery()"><icon-loop /> 重置</a-button>
+              </a-space>
+            </a-form-item>
+          </a-form>
+        </template>
+      </a-card-meta>
+      <template #actions>
+        <a-space class="action">
+          <a-button v-has="'admin:sysConfig:add'" type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
+          <a-button v-has="'admin:sysConfig:remove'" type="primary" status="danger" disabled><icon-delete /> 删除</a-button>
+          <a-button type="primary" status="warning" disabled><icon-download /> 导出</a-button>
         </a-space>
-      </a-form-item>
-    </a-form>
-
-    <!-- 分割线 -->
-    <a-divider />
-
-    <div class="action">
-      <a-space>
-        <a-button v-has="'admin:sysConfig:add'" type="primary" @click="handleAdd"><icon-plus /> 新增</a-button>
-        <a-button v-has="'admin:sysConfig:remove'" type="primary" status="danger" disabled><icon-delete /> 删除</a-button>
-        <a-button type="primary" status="warning" disabled><icon-download /> 导出</a-button>
-      </a-space>
-    </div>
-
-    <a-table
-      :data="tableData"
-      :columns="columns"
-      :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }"
-      @page-change="handlePageChange"
-      @page-size-change="handlePageSizeChange"
-    >
-      <template #configType="{ record }">
-        <a-tag v-if="record.configType === 'Y'" color="green">是</a-tag>
-        <a-tag v-else-if="record.configType === 'N'" color="red">否</a-tag>
       </template>
+    </a-card>
 
-      <template #createdAt="{ record }">
-        {{ parseTime(record.createdAt) }}
-      </template>
+    <a-card :bordered="false" class="cardStyle">
+      <a-table
+        :data="tableData"
+        :columns="columns"
+        :pagination="{ 'show-total': true, 'show-jumper': true, 'show-page-size': true, total: pager.count, current: currentPage }"
+        @page-change="handlePageChange"
+        @page-size-change="handlePageSizeChange"
+      >
+        <template #configType="{ record }">
+          <a-tag v-if="record.configType === 'Y'" color="green">是</a-tag>
+          <a-tag v-else-if="record.configType === 'N'" color="red">否</a-tag>
+        </template>
 
-      <template #action="{ record }">
-        <a-button v-has="'admin:sysConfig:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
-        <a-button v-has="'admin:sysConfig:edit'" type="text" @click="() => { deleteVisible = true; deleteData = [record.id];  }"><icon-delete /> 删除</a-button>
-      </template>
-    </a-table>
+        <template #createdAt="{ record }">
+          {{ parseTime(record.createdAt) }}
+        </template>
+
+        <template #action="{ record }">
+          <a-button v-has="'admin:sysConfig:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
+          <a-button v-has="'admin:sysConfig:edit'" type="text" @click="() => { deleteVisible = true; deleteData = [record.id];  }"><icon-delete /> 删除</a-button>
+        </template>
+      </a-table>
+    </a-card>
 
     <a-modal
       v-model:visible="visible"
@@ -118,6 +136,7 @@
 <script setup>
 import { onMounted, reactive, ref, getCurrentInstance, watch } from 'vue';
 import { getSysConfig, addSysConfig, removeSysConfig, updateSysConfig } from '@/api/admin/sys-config';
+import {IconLoop, IconSearch} from "@arco-design/web-vue/es/icon";
 
 // Akiraka 20230210 删除数据
 const deleteData = ref([])
@@ -125,7 +144,7 @@ const deleteData = ref([])
 const deleteVisible = ref(false)
 // Akiraka 20230210 监听删除事件
 watch(() => deleteVisible.value ,(value) => {
-  if ( value == false ) {
+  if ( value === false ) {
     getSysConfigInfo(pager);
   }
 })
@@ -275,7 +294,7 @@ function useModal() {
 // 获取系统配置
 const getSysConfigInfo = async (params = {}) => {
   const { data, code, msg } = await getSysConfig(params);
-  if ( code == 200 ) {
+  if ( code === 200 ) {
     tableData.value = data.list;
     Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
   } else {
@@ -290,14 +309,14 @@ const handleSubmit = (data) => {
       let res;
       if (!data.id) {
         const { code, msg } = await addSysConfig(data);
-        if (code == 200 ) {
+        if (code === 200 ) {
           proxy.$notification.success('新增成功');
         } else {
           proxy.$notification.error(msg);
         }
       } else {
         const { code, msg } = await updateSysConfig(data, data.id);
-        if (code == 200 ) {
+        if (code === 200 ) {
           proxy.$notification.success('修改成功');
         } else {
           proxy.$notification.error(msg);

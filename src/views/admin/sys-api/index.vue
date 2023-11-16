@@ -157,14 +157,14 @@ const handleDrawerSubmit = (done) => {
       let res;
       if (!drawerForm.id) {
         const { code, msg } = await addSysApi(drawerForm);
-        if (code == 200 ) {
+        if (code === 200 ) {
           proxy.$notification.success('新增成功');
         } else {
           proxy.$notification.error(msg);
         }
       } else {
         const { code, msg } = await updateSysApi(drawerForm, drawerForm.id);
-        if (code == 200 ) {
+        if (code === 200 ) {
           proxy.$notification.success('修改成功');
         } else {
           proxy.$notification.error(msg);
@@ -227,7 +227,7 @@ const handlePageSizeChange = (pageSize) => {
 // 获取接口信息
 const getSysApiInfo = async (params = {}) => {
   const { data, code, msg } = await getSysApi(params);
-  if ( code == 200 ) {
+  if ( code === 200 ) {
     tableData.value = data.list;
     Object.assign(pager, { count: data.count, pageIndex: data.pageIndex, pageSize: data.pageSize });
   } else {

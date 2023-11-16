@@ -1,56 +1,74 @@
 <template>
-  <div class="app-container">
-    <a-form :model="queryForm" ref="queryFormRef" layout="inline">
-      <a-form-item field="title" label="菜单名称">
-        <a-input v-model="queryForm.title" placeholder="请输入菜单名称" @press-enter="handleQuery"/>
-      </a-form-item>
-      <a-form-item field="visible" label="状态">
-        <a-select v-model="queryForm.visible" placeholder="请选择菜单状态">
-          <a-option value="1">显示</a-option>
-          <a-option value="0">隐藏</a-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item>
-        <a-space>
-          <a-button type="primary" @click="handleQuery">搜索</a-button>
-          <a-button @click="$refs.queryFormRef.resetFields()">重置</a-button>
+  <div class="container">
+    <a-card :bordered="false" class="cardStyle" style="margin-bottom: 16px;">
+      <a-list-item-meta>
+        <template #title>
+          <div class="akaInfoTitle">菜单管理</div>
+        </template>
+        <template #description>
+          <div class="akaInfoDesc">这里管理菜单和路由，并且绑定菜单api权限</div>
+        </template>
+        <template #avatar>
+          <div style="border-radius: 100px 0 100px 100px; background-color: #eff4f9; padding: 6px;">
+            <Iconify icon="teenyicons:menu-outline" style="color: black;" width="48" height="48" />
+          </div>
+        </template>
+      </a-list-item-meta>
+      <a-divider />
+      <a-card-meta>
+        <template #avatar>
+          <a-form :model="queryForm" ref="queryFormRef" layout="inline">
+            <a-form-item field="title" label="菜单名称">
+              <a-input v-model="queryForm.title" placeholder="请输入菜单名称" @press-enter="handleQuery"/>
+            </a-form-item>
+            <a-form-item field="visible" label="状态">
+              <a-select v-model="queryForm.visible" placeholder="请选择菜单状态">
+                <a-option value="1">显示</a-option>
+                <a-option value="0">隐藏</a-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item>
+              <a-space>
+                <a-button type="primary" @click="handleQuery">搜索</a-button>
+                <a-button @click="$refs.queryFormRef.resetFields()">重置</a-button>
+              </a-space>
+            </a-form-item>
+          </a-form>
+        </template>
+      </a-card-meta>
+      <template #actions>
+        <a-space class="action">
+          <a-button type="primary" @click="handleAddMenu()">新增菜单</a-button>
         </a-space>
-      </a-form-item>
-    </a-form>
-
-    <a-divider />
-
-    <!-- 动作 -->
-    <div class="action">
-      <a-space>
-        <a-button type="primary" @click="handleAddMenu()">新增菜单</a-button>
-      </a-space>
-    </div>
+      </template>
+    </a-card>
 
     <!-- 菜单管理列表 -->
-    <a-table :columns="columns" :data="tableData" row-key="menuId" :pagination="false">
-      <template #icon="{ record }">
-        <component :is="record.icon" :style="{ fontSize: '18px' }"></component>
-      </template>
-      <template #menutype="{ record }">
-        <a-tag color="purple" v-if="record.menuType === 'M'">目录</a-tag>
-        <a-tag color="orange" v-else-if="record.menuType === 'C'">菜单</a-tag>
-        <a-tag color="blue" v-else-if="record.menuType === 'F'">按钮</a-tag>
-      </template>
-      <template #isFrame="{ record }">
-        <a-tag v-if="record.isFrame == '1'" color="green">内部</a-tag>
-        <a-tag v-else color="red">外部</a-tag>
-      </template>
-      <template #visible="{ record }">
-        <a-tag v-if="record.visible == '0'" color="green">显示</a-tag>
-        <a-tag v-else color="red">隐藏</a-tag>
-      </template>
-      <template #action="{ record }">
-        <a-button v-has="'admin:sysMenu:add'" type="text" @click="handleAddMenu(record.menuId)">新增</a-button>
-        <a-button v-has="'admin:sysMenu:edit'" type="text" @click="handleUpdate(record)">修改</a-button>
-        <a-button v-has="'admin:sysMenu:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.menuId];  }">删除</a-button>
-      </template>
-    </a-table>
+    <a-card :bordered="false" class="cardStyle">
+      <a-table :columns="columns" :data="tableData" row-key="menuId" :pagination="false">
+        <template #icon="{ record }">
+          <component :is="record.icon" :style="{ fontSize: '18px' }"></component>
+        </template>
+        <template #menutype="{ record }">
+          <a-tag color="purple" v-if="record.menuType === 'M'">目录</a-tag>
+          <a-tag color="orange" v-else-if="record.menuType === 'C'">菜单</a-tag>
+          <a-tag color="blue" v-else-if="record.menuType === 'F'">按钮</a-tag>
+        </template>
+        <template #isFrame="{ record }">
+          <a-tag v-if="record.isFrame == '1'" color="green">内部</a-tag>
+          <a-tag v-else color="red">外部</a-tag>
+        </template>
+        <template #visible="{ record }">
+          <a-tag v-if="record.visible == '0'" color="green">显示</a-tag>
+          <a-tag v-else color="red">隐藏</a-tag>
+        </template>
+        <template #action="{ record }">
+          <a-button v-has="'admin:sysMenu:add'" type="text" @click="handleAddMenu(record.menuId)">新增</a-button>
+          <a-button v-has="'admin:sysMenu:edit'" type="text" @click="handleUpdate(record)">修改</a-button>
+          <a-button v-has="'admin:sysMenu:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.menuId];  }">删除</a-button>
+        </template>
+      </a-table>
+    </a-card>
 
     <!-- 菜单管理新增与提交弹窗 -->
     <a-modal v-model:visible="modalVisible" :title="modalTitle" title-align="start" :width="800" modal-class="menu-modal" @before-ok="handleSubmit" @close="() => {$refs.modalFormRef.resetFields(); modalForm.menuId = null;}">
@@ -149,6 +167,7 @@ import * as ArcoIconModules from '@arco-design/web-vue/es/icon';
 import { getMenu } from '@/api/admin/menu';
 import { getSysApi } from '@/api/admin/sys-api';
 import { addMenu, removeMenu, updateMenu, getMenuDetails } from '@/api/admin/menu';
+import {IconLoop, IconSearch} from "@arco-design/web-vue/es/icon";
 
 // Akiraka 20230210 删除数据
 const deleteData = ref([])
@@ -209,17 +228,14 @@ const modalRules = {
 // 监听事件 20220715
 watchEffect(() => {
   // 当菜单类型为目录时组件地址则为 Layout
-  if (modalForm.menuType == "M") {
+  if (modalForm.menuType === "M") {
     modalForm.component = "Layout"
   } else {
     // 当菜单类型设置为菜单时 如果为 Layout 则为空
-    if (modalForm.component == "Layout") {
+    if (modalForm.component === "Layout") {
       modalForm.component = ""
     // 当菜单类型设置为菜单时 编辑页面显示正常内容
-    } else {
-      modalForm.component = modalForm.component
     }
-   
   }
 })
 
@@ -290,7 +306,7 @@ const handleSubmit = (done) => {
 // 获取菜单信息
 const getSysMenuInfo = async (params = {}) => {
   const { code, data, msg } = await getMenu(params);
-  if ( code == 200 ) {
+  if ( code === 200 ) {
     tableData.value = data;
   } else {
     proxy.$notification.error(msg)
@@ -300,7 +316,7 @@ const getSysMenuInfo = async (params = {}) => {
 // 获取API接口信息
 const getSysApiInfo = async () => {
   const { code, data, msg } = await getSysApi({ pageSize: 10000, type: 'BUS' });
-  if ( code == 200 ) {
+  if ( code === 200 ) {
     transferData.value = data.list.map((item) => {
       return { value: item.id, label: item.title };
     });

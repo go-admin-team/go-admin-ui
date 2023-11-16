@@ -1,50 +1,71 @@
 <template>
-  <div class="app-container">
-    <a-form :model="queryForm" ref="queryFormRef" layout="inline">
-      <a-form-item field="deptName" label="部门名称">
-        <a-input v-model="queryForm.deptName" placeholder="请输入部门名称" @press-enter="handleQuery" />
-      </a-form-item>
-      <a-form-item field="status" label="部门状态">
-        <a-select v-model="queryForm.status" placeholder="请选择部门状态">
-          <a-option :value="2">正常</a-option>
-          <a-option :value="1">停用</a-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item>
-        <a-space>
-          <a-button v-has="'admin:sysDept:query'" type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
-          <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
+  <div class="container">
+    <a-card :bordered="false" class="cardStyle" style="margin-bottom: 16px;">
+      <a-list-item-meta>
+        <template #title>
+          <div class="akaInfoTitle">部门管理</div>
+        </template>
+        <template #description>
+          <div class="akaInfoDesc">在这里管理用户所绑定的部门关系</div>
+        </template>
+        <template #avatar>
+          <div style="border-radius: 100px 0 100px 100px; background-color: #eff4f9; padding: 6px;">
+            <Iconify icon="uim:web-section" style="color: black;" width="48" height="48" />
+          </div>
+        </template>
+      </a-list-item-meta>
+      <a-divider />
+      <a-card-meta>
+        <template #avatar>
+          <a-form :model="queryForm" ref="queryFormRef" layout="inline">
+            <a-form-item field="deptName" label="部门名称">
+              <a-input v-model="queryForm.deptName" placeholder="请输入部门名称" @press-enter="handleQuery" />
+            </a-form-item>
+            <a-form-item field="status" label="部门状态">
+              <a-select v-model="queryForm.status" placeholder="请选择部门状态">
+                <a-option :value="2">正常</a-option>
+                <a-option :value="1">停用</a-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item>
+              <a-space>
+                <a-button v-has="'admin:sysDept:query'" type="primary" @click="handleQuery"><icon-search /> 搜索</a-button>
+                <a-button @click="handleResetQuery"><icon-loop /> 重置</a-button>
+              </a-space>
+            </a-form-item>
+          </a-form>
+        </template>
+      </a-card-meta>
+      <template #actions>
+        <a-space class="action">
+          <a-button v-has="'admin:sysDept:add'" type="primary" @click="handleAdd()"><icon-plus /> 新增</a-button>
         </a-space>
-      </a-form-item>
-    </a-form>
-
-    <a-divider />
-
-    <div class="action">
-      <a-button v-has="'admin:sysDept:add'" type="primary" @click="handleAdd()"><icon-plus /> 新增</a-button>
-    </div>
+      </template>
+    </a-card>
 
     <!-- 异步数据需要defualt-expanded-keys 传入所有行Key才能默认展开 -->
-    <a-table
-      :columns="columns"
-      :data="tableData"
-      :pagination="false"
-      :default-expanded-keys="[1]"
-      row-key="deptId"
-    >
-      <template #status="{ record }">
-        <a-tag color="green" v-if="record.status === 2">正常</a-tag>
-        <a-tag color="red" v-else> 停用 </a-tag>
-      </template>
-      <template #createdAt="{ record }">
-        {{ parseTime(record.createdAt) }}
-      </template>
-      <template #action="{ record }">
-        <a-button v-has="'admin:sysDept:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
-        <a-button v-has="'admin:sysDept:add'" type="text" @click="handleAdd(record)"><icon-plus /> 新增</a-button>
-        <a-button v-has="'admin:sysDept:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.deptId];  }"><icon-delete /> 删除</a-button>
-      </template>
-    </a-table>
+    <a-card :bordered="false" class="cardStyle">
+      <a-table
+        :columns="columns"
+        :data="tableData"
+        :pagination="false"
+        :default-expanded-keys="[1]"
+        row-key="deptId"
+      >
+        <template #status="{ record }">
+          <a-tag color="green" v-if="record.status === 2">正常</a-tag>
+          <a-tag color="red" v-else> 停用 </a-tag>
+        </template>
+        <template #createdAt="{ record }">
+          {{ parseTime(record.createdAt) }}
+        </template>
+        <template #action="{ record }">
+          <a-button v-has="'admin:sysDept:edit'" type="text" @click="handleUpdate(record)"><icon-edit /> 修改</a-button>
+          <a-button v-has="'admin:sysDept:add'" type="text" @click="handleAdd(record)"><icon-plus /> 新增</a-button>
+          <a-button v-has="'admin:sysDept:remove'" type="text" @click="() => { deleteVisible = true; deleteData = [record.deptId];  }"><icon-delete /> 删除</a-button>
+        </template>
+      </a-table>
+    </a-card>
 
     <!-- Modal -->
     <a-modal
@@ -99,6 +120,7 @@
 <script setup>
 import { reactive, ref, onMounted, getCurrentInstance, nextTick, watch } from 'vue';
 import { getDept, addDept, removeDept, updateDept } from '@/api/admin/sys-dept';
+import {IconLoop, IconSearch} from "@arco-design/web-vue/es/icon";
 
 // Akiraka 20230210 删除数据
 const deleteData = ref([])
@@ -222,14 +244,14 @@ const handleBeforeOk = (done) => {
       let res;
       if (Reflect.has(modalForm, 'deptId')) {
         const { code, msg } = await updateDept(modalForm, modalForm.deptId);
-        if (code == 200 ) {
+        if (code === 200 ) {
           proxy.$notification.success('修改成功');
         } else {
           proxy.$notification.error(msg);
         }
       } else {
         const { code, msg } = await addDept(modalForm);
-        if (code == 200 ) {
+        if (code === 200 ) {
           proxy.$notification.success('新增成功');
         } else {
           proxy.$notification.error(msg);
@@ -247,7 +269,7 @@ const handleBeforeOk = (done) => {
 // 获取部门信息
 const getDeptInfo = async (params = {}) => {
   const { data, code, msg } = await getDept(params);
-  if ( code == 200 ) {
+  if ( code === 200 ) {
     tableData.value = deepDelChildren(data);
   } else {
     proxy.$notification.error(msg);
