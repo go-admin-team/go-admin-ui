@@ -16,7 +16,7 @@ jobs:
         run: yarn
 
       - name: Build
-        run: yarn build
+        run: yarn run build
 
       - name: ClearFile
         uses: appleboy/ssh-action@master
