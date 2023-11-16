@@ -2,7 +2,7 @@ name: Build CI VUE3
 
 on: 
   push:
-    branches: [ arco_vue3_dev ]
+    branches: [ vue3_dev ]
 
 jobs:
   build:
