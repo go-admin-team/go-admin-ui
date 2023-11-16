@@ -4,7 +4,7 @@ COPY package*.json ./
 RUN npm install -g cnpm --registry=https://registry.npmmirror.com
 RUN cnpm install
 COPY . .
-RUN npm run build:prod
+RUN npm run build
 
 # production stage
 FROM registry.cn-shanghai.aliyuncs.com/lwmeng/nginx
