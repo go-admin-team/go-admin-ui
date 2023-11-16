@@ -10,7 +10,7 @@
         </template>
         <template #avatar>
           <div style="border-radius: 100px 0 100px 100px; background-color: #eff4f9; padding: 6px;">
-            <Iconify icon="fluent-mdl2:dictionary" style="color: black;" width="48" height="48" />
+            <Iconify icon="arcticons:colordict" style="color: black;" width="48" height="48" />
           </div>
         </template>
       </a-list-item-meta>
