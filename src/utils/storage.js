@@ -1,41 +1,31 @@
 // LocalStorage
 
-/**
- * 存储LocalStorage
- * @param {string, Object} name 
- * @param {*} value 
- */
-export const setLocalStorage = (name, value) => {
-  if (!name) throw new Error('name must be specified');
-  if (typeof value !== 'string') {
-    value = JSON.stringify(value);
+export const storage = {
+  getKeys() {
+    const keys = [];
+    for (let i = 0; i < window.localStorage.length; i++) {
+      keys.push(window.localStorage.key(i));
+    }
+
+    return keys;
+  },
+  setItem(key, val) {
+    if (typeof key !== 'string') {
+      key = key.toString();
+    }
+
+    if (key === undefined || key.trim().length === 0) throw new Error('key 参数不能为空或者undefined');
+
+    window.localStorage.setItem(key, JSON.stringify(val));
+  },
+  getItem(key) {
+    const val = window.localStorage.getItem(key);
+    return JSON.parse(val);
+  },
+  clearAllKeys() {
+    window.localStorage.clear();
+  },
+  removeItem(key) {
+    window.localStorage.removeItem(key);
   }
-  window.localStorage.setItem(name, value);
-}
-
-/**
- * 获取LocalStorage
- * @param {string, Object} name 
- * @returns 
- */
-export const getLocalStorage = (name) => {
-  if(!name) throw new Error('name must be specified');
-  const value = window.localStorage.getItem(name);
-  return JSON.parse(value);
-}
-
-/**
- * 移除指定name
- * @param {*} name 
- */
-export const removeLocalStorage = (name) => {
-  if (!name) throw new Error('name must be specified');
-  window.localStorage.removeItem(name);
-}
-
-/**
- * 清空所有LocalStorage
- */
-export const clearLocalStorage = () => {
-  window.localStorage.clear();
 }

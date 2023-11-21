@@ -1,26 +1,23 @@
 <template>
   <a-dropdown position="bl" :style="{ top: '52px' }">
-    <div class="avatar-container">
+    <a-space class="avatar">
       <a-avatar :size="32" :style="{ backgroundColor: '#3370ff' }">
-        <img alt="avatar" :src="userInfo.avatar" />
+        <img alt="avatar" :src="userInfo?.avatar" />
       </a-avatar>
-      <div class="user-info">
-        <div class="user-info-name">{{ userInfo.name }}</div>
-        <!-- <div class="user-info-desc">{{ userInfo.introduction }}</div> -->
-      </div>
-    </div>
+      <a-typography-text bold>{{ userInfo?.name }}</a-typography-text>
+    </a-space>
     <template #content>
       <a-doption @click="$router.push('/profile')">
         <template #icon>
           <icon-settings />
         </template>
-        <template #default>用户设置</template>
+        <template #default>个人设置</template>
       </a-doption>
-      <a-doption @click="handleLogout()">
+      <a-doption @click="handleLogout">
         <template #icon>
           <icon-export />
         </template>
-        <template #default>退出登陆</template>
+        <template #default>退出登录</template>
       </a-doption>
     </template>
   </a-dropdown>
@@ -29,14 +26,13 @@
 <script setup>
 import { getCurrentInstance } from 'vue';
 import { storeToRefs } from 'pinia';
-import {
-  IconSettings,
-  IconExport,
-} from '@arco-design/web-vue/es/icon';
+import { IconSettings, IconExport } from '@arco-design/web-vue/es/icon';
 import { useUserStore } from '@/store/userInfo';
-import { clearLocalStorage } from '@/utils/storage';
+import { usePermissionStore } from '@/store/permission'
 
 const store = useUserStore();
+const permissionStore = usePermissionStore();
+
 const { userInfo } = storeToRefs(store);
 
 const { proxy } = getCurrentInstance();
@@ -44,11 +40,12 @@ const { proxy } = getCurrentInstance();
 const handleLogout = () => {
   proxy.$modal.warning({
     title: '提示',
-    content: '确定注销并退出登陆系统吗？',
+    content: '确定注销并退出登录系统吗？',
     hideCancel: false,
     onOk: () => {
-      window.sessionStorage.removeItem('token');
-      clearLocalStorage();
+      window.sessionStorage.clear();
+      store.userLogout();
+      permissionStore.ClearMenuList();
       proxy.$router.push('/login');
     },
   });
@@ -56,21 +53,14 @@ const handleLogout = () => {
 </script>
 
 <style lang="scss" scoped>
-.avatar-container {
-  display: flex;
-  cursor: pointer;
-  .user-info {
-    margin-left: 10px;
-    &-name {
-      color: var(--color-text-1);
-      font-weight: 700;
-      padding-top: 8px;
-    }
-    &-desc {
-      color: var(--color-text-1);
-      font-size: 12px;
-      line-height: 1.4;
-    }
-  }
+.avatar {
+  // padding: 0px 5px;
+  // line-height: 50px;
+  // text-align: center;
+  // transition: all 0.3s ease-in-out;
+  // cursor: pointer;
+  // &:hover {
+  //   background-color: #e5e5e5;
+  // }
 }
 </style>

@@ -1,48 +1,57 @@
 import { defineStore } from 'pinia';
-import { setLocalStorage, getLocalStorage } from '@/utils/storage';
+import { storage } from '@/utils/storage';
 import { getInfo } from '@/api/admin/sys-user';
 import { getAppConfig } from '@/api/admin/login';
 
 export const useUserStore = defineStore('user', {
   state: () => {
     return {
-      token: window.sessionStorage.getItem('token') || '',
-      uid: window.sessionStorage.getItem('uid') || '',
-      sysConfig: getLocalStorage('sysConfig'),
-      userInfo: '',
+      token: storage.getItem('token') || null,
+      uid: storage.getItem('uid') || null,
+      sysConfig: null,
+      userInfo: null,
     }
   },
   getters: {
-    roles: (state) => state.userInfo.roles || [],
+    roles: (state) => state?.userInfo?.roles,
   },
   actions: {
     setToken(token) {
       this.token = token;
-
-      window.sessionStorage.setItem('token', token);
+      // Akiraka 20230504 设置缓存 token
+      storage.setItem('token', token);
     },
     async getUserInfo() {
       try {
-        const res = await getInfo();
-        // window.sessionStorage.setItem('uid', res.data.userId);
-        window.localStorage.setItem('uid', res.data.userId);
-        this.userInfo = res.data;
+        const { data } = await getInfo();
+        // storage.setItem('userInfo', res.data);
+        storage.setItem('uid', data.userId);
+        this.userInfo = data;
       } catch (err) {
         console.error(err);
       }
     },
     async getSysConfig() {
-      try {
-        const res = await getAppConfig();
-        setLocalStorage('sysConfig', res.data);
-        this.sysConfig = res.data;
-      } catch (err) {
-        console.error(err);
+      const sysConfig = storage.getItem('sysConfig');
+      if (sysConfig) {
+        this.sysConfig = sysConfig;
+      } else {
+        try {
+          const { data, code, errorMessage } = await getAppConfig();
+          if ( code === 200 ) {
+            storage.setItem('sysConfig', data);
+            this.sysConfig = data;
+          }
+        } catch (err) {
+          console.error(err);
+        }
       }
+    },
+    userLogout() {
+      this.token = null;
+      this.userInfo = null;
+      // Akiraka 20230504 清除缓存 token
+      storage.removeItem('token');
     }
-  },
-  userLogout() {
-    this.token = null;
-    this.userInfo = null;
   }
 })

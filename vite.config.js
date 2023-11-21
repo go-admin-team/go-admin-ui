@@ -32,7 +32,7 @@ export default defineConfig({
     port: 1798,
     proxy: {
       '/api/v1': {
-        target: 'http://127.0.0.1:8000',
+        target: 'http://117.50.186.148:8000',
       }
     }
   },

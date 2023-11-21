@@ -62,31 +62,28 @@ const router = createRouter({
 // beforeEach router
 router.beforeEach(async (to, from, next) => {
   const store = useUserStore();
-
   const permissionStore = usePermissionStore();
 
   // 获取系统配置信息
-  await store.getSysConfig();
+  if (!store.sysConfig){
+    await store.getSysConfig();
+  }
 
-  // 判断用户Token是否获取
-  if (to.name !== 'login' && !store.token) {
+  if (!store.token && to.name !== 'login') {
     next({ name: 'login' });
   } else {
     // 判断判断权限有无获取
-    if (store.token && store.roles.length === 0) {
-      store.getUserInfo();
+    if (store.token && !store.roles) {
+      await store.getUserInfo();
       await permissionStore.getMenuRole();
-
       permissionStore.addRouters.forEach((route) => {
         router.addRoute('/', route);
       });
-      // next(to.fullPath);
       // 如果 addRoute 并未完成，路由守卫会一层一层的执行执行，直到 addRoute 完成，找到对应的路由
       next({ ...to, replace: true })
     } else {
       next();
     }
-
   }
 });
 
@@ -102,14 +99,14 @@ router.afterEach((to) => {
   }
 
   // Vincent 2023004 修复加载水印的bug 
-  if (store.userInfo != undefined){
-    if ( store.userInfo.name != undefined ) {
-      Watermark.set(store.userInfo.name)
-    } else {
-      Watermark.out() // 清除水印
-    }
-  } else{
-    Watermark.out() // 清除水印
-  }
+  // if (store.userInfo != undefined){
+  //   if ( store.userInfo.name != undefined ) {
+  //     Watermark.set(store.userInfo.name)
+  //   } else {
+  //     Watermark.out() // 清除水印
+  //   }
+  // } else{
+  //   Watermark.out() // 清除水印
+  // }
 });
 export default router;

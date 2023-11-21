@@ -4,7 +4,7 @@ import { useUserStore } from '../store/userInfo'
 
 // create an axios instance
 const service = axios.create({
-  baseURL: import.meta.env.VITE_APP_BASE_URL,
+  baseUrl: import.meta.env.VITE_APP_BASE_URL,
   timeout: 8000,
 });
 
