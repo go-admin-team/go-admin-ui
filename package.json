@@ -47,7 +47,7 @@
   "dependencies": {
     "@riophae/vue-treeselect": "0.4.0",
     "awe-dnd": "^0.3.4",
-    "axios": "0.21.1",
+    "axios": "1.6.0",
     "clipboard": "2.0.6",
     "codemirror": "5.62.0",
     "core-js": "^3.6.5",
