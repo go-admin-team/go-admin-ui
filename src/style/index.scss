@@ -98,3 +98,17 @@ a:hover {
     box-shadow: #919eab4d 0 0 2px, #919eab1f 0 12px 24px -4px;
   }
 }
+
+// #########################################
+// 定义 主页面顶部列表标题与内容样式
+// #########################################
+// 顶部信息页面标题
+.akaInfoTitle {
+  font-size: 30px;
+}
+// 顶部信息页面描述
+.akaInfoDesc {
+  color: #79879c!important;
+  font-size: 12px;
+  margin-top: 6px;
+}
