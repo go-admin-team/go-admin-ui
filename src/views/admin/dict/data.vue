@@ -118,7 +118,7 @@
               <el-input v-model="form.dictType" :disabled="true" />
             </el-form-item>
             <el-form-item label="数据标签" prop="dictLabel">
-              <el-input v-model="form.dictLabel" placeholder="请输入数据标签" :disabled="isEdit" />
+              <el-input v-model="form.dictLabel" placeholder="请输入数据标签" />
             </el-form-item>
             <el-form-item label="数据键值" prop="dictValue">
               <el-input v-model="form.dictValue" placeholder="请输入数据键值" :disabled="isEdit" />
