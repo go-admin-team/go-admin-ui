@@ -58,7 +58,7 @@ export default {
       this.emitInput(this.tempUrl)
     },
     beforeUpload() {
-      const _self = this
+      //const _self = this
       return new Promise((resolve, reject) => {
         // getToken().then(response => {
         //   const key = response.data.qiniu_key
