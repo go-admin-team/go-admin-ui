@@ -2,7 +2,7 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" class="search-form">
           <el-form-item label="岗位编码" prop="postCode">
             <el-input
               v-model="queryParams.postCode"
@@ -32,53 +32,19 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+            <el-button type="primary" size="small" :icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button size="small" :icon="Refresh" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
 
-        <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysPost:add']"
-              type="primary"
-              icon="el-icon-plus"
-              size="mini"
-              @click="handleAdd"
-            >新增</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysPost:edit']"
-              type="success"
-              icon="el-icon-edit"
-              size="mini"
-              :disabled="single"
-              @click="handleUpdate"
-            >修改</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysPost:remove']"
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              :disabled="multiple"
-              @click="handleDelete"
-            >删除</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysPost:export']"
-              type="warning"
-              icon="el-icon-download"
-              size="mini"
-              @click="handleExport"
-            >导出</el-button>
-          </el-col>
-        </el-row>
+        <div class="toolbar mb8">
+          <el-button v-permisaction="['admin:sysPost:add']" type="primary" size="small" :icon="Plus" @click="handleAdd">新增</el-button>
+          <el-button v-permisaction="['admin:sysPost:edit']" type="primary" size="small" :icon="Edit" :disabled="single" @click="handleUpdate">修改</el-button>
+          <el-button v-permisaction="['admin:sysPost:remove']" type="danger" size="small" :icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
+          <el-button v-permisaction="['admin:sysPost:export']" size="small" :icon="Download" @click="handleExport">导出</el-button>
+        </div>
 
-        <el-table v-loading="loading" :data="postList" border @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="postList" border stripe @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column label="岗位编号" width="80" align="center" prop="postId" />
           <el-table-column label="岗位编码" align="center" prop="postCode" />
@@ -99,20 +65,9 @@
           </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template #default="scope">
-              <el-button
-                v-permisaction="['admin:sysPost:edit']"
-                size="mini"
-                type="text"
-                icon="el-icon-edit"
-                @click="handleUpdate(scope.row)"
-              >修改</el-button>
-              <el-button
-                v-permisaction="['admin:sysPost:remove']"
-                size="mini"
-                type="text"
-                icon="el-icon-delete"
-                @click="handleDelete(scope.row)"
-              >删除</el-button>
+              <el-button v-permisaction="['admin:sysPost:edit']" type="primary" link size="small" :icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
+              <el-divider direction="vertical" />
+              <el-button v-permisaction="['admin:sysPost:remove']" type="danger" link size="small" :icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -163,9 +118,13 @@
 <script>
 import { listPost, getPost, delPost, addPost, updatePost } from '@/api/admin/sys-post'
 import { formatJson } from '@/utils'
+import { Search, Refresh, Plus, Edit, Delete, Download } from '@element-plus/icons-vue'
 
 export default {
   name: 'SysPostManage',
+  setup() {
+    return { Search, Refresh, Plus, Edit, Delete, Download }
+  },
   data() {
     return {
       // 遮罩层

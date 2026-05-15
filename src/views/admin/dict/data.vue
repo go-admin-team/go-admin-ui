@@ -2,7 +2,7 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" class="search-form">
           <el-form-item label="字典名称" prop="dictType">
             <el-select v-model="queryParams.dictType" size="small">
               <el-option
@@ -33,50 +33,30 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+            <el-button type="primary" size="small" :icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button size="small" :icon="Refresh" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
 
-        <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysDictData:add']"
-              type="primary"
-              icon="el-icon-plus"
-              size="mini"
-              @click="handleAdd"
-            >新增</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysDictData:edit']"
-              type="success"
-              icon="el-icon-edit"
-              size="mini"
-              :disabled="single"
-              @click="handleUpdate"
-            >修改</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysDictData:remove']"
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              :disabled="multiple"
-              @click="handleDelete"
-            >删除</el-button>
-          </el-col>
-        </el-row>
+        <div class="toolbar mb8">
+          <el-button v-permisaction="['admin:sysDictData:add']" type="primary" size="small" :icon="Plus" @click="handleAdd">新增</el-button>
+          <el-button v-permisaction="['admin:sysDictData:edit']" type="primary" size="small" :icon="Edit" :disabled="single" @click="handleUpdate">修改</el-button>
+          <el-button v-permisaction="['admin:sysDictData:remove']" type="danger" size="small" :icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
+        </div>
 
-        <el-table v-loading="loading" :data="dataList" border @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="dataList" border stripe @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column label="字典编码" width="80" align="center" prop="dictCode" />
           <el-table-column label="字典标签" align="center" prop="dictLabel" />
           <el-table-column label="字典键值" align="center" prop="dictValue" />
           <el-table-column label="字典排序" align="center" prop="dictSort" />
-          <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat" />
+          <el-table-column label="状态" align="center" prop="status">
+            <template #default="scope">
+              <el-tag :type="parseInt(scope.row.status) === 2 ? 'success' : 'danger'" size="small" disable-transitions>
+                {{ statusFormat(scope.row) }}
+              </el-tag>
+            </template>
+          </el-table-column>
           <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true" />
           <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
             <template #default="scope">
@@ -85,20 +65,9 @@
           </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template #default="scope">
-              <el-button
-                v-permisaction="['admin:sysDictData:edit']"
-                size="mini"
-                type="text"
-                icon="el-icon-edit"
-                @click="handleUpdate(scope.row)"
-              >修改</el-button>
-              <el-button
-                v-permisaction="['admin:sysDictData:remove']"
-                size="mini"
-                type="text"
-                icon="el-icon-delete"
-                @click="handleDelete(scope.row)"
-              >删除</el-button>
+              <el-button v-permisaction="['admin:sysDictData:edit']" type="primary" link size="small" :icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
+              <el-divider direction="vertical" />
+              <el-button v-permisaction="['admin:sysDictData:remove']" type="danger" link size="small" :icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -152,9 +121,13 @@
 <script>
 import { listData, getData, delData, addData, updateData, exportData } from '@/api/admin/dict/data'
 import { listType, getType } from '@/api/admin/dict/type'
+import { Search, Refresh, Plus, Edit, Delete } from '@element-plus/icons-vue'
 
 export default {
   name: 'SysDictDataManage',
+  setup() {
+    return { Search, Refresh, Plus, Edit, Delete }
+  },
   data() {
     return {
       // 遮罩层

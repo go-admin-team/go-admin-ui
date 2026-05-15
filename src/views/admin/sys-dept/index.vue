@@ -2,18 +2,27 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form :inline="true">
-          <el-form-item label="部门名称">
+
+        <!-- 搜索区 -->
+        <el-form ref="queryForm" :model="queryParams" :inline="true" class="search-form">
+          <el-form-item label="部门名称" prop="deptName">
             <el-input
               v-model="queryParams.deptName"
               placeholder="请输入部门名称"
               clearable
               size="small"
+              style="width: 200px"
               @keyup.enter="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="状态">
-            <el-select v-model="queryParams.status" placeholder="部门状态" clearable size="small">
+          <el-form-item label="状态" prop="status">
+            <el-select
+              v-model="queryParams.status"
+              placeholder="部门状态"
+              clearable
+              size="small"
+              style="width: 140px"
+            >
               <el-option
                 v-for="dict in statusOptions"
                 :key="dict.value"
@@ -23,71 +32,81 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button
-              class="filter-item"
-              type="primary"
-              icon="el-icon-search"
-              size="mini"
-              @click="handleQuery"
-            >搜索</el-button>
-            <el-button
-              v-permisaction="['admin:sysDept:add']"
-              class="filter-item"
-              type="primary"
-              icon="el-icon-plus"
-              size="mini"
-              @click="handleAdd"
-            >新增</el-button>
+            <el-button type="primary" size="small" :icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button size="small" :icon="Refresh" @click="handleResetQuery">重置</el-button>
           </el-form-item>
         </el-form>
 
+        <!-- 操作栏 -->
+        <el-row :gutter="10" class="mb8">
+          <el-col :span="1.5">
+            <el-button
+              v-permisaction="['admin:sysDept:add']"
+              type="primary"
+              size="small"
+              :icon="Plus"
+              @click="handleAdd()"
+            >新增</el-button>
+          </el-col>
+        </el-row>
+
+        <!-- 数据表格 -->
         <el-table
           v-loading="loading"
           :data="deptList"
           row-key="deptId"
           default-expand-all
           border
-          :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+          stripe
+          highlight-current-row
+          :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
         >
-          <el-table-column prop="deptName" label="部门名称" />
-          <el-table-column prop="sort" label="排序" width="200" />
-          <el-table-column prop="status" label="状态" :formatter="statusFormat" width="100">
+          <el-table-column prop="deptName" label="部门名称" min-width="160" />
+          <el-table-column prop="sort" label="排序" width="80" align="center" />
+          <el-table-column prop="status" label="状态" width="90" align="center">
             <template #default="scope">
               <el-tag
                 :type="scope.row.status === 1 ? 'danger' : 'success'"
+                size="small"
                 disable-transitions
               >{{ statusFormat(scope.row) }}</el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="创建时间" align="center" prop="createdAt" width="200">
+          <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
             <template #default="scope">
               <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <el-table-column label="操作" align="center" width="200" class-name="small-padding fixed-width">
             <template #default="scope">
               <el-button
                 v-permisaction="['admin:sysDept:edit']"
-                size="mini"
-                type="text"
-                icon="el-icon-edit"
+                size="small"
+                type="primary"
+                link
+                :icon="Edit"
                 @click="handleUpdate(scope.row)"
               >修改</el-button>
+              <el-divider direction="vertical" />
               <el-button
                 v-permisaction="['admin:sysDept:add']"
-                size="mini"
-                type="text"
-                icon="el-icon-plus"
+                size="small"
+                type="primary"
+                link
+                :icon="Plus"
                 @click="handleAdd(scope.row)"
               >新增</el-button>
-              <el-button
-                v-if="scope.row.p_id != 0"
-                v-permisaction="['admin:sysDept:remove']"
-                size="mini"
-                type="text"
-                icon="el-icon-delete"
-                @click="handleDelete(scope.row)"
-              >删除</el-button>
+              <template v-if="scope.row.p_id != 0">
+                <el-divider direction="vertical" />
+                <el-button
+                  v-permisaction="['admin:sysDept:remove']"
+                  size="small"
+                  type="danger"
+                  link
+                  :icon="Delete"
+                  @click="handleDelete(scope.row)"
+                >删除</el-button>
+              </template>
             </template>
           </el-table-column>
         </el-table>
@@ -146,11 +165,14 @@
               </el-col>
             </el-row>
           </el-form>
-          <template #footer><div class="dialog-footer">
-            <el-button type="primary" @click="submitForm">确 定</el-button>
-            <el-button @click="cancel">取 消</el-button>
-          </div></template>
+          <template #footer>
+            <div class="dialog-footer">
+              <el-button type="primary" @click="submitForm">确 定</el-button>
+              <el-button @click="cancel">取 消</el-button>
+            </div>
+          </template>
         </el-dialog>
+
       </el-card>
     </template>
   </BasicLayout>
@@ -160,34 +182,28 @@
 import { getDeptList, getDept, delDept, addDept, updateDept } from '@/api/admin/sys-dept'
 import Treeselect from 'vue3-treeselect'
 import 'vue3-treeselect/dist/vue3-treeselect.css'
+import { Search, Refresh, Plus, Edit, Delete } from '@element-plus/icons-vue'
 
 export default {
   name: 'SysDeptManage',
   components: { Treeselect },
+  setup() {
+    return { Search, Refresh, Plus, Edit, Delete }
+  },
   data() {
     return {
-      // 遮罩层
       loading: true,
-      // 表格树数据
       deptList: [],
-      // 部门树选项
       deptOptions: [],
-      // 弹出层标题
       title: '',
       isEdit: false,
-      // 是否显示弹出层
       open: false,
-      // 状态数据字典
       statusOptions: [],
-      // 查询参数
       queryParams: {
         deptName: undefined,
         status: undefined
       },
-      // 表单参数
-      form: {
-      },
-      // 表单校验
+      form: {},
       rules: {
         parentId: [
           { required: true, message: '上级部门不能为空', trigger: 'blur' }
@@ -204,7 +220,7 @@ export default {
         email: [
           {
             type: 'email',
-            message: "'请输入正确的邮箱地址",
+            message: '请输入正确的邮箱地址',
             trigger: ['blur', 'change']
           }
         ],
@@ -225,7 +241,6 @@ export default {
     })
   },
   methods: {
-    /** 查询部门列表 */
     getList() {
       this.loading = true
       getDeptList(this.queryParams).then(response => {
@@ -233,7 +248,6 @@ export default {
         this.loading = false
       })
     },
-    /** 转换部门数据结构 */
     normalizer(node) {
       if (node.children && !node.children.length) {
         delete node.children
@@ -244,11 +258,9 @@ export default {
         children: node.children
       }
     },
-    /** 查询部门下拉树结构 */
     getTreeselect(e) {
       getDeptList().then(response => {
         this.deptOptions = []
-
         if (e === 'update') {
           const dept = { deptId: 0, deptName: '主类目', children: [], isDisabled: true }
           dept.children = response.data
@@ -260,16 +272,13 @@ export default {
         }
       })
     },
-    // 字典状态字典翻译
     statusFormat(row) {
       return this.selectDictLabel(this.statusOptions, parseInt(row.status))
     },
-    // 取消按钮
     cancel() {
       this.open = false
       this.reset()
     },
-    // 表单重置
     reset() {
       this.form = {
         deptId: undefined,
@@ -282,11 +291,13 @@ export default {
         status: '2'
       }
     },
-    /** 搜索按钮操作 */
     handleQuery() {
       this.getList()
     },
-    /** 新增按钮操作 */
+    handleResetQuery() {
+      this.queryParams = { deptName: undefined, status: undefined }
+      this.getList()
+    },
     handleAdd(row) {
       this.reset()
       this.getTreeselect('add')
@@ -297,11 +308,9 @@ export default {
       this.title = '添加部门'
       this.isEdit = false
     },
-    /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
       this.getTreeselect('update')
-
       getDept(row.deptId).then(response => {
         this.form = response.data
         this.form.status = String(this.form.status)
@@ -311,7 +320,6 @@ export default {
         this.isEdit = true
       })
     },
-    /** 提交按钮 */
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
@@ -341,7 +349,6 @@ export default {
         }
       })
     },
-    /** 删除按钮操作 */
     handleDelete(row) {
       const Ids = (row.deptId && [row.deptId]) || this.ids
       this.$confirm(

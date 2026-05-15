@@ -11,7 +11,7 @@
                 placeholder="请输入部门名称"
                 clearable
                 size="small"
-                prefix-icon="el-icon-search"
+
                 style="margin-bottom: 20px"
               />
             </div>
@@ -67,8 +67,8 @@
                 </el-select>
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-                <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+                <el-button type="primary" size="mini" @click="handleQuery">搜索</el-button>
+                <el-button size="mini" @click="resetQuery">重置</el-button>
               </el-form-item>
             </el-form>
 
@@ -77,7 +77,7 @@
                 <el-button
                   v-permisaction="['admin:sysUser:add']"
                   type="primary"
-                  icon="el-icon-plus"
+
                   size="mini"
                   @click="handleAdd"
                 >新增</el-button>
@@ -86,7 +86,7 @@
                 <el-button
                   v-permisaction="['admin:sysUser:edit']"
                   type="success"
-                  icon="el-icon-edit"
+
                   size="mini"
                   :disabled="single"
                   @click="handleUpdate"
@@ -96,7 +96,7 @@
                 <el-button
                   v-permisaction="['admin:sysUser:remove']"
                   type="danger"
-                  icon="el-icon-delete"
+
                   size="mini"
                   :disabled="multiple"
                   @click="handleDelete"
@@ -149,7 +149,7 @@
                     v-permisaction="['admin:sysUser:edit']"
                     size="mini"
                     type="text"
-                    icon="el-icon-edit"
+
                     @click="handleUpdate(scope.row)"
                   >修改</el-button>
                   <el-button
@@ -157,14 +157,14 @@
                     v-permisaction="['admin:sysUser:remove']"
                     size="mini"
                     type="text"
-                    icon="el-icon-delete"
+
                     @click="handleDelete(scope.row)"
                   >删除</el-button>
                   <el-button
                     v-permisaction="['admin:sysUser:resetPassword']"
                     size="mini"
                     type="text"
-                    icon="el-icon-key"
+
                     @click="handleResetPwd(scope.row)"
                   >重置</el-button>
                 </template>
@@ -295,7 +295,7 @@
           :auto-upload="false"
           drag
         >
-          <i class="el-icon-upload" />
+          <i class="ri-upload-line" />
           <div class="el-upload__text">
             将文件拖到此处，或
             <em>点击上传</em>

@@ -3,7 +3,7 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="48px">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" class="search-form">
           <el-form-item label="标题" prop="title">
             <el-input
               v-model="queryParams.title"
@@ -28,7 +28,6 @@
               placeholder="请选择Method"
               clearable
               size="small"
-              @keyup.enter="handleQuery"
             >
               <el-option value="GET">GET</el-option>
               <el-option value="POST">POST</el-option>
@@ -42,7 +41,6 @@
               placeholder="请选择类型"
               clearable
               size="small"
-              @keyup.enter="handleQuery"
             >
               <el-option value="SYS">SYS</el-option>
               <el-option value="BUS">BUS</el-option>
@@ -50,8 +48,8 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+            <el-button type="primary" size="small" :icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button size="small" :icon="Refresh" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
 
@@ -59,6 +57,7 @@
           v-loading="loading"
           :data="sysapiList"
           border
+          stripe
           @selection-change="handleSelectionChange"
           @sort-change="handleSortChang"
         >
@@ -133,14 +132,7 @@
             class-name="small-padding fixed-width"
           >
             <template #default="scope">
-              <el-button
-                v-permisaction="['admin:sysApi:edit']"
-                size="mini"
-                type="text"
-                icon="el-icon-edit"
-                @click="handleUpdate(scope.row)"
-              >修改
-              </el-button>
+              <el-button v-permisaction="['admin:sysApi:edit']" type="primary" link size="small" :icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -228,10 +220,14 @@
 
 <script>
 import { addSysApi, delSysApi, getSysApi, listSysApi, updateSysApi } from '@/api/admin/sys-api'
+import { Search, Refresh, Edit } from '@element-plus/icons-vue'
 
 export default {
   name: 'SysApiManage',
   components: {
+  },
+  setup() {
+    return { Search, Refresh, Edit }
   },
   data() {
     return {

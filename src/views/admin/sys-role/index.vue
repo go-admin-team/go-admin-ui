@@ -2,14 +2,13 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" class="search-form">
           <el-form-item label="名称" prop="roleName">
             <el-input
               v-model="queryParams.roleName"
               placeholder="请输入角色名称"
               clearable
               size="small"
-              style="width: 160px"
               @keyup.enter="handleQuery"
             />
           </el-form-item>
@@ -19,7 +18,6 @@
               placeholder="请输入权限字符"
               clearable
               size="small"
-              style="width: 160px"
               @keyup.enter="handleQuery"
             />
           </el-form-item>
@@ -29,7 +27,6 @@
               placeholder="角色状态"
               clearable
               size="small"
-              style="width: 160px"
             >
               <el-option
                 v-for="dict in statusOptions"
@@ -39,69 +36,24 @@
               />
             </el-select>
           </el-form-item>
-          <!-- <el-form-item label="创建时间">
-            <el-date-picker
-              v-model="dateRange"
-              size="small"
-              style="width: 240px"
-              value-format="yyyy-MM-dd"
-              type="daterange"
-              range-separator="-"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-            />
-          </el-form-item> -->
           <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+            <el-button type="primary" size="small" :icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button size="small" :icon="Refresh" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
 
-        <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysRole:add']"
-              type="primary"
-              icon="el-icon-plus"
-              size="mini"
-              @click="handleAdd"
-            >新增</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysRole:update']"
-              type="success"
-              icon="el-icon-edit"
-              size="mini"
-              :disabled="single"
-              @click="handleUpdate"
-            >修改</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysRole:remove']"
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              :disabled="multiple"
-              @click="handleDelete"
-            >删除</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysRole:export']"
-              type="warning"
-              icon="el-icon-download"
-              size="mini"
-              @click="handleExport"
-            >导出</el-button>
-          </el-col>
-        </el-row>
+        <div class="toolbar mb8">
+          <el-button v-permisaction="['admin:sysRole:add']" type="primary" size="small" :icon="Plus" @click="handleAdd">新增</el-button>
+          <el-button v-permisaction="['admin:sysRole:update']" type="primary" size="small" :icon="Edit" :disabled="single" @click="handleUpdate">修改</el-button>
+          <el-button v-permisaction="['admin:sysRole:remove']" type="danger" size="small" :icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
+          <el-button v-permisaction="['admin:sysRole:export']" size="small" :icon="Download" @click="handleExport">导出</el-button>
+        </div>
 
         <el-table
           v-loading="loading"
           :data="roleList"
           border
+          stripe
           @selection-change="handleSelectionChange"
           @sort-change="handleSortChang"
         >
@@ -132,28 +84,13 @@
             width="220"
           >
             <template #default="scope">
-              <el-button
-                v-permisaction="['admin:sysRole:update']"
-                size="mini"
-                type="text"
-                icon="el-icon-edit"
-                @click="handleUpdate(scope.row)"
-              >修改</el-button>
-              <el-button
-                v-permisaction="['admin:sysRole:update']"
-                size="mini"
-                type="text"
-                icon="el-icon-circle-check"
-                @click="handleDataScope(scope.row)"
-              >数据权限</el-button>
-              <el-button
-                v-if="scope.row.roleKey!=='admin'"
-                v-permisaction="['admin:sysRole:remove']"
-                size="mini"
-                type="text"
-                icon="el-icon-delete"
-                @click="handleDelete(scope.row)"
-              >删除</el-button>
+              <el-button v-permisaction="['admin:sysRole:update']" type="primary" link size="small" :icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
+              <el-divider direction="vertical" />
+              <el-button v-permisaction="['admin:sysRole:update']" type="primary" link size="small" @click="handleDataScope(scope.row)">数据权限</el-button>
+              <template v-if="scope.row.roleKey!=='admin'">
+                <el-divider direction="vertical" />
+                <el-button v-permisaction="['admin:sysRole:remove']" type="danger" link size="small" :icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
+              </template>
             </template>
           </el-table-column>
         </el-table>
@@ -253,11 +190,15 @@ import { listRole, getRole, delRole, addRole, updateRole, dataScope, changeRoleS
 import { roleMenuTreeselect } from '@/api/admin/sys-menu'
 import { treeselect as deptTreeselect, roleDeptTreeselect } from '@/api/admin/sys-dept'
 import { formatJson } from '@/utils'
+import { Search, Refresh, Plus, Edit, Delete, Download } from '@element-plus/icons-vue'
 
 export default {
   name: 'RoleManagement',
   components: {
 
+  },
+  setup() {
+    return { Search, Refresh, Plus, Edit, Delete, Download }
   },
   data() {
     return {

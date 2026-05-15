@@ -2,7 +2,7 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form :inline="true">
+        <el-form :inline="true" class="search-form">
           <el-form-item label="菜单名称">
             <el-input
               v-model="queryParams.title"
@@ -23,14 +23,8 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-            <el-button
-              v-permisaction="['admin:sysMenu:add']"
-              type="primary"
-              icon="el-icon-plus"
-              size="mini"
-              @click="handleAdd"
-            >新增</el-button>
+            <el-button type="primary" size="small" :icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button v-permisaction="['admin:sysMenu:add']" type="primary" size="small" :icon="Plus" @click="handleAdd">新增</el-button>
           </el-form-item>
         </el-form>
 
@@ -38,6 +32,7 @@
           v-loading="loading"
           :data="menuList"
           border
+          stripe
           row-key="menuId"
           :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
         >
@@ -113,29 +108,13 @@
               <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="180">
+          <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="220">
             <template #default="scope">
-              <el-button
-                v-permisaction="['admin:sysMenu:edit']"
-                size="mini"
-                type="text"
-                icon="el-icon-edit"
-                @click="handleUpdate(scope.row)"
-              >修改</el-button>
-              <el-button
-                v-permisaction="['admin:sysMenu:add']"
-                size="mini"
-                type="text"
-                icon="el-icon-plus"
-                @click="handleAdd(scope.row)"
-              >新增</el-button>
-              <el-button
-                v-permisaction="['admin:sysMenu:remove']"
-                size="mini"
-                type="text"
-                icon="el-icon-delete"
-                @click="handleDelete(scope.row)"
-              >删除</el-button>
+              <el-button v-permisaction="['admin:sysMenu:edit']" type="primary" link size="small" :icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
+              <el-divider direction="vertical" />
+              <el-button v-permisaction="['admin:sysMenu:add']" type="primary" link size="small" :icon="Plus" @click="handleAdd(scope.row)">新增</el-button>
+              <el-divider direction="vertical" />
+              <el-button v-permisaction="['admin:sysMenu:remove']" type="danger" link size="small" :icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -159,7 +138,7 @@
                       <span>
                         上级菜单
                         <el-tooltip content="指当前菜单停靠的菜单归属" placement="top">
-                          <i class="el-icon-question" />
+                          <i class="ri-question-line" />
                         </el-tooltip>
                       </span>
                     </template>
@@ -178,7 +157,7 @@
                       <span>
                         菜单标题
                         <el-tooltip content="菜单位置显示的说明信息" placement="top">
-                          <i class="el-icon-question" />
+                          <i class="ri-question-line" />
                         </el-tooltip>
                       </span>
                     </template>
@@ -191,7 +170,7 @@
                       <span>
                         显示排序
                         <el-tooltip content="根据序号升序排列" placement="top">
-                          <i class="el-icon-question" />
+                          <i class="ri-question-line" />
                         </el-tooltip>
                       </span>
                     </template>
@@ -205,7 +184,7 @@
                       <span>
                         菜单类型
                         <el-tooltip content="包含目录：以及菜单或者菜单组，菜单：具体对应某一个页面，按钮：功能才做按钮；" placement="top">
-                          <i class="el-icon-question" />
+                          <i class="ri-question-line" />
                         </el-tooltip>
                       </span>
                     </template>
@@ -234,7 +213,7 @@
                               class="el-input__icon"
                               style="height: 32px;width: 16px;"
                             />
-                            <i v-else class="el-icon-search el-input__icon" />
+                            <i v-else class="ri-search-line el-input__icon" />
                           </template>
                         </el-input>
                       </template>
@@ -247,7 +226,7 @@
                       <span>
                         路由名称
                         <el-tooltip content="需要和页面name保持一致，对应页面即可选择缓存" placement="top">
-                          <i class="el-icon-question" />
+                          <i class="ri-question-line" />
                         </el-tooltip>
                       </span>
                     </template>
@@ -261,7 +240,7 @@
                       <span>
                         组件路径
                         <el-tooltip content="菜单对应的具体vue页面文件路径views的下级路径/admin/sys-api/index；目录类型：填写Layout，如何有二级目录请参照日志目录填写；" placement="top">
-                          <i class="el-icon-question" />
+                          <i class="ri-question-line" />
                         </el-tooltip>
                       </span>
                     </template>
@@ -275,7 +254,7 @@
                       <span>
                         是否外链
                         <el-tooltip content="可以通过iframe打开指定地址" placement="top">
-                          <i class="el-icon-question" />
+                          <i class="ri-question-line" />
                         </el-tooltip>
                       </span>
                     </template>
@@ -292,7 +271,7 @@
                       <span>
                         路由地址
                         <el-tooltip content="访问此页面自定义的url地址，建议/开头书写，例如 /app-name/menu-name" placement="top">
-                          <i class="el-icon-question" />
+                          <i class="ri-question-line" />
                         </el-tooltip>
                       </span>
                     </template>
@@ -306,7 +285,7 @@
                       <span>
                         权限标识
                         <el-tooltip content="前端权限控制按钮是否显示" placement="top">
-                          <i class="el-icon-question" />
+                          <i class="ri-question-line" />
                         </el-tooltip>
                       </span>
                     </template>
@@ -319,7 +298,7 @@
                       <span>
                         菜单状态
                         <el-tooltip content="需要显示在菜单列表的菜单设置为显示，否则设置为隐藏" placement="top">
-                          <i class="el-icon-question" />
+                          <i class="ri-question-line" />
                         </el-tooltip>
                       </span>
                     </template>
@@ -338,7 +317,7 @@
                       <span>
                         api权限
                         <el-tooltip content="配置在这个才做上需要使用到的接口，否则在设置用户角色时，接口将无权访问。" placement="top">
-                          <i class="el-icon-question" />
+                          <i class="ri-question-line" />
                         </el-tooltip>
                       </span>
                     </template>
@@ -387,10 +366,14 @@ import { listSysApi } from '@/api/admin/sys-api'
 import Treeselect from 'vue3-treeselect'
 import 'vue3-treeselect/dist/vue3-treeselect.css'
 import IconSelect from '@/components/IconSelect'
+import { Search, Plus, Edit, Delete } from '@element-plus/icons-vue'
 
 export default {
   name: 'SysMenuManage',
   components: { Treeselect, IconSelect },
+  setup() {
+    return { Search, Plus, Edit, Delete }
+  },
   data() {
     return {
       // 遮罩层

@@ -34,8 +34,8 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+            <el-button type="primary" size="mini" @click="handleQuery">搜索</el-button>
+            <el-button size="mini" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
 
@@ -44,7 +44,7 @@
             <el-button
               v-permisaction="['admin:sysConfig:add']"
               type="primary"
-              icon="el-icon-plus"
+
               size="mini"
               @click="handleAdd"
             >新增</el-button>
@@ -53,7 +53,7 @@
             <el-button
               v-permisaction="['admin:sysConfig:edit']"
               type="success"
-              icon="el-icon-edit"
+
               size="mini"
               :disabled="single"
               @click="handleUpdate"
@@ -63,7 +63,7 @@
             <el-button
               v-permisaction="['admin:sysConfig:remove']"
               type="danger"
-              icon="el-icon-delete"
+
               size="mini"
               :disabled="multiple"
               @click="handleDelete"
@@ -73,7 +73,7 @@
             <el-button
               v-permisaction="['admin:sysConfig:export']"
               type="warning"
-              icon="el-icon-download"
+
               size="mini"
               @click="handleExport"
             >导出</el-button>
@@ -149,14 +149,14 @@
                 v-permisaction="['admin:sysConfig:edit']"
                 size="mini"
                 type="text"
-                icon="el-icon-edit"
+
                 @click="handleUpdate(scope.row)"
               >修改</el-button>
               <el-button
                 v-permisaction="['admin:sysConfig:remove']"
                 size="mini"
                 type="text"
-                icon="el-icon-delete"
+
                 @click="handleDelete(scope.row)"
               >删除</el-button>
             </template>

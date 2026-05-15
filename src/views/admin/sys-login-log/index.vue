@@ -3,59 +3,52 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="用户名" prop="username"><el-input
-            v-model="queryParams.username"
-            placeholder="请输入用户名"
-            clearable
-            size="small"
-            @keyup.enter="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="状态" prop="status"><el-select
-            v-model="queryParams.status"
-            placeholder="系统登录日志状态"
-            clearable
-            size="small"
-          >
-            <el-option
-              v-for="dict in statusOptions"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
+        <el-form ref="queryForm" :model="queryParams" :inline="true" class="search-form">
+          <el-form-item label="用户名" prop="username">
+            <el-input
+              v-model="queryParams.username"
+              placeholder="请输入用户名"
+              clearable
+              size="small"
+              @keyup.enter="handleQuery"
             />
-          </el-select>
           </el-form-item>
-          <el-form-item label="ip地址" prop="ipaddr"><el-input
-            v-model="queryParams.ipaddr"
-            placeholder="请输入ip地址"
-            clearable
-            size="small"
-            @keyup.enter="handleQuery"
-          />
+          <el-form-item label="状态" prop="status">
+            <el-select
+              v-model="queryParams.status"
+              placeholder="系统登录日志状态"
+              clearable
+              size="small"
+            >
+              <el-option
+                v-for="dict in statusOptions"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="ip地址" prop="ipaddr">
+            <el-input
+              v-model="queryParams.ipaddr"
+              placeholder="请输入ip地址"
+              clearable
+              size="small"
+              @keyup.enter="handleQuery"
+            />
           </el-form-item>
 
           <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+            <el-button type="primary" size="small" :icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button size="small" :icon="Refresh" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
 
-        <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysLoginLog:remove']"
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              :disabled="multiple"
-              @click="handleDelete"
-            >删除
-            </el-button>
-          </el-col>
-        </el-row>
+        <div class="toolbar mb8">
+          <el-button v-permisaction="['admin:sysLoginLog:remove']" type="danger" size="small" :icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
+        </div>
 
-        <el-table v-loading="loading" :data="sysloginlogList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="sysloginlogList" border stripe @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column
             label="用户名"
@@ -73,11 +66,12 @@
             label="状态"
             align="center"
             prop="status"
-            :formatter="statusFormat"
             width="100"
           >
             <template #default="scope">
-              {{ statusFormat(scope.row) }}
+              <el-tag :type="scope.row.status === '2' || scope.row.status === 2 ? 'success' : 'danger'" size="small" disable-transitions>
+                {{ statusFormat(scope.row) }}
+              </el-tag>
             </template>
           </el-table-column>
           <el-table-column
@@ -111,14 +105,7 @@
           </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template #default="scope">
-              <el-button
-                v-permisaction="['admin:sysLoginLog:remove']"
-                size="mini"
-                type="text"
-                icon="el-icon-delete"
-                @click="handleDelete(scope.row)"
-              >删除
-              </el-button>
+              <el-button v-permisaction="['admin:sysLoginLog:remove']" type="danger" link size="small" :icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -137,10 +124,14 @@
 
 <script>
 import { delSysLoginlog, getSysLoginlog, listSysLoginlog } from '@/api/admin/sys-login-log'
+import { Search, Refresh, Delete } from '@element-plus/icons-vue'
 
 export default {
   name: 'SysLoginLogManage',
   components: {
+  },
+  setup() {
+    return { Search, Refresh, Delete }
   },
   data() {
     return {
