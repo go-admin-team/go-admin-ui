@@ -60,14 +60,14 @@ const actions = {
         if (!response || !response.data) {
           commit('SET_TOKEN', '')
           removeToken()
-          resolve()
+          return resolve()
         }
 
         const { roles, name, avatar, introduction, permissions } = response.data
 
         // roles must be a non-empty array
         if (!roles || roles.length <= 0) {
-          reject('getInfo: roles must be a non-null array!')
+          return reject('getInfo: roles must be a non-null array!')
         }
         commit('SET_PERMISSIONS', permissions)
         commit('SET_ROLES', roles)
@@ -135,7 +135,7 @@ const actions = {
       const accessRoutes = await dispatch('permission/generateRoutes', roles, { root: true })
 
       // dynamically add accessible routes
-      router.addRoutes(accessRoutes)
+      accessRoutes.forEach(route => router.addRoute(route))
 
       // reset visited views and cached views
       dispatch('tagsView/delAllViews', null, { root: true })

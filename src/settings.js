@@ -9,8 +9,9 @@ module.exports = {
 
   /**
    * 是否显示顶部导航
+   * 注：Element Plus 2.14.0 水平 el-menu 有 calcSliceIndex/childNodes bug，暂关闭
    */
-  topNav: true,
+  topNav: false,
 
   /**
    * @type {boolean} true | false

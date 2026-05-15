@@ -1,7 +1,7 @@
 import { getSetting } from '@/api/login'
 import storage from '@/utils/storage'
 const state = {
-  info: storage.get('app_info')
+  info: storage.get('app_info') || {}
 }
 
 const mutations = {

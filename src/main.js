@@ -37,8 +37,8 @@ import * as filters from './filters' // global filters
 import Pagination from '@/components/Pagination'
 import BasicLayout from '@/layout/BasicLayout'
 
-// import VueParticles from 'vue-particles'
-// Note: vue-particles 不支持 Vue 3，需要后续处理
+import Particles from '@tsparticles/vue3'
+import { loadSlim } from '@tsparticles/slim'
 
 import '@/utils/dialog'
 
@@ -55,36 +55,28 @@ console.info(`欢迎使用go-admin，谢谢您对我们的支持，在使用过�
 // 创建 Vue 应用实例
 const app = createApp(App)
 
-// 全局方法挂载
-app.config.globalProperties.$getDicts = getDicts
-app.config.globalProperties.$getItems = getItems
-app.config.globalProperties.$setItems = setItems
-app.config.globalProperties.$getConfigKey = getConfigKey
-app.config.globalProperties.$parseTime = parseTime
-app.config.globalProperties.$resetForm = resetForm
-app.config.globalProperties.$addDateRange = addDateRange
-app.config.globalProperties.$selectDictLabel = selectDictLabel
-app.config.globalProperties.$selectItemsLabel = selectItemsLabel
-// app.config.globalProperties.$download = download
+// 全局方法挂载（$前缀版本 + 无前缀版本同时注册，兼容历史代码）
+const msgSuccess = (msg) => ElMessage({ showClose: true, message: msg, type: 'success' })
+const msgError = (msg) => ElMessage({ showClose: true, message: msg, type: 'error' })
+const msgInfo = (msg) => ElMessage.info(msg)
+
+const globalMethods = {
+  getDicts, getItems, setItems, getConfigKey,
+  parseTime, resetForm, addDateRange, selectDictLabel, selectItemsLabel,
+  msgSuccess, msgError, msgInfo
+}
+
+Object.entries(globalMethods).forEach(([key, fn]) => {
+  app.config.globalProperties[key] = fn // this.getDicts(...)
+  app.config.globalProperties['$' + key] = fn // this.$getDicts(...)
+})
 
 // 全局过滤器改为全局方法
 app.config.globalProperties.$filters = filters
 
-// 消息提示方法
-app.config.globalProperties.$msgSuccess = function(msg) {
-  ElMessage({ showClose: true, message: msg, type: 'success' })
-}
-
-app.config.globalProperties.$msgError = function(msg) {
-  ElMessage({ showClose: true, message: msg, type: 'error' })
-}
-
-app.config.globalProperties.$msgInfo = function(msg) {
-  ElMessage.info(msg)
-}
-
-// 全局组件注册
+// 全局组件注册（Pagination 同时注册两个名称兼容历史模板）
 app.component('AppPagination', Pagination)
+app.component('Pagination', Pagination)
 app.component('BasicLayout', BasicLayout)
 app.component('CodeEditor', Codemirror)
 app.component('SvgIcon', SvgIcon)
@@ -93,6 +85,11 @@ app.component('SvgIcon', SvgIcon)
 app.use(store)
 app.use(router)
 app.use(permission)
+app.use(Particles, {
+  init: async engine => {
+    await loadSlim(engine)
+  }
+})
 app.use(ElementPlus, {
   locale: zhCn,
   size: Cookies.get('size') || 'default'
