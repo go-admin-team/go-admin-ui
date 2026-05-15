@@ -1,5 +1,5 @@
 <script>
-import { h } from 'vue'
+import { h, resolveComponent } from 'vue'
 
 export default {
   name: 'MenuItem',
@@ -17,14 +17,15 @@ export default {
     const vnodes = []
 
     if (this.icon) {
-      vnodes.push(h('svg-icon', { 'icon-class': this.icon }))
+      const SvgIcon = resolveComponent('svg-icon')
+      vnodes.push(h(SvgIcon, { iconClass: this.icon }))
     }
 
     if (this.title) {
-      vnodes.push(h('span', { slot: 'title' }, this.title))
+      vnodes.push(h('span', null, this.title))
     }
 
-    return vnodes
+    return h('div', { style: 'display:flex;align-items:center;' }, vnodes)
   }
 }
 </script>

@@ -1,15 +1,18 @@
 <template>
-  <div>
+  <div class="tags-view-container">
     <el-tabs
-      v-model="editableTabsValue"
+      v-model="activeTab"
       type="card"
-      closable
+      class="tags-view-tabs"
+      @tab-click="handleTabClick"
+      @tab-remove="handleTabRemove"
     >
       <el-tab-pane
         v-for="item in visitedViews"
         :key="item.path"
         :label="item.title"
         :name="item.path"
+        :closable="!isAffix(item)"
       />
     </el-tabs>
   </div>
@@ -17,35 +20,31 @@
 
 <script>
 import path from 'path'
+
 export default {
   name: 'TagsView',
   data() {
     return {
-      editableTabsValue: '1'
+      affixTags: []
     }
   },
   computed: {
+    activeTab: {
+      get() {
+        return this.$route.path
+      },
+      set() {}
+    },
     visitedViews() {
       return this.$store.state.tagsView.visitedViews
     },
     routes() {
       return this.$store.state.permission.routes
-    },
-    theme() {
-      return this.$store.state.settings.theme
     }
   },
   watch: {
     $route() {
       this.addTags()
-      this.moveToCurrentTag()
-    },
-    visible(value) {
-      if (value) {
-        document.body.addEventListener('click', this.closeMenu)
-      } else {
-        document.body.removeEventListener('click', this.closeMenu)
-      }
     }
   },
   mounted() {
@@ -53,9 +52,6 @@ export default {
     this.addTags()
   },
   methods: {
-    isActive(route) {
-      return route.path === this.$route.path
-    },
     isAffix(tag) {
       return tag.meta && tag.meta.affix
     },
@@ -83,7 +79,6 @@ export default {
     initTags() {
       const affixTags = (this.affixTags = this.filterAffixTags(this.routes))
       for (const tag of affixTags) {
-        // Must have tag name
         if (tag.name) {
           this.$store.dispatch('tagsView/addVisitedView', tag)
         }
@@ -94,10 +89,84 @@ export default {
       if (name) {
         this.$store.dispatch('tagsView/addView', this.$route)
       }
-      return false
+    },
+    handleTabClick(tab) {
+      const targetPath = tab.props.name
+      if (targetPath !== this.$route.path) {
+        this.$router.push(targetPath)
+      }
+    },
+    handleTabRemove(targetPath) {
+      const view = this.visitedViews.find(v => v.path === targetPath)
+      if (!view) return
+
+      this.$store.dispatch('tagsView/delView', view).then(({ visitedViews }) => {
+        if (targetPath === this.$route.path) {
+          const lastView = visitedViews[visitedViews.length - 1]
+          if (lastView) {
+            this.$router.push(lastView.fullPath || lastView.path)
+          } else {
+            this.$router.push('/')
+          }
+        }
+      })
     }
   }
 }
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+.tags-view-container {
+  height: 34px;
+  width: 100%;
+  background: #fff;
+  border-bottom: 1px solid #d8dce5;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+
+  .tags-view-tabs {
+    height: 34px;
+
+    :deep(.el-tabs__header) {
+      margin: 0;
+      border-bottom: none;
+    }
+
+    :deep(.el-tabs__nav-wrap) {
+      margin-bottom: 0;
+    }
+
+    :deep(.el-tabs__nav) {
+      border: none;
+    }
+
+    :deep(.el-tabs__item) {
+      height: 34px;
+      line-height: 34px;
+      font-size: 12px;
+      color: #495060;
+      border: 1px solid #d8dce5;
+      border-radius: 3px 3px 0 0;
+      margin-right: 4px;
+      padding: 0 12px;
+
+      &:first-child {
+        margin-left: 4px;
+      }
+
+      &.is-active {
+        color: #409eff;
+        background-color: #fff;
+        border-bottom-color: #fff;
+      }
+
+      &:not(.is-active):hover {
+        color: #409eff;
+      }
+    }
+
+    :deep(.el-tabs__item .is-icon-close) {
+      margin-left: 4px;
+    }
+  }
+}
+</style>

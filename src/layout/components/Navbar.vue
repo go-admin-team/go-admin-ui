@@ -16,7 +16,7 @@
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="hover">
         <div class="avatar-wrapper">
           <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
-          <i class="el-icon-caret-bottom" />
+          <i class="ri-arrow-down-s-fill" />
         </div>
         <template #dropdown>
           <el-dropdown-menu>
@@ -98,7 +98,19 @@ export default {
   overflow: hidden;
   position: relative;
   background: #fff;
-  box-shadow: 0 1px 4px rgba(0,21,41,.08);
+  border-bottom: 1px solid #eef0f6;
+  box-shadow: 0 1px 8px rgba(79, 70, 229, 0.06);
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #1677ff 0%, #40a9ff 100%);
+    opacity: 0.7;
+  }
 
   .hamburger-container {
     line-height: 46px;
@@ -106,10 +118,11 @@ export default {
     float: left;
     cursor: pointer;
     transition: background .3s;
-    -webkit-tap-highlight-color:transparent;
+    -webkit-tap-highlight-color: transparent;
+    color: #1677ff;
 
     &:hover {
-      background: rgba(0, 0, 0, .025)
+      background: rgba(22, 119, 255, .06)
     }
   }
 
@@ -133,42 +146,50 @@ export default {
 
     .right-menu-item {
       display: inline-block;
-      padding: 0 8px;
+      padding: 0 10px;
       height: 100%;
       font-size: 18px;
-      color: #5a5e66;
+      color: #64748b;
       vertical-align: text-bottom;
 
       &.hover-effect {
         cursor: pointer;
-        transition: background .3s;
+        transition: background .3s, color .3s;
+        border-radius: 4px;
 
         &:hover {
-          background: rgba(0, 0, 0, .025)
+          background: rgba(22, 119, 255, .06);
+          color: #1677ff;
         }
       }
     }
 
     .avatar-container {
-      margin-right: 30px;
+      margin-right: 20px;
 
       .avatar-wrapper {
         margin-top: 5px;
         position: relative;
+        display: flex;
+        align-items: center;
+        gap: 6px;
 
         .user-avatar {
           cursor: pointer;
-          width: 40px;
-          height: 40px;
+          width: 32px;
+          height: 32px;
           border-radius: 50%;
+          border: 2px solid rgba(22, 119, 255, 0.2);
+          box-shadow: 0 0 0 2px #fff;
         }
 
-        .el-icon-caret-bottom {
+        .ri-arrow-down-s-fill {
           cursor: pointer;
           position: absolute;
-          right: -20px;
-          top: 15px;
+          right: -18px;
+          top: 16px;
           font-size: 12px;
+          color: #94a3b8;
         }
       }
     }

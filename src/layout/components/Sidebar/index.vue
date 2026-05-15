@@ -10,6 +10,7 @@
         :active-text-color="$store.state.settings.theme"
         :unique-opened="true"
         :collapse-transition="true"
+        :router="true"
         mode="vertical"
       >
         <sidebar-item
