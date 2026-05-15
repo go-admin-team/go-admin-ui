@@ -43,7 +43,7 @@ export default {
         customClass: 'theme-message',
         type: 'success',
         duration: 0,
-        iconClass: 'el-icon-loading'
+        iconClass: 'ri-loader-4-line'
       })
 
       const getHandler = (variable, id) => {

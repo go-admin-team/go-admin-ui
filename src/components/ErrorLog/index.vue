@@ -7,10 +7,10 @@
     </el-badge>
 
     <el-dialog v-model="showDialog" width="80%" append-to-body>
-      <div #title>
+      <template #header>
         <span style="padding-right: 10px;">Error Log</span>
-        <el-button size="mini" type="primary" icon="el-icon-delete" @click="clearAll">Clear All</el-button>
-      </div>
+        <el-button size="mini" type="primary" @click="clearAll"><i class="ri-delete-bin-line" style="margin-right:4px;" />Clear All</el-button>
+      </template>
       <el-table :data="errorLogs" border>
         <el-table-column label="Message">
           <template #default="{row}">
