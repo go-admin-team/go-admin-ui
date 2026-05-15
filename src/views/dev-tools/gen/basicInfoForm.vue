@@ -5,7 +5,7 @@
         <el-form-item prop="tableName">
           <template #label>数据表名称
             <el-tooltip content="数据库表名称，针对gorm对应的table()使用，⚠️这里必须是蛇形结构" placement="top">
-              <i class="el-icon-question" />
+              <i class="ri-question-line" />
             </el-tooltip></template>
           <el-input v-model="formData.tableName" placeholder="请输入表名称" />
         </el-form-item>
@@ -14,7 +14,7 @@
         <el-form-item prop="tableComment">
           <template #label>菜单名称
             <el-tooltip content="同步的数据库表名称，生成配置数据时，用作菜单名称" placement="top">
-              <i class="el-icon-question" />
+              <i class="ri-question-line" />
             </el-tooltip></template>
           <el-input v-model="formData.tableComment" placeholder="请输入菜单名称" />
         </el-form-item>
@@ -23,7 +23,7 @@
         <el-form-item prop="className">
           <template #label>结构体模型名称
             <el-tooltip content="结构体模型名称，代码中的struct名称定义使用" placement="top">
-              <i class="el-icon-question" />
+              <i class="ri-question-line" />
             </el-tooltip></template>
           <el-input v-model="formData.className" placeholder="请输入" />
         </el-form-item>
@@ -37,7 +37,7 @@
         <el-form-item prop="isLogicalDelete">
           <template #label>是否逻辑删除
             <el-tooltip content="目前只支持逻辑删除" placement="top">
-              <i class="el-icon-question" />
+              <i class="ri-question-line" />
             </el-tooltip></template>
           <el-radio-group v-model="formData.isLogicalDelete">
             <el-radio label="1">是</el-radio>
@@ -62,13 +62,13 @@
 <script>
 export default {
   name: 'BasicInfoFormComponent',
-  emits: ['update:info'],
   props: {
     info: {
       type: Object,
       default: null
     }
   },
+  emits: ['update:info'],
   data() {
     return {
       formData: { ...this.info },

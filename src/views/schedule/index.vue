@@ -4,7 +4,7 @@
     <BasicLayout>
       <template #wrapper>
         <el-card class="box-card">
-          <el-form ref="queryForm" :model="queryParams" :inline="true" label-position="left" label-width="68px">
+          <el-form ref="queryForm" :model="queryParams" :inline="true" class="search-form">
             <el-form-item label="名称" prop="jobName">
               <el-input
                 v-model="queryParams.jobName"
@@ -46,58 +46,19 @@
             </el-form-item>
 
             <el-form-item>
-              <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-              <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+              <el-button type="primary" size="small" :icon="Search" @click="handleQuery">搜索</el-button>
+              <el-button size="small" :icon="Refresh" @click="resetQuery">重置</el-button>
             </el-form-item>
           </el-form>
 
-          <el-row :gutter="10" class="mb8">
-            <el-col :span="1.5">
-              <el-button
-                v-permisaction="['job:sysJob:add']"
-                type="primary"
-                icon="el-icon-plus"
-                size="mini"
-                @click="handleAdd"
-              >新增
-              </el-button>
-            </el-col>
-            <el-col :span="1.5">
-              <el-button
-                v-permisaction="['job:sysJob:edit']"
-                type="success"
-                icon="el-icon-edit"
-                size="mini"
-                :disabled="single"
-                @click="handleUpdate"
-              >修改
-              </el-button>
-            </el-col>
-            <el-col :span="1.5">
-              <el-button
-                v-permisaction="['job:sysJob:remove']"
-                type="danger"
-                icon="el-icon-delete"
-                size="mini"
-                :disabled="multiple"
-                @click="handleDelete"
-              >删除
-              </el-button>
-            </el-col>
-            <el-col :span="1.5">
-              <el-button
-                v-permisaction="['job:sysJob:log']"
-                type="danger"
-                icon="el-icon-delete"
-                size="mini"
-                @click="handleLog"
-              >日志
-              </el-button>
+          <div class="toolbar mb8">
+            <el-button v-permisaction="['job:sysJob:add']" type="primary" size="small" :icon="Plus" @click="handleAdd">新增</el-button>
+            <el-button v-permisaction="['job:sysJob:edit']" type="primary" size="small" :icon="Edit" :disabled="single" @click="handleUpdate">修改</el-button>
+            <el-button v-permisaction="['job:sysJob:remove']" type="danger" size="small" :icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
+            <el-button v-permisaction="['job:sysJob:log']" size="small" @click="handleLog">日志</el-button>
+          </div>
 
-            </el-col>
-          </el-row>
-
-          <el-table v-loading="loading" :data="sysjobList" @selection-change="handleSelectionChange">
+          <el-table v-loading="loading" :data="sysjobList" border stripe @selection-change="handleSelectionChange">
             <el-table-column type="selection" width="55" align="center" />
             <el-table-column
               label="编码"
@@ -138,49 +99,27 @@
               label="状态"
               align="center"
               prop="status"
-              :formatter="statusFormat"
               width="100"
             >
               <template #default="scope">
-                {{ statusFormat(scope.row) }}
+                <el-tag :type="scope.row.status === '2' || scope.row.status === 2 ? 'success' : 'danger'" size="small" disable-transitions>
+                  {{ statusFormat(scope.row) }}
+                </el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+            <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="220">
               <template #default="scope">
-                <el-button
-                  v-permisaction="['job:sysJob:edit']"
-                  size="mini"
-                  type="text"
-                  icon="el-icon-edit"
-                  @click="handleUpdate(scope.row)"
-                >修改
-                </el-button>
-                <el-button
-                  v-if="scope.row.entry_id!==0&& scope.row.status!=1"
-                  v-permisaction="['job:sysJob:remove']"
-                  size="mini"
-                  type="text"
-                  icon="el-icon-edit"
-                  @click="handleRemove(scope.row)"
-                >停止
-                </el-button>
-                <el-button
-                  v-if="scope.row.entry_id==0 && scope.row.status!=1"
-                  v-permisaction="['job:sysJob:start']"
-                  size="mini"
-                  type="text"
-                  icon="el-icon-edit"
-                  @click="handleStart(scope.row)"
-                >启动
-                </el-button>
-                <el-button
-                  v-permisaction="['job:sysJob:remove']"
-                  size="mini"
-                  type="text"
-                  icon="el-icon-delete"
-                  @click="handleDelete(scope.row)"
-                >删除
-                </el-button>
+                <el-button v-permisaction="['job:sysJob:edit']" type="primary" link size="small" :icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
+                <template v-if="scope.row.entry_id!==0 && scope.row.status!=1">
+                  <el-divider direction="vertical" />
+                  <el-button v-permisaction="['job:sysJob:remove']" type="primary" link size="small" @click="handleRemove(scope.row)">停止</el-button>
+                </template>
+                <template v-if="scope.row.entry_id==0 && scope.row.status!=1">
+                  <el-divider direction="vertical" />
+                  <el-button v-permisaction="['job:sysJob:start']" type="primary" link size="small" @click="handleStart(scope.row)">启动</el-button>
+                </template>
+                <el-divider direction="vertical" />
+                <el-button v-permisaction="['job:sysJob:remove']" type="danger" link size="small" :icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -229,7 +168,7 @@
                           调用示例：func (t *EXEC) ExamplesNoParam(){..} 填写 ExamplesNoParam 即可；
                           <br>参数说明：目前不支持带参调用
                         </template>
-                        <i class="el-icon-question" />
+                        <i class="ri-question-line" />
                       </el-tooltip>
                     </template>
                     <el-input
@@ -247,7 +186,7 @@
                           参数示例：有参：请以string格式填写；无参：为空；
                           <br>参数说明：目前仅支持函数调用
                         </template>
-                        <i class="el-icon-question" />
+                        <i class="ri-question-line" />
                       </el-tooltip>
                     </template>
                     <el-input
@@ -323,11 +262,15 @@
 
 <script>
 import { addSysJob, delSysJob, getSysJob, listSysJob, updateSysJob, removeJob, startJob } from '@/api/job/sys-job'
+import { Search, Refresh, Plus, Edit, Delete } from '@element-plus/icons-vue'
 
 export default {
   name: 'SysJobManage',
   components: {
 
+  },
+  setup() {
+    return { Search, Refresh, Plus, Edit, Delete }
   },
   data() {
     return {

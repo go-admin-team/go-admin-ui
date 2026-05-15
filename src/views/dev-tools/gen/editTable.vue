@@ -249,7 +249,7 @@ export default {
           [
             h('p', '是否在表单编辑时能够编辑，打√表示需要', { class: 'text-align: center; margin: 0' }),
             // 生成 i 标签 ，添加icon 设置 样式，slot 必填
-            h('i', { class: 'el-icon-question', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
+            h('i', { class: 'ri-question-line', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
           ]
         )
       ])
@@ -263,7 +263,7 @@ export default {
           { props: { placement: 'top-start', width: '260', trigger: 'hover' }},
           [
             h('p', '是否在列表中展示，打√表示需要展示', { class: 'text-align: center; margin: 0' }),
-            h('i', { class: 'el-icon-question', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
+            h('i', { class: 'ri-question-line', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
           ]
         )
       ])
@@ -276,7 +276,7 @@ export default {
           { props: { placement: 'top-start', width: '270', trigger: 'hover' }},
           [
             h('p', '是都当做搜索条件，打√表示做为搜索条件', { class: 'text-align: center; margin: 0' }),
-            h('i', { class: 'el-icon-question', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
+            h('i', { class: 'ri-question-line', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
           ]
         )
       ])
