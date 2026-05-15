@@ -62,6 +62,7 @@ service.interceptors.response.use(
           location.reload() // 为了重新实例化vue-router对象 避免bug
         })
       }
+      return Promise.reject(new Error('Unauthorized'))
     } else if (code === 6401) {
       store.dispatch('user/resetToken')
       ElMessageBox.confirm(
@@ -82,6 +83,7 @@ service.interceptors.response.use(
         type: 'error',
         duration: 5 * 1000
       })
+      return Promise.reject(new Error(response.data.msg))
     } else if (code !== 200) {
       // Notification.error({
       //   title: response.data.msg
@@ -102,7 +104,7 @@ service.interceptors.response.use(
         type: 'error',
         duration: 5 * 1000
       })
-      return
+      return Promise.reject(error)
     }
     console.log('err' + error) // for debug
 
