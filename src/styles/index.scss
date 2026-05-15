@@ -1,9 +1,9 @@
-@import './variables.scss';
-@import './mixin.scss';
-@import './transition.scss';
-@import './element-plus.scss';
-@import './sidebar.scss';
-@import './btn.scss';
+@use './variables.scss' as *;
+@use './mixin.scss' as *;
+@use './transition.scss' as *;
+@use './element-plus.scss' as *;
+@use './sidebar.scss' as *;
+@use './btn.scss' as *;
 
 body {
   height: 100%;
@@ -191,14 +191,6 @@ aside {
 }
 
 
-.el-card__header{
-  padding: 15px!important;
-  box-sizing: border-box;
-}
-.el-card__body{
-  padding: 20px!important;
-}
-
-.el-card + .el-card{
-  margin-top: 10px;
+.el-card + .el-card {
+  margin-top: 12px;
 }
