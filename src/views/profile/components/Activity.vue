@@ -16,7 +16,7 @@
       <ul class="list-inline">
         <li>
           <span class="link-black text-sm">
-            <i class="el-icon-share" />
+            <i class="ri-share-line" />
             Share
           </span>
         </li>
@@ -44,7 +44,7 @@
       <ul class="list-inline">
         <li>
           <span class="link-black text-sm">
-            <i class="el-icon-share" />
+            <i class="ri-share-line" />
             Share
           </span>
         </li>
@@ -70,7 +70,7 @@
         </el-carousel>
       </div>
       <ul class="list-inline">
-        <li><span class="link-black text-sm"><i class="el-icon-share" /> Share</span></li>
+        <li><span class="link-black text-sm"><i class="ri-share-line" /> Share</span></li>
         <li>
           <span class="link-black text-sm">
             <svg-icon icon-class="like" /> Like</span>
@@ -85,6 +85,7 @@ const avatarPrefix = '?imageView2/1/w/80/h/80'
 const carouselPrefix = '?imageView2/2/h/440'
 
 export default {
+  name: 'UserActivity',
   data() {
     return {
       carouselImages: [
