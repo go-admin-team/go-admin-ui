@@ -124,7 +124,7 @@
   },
   "packageManager": "pnpm@9.15.1",
   "engines": {
-    "node": ">=18",
+    "node": ">=22",
     "pnpm": ">=9"
   },
   "browserslist": [
