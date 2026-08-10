@@ -1,13 +1,13 @@
-FROM registry.cn-shanghai.aliyuncs.com/lwmeng/node:lts-alpine as build-stage
+FROM node:20-alpine as build-stage
 WORKDIR /app
-COPY package*.json ./
-RUN npm install -g cnpm --registry=https://registry.npmmirror.com
-RUN cnpm install
+COPY package.json pnpm-lock.yaml .npmrc ./
+RUN npm install -g pnpm@9.15.1
+RUN pnpm install --frozen-lockfile
 COPY . .
-RUN npm run build:prod
+RUN pnpm build:prod
 
 # production stage
-FROM registry.cn-shanghai.aliyuncs.com/lwmeng/nginx
+FROM nginx:stable-alpine
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 
 EXPOSE 80
