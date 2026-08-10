@@ -1,19 +1,19 @@
 <template>
   <div v-if="errorLogs.length>0">
-    <el-badge :is-dot="true" style="line-height: 25px;margin-top: -5px;" @click.native="dialogTableVisible=true">
+    <el-badge :is-dot="true" style="line-height: 25px;margin-top: -5px;" @click="dialogTableVisible=true">
       <el-button style="padding: 8px 10px;" size="small" type="danger">
         <svg-icon icon-class="bug" />
       </el-button>
     </el-badge>
 
-    <el-dialog :visible.sync="dialogTableVisible" width="80%" append-to-body>
-      <div slot="title">
+    <el-dialog v-model="showDialog" width="80%" append-to-body>
+      <template #header>
         <span style="padding-right: 10px;">Error Log</span>
-        <el-button size="mini" type="primary" icon="el-icon-delete" @click="clearAll">Clear All</el-button>
-      </div>
+        <el-button size="mini" type="primary" @click="clearAll"><i class="ri-delete-bin-line" style="margin-right:4px;" />Clear All</el-button>
+      </template>
       <el-table :data="errorLogs" border>
         <el-table-column label="Message">
-          <template slot-scope="{row}">
+          <template #default="{row}">
             <div>
               <span class="message-title">Msg:</span>
               <el-tag type="danger">
@@ -37,7 +37,7 @@
           </template>
         </el-table-column>
         <el-table-column label="Stack">
-          <template slot-scope="scope">
+          <template #default="scope">
             {{ scope.row.err.stack }}
           </template>
         </el-table-column>

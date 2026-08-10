@@ -9,7 +9,7 @@
       drag
       action="https://httpbin.org/post"
     >
-      <i class="el-icon-upload" />
+      <i class="ri-upload-line" />
       <div class="el-upload__text">
         Drag或<em>点击上传</em>
       </div>
@@ -18,7 +18,7 @@
       <div v-show="imageUrl.length>1" class="image-preview-wrapper">
         <img :src="imageUrl">
         <div class="image-preview-action">
-          <i class="el-icon-delete" @click="rmImage" />
+          <i class="ri-delete-bin-line" @click="rmImage" />
         </div>
       </div>
     </div>
@@ -58,6 +58,7 @@ export default {
       this.emitInput(this.tempUrl)
     },
     beforeUpload() {
+      // eslint-disable-next-line no-unused-vars
       const _self = this
       return new Promise((resolve, reject) => {
         // getToken().then(response => {
@@ -116,7 +117,7 @@ export default {
       cursor: pointer;
       text-align: center;
       line-height: 200px;
-      .el-icon-delete {
+      .ri-delete-bin-line {
         font-size: 36px;
       }
     }

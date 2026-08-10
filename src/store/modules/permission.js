@@ -1,4 +1,4 @@
-import { asyncRoutes, constantRoutes } from '@/router'
+import { constantRoutes } from '@/router'
 import { getRoutes } from '@/api/admin/sys-role'
 import Layout from '@/layout'
 // import sysuserindex from '@/views/sysuser/index'
@@ -38,7 +38,8 @@ export function generaMenu(routes, data) {
     const menu = {
       path: item.path,
       component: item.component === 'Layout' ? Layout : loadView(item.component),
-      hidden: item.visible !== '0',
+      // eslint-disable-next-line eqeqeq
+      hidden: item.visible != '0',
       children: [],
       name: item.menuName,
       meta: {
@@ -54,8 +55,21 @@ export function generaMenu(routes, data) {
   })
 }
 
+// 使用 require.context 预建 views 目录索引，
+// 绕过 babel-plugin-dynamic-import-node 在开发模式下将 import() 转换为
+// 同步 require() 导致 webpack 上下文失效的问题。
+const viewsContext = require.context('@/views', true, /\.vue$/)
+
 export const loadView = (view) => { // 路由懒加载
-  return (resolve) => require([`@/views${view}`], resolve)
+  const key = `.${view}.vue`
+  if (viewsContext.keys().includes(key)) {
+    // require.context 返回的是 { default: Component, __esModule: true }，
+    // Vue Router 4 需要直接拿到组件对象（.default），否则渲染空白
+    const mod = viewsContext(key)
+    return mod.default || mod
+  }
+  // 兜底：动态 import（生产构建不受 dynamic-import-node 影响）
+  return () => import(`@/views${view}.vue`)
 }
 
 /**
@@ -146,15 +160,16 @@ const actions = {
           data = response.data
           Object.assign(loadMenuData, data)
 
-          generaMenu(asyncRoutes, loadMenuData)
-          asyncRoutes.push({ path: '*', redirect: '/', hidden: true })
-          commit('SET_ROUTES', asyncRoutes)
+          const dynamicRoutes = []
+          generaMenu(dynamicRoutes, loadMenuData)
+          dynamicRoutes.push({ path: '/:pathMatch(.*)*', redirect: '/', hidden: true })
+          commit('SET_ROUTES', dynamicRoutes)
           const sidebarRoutes = []
           generaMenu(sidebarRoutes, loadMenuData)
           commit('SET_SIDEBAR_ROUTERS', constantRoutes.concat(sidebarRoutes))
           commit('SET_DEFAULT_ROUTES', sidebarRoutes)
           commit('SET_TOPBAR_ROUTES', sidebarRoutes)
-          resolve(asyncRoutes)
+          resolve(dynamicRoutes)
         }
       }).catch(error => {
         console.log(error)

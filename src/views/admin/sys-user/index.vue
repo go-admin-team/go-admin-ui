@@ -11,7 +11,7 @@
                 placeholder="请输入部门名称"
                 clearable
                 size="small"
-                prefix-icon="el-icon-search"
+
                 style="margin-bottom: 20px"
               />
             </div>
@@ -37,7 +37,7 @@
                   clearable
                   size="small"
                   style="width: 160px"
-                  @keyup.enter.native="handleQuery"
+                  @keyup.enter="handleQuery"
                 />
               </el-form-item>
               <el-form-item label="手机号码" prop="phone">
@@ -47,7 +47,7 @@
                   clearable
                   size="small"
                   style="width: 160px"
-                  @keyup.enter.native="handleQuery"
+                  @keyup.enter="handleQuery"
                 />
               </el-form-item>
               <el-form-item label="状态" prop="status">
@@ -67,8 +67,8 @@
                 </el-select>
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-                <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+                <el-button type="primary" size="mini" @click="handleQuery">搜索</el-button>
+                <el-button size="mini" @click="resetQuery">重置</el-button>
               </el-form-item>
             </el-form>
 
@@ -77,7 +77,7 @@
                 <el-button
                   v-permisaction="['admin:sysUser:add']"
                   type="primary"
-                  icon="el-icon-plus"
+
                   size="mini"
                   @click="handleAdd"
                 >新增</el-button>
@@ -86,7 +86,7 @@
                 <el-button
                   v-permisaction="['admin:sysUser:edit']"
                   type="success"
-                  icon="el-icon-edit"
+
                   size="mini"
                   :disabled="single"
                   @click="handleUpdate"
@@ -96,7 +96,7 @@
                 <el-button
                   v-permisaction="['admin:sysUser:remove']"
                   type="danger"
-                  icon="el-icon-delete"
+
                   size="mini"
                   :disabled="multiple"
                   @click="handleDelete"
@@ -118,7 +118,7 @@
               <el-table-column label="部门" prop="dept.deptName" :show-overflow-tooltip="true" />
               <el-table-column label="手机号" prop="phone" width="108" />
               <el-table-column label="状态" width="80" sortable="custom">
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-switch
                     v-model="scope.row.status"
                     active-value="2"
@@ -133,7 +133,7 @@
                 sortable="custom"
                 width="155"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <span>{{ parseTime(scope.row.createdAt) }}</span>
                 </template>
               </el-table-column>
@@ -144,12 +144,12 @@
                 fix="right"
                 class-name="small-padding fixed-width"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-button
                     v-permisaction="['admin:sysUser:edit']"
                     size="mini"
                     type="text"
-                    icon="el-icon-edit"
+
                     @click="handleUpdate(scope.row)"
                   >修改</el-button>
                   <el-button
@@ -157,14 +157,14 @@
                     v-permisaction="['admin:sysUser:remove']"
                     size="mini"
                     type="text"
-                    icon="el-icon-delete"
+
                     @click="handleDelete(scope.row)"
                   >删除</el-button>
                   <el-button
                     v-permisaction="['admin:sysUser:resetPassword']"
                     size="mini"
                     type="text"
-                    icon="el-icon-key"
+
                     @click="handleResetPwd(scope.row)"
                   >重置</el-button>
                 </template>
@@ -173,16 +173,16 @@
 
             <pagination
               v-show="total>0"
+              v-model:current-page="queryParams.pageIndex"
+              v-model:page-size="queryParams.pageSize"
               :total="total"
-              :page.sync="queryParams.pageIndex"
-              :limit.sync="queryParams.pageSize"
               @pagination="getList"
             />
           </el-col>
         </el-row>
       </el-card>
       <!-- 添加或修改参数配置对话框 -->
-      <el-dialog :title="title" :visible.sync="open" width="600px" :close-on-click-modal="false">
+      <el-dialog v-model="open" :title="title" width="600px" :close-on-click-modal="false">
         <el-form ref="form" :model="form" :rules="rules" label-width="80px">
           <el-row>
             <el-col :span="12">
@@ -276,13 +276,13 @@
             </el-col>
           </el-row>
         </el-form>
-        <div slot="footer" class="dialog-footer">
+        <template #footer><div class="dialog-footer">
           <el-button type="primary" @click="submitForm">确 定</el-button>
           <el-button @click="cancel">取 消</el-button>
-        </div>
+        </div></template>
       </el-dialog>
       <!-- 用户导入对话框 -->
-      <el-dialog :title="upload.title" :visible.sync="upload.open" width="400px" :close-on-click-modal="false">
+      <el-dialog v-model="open" :title="upload.title" width="400px" :close-on-click-modal="false">
         <el-upload
           ref="upload"
           :limit="1"
@@ -295,21 +295,23 @@
           :auto-upload="false"
           drag
         >
-          <i class="el-icon-upload" />
+          <i class="ri-upload-line" />
           <div class="el-upload__text">
             将文件拖到此处，或
             <em>点击上传</em>
           </div>
-          <div slot="tip" class="el-upload__tip">
-            <el-checkbox v-model="upload.updateSupport" />是否更新已经存在的用户数据
-            <el-link type="info" style="font-size:12px" @click="importTemplate">下载模板</el-link>
-          </div>
-          <div slot="tip" class="el-upload__tip" style="color:red">提示：仅允许导入“xls”或“xlsx”格式文件！</div>
+          <template #tip>
+            <div class="el-upload__tip">
+              <el-checkbox v-model="upload.updateSupport" />是否更新已经存在的用户数据
+              <el-link type="info" style="font-size:12px" @click="importTemplate">下载模板</el-link>
+            </div>
+            <div class="el-upload__tip" style="color:red">提示：仅允许导入"xls"或"xlsx"格式文件！</div>
+          </template>
         </el-upload>
-        <div slot="footer" class="dialog-footer">
+        <template #footer><div class="dialog-footer">
           <el-button type="primary" @click="submitFileForm">确 定</el-button>
           <el-button @click="upload.open = false">取 消</el-button>
-        </div>
+        </div></template>
       </el-dialog>
     </template>
   </BasicLayout>
@@ -323,8 +325,8 @@ import { listPost } from '@/api/admin/sys-post'
 import { listRole } from '@/api/admin/sys-role'
 import { treeselect } from '@/api/admin/sys-dept'
 
-import Treeselect from '@riophae/vue-treeselect'
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import Treeselect from 'vue3-treeselect'
+import 'vue3-treeselect/dist/vue3-treeselect.css'
 
 export default {
   name: 'SysUserManage',

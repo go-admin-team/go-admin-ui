@@ -3,14 +3,14 @@
     <slot name="term" />
     <span>{{ rate }}%</span>
     <span :class="[flag]">
-      <i :class="'el-icon-caret-' + flag" />
+      <i :class="flag === 'top' ? 'ri-arrow-up-s-fill' : 'ri-arrow-down-s-fill'" />
     </span>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'Trend',
+  name: 'TrendIndicator',
   props: {
     rate: {
       type: String,

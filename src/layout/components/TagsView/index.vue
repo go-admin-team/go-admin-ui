@@ -11,17 +11,24 @@
         :closable="item.fullPath === '/dashboard' ? false : true"
         :name="item.fullPath"
       >
-        <router-link
-          ref="tag"
-          slot="label"
-          tag="span"
-          class="tags-view-item"
-          :style="{ color: item.fullPath === $route.fullPath ? theme : '' }"
-          :to="{ path: item.path, query: item.query, fullPath: item.fullPath }"
-          @contextmenu.prevent.native="openMenu(item,$event)"
-        >
-          {{ item.title }}
-        </router-link>
+        <template #label>
+          <router-link
+            ref="tag"
+            v-slot="{ navigate, href }"
+            class="tags-view-item"
+            :style="{ color: item.fullPath === $route.fullPath ? theme : '' }"
+            :to="{ path: item.path, query: item.query, fullPath: item.fullPath }"
+            custom
+          >
+            <span
+              :href="href"
+              @click="navigate"
+              @contextmenu.prevent="openMenu(item,$event)"
+            >
+              {{ item.title }}
+            </span>
+          </router-link>
+        </template>
       </el-tab-pane>
     </el-tabs>
     <ul v-show="visible" :style="{left:left+'px',top:top+'px'}" class="contextmenu">
@@ -271,88 +278,106 @@ String.prototype.colorRgb = function() {
 }
 </script>
 
-<style lang="scss" scoped>
-.tags-view-container ::v-deep{
-  height: 43px;
+<style lang="scss">
+.tags-view-container {
+  height: 40px;
   width: 100%;
   background: #fff;
-  border-bottom: 1px solid #d8dce5;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);
-  padding: 0 15px;
+  border-bottom: 1px solid #e8eaec;
+  box-shadow: 0 1px 4px 0 rgba(0, 21, 41, 0.08);
+  padding: 0 8px;
   box-sizing: border-box;
-  .el-tabs__item{
-    &:hover{
-      color: #000;
-    }
+  display: flex;
+  align-items: flex-end;
+
+  // el-tabs 整体铺满容器
+  .el-tabs {
+    flex: 1;
+    overflow: hidden;
   }
-  .tags-view-item{
-    height: 40px;
-    display: inline-block;
+
+  // 去掉 el-tabs 自带上边距和底部 border
+  .el-tabs__header {
+    margin: 0;
+    border-bottom: none !important;
   }
-  .tags-view-wrapper {
-    .tags-view-item {
-      display: inline-block;
-      position: relative;
-      cursor: pointer;
-      height: 26px;
-      line-height: 26px;
-      border: 1px solid #d8dce5;
-      color: #495060;
+
+  .el-tabs__nav-wrap {
+    margin-bottom: 0;
+    &::after { display: none; }
+  }
+
+  .el-tabs__nav {
+    border: none !important;
+  }
+
+  .el-tabs__item {
+    height: 32px;
+    line-height: 32px;
+    font-size: 12px;
+    color: #606266;
+    border: 1px solid #e0e0e6 !important;
+    border-radius: 3px 3px 0 0;
+    margin-right: 3px;
+    padding: 0 10px !important;
+    background: #f8f9fa;
+    transition: color 0.2s, background 0.2s;
+
+    &:first-child { margin-left: 4px; }
+
+    &.is-active {
+      color: #1677ff;
       background: #fff;
-      padding: 0 8px;
-      font-size: 12px;
-      margin-left: 5px;
-      margin-top: 4px;
-      &:first-of-type {
-        margin-left: 15px;
-      }
-      &:last-of-type {
-        margin-right: 15px;
-      }
-      &.active {
-        background-color: #42b983;
+      border-color: #91caff !important;
+      border-bottom-color: #fff !important;
+      font-weight: 500;
+    }
+
+    &:not(.is-active):hover {
+      color: #1677ff;
+      background: #e6f4ff;
+    }
+
+    .is-icon-close {
+      margin-left: 4px;
+      width: 14px;
+      height: 14px;
+      line-height: 14px;
+      border-radius: 50%;
+      &:hover {
+        background-color: #c0c4cc;
         color: #fff;
-        border-color: #42b983;
-        &::before {
-          content: '';
-          background: #fff;
-          display: inline-block;
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          position: relative;
-          margin-right: 2px;
-        }
       }
     }
   }
+
+  // 右键菜单
   .contextmenu {
     margin: 0;
     background: #fff;
     z-index: 3000;
-    position: absolute;
+    position: fixed;
     list-style-type: none;
-    padding: 5px 0;
+    padding: 4px 0;
     border-radius: 4px;
     font-size: 12px;
-    font-weight: 400;
     color: #333;
-    box-shadow: 1px 2px 10px #ccc;
-    -moz-user-select:none;
-    -webkit-user-select:none;
-    user-select:none;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    border: 1px solid #e4e7ed;
+    user-select: none;
+
     li {
       list-style: none;
-      line-height: 36px;
-      padding: 2px 20px;
+      line-height: 34px;
+      padding: 0 16px;
       margin: 0;
-      font-size: 14px;
+      font-size: 13px;
       color: #606266;
       cursor: pointer;
-      outline: 0;
-      cursor: pointer;
+
       &:hover {
-        background: #eee;
+        background: #e6f4ff;
+        color: #1677ff;
       }
     }
   }

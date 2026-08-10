@@ -1,31 +1,35 @@
 module.exports = {
   root: true,
   parserOptions: {
-    parser: 'babel-eslint',
-    sourceType: 'module'
+    parser: '@babel/eslint-parser',
+    sourceType: 'module',
+    requireConfigFile: false
   },
   env: {
     browser: true,
     node: true,
     es6: true
   },
-  extends: ['plugin:vue/recommended', 'eslint:recommended'],
+  extends: ['plugin:vue/vue3-recommended', 'eslint:recommended'],
 
   // add your custom rules here
   // it is base on https://github.com/vuejs/eslint-config-vue
   rules: {
     'vue/max-attributes-per-line': [2, {
-      'singleline': 10,
+      'singleline': {
+        'max': 10
+      },
       'multiline': {
-        'max': 1,
-        'allowFirstLine': false
+        'max': 1
       }
     }],
     'vue/no-template-shadow': 'off',
     'vue/singleline-html-element-content-newline': 'off',
     'vue/multiline-html-element-content-newline': 'off',
-    'vue/name-property-casing': ['error', 'PascalCase'],
     'vue/no-v-html': 'off',
+    // Vue 3 规则调整
+    'vue/no-deprecated-slot-attribute': 'warn',
+    'vue/multi-word-component-names': 'warn',
     'accessor-pairs': 2,
     'arrow-spacing': [2, {
       'before': true,

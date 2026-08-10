@@ -36,9 +36,11 @@ module.exports = {
   devServer: {
     port: port,
     open: false,
-    overlay: {
-      warnings: false,
-      errors: true
+    client: {
+      overlay: {
+        warnings: false,
+        errors: true
+      }
     }
   },
   configureWebpack: {
@@ -56,6 +58,9 @@ module.exports = {
     resolve: {
       alias: {
         '@': resolve('src')
+      },
+      fallback: {
+        'path': require.resolve('path-browserify')
       }
     }
   },
@@ -82,13 +87,14 @@ module.exports = {
       })
       .end()
 
-    // set preserveWhitespace
+    // set preserveWhitespace for Vue 3
     config.module
       .rule('vue')
       .use('vue-loader')
-      .loader('vue-loader')
       .tap(options => {
-        options.compilerOptions.preserveWhitespace = true
+        if (!options) options = {}
+        if (!options.compilerOptions) options.compilerOptions = {}
+        options.compilerOptions.whitespace = 'preserve'
         return options
       })
       .end()
@@ -119,10 +125,10 @@ module.exports = {
                   priority: 10,
                   chunks: 'initial' // only package third parties that are initially dependent
                 },
-                elementUI: {
-                  name: 'chunk-elementUI', // split elementUI into a single package
+                elementPlus: {
+                  name: 'chunk-elementPlus', // split element-plus into a single package
                   priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
-                  test: /[\\/]node_modules[\\/]_?element-ui(.*)/ // in order to adapt to cnpm
+                  test: /[\\/]node_modules[\\/]_?element-plus(.*)/ // in order to adapt to cnpm
                 },
                 commons: {
                   name: 'chunk-commons',

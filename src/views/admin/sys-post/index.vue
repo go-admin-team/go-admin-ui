@@ -2,14 +2,14 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" class="search-form">
           <el-form-item label="岗位编码" prop="postCode">
             <el-input
               v-model="queryParams.postCode"
               placeholder="请输入岗位编码"
               clearable
               size="small"
-              @keyup.enter.native="handleQuery"
+              @keyup.enter="handleQuery"
             />
           </el-form-item>
           <el-form-item label="岗位名称" prop="postName">
@@ -18,7 +18,7 @@
               placeholder="请输入岗位名称"
               clearable
               size="small"
-              @keyup.enter.native="handleQuery"
+              @keyup.enter="handleQuery"
             />
           </el-form-item>
           <el-form-item label="状态" prop="status">
@@ -32,60 +32,26 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+            <el-button type="primary" size="small" :icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button size="small" :icon="Refresh" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
 
-        <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysPost:add']"
-              type="primary"
-              icon="el-icon-plus"
-              size="mini"
-              @click="handleAdd"
-            >新增</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysPost:edit']"
-              type="success"
-              icon="el-icon-edit"
-              size="mini"
-              :disabled="single"
-              @click="handleUpdate"
-            >修改</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysPost:remove']"
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              :disabled="multiple"
-              @click="handleDelete"
-            >删除</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysPost:export']"
-              type="warning"
-              icon="el-icon-download"
-              size="mini"
-              @click="handleExport"
-            >导出</el-button>
-          </el-col>
-        </el-row>
+        <div class="toolbar mb8">
+          <el-button v-permisaction="['admin:sysPost:add']" type="primary" size="small" :icon="Plus" @click="handleAdd">新增</el-button>
+          <el-button v-permisaction="['admin:sysPost:edit']" type="primary" size="small" :icon="Edit" :disabled="single" @click="handleUpdate">修改</el-button>
+          <el-button v-permisaction="['admin:sysPost:remove']" type="danger" size="small" :icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
+          <el-button v-permisaction="['admin:sysPost:export']" size="small" :icon="Download" @click="handleExport">导出</el-button>
+        </div>
 
-        <el-table v-loading="loading" :data="postList" border @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="postList" border stripe @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column label="岗位编号" width="80" align="center" prop="postId" />
           <el-table-column label="岗位编码" align="center" prop="postCode" />
           <el-table-column label="岗位名称" align="center" prop="postName" />
           <el-table-column label="岗位排序" align="center" prop="sort" />
           <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat">
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-tag
                 :type="scope.row.status === 1 ? 'danger' : 'success'"
                 disable-transitions
@@ -93,40 +59,29 @@
             </template>
           </el-table-column>
           <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
-            <template slot-scope="scope">
+            <template #default="scope">
               <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
           </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-            <template slot-scope="scope">
-              <el-button
-                v-permisaction="['admin:sysPost:edit']"
-                size="mini"
-                type="text"
-                icon="el-icon-edit"
-                @click="handleUpdate(scope.row)"
-              >修改</el-button>
-              <el-button
-                v-permisaction="['admin:sysPost:remove']"
-                size="mini"
-                type="text"
-                icon="el-icon-delete"
-                @click="handleDelete(scope.row)"
-              >删除</el-button>
+            <template #default="scope">
+              <el-button v-permisaction="['admin:sysPost:edit']" type="primary" link size="small" :icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
+              <el-divider direction="vertical" />
+              <el-button v-permisaction="['admin:sysPost:remove']" type="danger" link size="small" :icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
 
         <pagination
           v-show="total>0"
+          v-model:current-page="queryParams.pageIndex"
+          v-model:page-size="queryParams.pageSize"
           :total="total"
-          :page.sync="queryParams.pageIndex"
-          :limit.sync="queryParams.pageSize"
           @pagination="getList"
         />
 
         <!-- 添加或修改岗位对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px" :close-on-click-modal="false">
+        <el-dialog v-model="open" :title="title" width="500px" :close-on-click-modal="false">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
             <el-form-item label="岗位名称" prop="postName">
               <el-input v-model="form.postName" placeholder="请输入岗位名称" />
@@ -150,10 +105,10 @@
               <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
             </el-form-item>
           </el-form>
-          <div slot="footer" class="dialog-footer">
+          <template #footer><div class="dialog-footer">
             <el-button type="primary" @click="submitForm">确 定</el-button>
             <el-button @click="cancel">取 消</el-button>
-          </div>
+          </div></template>
         </el-dialog>
       </el-card>
     </template>
@@ -163,9 +118,13 @@
 <script>
 import { listPost, getPost, delPost, addPost, updatePost } from '@/api/admin/sys-post'
 import { formatJson } from '@/utils'
+import { Search, Refresh, Plus, Edit, Delete, Download } from '@element-plus/icons-vue'
 
 export default {
   name: 'SysPostManage',
+  setup() {
+    return { Search, Refresh, Plus, Edit, Delete, Download }
+  },
   data() {
     return {
       // 遮罩层

@@ -4,9 +4,11 @@
       <el-row :gutter="10">
         <el-col :span="6" :xs="24">
           <el-card class="box-card">
-            <div slot="header" class="clearfix">
-              <span>个人信息</span>
-            </div>
+            <template #header>
+              <div class="clearfix">
+                <span>个人信息</span>
+              </div>
+            </template>
             <div>
               <div class="text-center">
                 <userAvatar :user="user" />
@@ -42,9 +44,11 @@
         </el-col>
         <el-col :span="18" :xs="24">
           <el-card>
-            <div slot="header" class="clearfix">
-              <span>基本资料</span>
-            </div>
+            <template #header>
+              <div class="clearfix">
+                <span>基本资料</span>
+              </div>
+            </template>
             <el-tabs v-model="activeTab">
               <el-tab-pane label="基本资料" name="userinfo">
                 <userInfo :user="user" />
@@ -67,7 +71,7 @@ import resetPwd from './resetPwd'
 import { getUserProfile } from '@/api/admin/sys-user'
 
 export default {
-  name: 'Profile',
+  name: 'ProfilePage',
   components: { userAvatar, userInfo, resetPwd },
   data() {
     return {

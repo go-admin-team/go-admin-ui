@@ -5,21 +5,23 @@
         <el-row :gutter="10" class="mb10">
           <el-col :sm="24" :md="8">
             <el-card v-if="info.cpu" class="box-card" shadow="always" :body-style="{paddingTop:'0 !important'}">
-              <div slot="header" class="clearfix">
-                <el-row :gutter="10">
-                  <el-col :sm="24" :md="8">
-                    <el-tag
-                      type="success"
-                      effect="dark"
-                    >
-                      Runing
-                    </el-tag>
-                  </el-col>
-                  <el-col :sm="24" :md="8" class="" style="line-height:28px;text-align:center;">
-                    {{ info.location }}
-                  </el-col>
-                </el-row>
-              </div>
+              <template #header>
+                <div class="clearfix">
+                  <el-row :gutter="10">
+                    <el-col :sm="24" :md="8">
+                      <el-tag
+                        type="success"
+                        effect="dark"
+                      >
+                        Runing
+                      </el-tag>
+                    </el-col>
+                    <el-col :sm="24" :md="8" class="" style="line-height:28px;text-align:center;">
+                      {{ info.location }}
+                    </el-col>
+                  </el-row>
+                </div>
+              </template>
               <div class="monitor" style="padding-top:0px;">
                 <div class="monitor-content">
                   <el-row :gutter="10">
@@ -38,7 +40,7 @@
                     <el-col :sm="12" :md="12" class="line">
                       <el-row>
                         <el-col span="12" :sm="8" :md="8" xs="12">
-                          下载<i class="el-icon-caret-bottom" />
+                          下载<i class="ri-arrow-down-s-fill" />
                         </el-col>
                         <el-col span="12" :sm="16" :md="16" xs="12" class="line-value">
                           {{ info.net.in }}KB
@@ -48,7 +50,7 @@
                     <el-col :sm="12" :md="12" class="line">
                       <el-row border>
                         <el-col span="12" :sm="6" :md="8">
-                          上传<i class="el-icon-caret-top" />
+                          上传<i class="ri-arrow-up-s-fill" />
                         </el-col>
                         <el-col span="12" :sm="6" :md="16" class="line-value">
                           {{ info.net.out }}KB
@@ -103,9 +105,11 @@
           </el-card> -->
 
           <el-card v-if="info.os" class="box-card">
-            <div slot="header" class="clearfix">
-              <span>服务器信息</span>
-            </div>
+            <template #header>
+              <div class="clearfix">
+                <span>服务器信息</span>
+              </div>
+            </template>
             <div class="monitor">
               <Cell label="主机名称" :value="info.os.hostName" border />
               <Cell label="操作系统" :value="info.os.goOs" border />
@@ -127,7 +131,7 @@ import {
   getServer
 } from '@/api/monitor/server'
 export default {
-  name: 'Monitor',
+  name: 'MonitorPage',
   components: {
     Cell
   },
@@ -150,7 +154,7 @@ export default {
       this.getServerInfo()
     }, 1000)
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.timer)
     this.timer = null
   },

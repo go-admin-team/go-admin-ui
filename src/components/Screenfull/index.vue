@@ -8,7 +8,7 @@
 import screenfull from 'screenfull'
 
 export default {
-  name: 'Screenfull',
+  name: 'AppScreenfull',
   data() {
     return {
       isFullscreen: false
@@ -17,7 +17,7 @@ export default {
   mounted() {
     this.init()
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.destroy()
   },
   methods: {

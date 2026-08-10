@@ -14,6 +14,8 @@
 
 <script>
 export default {
+  name: 'AutoWidthOptionComponent',
+  emits: ['input'],
   props: {
     value: {
       type: Boolean,

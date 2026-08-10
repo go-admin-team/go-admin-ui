@@ -59,6 +59,8 @@
 import CountTo from 'vue-count-to'
 
 export default {
+  name: 'PanelGroupComponent',
+  emits: ['handleSetLineChartData'],
   components: {
     CountTo
   },

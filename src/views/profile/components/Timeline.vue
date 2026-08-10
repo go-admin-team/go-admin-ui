@@ -13,6 +13,7 @@
 
 <script>
 export default {
+  name: 'UserTimeline',
   data() {
     return {
       timeline: [

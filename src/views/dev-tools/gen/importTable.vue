@@ -1,6 +1,6 @@
 <template>
   <!-- 导入表 -->
-  <el-dialog title="导入表" :visible.sync="visible" width="800px" top="5vh">
+  <el-dialog v-model="visible" title="导入表" width="800px" top="5vh">
     <el-form ref="queryForm" :model="queryParams" :inline="true">
       <el-form-item label="表名称" prop="tableName">
         <el-input
@@ -8,7 +8,7 @@
           placeholder="请输入表名称"
           clearable
           size="small"
-          @keyup.enter.native="handleQuery"
+          @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="表描述" prop="tableComment">
@@ -17,12 +17,12 @@
           placeholder="请输入表描述"
           clearable
           size="small"
-          @keyup.enter.native="handleQuery"
+          @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button type="primary" size="mini" @click="handleQuery">搜索</el-button>
+        <el-button size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
     <el-row>
@@ -35,22 +35,23 @@
       </el-table>
       <pagination
         v-show="total>0"
+        v-model:current-page="queryParams.pageIndex"
+        v-model:page-size="queryParams.pageSize"
         :total="total"
-        :page.sync="queryParams.pageIndex"
-        :limit.sync="queryParams.pageSize"
         @pagination="getList"
       />
     </el-row>
-    <div slot="footer" class="dialog-footer">
+    <template #footer><div class="dialog-footer">
       <el-button type="primary" :loading="loading" @click="handleImportTable">确 定</el-button>
       <el-button @click="visible = false">取 消</el-button>
-    </div>
+    </div></template>
   </el-dialog>
 </template>
 
 <script>
 import { listDbTable, importTable } from '@/api/tools/gen'
 export default {
+  emits: ['ok'],
   data() {
     return {
       loading: false,

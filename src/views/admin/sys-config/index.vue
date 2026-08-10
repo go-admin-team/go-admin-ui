@@ -10,7 +10,7 @@
               clearable
               size="small"
               style="width: 160px"
-              @keyup.enter.native="handleQuery"
+              @keyup.enter="handleQuery"
             />
           </el-form-item>
           <el-form-item label="键名" prop="configKey">
@@ -20,7 +20,7 @@
               clearable
               size="small"
               style="width: 160px"
-              @keyup.enter.native="handleQuery"
+              @keyup.enter="handleQuery"
             />
           </el-form-item>
           <el-form-item label="内置" prop="configType">
@@ -34,8 +34,8 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+            <el-button type="primary" size="mini" @click="handleQuery">搜索</el-button>
+            <el-button size="mini" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
 
@@ -44,7 +44,7 @@
             <el-button
               v-permisaction="['admin:sysConfig:add']"
               type="primary"
-              icon="el-icon-plus"
+
               size="mini"
               @click="handleAdd"
             >新增</el-button>
@@ -53,7 +53,7 @@
             <el-button
               v-permisaction="['admin:sysConfig:edit']"
               type="success"
-              icon="el-icon-edit"
+
               size="mini"
               :disabled="single"
               @click="handleUpdate"
@@ -63,7 +63,7 @@
             <el-button
               v-permisaction="['admin:sysConfig:remove']"
               type="danger"
-              icon="el-icon-delete"
+
               size="mini"
               :disabled="multiple"
               @click="handleDelete"
@@ -73,7 +73,7 @@
             <el-button
               v-permisaction="['admin:sysConfig:export']"
               type="warning"
-              icon="el-icon-download"
+
               size="mini"
               @click="handleExport"
             >导出</el-button>
@@ -105,15 +105,15 @@
             sortable="custom"
             prop="configKey"
           >
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-popover trigger="hover" placement="top">
                 <p>键值: {{ scope.row.configValue }}</p>
                 <p>UI参数:  <el-tag v-if="scope.row.isFrontend=='2'">否</el-tag>
                   <el-tag v-if="scope.row.isFrontend=='1'" type="success">是</el-tag>
                 </p>
-                <div slot="reference" class="name-wrapper">
+                <template #reference><div class="name-wrapper">
                   {{ scope.row.configKey }}
-                </div>
+                </div></template>
               </el-popover>
             </template>
           </el-table-column>
@@ -135,7 +135,7 @@
             prop="createdAt"
             width="160"
           >
-            <template slot-scope="scope">
+            <template #default="scope">
               <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
           </el-table-column>
@@ -144,19 +144,19 @@
             class-name="small-padding fixed-width"
             width="120"
           >
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-button
                 v-permisaction="['admin:sysConfig:edit']"
                 size="mini"
                 type="text"
-                icon="el-icon-edit"
+
                 @click="handleUpdate(scope.row)"
               >修改</el-button>
               <el-button
                 v-permisaction="['admin:sysConfig:remove']"
                 size="mini"
                 type="text"
-                icon="el-icon-delete"
+
                 @click="handleDelete(scope.row)"
               >删除</el-button>
             </template>
@@ -165,14 +165,14 @@
 
         <pagination
           v-show="total>0"
+          v-model:current-page="queryParams.pageIndex"
+          v-model:page-size="queryParams.pageSize"
           :total="total"
-          :page.sync="queryParams.pageIndex"
-          :limit.sync="queryParams.pageSize"
           @pagination="getList"
         />
 
         <!-- 添加或修改参数配置对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px" :close-on-click-modal="false">
+        <el-dialog v-model="open" :title="title" width="500px" :close-on-click-modal="false">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
             <el-form-item label="参数名称" prop="configName">
               <el-input v-model="form.configName" placeholder="请输入参数名称" :disabled="isEdit" />
@@ -202,10 +202,10 @@
               <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
             </el-form-item>
           </el-form>
-          <div slot="footer" class="dialog-footer">
+          <template #footer><div class="dialog-footer">
             <el-button type="primary" @click="submitForm">确 定</el-button>
             <el-button @click="cancel">取 消</el-button>
-          </div>
+          </div></template>
         </el-dialog>
       </el-card>
     </template>

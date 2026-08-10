@@ -20,7 +20,7 @@
             :show-overflow-tooltip="true"
           />
           <el-table-column fixed label="字段描述" width="150">
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-input v-model="scope.row.columnComment" />
             </template>
           </el-table-column>
@@ -31,7 +31,7 @@
             :show-overflow-tooltip="true"
           />
           <el-table-column label="go类型" width="120">
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-select v-model="scope.row.goType">
                 <el-option label="int64" value="int64" />
                 <el-option label="string" value="string" />
@@ -41,38 +41,38 @@
             </template>
           </el-table-column>
           <el-table-column label="go属性" width="150">
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-input v-model="scope.row.goField" />
             </template>
           </el-table-column>
           <el-table-column label="json属性" width="150">
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-input v-model="scope.row.jsonField" />
             </template>
           </el-table-column>
 
           <el-table-column label="编辑" width="50">
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-checkbox v-model="scope.row.isInsert" true-label="1" false-label="0" />
             </template>
           </el-table-column>
           <!-- <el-table-column label="编辑" width="70" :render-header="renderHeadeUpdate" :cell-style="{'text-align':'center'}">
-            <template slot-scope="scope">
+            <template v-slot="scope">
               <el-checkbox v-model="scope.row.isEdit" true-label="1" false-label="0" />
             </template>
           </el-table-column> -->
           <el-table-column label="列表" width="70" :render-header="renderHeadeList" :cell-style="{'text-align':'center'}">
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-checkbox v-model="scope.row.isList" true-label="1" false-label="0" />
             </template>
           </el-table-column>
           <el-table-column label="查询" width="70" :render-header="renderHeadeSearch" :cell-style="{'text-align':'center'}">
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-checkbox v-model="scope.row.isQuery" true-label="1" false-label="0" />
             </template>
           </el-table-column>
           <el-table-column label="查询方式" width="120">
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-select v-model="scope.row.queryType">
                 <el-option label="=" value="EQ" />
                 <el-option label="!=" value="NE" />
@@ -86,12 +86,12 @@
             </template>
           </el-table-column>
           <el-table-column label="必填" width="50">
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-checkbox v-model="scope.row.isRequired" true-label="1" />
             </template>
           </el-table-column>
           <el-table-column label="显示类型" width="140">
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-select v-model="scope.row.htmlType">
                 <el-option label="文本框" value="input" />
                 <el-option label="下拉框" value="select" />
@@ -105,7 +105,7 @@
             </template>
           </el-table-column>
           <el-table-column label="字典类型" width="160">
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-select v-model="scope.row.dictType" clearable filterable placeholder="请选择">
                 <el-option
                   v-for="dict in dictOptions"
@@ -120,7 +120,7 @@
             </template>
           </el-table-column>
           <el-table-column label="关系表" width="160">
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-select v-model="scope.row.fkTableName" clearable filterable placeholder="请选择" @change="handleChangeConfig(scope.row,scope.$index)">
                 <el-option
                   v-for="table in tableTree"
@@ -135,7 +135,7 @@
             </template>
           </el-table-column>
           <el-table-column label="关系表key" width="150">
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-select v-model="scope.row.fkLabelId" clearable filterable placeholder="请选择">
                 <el-option
                   v-for="column in scope.row.fkCol"
@@ -150,7 +150,7 @@
             </template>
           </el-table-column>
           <el-table-column label="关系表value" width="150">
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-select v-model="scope.row.fkLabelName" clearable filterable placeholder="请选择">
                 <el-option
                   v-for="column in scope.row.fkCol"
@@ -249,7 +249,7 @@ export default {
           [
             h('p', '是否在表单编辑时能够编辑，打√表示需要', { class: 'text-align: center; margin: 0' }),
             // 生成 i 标签 ，添加icon 设置 样式，slot 必填
-            h('i', { class: 'el-icon-question', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
+            h('i', { class: 'ri-question-line', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
           ]
         )
       ])
@@ -263,7 +263,7 @@ export default {
           { props: { placement: 'top-start', width: '260', trigger: 'hover' }},
           [
             h('p', '是否在列表中展示，打√表示需要展示', { class: 'text-align: center; margin: 0' }),
-            h('i', { class: 'el-icon-question', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
+            h('i', { class: 'ri-question-line', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
           ]
         )
       ])
@@ -276,7 +276,7 @@ export default {
           { props: { placement: 'top-start', width: '270', trigger: 'hover' }},
           [
             h('p', '是都当做搜索条件，打√表示做为搜索条件', { class: 'text-align: center; margin: 0' }),
-            h('i', { class: 'el-icon-question', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
+            h('i', { class: 'ri-question-line', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
           ]
         )
       ])

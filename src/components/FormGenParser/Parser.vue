@@ -97,8 +97,8 @@ function renderChildren(h, scheme) {
 }
 
 function setValue(event, config, scheme) {
-  this.$set(config, 'defaultValue', event)
-  this.$set(this[this.formConf.formModel], scheme.__vModel__, event)
+  config.defaultValue = event
+  this[this.formConf.formModel][scheme.__vModel__] = event
 }
 
 function buildListeners(scheme) {

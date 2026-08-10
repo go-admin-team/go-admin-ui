@@ -27,7 +27,7 @@
 
 <script>
 export default {
-  name: 'Cell',
+  name: 'AppCell',
   props: {
     border: {
       type: Boolean,

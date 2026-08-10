@@ -23,7 +23,7 @@ import { mapState } from 'vuex'
 import variables from '@/styles/variables.scss'
 
 export default {
-  name: 'Layout',
+  name: 'MainLayout',
   components: {
     AppMain,
     Navbar,
@@ -62,8 +62,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  @import "~@/styles/mixin.scss";
-  @import "~@/styles/variables.scss";
+  @use "@/styles/mixin.scss" as *;
+  @use "@/styles/variables.scss" as *;
 
   .app-wrapper {
     @include clearfix;

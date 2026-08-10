@@ -2,15 +2,14 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" class="search-form">
           <el-form-item label="名称" prop="roleName">
             <el-input
               v-model="queryParams.roleName"
               placeholder="请输入角色名称"
               clearable
               size="small"
-              style="width: 160px"
-              @keyup.enter.native="handleQuery"
+              @keyup.enter="handleQuery"
             />
           </el-form-item>
           <el-form-item label="权限字符" prop="roleKey">
@@ -19,8 +18,7 @@
               placeholder="请输入权限字符"
               clearable
               size="small"
-              style="width: 160px"
-              @keyup.enter.native="handleQuery"
+              @keyup.enter="handleQuery"
             />
           </el-form-item>
           <el-form-item label="状态" prop="status">
@@ -29,7 +27,6 @@
               placeholder="角色状态"
               clearable
               size="small"
-              style="width: 160px"
             >
               <el-option
                 v-for="dict in statusOptions"
@@ -39,69 +36,24 @@
               />
             </el-select>
           </el-form-item>
-          <!-- <el-form-item label="创建时间">
-            <el-date-picker
-              v-model="dateRange"
-              size="small"
-              style="width: 240px"
-              value-format="yyyy-MM-dd"
-              type="daterange"
-              range-separator="-"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-            />
-          </el-form-item> -->
           <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+            <el-button type="primary" size="small" :icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button size="small" :icon="Refresh" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
 
-        <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysRole:add']"
-              type="primary"
-              icon="el-icon-plus"
-              size="mini"
-              @click="handleAdd"
-            >新增</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysRole:update']"
-              type="success"
-              icon="el-icon-edit"
-              size="mini"
-              :disabled="single"
-              @click="handleUpdate"
-            >修改</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysRole:remove']"
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              :disabled="multiple"
-              @click="handleDelete"
-            >删除</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysRole:export']"
-              type="warning"
-              icon="el-icon-download"
-              size="mini"
-              @click="handleExport"
-            >导出</el-button>
-          </el-col>
-        </el-row>
+        <div class="toolbar mb8">
+          <el-button v-permisaction="['admin:sysRole:add']" type="primary" size="small" :icon="Plus" @click="handleAdd">新增</el-button>
+          <el-button v-permisaction="['admin:sysRole:update']" type="primary" size="small" :icon="Edit" :disabled="single" @click="handleUpdate">修改</el-button>
+          <el-button v-permisaction="['admin:sysRole:remove']" type="danger" size="small" :icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
+          <el-button v-permisaction="['admin:sysRole:export']" size="small" :icon="Download" @click="handleExport">导出</el-button>
+        </div>
 
         <el-table
           v-loading="loading"
           :data="roleList"
           border
+          stripe
           @selection-change="handleSelectionChange"
           @sort-change="handleSortChang"
         >
@@ -111,7 +63,7 @@
           <el-table-column label="权限字符" prop="roleKey" :show-overflow-tooltip="true" width="150" />
           <el-table-column label="排序" sortable="custom" prop="roleSort" width="80" />
           <el-table-column label="状态" sortable="custom" width="80">
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-switch
                 v-model="scope.row.status"
                 active-value="2"
@@ -121,7 +73,7 @@
             </template>
           </el-table-column>
           <el-table-column label="创建时间" sortable="custom" prop="createdAt" width="160">
-            <template slot-scope="scope">
+            <template #default="scope">
               <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
           </el-table-column>
@@ -131,43 +83,28 @@
             class-name="small-padding fixed-width"
             width="220"
           >
-            <template slot-scope="scope">
-              <el-button
-                v-permisaction="['admin:sysRole:update']"
-                size="mini"
-                type="text"
-                icon="el-icon-edit"
-                @click="handleUpdate(scope.row)"
-              >修改</el-button>
-              <el-button
-                v-permisaction="['admin:sysRole:update']"
-                size="mini"
-                type="text"
-                icon="el-icon-circle-check"
-                @click="handleDataScope(scope.row)"
-              >数据权限</el-button>
-              <el-button
-                v-if="scope.row.roleKey!=='admin'"
-                v-permisaction="['admin:sysRole:remove']"
-                size="mini"
-                type="text"
-                icon="el-icon-delete"
-                @click="handleDelete(scope.row)"
-              >删除</el-button>
+            <template #default="scope">
+              <el-button v-permisaction="['admin:sysRole:update']" type="primary" link size="small" :icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
+              <el-divider direction="vertical" />
+              <el-button v-permisaction="['admin:sysRole:update']" type="primary" link size="small" @click="handleDataScope(scope.row)">数据权限</el-button>
+              <template v-if="scope.row.roleKey!=='admin'">
+                <el-divider direction="vertical" />
+                <el-button v-permisaction="['admin:sysRole:remove']" type="danger" link size="small" :icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
+              </template>
             </template>
           </el-table-column>
         </el-table>
 
         <pagination
           v-show="total>0"
+          v-model:current-page="queryParams.pageIndex"
+          v-model:page-size="queryParams.pageSize"
           :total="total"
-          :page.sync="queryParams.pageIndex"
-          :limit.sync="queryParams.pageSize"
           @pagination="getList"
         />
 
         <!-- 添加或修改角色配置对话框 -->
-        <el-dialog v-if="open" :title="title" :visible.sync="open" width="500px" :close-on-click-modal="false">
+        <el-dialog v-if="open" v-model="open" :title="title" width="500px" :close-on-click-modal="false">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
             <el-form-item label="角色名称" prop="roleName">
               <el-input v-model="form.roleName" placeholder="请输入角色名称" :disabled="isEdit" />
@@ -201,14 +138,14 @@
               <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
             </el-form-item>
           </el-form>
-          <div slot="footer" class="dialog-footer">
+          <template #footer><div class="dialog-footer">
             <el-button type="primary" @click="submitForm">确 定</el-button>
             <el-button @click="cancel">取 消</el-button>
-          </div>
+          </div></template>
         </el-dialog>
 
         <!-- 分配角色数据权限对话框 -->
-        <el-dialog v-if="openDataScope" :title="title" :visible.sync="openDataScope" width="500px" :close-on-click-modal="false">
+        <el-dialog v-if="openDataScope" v-model="open" :title="title" width="500px" :close-on-click-modal="false">
           <el-form :model="form" label-width="80px">
             <el-form-item label="角色名称">
               <el-input v-model="form.roleName" :disabled="true" />
@@ -238,10 +175,10 @@
               />
             </el-form-item>
           </el-form>
-          <div slot="footer" class="dialog-footer">
+          <template #footer><div class="dialog-footer">
             <el-button type="primary" @click="submitDataScope">确 定</el-button>
             <el-button @click="cancelDataScope">取 消</el-button>
-          </div>
+          </div></template>
         </el-dialog>
       </el-card>
     </template>
@@ -253,11 +190,15 @@ import { listRole, getRole, delRole, addRole, updateRole, dataScope, changeRoleS
 import { roleMenuTreeselect } from '@/api/admin/sys-menu'
 import { treeselect as deptTreeselect, roleDeptTreeselect } from '@/api/admin/sys-dept'
 import { formatJson } from '@/utils'
+import { Search, Refresh, Plus, Edit, Delete, Download } from '@element-plus/icons-vue'
 
 export default {
-  name: 'Role',
+  name: 'RoleManagement',
   components: {
 
+  },
+  setup() {
+    return { Search, Refresh, Plus, Edit, Delete, Download }
   },
   data() {
     return {

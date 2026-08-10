@@ -24,7 +24,8 @@
 
 <script>
 export default {
-  name: 'Todo',
+  name: 'TodoItem',
+  emits: ['deleteTodo', 'editTodo', 'toggleTodo'],
   directives: {
     focus(el, { value }, { context }) {
       if (value) {

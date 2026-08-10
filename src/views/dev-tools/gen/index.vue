@@ -2,14 +2,14 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-position="left">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" class="search-form">
           <el-form-item label="表名称" prop="tableName">
             <el-input
               v-model="queryParams.tableName"
               placeholder="请输入表名称"
               clearable
               size="small"
-              @keyup.enter.native="handleQuery"
+              @keyup.enter="handleQuery"
             />
           </el-form-item>
           <el-form-item label="菜单名称" prop="tableComment">
@@ -18,55 +18,21 @@
               placeholder="请输入菜单名称"
               clearable
               size="small"
-              @keyup.enter.native="handleQuery"
+              @keyup.enter="handleQuery"
             />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+            <el-button type="primary" size="small" :icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button size="small" :icon="Refresh" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
-        <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
-          <!-- <el-button
-              type="primary"
-              icon="el-icon-download"
-              size="mini"
-              @click="handleGenTable"
-            >生成</el-button> -->
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
+        <div class="toolbar mb8">
+          <el-button type="primary" size="small" :icon="Upload" @click="openImportTable">导入</el-button>
+          <el-button type="primary" size="small" :icon="Edit" :disabled="single" @click="handleEditTable">修改</el-button>
+          <el-button type="danger" size="small" :icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
+        </div>
 
-              type="info"
-              icon="el-icon-upload"
-              size="mini"
-              @click="openImportTable"
-            >导入</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-
-              type="success"
-              icon="el-icon-edit"
-              size="mini"
-              :disabled="single"
-              @click="handleEditTable"
-            >修改</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              :disabled="multiple"
-              @click="handleDelete"
-            >删除</el-button>
-          </el-col>
-        </el-row>
-
-        <el-table v-loading="loading" :data="tableList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="tableList" border stripe @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" />
           <el-table-column label="序号" align="center" prop="tableId" width="50px" />
           <el-table-column
@@ -91,78 +57,43 @@
             width="130"
           />
           <el-table-column label="创建时间" align="center" prop="createdAt" width="165">
-            <template slot-scope="scope">
+            <template #default="scope">
               <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-            <template slot-scope="scope">
-              <el-button
-                type="text"
-                size="small"
-                icon="el-icon-edit"
-                @click="handleEditTable(scope.row)"
-              >编辑</el-button>
-              <el-button
-                type="text"
-                size="small"
-                icon="el-icon-view"
-                @click="handlePreview(scope.row)"
-              >预览</el-button>
-                <el-button
-                  slot="reference"
-                  type="text"
-                  size="small"
-                  icon="el-icon-view"
-                  @click="handleToProject(scope.row)"
-                >代码生成</el-button>
-
-                <el-button
-                  slot="reference"
-                  type="text"
-                  size="small"
-                  icon="el-icon-view"
-                  @click="handleToDB(scope.row)"
-                >生成配置</el-button>
-
-     
-                <el-button
-                  slot="reference"
-                  type="text"
-                  size="small"
-                  icon="el-icon-view"
-                   @click="handleToApiFile(scope.row)"
-                >生成迁移脚本</el-button>
-                
-                <el-button
-                  slot="reference"
-                  type="text"
-                  size="small"
-                  icon="el-icon-delete"
-                  @click="handleSingleDelete(scope.row)"
-                >删除</el-button>
+          <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="340">
+            <template #default="scope">
+              <el-button type="primary" link size="small" :icon="Edit" @click="handleEditTable(scope.row)">编辑</el-button>
+              <el-divider direction="vertical" />
+              <el-button type="primary" link size="small" @click="handlePreview(scope.row)">预览</el-button>
+              <el-divider direction="vertical" />
+              <el-button type="primary" link size="small" @click="handleToProject(scope.row)">代码生成</el-button>
+              <el-divider direction="vertical" />
+              <el-button type="primary" link size="small" @click="handleToDB(scope.row)">生成配置</el-button>
+              <el-divider direction="vertical" />
+              <el-button type="primary" link size="small" @click="handleToApiFile(scope.row)">生成迁移脚本</el-button>
+              <el-divider direction="vertical" />
+              <el-button type="danger" link size="small" :icon="Delete" @click="handleSingleDelete(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
         <pagination
           v-show="total>0"
+          v-model:current-page="queryParams.pageIndex"
+          v-model:page-size="queryParams.pageSize"
           :total="total"
-          :page.sync="queryParams.pageIndex"
-          :limit.sync="queryParams.pageSize"
           @pagination="getList"
         />
       </el-card>
 
       <!-- 预览界面 -->
 
-      <el-dialog class="preview" :title="preview.title" :visible.sync="preview.open" :close-on-click-modal="false" fullscreen>
+      <el-dialog v-model="open" class="preview" :title="preview.title" :close-on-click-modal="false" fullscreen>
         <div class="el-dialog-container">
           <div class="tag-group">
             <!-- eslint-disable-next-line vue/valid-v-for -->
-            <el-tag v-for="(value, key) in preview.data" @click="codeChange(key)">
-              <template>
-                {{ key.substring(key.lastIndexOf('/')+1,key.indexOf('.go.template')) }}
-              </template>
+            <el-tag v-for="(value, key) in preview.data" :key="key" @click="codeChange(key)">
+              {{ key.substring(key.lastIndexOf('/')+1,key.indexOf('.go.template')) }}
             </el-tag>
           </div>
           <div id="codemirror">
@@ -193,16 +124,20 @@ import { listTable, previewTable, delTable, toDBTable, toProjectTableCheckRole, 
 import importTable from './importTable'
 import { downLoadFile } from '@/utils/zipdownload'
 import { codemirror } from 'vue-codemirror'
-import 'codemirror/theme/material-palenight.css'
+import { Search, Refresh, Edit, Delete, Upload } from '@element-plus/icons-vue'
+// import 'codemirror/theme/material-palenight.css'
 
-require('codemirror/mode/javascript/javascript')
-import 'codemirror/mode/javascript/javascript'
-import 'codemirror/mode/go/go'
-import 'codemirror/mode/vue/vue'
+// require('codemirror/mode/javascript/javascript')
+// import 'codemirror/mode/javascript/javascript'
+// import 'codemirror/mode/go/go'
+// import 'codemirror/mode/vue/vue'
 
 export default {
-  name: 'Gen',
+  name: 'CodeGen',
   components: { importTable, codemirror },
+  setup() {
+    return { Search, Refresh, Edit, Delete, Upload }
+  },
   data() {
     return {
       cmOptions: {
@@ -375,10 +310,10 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
- .el-dialog-container ::v-deep{
+<style lang="scss">
+ .el-dialog-container {
    overflow: hidden;
-   .el-scrollbar__view{
+   :deep(.el-scrollbar__view){
      height: 100%;
    }
    .pre{
@@ -388,11 +323,11 @@ export default {
         height: 100%;
       }
    }
-   .el-scrollbar__wrap::-webkit-scrollbar{
+   :deep(.el-scrollbar__wrap::-webkit-scrollbar){
      display: none;
    }
  }
- ::v-deep .el-dialog__body{
+ :deep(.el-dialog__body){
     padding: 0 20px;
     margin:0;
   }

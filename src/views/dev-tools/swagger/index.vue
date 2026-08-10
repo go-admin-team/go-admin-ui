@@ -16,7 +16,7 @@
 </template>
 <script>
 export default {
-  name: 'Swagger',
+  name: 'SwaggerDoc',
   components: {},
   data() {
     return {

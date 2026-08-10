@@ -2,7 +2,7 @@ const vueSticky = {}
 let listenAction
 vueSticky.install = Vue => {
   Vue.directive('sticky', {
-    inserted(el, binding) {
+    mounted(el, binding) {
       const params = binding.value || {}
       const stickyTop = params.stickyTop || 0
       const zIndex = params.zIndex || 1000
@@ -81,7 +81,7 @@ vueSticky.install = Vue => {
       window.addEventListener('scroll', listenAction)
     },
 
-    unbind() {
+    unmounted() {
       window.removeEventListener('scroll', listenAction)
     }
   })

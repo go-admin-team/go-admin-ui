@@ -2,14 +2,13 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" class="search-form">
           <el-form-item label="状态" prop="status">
             <el-select
               v-model="queryParams.status"
               placeholder="操作状态"
               clearable
               size="small"
-              style="width: 160px"
             >
               <el-option
                 v-for="dict in statusOptions"
@@ -33,41 +32,24 @@
             />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+            <el-button type="primary" size="small" :icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button size="small" :icon="Refresh" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
 
-        <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysOperLog:remove']"
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              :disabled="multiple"
-              @click="handleDelete"
-            >删除</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysOperLog:export']"
-              type="warning"
-              icon="el-icon-download"
-              size="mini"
-              @click="handleExport"
-            >导出</el-button>
-          </el-col>
-        </el-row>
+        <div class="toolbar mb8">
+          <el-button v-permisaction="['admin:sysOperLog:remove']" type="danger" size="small" :icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
+          <el-button v-permisaction="['admin:sysOperLog:export']" size="small" :icon="Download" @click="handleExport">导出</el-button>
+        </div>
 
-        <el-table v-loading="loading" :data="list" border @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="list" border stripe @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column label="编号" width="70" prop="id" />
           <el-table-column
             label="Request info"
             prop="operUrl"
           >
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-popover trigger="hover" placement="top">
 
                 <p>Request:
@@ -80,13 +62,13 @@
                 <p>Host: {{ scope.row.operIp }}</p>
                 <p>Location: {{ scope.row.operLocation }}</p>
                 <p>耗时: {{ scope.row.latencyTime }}</p>
-                <div slot="reference" class="name-wrapper">
+                <template #reference><div class="name-wrapper">
                   <el-tag v-if="scope.row.requestMethod=='GET'">{{ scope.row.requestMethod }}</el-tag>
                   <el-tag v-if="scope.row.requestMethod=='POST'" type="success">{{ scope.row.requestMethod }}</el-tag>
                   <el-tag v-if="scope.row.requestMethod=='PUT'" type="warning">{{ scope.row.requestMethod }}</el-tag>
                   <el-tag v-if="scope.row.requestMethod=='DELETE'" type="danger">{{ scope.row.requestMethod }}</el-tag>
                   {{ scope.row.operUrl }}
-                </div>
+                </div></template>
               </el-popover>
             </template>
           </el-table-column>
@@ -102,13 +84,13 @@
             width="80"
             :show-overflow-tooltip="true"
           >
-            <template slot-scope="scope">
+            <template #default="scope">
               <el-tag v-if="scope.row.status=='2'" type="success">{{ statusFormat(scope.row,scope.row.status) }}</el-tag>
               <el-tag v-if="scope.row.status=='1'" type="danger">{{ statusFormat(scope.row,scope.row.status) }}</el-tag>
             </template>
           </el-table-column>
           <el-table-column label="操作日期" prop="operTime" width="160">
-            <template slot-scope="scope">
+            <template #default="scope">
               <span>{{ parseTime(scope.row.operTime) }}</span>
             </template>
           </el-table-column>
@@ -117,28 +99,22 @@
             width="80"
             class-name="small-padding fixed-width"
           >
-            <template slot-scope="scope">
-              <el-button
-                v-permisaction="['admin:sysOperLog:query']"
-                size="mini"
-                type="text"
-                icon="el-icon-view"
-                @click="handleView(scope.row,scope.index)"
-              >详细</el-button>
+            <template #default="scope">
+              <el-button v-permisaction="['admin:sysOperLog:query']" type="primary" link size="small" @click="handleView(scope.row,scope.index)">详细</el-button>
             </template>
           </el-table-column>
         </el-table>
 
         <pagination
           v-show="total>0"
+          v-model:current-page="queryParams.pageIndex"
+          v-model:page-size="queryParams.pageSize"
           :total="total"
-          :page.sync="queryParams.pageIndex"
-          :limit.sync="queryParams.pageSize"
           @pagination="getList"
         />
 
         <!-- 操作日志详细 -->
-        <el-dialog title="操作日志详细" :visible.sync="open" width="700px" :close-on-click-modal="false">
+        <el-dialog v-model="open" title="操作日志详细" width="700px" :close-on-click-modal="false">
           <el-form ref="form" :model="form" label-width="100px" size="mini">
             <el-row>
               <el-col :span="24">
@@ -176,9 +152,9 @@
               </el-col>
             </el-row>
           </el-form>
-          <div slot="footer" class="dialog-footer">
+          <template #footer><div class="dialog-footer">
             <el-button @click="open = false">关 闭</el-button>
-          </div>
+          </div></template>
         </el-dialog>
       </el-card>
     </template>
@@ -188,9 +164,13 @@
 <script>
 import { listSysOperlog, delSysOperlog, cleanOperlog } from '@/api/admin/sys-opera-log'
 import { formatJson } from '@/utils'
+import { Search, Refresh, Delete, Download } from '@element-plus/icons-vue'
 
 export default {
   name: 'SysOperLogManage',
+  setup() {
+    return { Search, Refresh, Delete, Download }
+  },
   data() {
     return {
       // 遮罩层

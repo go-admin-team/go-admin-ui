@@ -10,6 +10,12 @@ tests/**/coverage/
 tests/e2e/reports
 selenium-debug.log
 
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
 # Editor directories and files
 .idea
 .vscode
@@ -21,3 +27,7 @@ selenium-debug.log
 
 package-lock.json
 yarn.lock
+
+# Claude Code
+CLAUDE.md
+.claude/

@@ -1,5 +1,5 @@
 <template>
-  <section class="app-main">
+  <section class="app-main" :style="appMainStyle">
     <transition name="fade-transform" mode="out-in">
       <keep-alive :include="cachedViews">
         <router-view :key="key" />
@@ -17,6 +17,11 @@ export default {
     },
     key() {
       return this.$route.path
+    },
+    appMainStyle() {
+      if (!this.$store.state.settings.fixedHeader) return {}
+      const headerHeight = 50 + (this.$store.state.settings.tagsView ? 40 : 0)
+      return { paddingTop: headerHeight + 'px' }
     }
   }
 }
@@ -24,27 +29,12 @@ export default {
 
 <style lang="scss" scoped>
 .app-main {
-  /* 50= navbar  50  */
-  min-height: calc(100vh - 93px);
+  min-height: 100vh;
   width: 100%;
   position: relative;
   overflow: hidden;
+  background-color: #f0f2f5;
 }
-
-.fixed-header+.app-main {
-  padding-top: 93px;
-}
-
-// .hasTagsView {
-//   .app-main {
-//     /* 84 = navbar + tags-view = 50 + 34 */
-//     min-height: calc(100vh - 93px);
-//   }
-
-//   .fixed-header+.app-main {
-//     padding-top: 93px;
-//   }
-// }
 </style>
 
 <style lang="scss">

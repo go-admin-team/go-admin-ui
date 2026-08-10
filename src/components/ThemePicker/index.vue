@@ -8,10 +8,12 @@
 </template>
 
 <script>
-const version = require('element-ui/package.json').version // element-ui version from node_modules
+const version = require('element-plus/package.json').version // element-plus version from node_modules
 const ORIGINAL_THEME = '#1890FF' // default color
 
 export default {
+  name: 'ThemePickerComponent',
+  emits: ['change'],
   data() {
     return {
       chalk: '', // content of theme-chalk css
@@ -41,7 +43,7 @@ export default {
         customClass: 'theme-message',
         type: 'success',
         duration: 0,
-        iconClass: 'el-icon-loading'
+        iconClass: 'ri-loader-4-line'
       })
 
       const getHandler = (variable, id) => {
@@ -60,7 +62,7 @@ export default {
       }
 
       if (!this.chalk) {
-        const url = `https://unpkg.com/element-ui@${version}/lib/theme-chalk/index.css`
+        const url = `https://unpkg.com/element-plus@${version}/lib/theme-chalk/index.css`
         await this.getCSSString(url, 'chalk')
       }
 

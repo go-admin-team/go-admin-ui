@@ -1,7 +1,8 @@
 <script>
+import { h, resolveComponent } from 'vue'
+
 export default {
   name: 'MenuItem',
-  functional: true,
   props: {
     icon: {
       type: String,
@@ -12,18 +13,19 @@ export default {
       default: ''
     }
   },
-  render(h, context) {
-    const { icon, title } = context.props
+  render() {
     const vnodes = []
 
-    if (icon) {
-      vnodes.push(<svg-icon icon-class={icon}/>)
+    if (this.icon) {
+      const SvgIcon = resolveComponent('svg-icon')
+      vnodes.push(h(SvgIcon, { iconClass: this.icon }))
     }
 
-    if (title) {
-      vnodes.push(<span slot='title'>{(title)}</span>)
+    if (this.title) {
+      vnodes.push(h('span', null, this.title))
     }
-    return vnodes
+
+    return h('div', { style: 'display:flex;align-items:center;' }, vnodes)
   }
 }
 </script>

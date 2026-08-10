@@ -4,27 +4,23 @@
     mode="horizontal"
     @select="handleSelect"
   >
-    <template v-for="(item, index) in topMenus">
+    <el-menu-item
+      v-for="(item, index) in visibleMenus"
+      :key="index"
+      :index="item.path"
+    ><svg-icon :icon-class="item.meta.icon" />
+      {{ item.meta.title }}</el-menu-item>
+
+    <!-- 顶部菜单超出数量折叠 -->
+    <el-sub-menu v-show="hiddenMenus.length > 0" index="more">
+      <template #title>更多菜单</template>
       <el-menu-item
-        v-if="index < visibleNumber"
-        :key="index"
+        v-for="(item, index) in hiddenMenus"
+        :key="'h' + index"
         :index="item.path"
       ><svg-icon :icon-class="item.meta.icon" />
         {{ item.meta.title }}</el-menu-item>
-    </template>
-
-    <!-- 顶部菜单超出数量折叠 -->
-    <el-submenu v-if="topMenus.length > visibleNumber" index="more">
-      <template slot="title">更多菜单</template>
-      <template v-for="(item, index) in topMenus">
-        <el-menu-item
-          v-if="index >= visibleNumber"
-          :key="index"
-          :index="item.path"
-        ><svg-icon :icon-class="item.meta.icon" />
-          {{ item.meta.title }}</el-menu-item>
-      </template>
-    </el-submenu>
+    </el-sub-menu>
   </el-menu>
 </template>
 
@@ -48,6 +44,12 @@ export default {
         children: undefined
       }))
     },
+    visibleMenus() {
+      return this.topMenus.slice(0, this.visibleNumber)
+    },
+    hiddenMenus() {
+      return this.topMenus.slice(this.visibleNumber)
+    },
     // 所有的路由信息
     routers() {
       return this.$store.state.permission.topbarRouters
@@ -67,6 +69,7 @@ export default {
     },
     // 默认激活的菜单
     activeMenu() {
+      if (!this.routers || this.routers.length === 0) return ''
       const path = this.$route.path
       let activePath = this.routers[0].path
       if (path.lastIndexOf('/') > 0) {
@@ -119,7 +122,10 @@ export default {
           }
         })
       }
-      this.$store.commit('permission/SET_SIDEBAR_ROUTERS', routes)
+      // 有匹配结果才更新，避免空数组覆盖掉初始 sidebarRouters
+      if (routes.length > 0) {
+        this.$store.commit('permission/SET_SIDEBAR_ROUTERS', routes)
+      }
     }
   }
 }

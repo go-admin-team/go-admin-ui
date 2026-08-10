@@ -5,8 +5,8 @@
       <el-card class="box-card">
         <el-form>
           <el-form-item>
-            <el-button type="success" icon="el-icon-search" size="mini">状态</el-button>
-            <el-button type="primary" icon="el-icon-search" size="mini">清空</el-button>
+            <el-button type="success" size="mini">状态</el-button>
+            <el-button type="primary" size="mini">清空</el-button>
           </el-form-item>
         </el-form>
         <el-row ref="log" :gutter="10" class="mb8">
@@ -45,7 +45,7 @@ export default {
     this.group = 'log'
     this.initWebSocket()
   },
-  destroyed() {
+  unmounted() {
     console.log('断开websocket连接')
     this.websock.close() // 离开路由之后断开websocket连接
     unWsLogout(this.id, this.group).then(response => {

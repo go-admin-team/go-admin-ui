@@ -57,14 +57,14 @@ function handleClick(el, binding) {
 }
 
 export default {
-  bind(el, binding) {
+  mounted(el, binding) {
     el.addEventListener('click', handleClick(el, binding), false)
   },
-  update(el, binding) {
+  updated(el, binding) {
     el.removeEventListener('click', el[context].removeHandle, false)
     el.addEventListener('click', handleClick(el, binding), false)
   },
-  unbind(el) {
+  unmounted(el) {
     el.removeEventListener('click', el[context].removeHandle, false)
     el[context] = null
     delete el[context]

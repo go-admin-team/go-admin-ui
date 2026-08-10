@@ -12,22 +12,25 @@ jobs:
 
     steps:
       - name: checkout
-        uses: actions/checkout@v3
-      
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - name: Use Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.x
+          cache: 'pnpm'
+
       - name: install
-        run: yarn
-
-      - name: install sass-migrator
-        run: npm install -g sass-migrator
-
-      - name: sass-migrator division **/*.scss 
-        run: sass-migrator division **/*.scss 
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: npm run build:prod
+        run: pnpm build:prod
 
       - name: ClearFile
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
         with:
           host: ${{ secrets.SSH_HOST }}  # 下面三个配置与上一步类似
           username: ${{ secrets.SSH_USERNAME }}
@@ -37,7 +40,7 @@ jobs:
             sudo rm -rf /www/vue2/*
 
       - name: Deploy to Server      # 第四步，rsync推送文件
-        uses: AEnterprise/rsync-deploy@v1.0  # 使用别人包装好的步骤镜像
+        uses: AEnterprise/rsync-deploy@72ddc262307c9dd0213aa3fbd9816c8932260326 # v1.0.2  # 使用别人包装好的步骤镜像
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}   # 引用配置，SSH私钥
           ARGS: -avz --delete --exclude='*.pyc'   # rsync参数，排除.pyc文件

@@ -14,6 +14,8 @@
 
 <script>
 export default {
+  name: 'BookTypeOptionComponent',
+  emits: ['input'],
   props: {
     value: {
       type: String,
