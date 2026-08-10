@@ -12,17 +12,15 @@ jobs:
 
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.15.1
+        uses: pnpm/action-setup@v6
 
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: 20.x
+          node-version: 24.x
           cache: 'pnpm'
 
       - name: install
@@ -32,7 +30,7 @@ jobs:
         run: pnpm build:prod
 
       - name: ClearFile
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.SSH_HOST }}  # 下面三个配置与上一步类似
           username: ${{ secrets.SSH_USERNAME }}
@@ -42,7 +40,7 @@ jobs:
             sudo rm -rf /www/vue2/*
 
       - name: Deploy to Server      # 第四步，rsync推送文件
-        uses: AEnterprise/rsync-deploy@v1.0  # 使用别人包装好的步骤镜像
+        uses: AEnterprise/rsync-deploy@v1.0.2  # 使用别人包装好的步骤镜像
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}   # 引用配置，SSH私钥
           ARGS: -avz --delete --exclude='*.pyc'   # rsync参数，排除.pyc文件

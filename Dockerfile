@@ -1,4 +1,4 @@
-FROM node:20-alpine as build-stage
+FROM node:24-alpine as build-stage
 WORKDIR /app
 COPY package.json pnpm-lock.yaml .npmrc ./
 RUN npm install -g pnpm@9.15.1
