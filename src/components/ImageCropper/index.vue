@@ -232,8 +232,6 @@ export default {
       allowImgFormat.indexOf(imgFormat) === -1 ? 'jpg' : imgFormat
     const lang = language[langType] ? language[langType] : language['en']
     const mime = mimes[tempImgFormat]
-    // 规范图片格式
-    this.imgFormat = tempImgFormat
     if (langExt) {
       Object.assign(lang, langExt)
     }
@@ -241,6 +239,8 @@ export default {
       isSupported = false
     }
     return {
+      // 规范后的图片格式（不直接修改 imgFormat prop）
+      normalizedImgFormat: tempImgFormat,
       // 图片的mime
       mime,
       // 语言包
@@ -248,7 +248,7 @@ export default {
       // 浏览器是否支持该控件
       isSupported,
       // 浏览器是否支持触屏事件
-      isSupportTouch: document.hasOwnProperty('ontouchstart'),
+      isSupportTouch: Object.prototype.hasOwnProperty.call(document, 'ontouchstart'),
       // 步骤
       step: 1, // 1选择文件 2剪裁 3上传
       // 上传状态及进度
@@ -760,7 +760,7 @@ export default {
     upload() {
       const {
         lang,
-        imgFormat,
+        normalizedImgFormat,
         mime,
         url,
         params,
@@ -772,7 +772,7 @@ export default {
       fmData.append(
         field,
         data2blob(createImgUrl, mime),
-        field + '.' + imgFormat
+        field + '.' + normalizedImgFormat
       )
       // 添加其他参数
       if (typeof params === 'object' && params) {
