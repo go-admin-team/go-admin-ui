@@ -95,9 +95,9 @@ At the same time, a series of tutorials including videos and documents are provi
 
 ### Environmental requirements
 
-go 1.24
+go 1.26.5
 
-nodejs: v18+ (v20 LTS recommended)
+nodejs: v22+ (v24 LTS recommended)
 
 package manager: pnpm v9+ (this project uses pnpm, lockfile is pnpm-lock.yaml)
 

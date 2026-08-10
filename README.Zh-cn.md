@@ -101,9 +101,9 @@
 
 ### 环境要求
 
-go 1.24
+go 1.26.5
 
-node版本: v18+（推荐 v20 LTS）
+node版本: v22+（推荐 v24 LTS）
 
 包管理器: pnpm v9+（项目使用 pnpm，锁文件为 pnpm-lock.yaml）
 
