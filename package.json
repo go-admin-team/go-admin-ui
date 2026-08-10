@@ -13,17 +13,12 @@
     "test:unit": "jest --clearCache && vue-cli-service test:unit",
     "test:ci": "pnpm lint && pnpm test:unit",
     "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml",
-    "new": "plop"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
+    "new": "plop",
+    "prepare": "husky || true"
   },
   "lint-staged": {
     "src/**/*.{js,vue}": [
-      "eslint --fix",
-      "git add"
+      "eslint --fix"
     ]
   },
   "keywords": [
@@ -109,11 +104,11 @@
     "eslint": "7.32.0",
     "eslint-plugin-vue": "^9.33.0",
     "html-webpack-plugin": "4.5.2",
-    "husky": "4.3.8",
+    "husky": "9.1.7",
     "jest": "27.5.1",
     "jest-serializer-vue": "^3.1.0",
     "jest-transform-stub": "^2.0.0",
-    "lint-staged": "10.5.4",
+    "lint-staged": "17.3.0",
     "mockjs": "1.1.0",
     "path-browserify": "^1.0.1",
     "plop": "2.7.6",
