@@ -12,19 +12,24 @@ jobs:
 
     steps:
       - name: checkout
-        uses: actions/checkout@v3
-      
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.1
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'pnpm'
+
       - name: install
-        run: yarn
-
-      - name: install sass-migrator
-        run: npm install -g sass-migrator
-
-      - name: sass-migrator division **/*.scss 
-        run: sass-migrator division **/*.scss 
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: npm run build:prod
+        run: pnpm build:prod
 
       - name: ClearFile
         uses: appleboy/ssh-action@master
