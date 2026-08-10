@@ -101,11 +101,11 @@
 
 ### 环境要求
 
-go 1.17 
+go 1.24
 
-node版本: v14.16.0
+node版本: v18+（推荐 v20 LTS）
 
-npm版本: 6.14.11
+包管理器: pnpm v9+（项目使用 pnpm，锁文件为 pnpm-lock.yaml）
 
 ### 开发目录创建
 
@@ -223,14 +223,17 @@ env GOOS=linux GOARCH=amd64 go build main.go
 
 ```bash
 
-# 安装依赖
-npm install
+# 安装 pnpm（若未安装）
+npm install -g pnpm
 
-# 建议不要直接使用 cnpm 安装依赖，会有各种诡异的 bug。可以通过如下操作解决 npm 下载速度慢的问题
-npm install --registry=https://registry.npm.taobao.org
+# 安装依赖
+pnpm install
+
+# 国内网络可指定镜像源加速
+pnpm install --registry=https://registry.npmmirror.com
 
 # 启动服务
-npm run dev
+pnpm dev
 ```
 
 ## 🎬 在线体验
