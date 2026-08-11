@@ -97,7 +97,7 @@
             </el-tag>
           </div>
           <div id="codemirror">
-            <codemirror ref="cmEditor" :value="codestr" :options="cmOptions" />
+            <Codemirror v-model="codestr" :tab-size="4" :style="{ height: '500px' }" />
           </div>
           <!-- <el-tabs v-model="preview.activeName" tab-position="left">
             <el-tab-pane
@@ -123,7 +123,7 @@
 import { listTable, previewTable, delTable, toDBTable, toProjectTableCheckRole, apiToFile } from '@/api/tools/gen'
 import importTable from './importTable'
 import { downLoadFile } from '@/utils/zipdownload'
-import { codemirror } from 'vue-codemirror'
+import { Codemirror } from 'vue-codemirror'
 import { Search, Refresh, Edit, Delete, Upload } from '@element-plus/icons-vue'
 // import 'codemirror/theme/material-palenight.css'
 
@@ -134,20 +134,12 @@ import { Search, Refresh, Edit, Delete, Upload } from '@element-plus/icons-vue'
 
 export default {
   name: 'CodeGen',
-  components: { importTable, codemirror },
+  components: { importTable, Codemirror },
   setup() {
     return { Search, Refresh, Edit, Delete, Upload }
   },
   data() {
     return {
-      cmOptions: {
-        tabSize: 4,
-        theme: 'material-palenight',
-        mode: 'text/javascript',
-        lineNumbers: true,
-        line: true
-        // more CodeMirror options...
-      },
       codestr: '',
       // 遮罩层
       loading: true,
@@ -205,15 +197,8 @@ export default {
       )
     },
     codeChange(e) {
-      if (e.indexOf('js') > -1) {
-        this.cmOptions.mode = 'text/javascript'
-      }
-      if (e.indexOf('model') > -1 || e.indexOf('router') > -1 || e.indexOf('api') > -1 || e.indexOf('service') > -1 || e.indexOf('dto') > -1) {
-        this.cmOptions.mode = 'text/x-go'
-      }
-      if (e.indexOf('vue') > -1) {
-        this.cmOptions.mode = 'text/x-vue'
-      }
+      // 注：CodeMirror 6 通过 extensions 而非 mode 配置语法高亮，
+      // 需额外引入 @codemirror/lang-* 语言包，当前仅做纯文本预览
       this.codestr = this.preview.data[e]
     },
     /** 搜索按钮操作 */
