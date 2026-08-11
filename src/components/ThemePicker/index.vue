@@ -8,7 +8,9 @@
 </template>
 
 <script>
-const version = require('element-plus/package.json').version // element-plus version from node_modules
+import elementPlusPkg from 'element-plus/package.json'
+
+const version = elementPlusPkg.version // element-plus version from node_modules
 const ORIGINAL_THEME = '#1890FF' // default color
 
 export default {

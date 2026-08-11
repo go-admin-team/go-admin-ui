@@ -1,0 +1,18 @@
+// 供 JS/Vue 通过 import 读取 SCSS 变量。
+// Vite 仅对 *.module.scss 启用 CSS Modules，:export 的值才会作为默认导出暴露；
+// 变量定义仍统一维护在 variables.scss 中，此处只做转发。
+@use './variables.scss' as *;
+
+:export {
+  menuActiveText: $menuActiveText;
+  subMenuActiveText: $subMenuActiveText;
+  menuBg: $menuBg;
+  menuHover: $menuHover;
+  menuLightBg: $menuLightBg;
+  menuLightHover: $menuLightHover;
+  subMenuBg: $subMenuBg;
+  subMenuHover: $subMenuHover;
+  sideBarWidth: $sideBarWidth;
+  sidebarTitle: $sidebarTitle;
+  sidebarLightTitle: $sidebarLightTitle
+}

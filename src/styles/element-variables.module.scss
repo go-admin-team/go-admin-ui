@@ -1,29 +1,9 @@
-/**
-* Element Plus theme variables (CSS Modules export for JS consumption)
-**/
+// 供 JS 通过 import 读取主题色，理由同 variables.module.scss
+//
+// 此处用 @import 而非 @use：$--el-* 变量名以 - 开头，在 Sass 模块系统中
+// 属于私有成员，@use ... as * 无法访问，只能通过无模块隔离的 @import 引入。
+@import './element-variables.scss';
 
-/* theme color */
-$--color-primary: #1890ff;
-$--color-success: #13ce66;
-$--color-warning: #FFBA00;
-$--color-danger: #ff4949;
-// $--color-info: #1E1E1E;
-
-$--button-font-weight: 400;
-
-// $--color-text-regular: #1f2d3d;
-
-$--border-color-light: #dfe4ed;
-$--border-color-lighter: #e6ebf5;
-
-$--table-border:1px solid#dfe6ec;
-
-/* icon font path, required */
-$--font-path: '~element-plus/theme-chalk/fonts';
-
-@use "element-plus/theme-chalk/src/index.scss" as *;
-
-// export primary theme color for JS access
 :export {
-  theme: $--color-primary;
+  theme: $--el-color-primary;
 }
