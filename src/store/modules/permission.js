@@ -55,21 +55,14 @@ export function generaMenu(routes, data) {
   })
 }
 
-// 使用 require.context 预建 views 目录索引，
-// 绕过 babel-plugin-dynamic-import-node 在开发模式下将 import() 转换为
-// 同步 require() 导致 webpack 上下文失效的问题。
-const viewsContext = require.context('@/views', true, /\.vue$/)
+// 预建 views 目录索引；未使用 eager，值即为返回 Promise 的懒加载函数，
+// 可直接交给 Vue Router 作为异步组件使用
+const viewsModules = import.meta.glob('../../views/**/*.vue')
 
 export const loadView = (view) => { // 路由懒加载
-  const key = `.${view}.vue`
-  if (viewsContext.keys().includes(key)) {
-    // require.context 返回的是 { default: Component, __esModule: true }，
-    // Vue Router 4 需要直接拿到组件对象（.default），否则渲染空白
-    const mod = viewsContext(key)
-    return mod.default || mod
-  }
-  // 兜底：动态 import（生产构建不受 dynamic-import-node 影响）
-  return () => import(`@/views${view}.vue`)
+  const key = `../../views${view}.vue`
+  // 兜底：索引未命中时回退到动态 import
+  return viewsModules[key] || (() => import(`../../views${view}.vue`))
 }
 
 /**

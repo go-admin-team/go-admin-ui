@@ -1,7 +1,5 @@
 import SvgIcon from '@/components/SvgIcon'// svg component
-
-const req = require.context('./svg', false, /\.svg$/)
-const requireAll = requireContext => requireContext.keys().map(requireContext)
-requireAll(req)
+// svg 雪碧图由 vite-plugin-svg-icons 在构建期生成并通过虚拟模块注册
+import 'virtual:svg-icons-register'
 
 export default SvgIcon

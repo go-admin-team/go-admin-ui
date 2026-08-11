@@ -1,10 +1,8 @@
-const req = require.context('../../icons/svg', false, /\.svg$/)
-const requireAll = requireContext => requireContext.keys()
+// 收集 src/icons/svg 下所有图标名，供图标选择器使用
+const modules = import.meta.glob('../../icons/svg/*.svg')
 
-const re = /\.\/(.*)\.svg/
-
-const icons = requireAll(req).map(i => {
-  return i.match(re)[1]
+const icons = Object.keys(modules).map(filePath => {
+  return filePath.match(/\/([^/]+)\.svg$/)[1]
 })
 
 export default icons
