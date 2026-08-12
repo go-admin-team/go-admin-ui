@@ -289,6 +289,9 @@ String.prototype.colorRgb = function() {
   box-sizing: border-box;
   display: flex;
   align-items: flex-end;
+  // el-tabs__header 固定 40px，而容器含 1px 下边框后内容区仅 39px，
+  // 底部对齐会使其向上溢出 1px 并压在 navbar 边框上，形成一条贯穿的横线
+  overflow: hidden;
 
   // el-tabs 整体铺满容器
   .el-tabs {
@@ -300,6 +303,11 @@ String.prototype.colorRgb = function() {
   .el-tabs__header {
     margin: 0;
     border-bottom: none !important;
+    // 默认固定 40px，会超出容器内容区（40px 减去 1px 下边框）并向上压住
+    // navbar 的边框；改为自适应高度并让页签底部对齐
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
   }
 
   .el-tabs__nav-wrap {
