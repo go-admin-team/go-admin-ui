@@ -119,7 +119,9 @@ export default {
         uploadAvatar(formData).then(response => {
           if (response.code === 200) {
             this.open = false
-            this.options.img = process.env.VUE_APP_BASE_API + response.data
+            // 后端返回的是不带前导斜杠的相对路径 static/uploadfile/xxx.jpg，
+            // 直接拼接会得到 http://host:8001static/... 这样的非法地址
+            this.options.img = process.env.VUE_APP_BASE_API + '/' + response.data
             this.msgSuccess(response.msg)
           } else {
             this.msgError(response.msg)
