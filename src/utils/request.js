@@ -20,7 +20,14 @@ service.interceptors.request.use(
       // ['X-Token'] is a custom headers key
       // please modify it according to the actual situation
       config.headers['Authorization'] = 'Bearer ' + getToken()
-      config.headers['Content-Type'] = 'application/json'
+
+      // FormData 必须跳过：axios 的 transformRequest 见到 application/json
+      // 会把 FormData 序列化成 JSON，文件字段变成字符串 "null"，请求体只剩
+      // 十几字节，文件根本到不了服务端。跳过后 axios 会清空该头，由浏览器
+      // 自行写入带 boundary 的 multipart/form-data。
+      if (!(config.data instanceof FormData)) {
+        config.headers['Content-Type'] = 'application/json'
+      }
     }
     return config
   },
