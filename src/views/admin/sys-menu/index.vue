@@ -58,7 +58,7 @@
                   >
                     <template #default="scope">
                       <span v-if="scope.row.type=='SYS' && scope.row.title!=''"><el-tag type="success">{{ '['+scope.row.type +'] '+ scope.row.title }}</el-tag></span>
-                      <span v-if="scope.row.type!='SYS' && scope.row.title!=''"><el-tag type="">{{ '['+scope.row.type +'] '+scope.row.title }}</el-tag></span>
+                      <span v-if="scope.row.type!='SYS' && scope.row.title!=''"><el-tag type="info">{{ '['+scope.row.type +'] '+scope.row.title }}</el-tag></span>
                       <span v-if="scope.row.title==''"><el-tag type="danger">暂无</el-tag></span>
 
                     </template>
