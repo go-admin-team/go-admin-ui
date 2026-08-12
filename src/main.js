@@ -110,3 +110,10 @@ setupErrorHandler(app)
 
 // 挂载应用
 app.mount('#app')
+
+// 应用挂载完成后淡出首屏加载层，动画结束再从 DOM 移除
+const loader = document.getElementById('loader-wrapper')
+if (loader) {
+  document.body.classList.add('loaded')
+  setTimeout(() => loader.remove(), 500)
+}
