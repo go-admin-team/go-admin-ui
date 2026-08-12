@@ -29,7 +29,11 @@ jobs:
       - name: Build
         run: pnpm build:prod
 
+      # 以下部署步骤仅在 master 收到 push 时执行。
+      # pull_request 事件同样会触发本工作流，若不加限制，任何指向 master 的
+      # PR 一经创建就会清空并覆盖线上演示站，且发生在合并之前。
       - name: ClearFile
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
         with:
           host: ${{ secrets.SSH_HOST }}  # 下面三个配置与上一步类似
@@ -40,6 +44,7 @@ jobs:
             sudo rm -rf /www/vue2/*
 
       - name: Deploy to Server      # 第四步，rsync推送文件
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: AEnterprise/rsync-deploy@72ddc262307c9dd0213aa3fbd9816c8932260326 # v1.0.2  # 使用别人包装好的步骤镜像
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}   # 引用配置，SSH私钥
