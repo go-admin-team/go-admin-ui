@@ -403,6 +403,9 @@
 // ═══════════════════════════════════
 .el-tabs {
   &__active-bar { background: #1677ff; height: 2px; border-radius: 2px; }
+
+  // card 类型以边框区分选中态，指示条会在页签上方形成一条突兀的横线
+  &--card > .el-tabs__header .el-tabs__active-bar { display: none; }
   &__item {
     font-size: 14px;
     font-weight: 400;

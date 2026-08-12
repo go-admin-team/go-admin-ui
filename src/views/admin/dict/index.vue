@@ -129,7 +129,7 @@ import { formatJson } from '@/utils'
 import { Search, Refresh, Plus, Edit, Delete, Download } from '@element-plus/icons-vue'
 
 export default {
-  name: 'SysDictTypeManage',
+  name: 'Dict',
   setup() {
     return { Search, Refresh, Plus, Edit, Delete, Download }
   },

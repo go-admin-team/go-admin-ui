@@ -185,7 +185,7 @@ import { optionselect as getDictOptionselect } from '@/api/admin/dict/type'
 import basicInfoForm from './basicInfoForm'
 import genInfoForm from './genInfoForm'
 export default {
-  name: 'GenEdit',
+  name: 'EditTable',
   components: {
     basicInfoForm,
     genInfoForm

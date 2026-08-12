@@ -31,7 +31,7 @@
 
 import { unWsLogout } from '@/api/ws'
 export default {
-  name: 'SysJobLogManage',
+  name: 'JobLog',
   data() {
     return {
       websock: null,

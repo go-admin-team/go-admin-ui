@@ -152,10 +152,15 @@
       padding: 0 !important;
       position: relative;
 
-      .el-tooltip {
+      // 折叠时 Element Plus 会把菜单项内容包进 .el-menu-tooltip__trigger，
+      // 该容器自带 0 20px 内边距，54px 宽仅余 14px 内容区；图标 14px 连同
+      // 16px 右外边距共需 30px，被 flex 压缩为 0 宽，表现为图标整个消失。
+      // 原规则写的是 .el-tooltip，那是 Element UI 的旧类名，从未匹配到。
+      .el-menu-tooltip__trigger {
         padding: 0 !important;
 
         .svg-icon {
+          margin-right: 0;
           margin-left: 20px;
         }
       }

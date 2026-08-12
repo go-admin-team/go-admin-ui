@@ -1,14 +1,23 @@
 <template>
   <div v-if="!item.hidden" class="menu-wrapper">
     <template v-if="hasOneShowingChild(item.children,item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)&&!item.alwaysShow">
+      <!-- 图标放默认插槽、标题放 title 插槽，这是 Element Plus 折叠菜单的契约：
+           折叠时它据此隐藏文字并改用 tooltip 呈现；两者若同处一个插槽，文字不会
+           被隐藏，只会被 54px 的侧边栏裁掉半截 -->
       <el-menu-item v-if="onlyOneChild.meta" :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
-        <item :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" :title="onlyOneChild.meta.title" />
+        <svg-icon v-if="menuIcon(onlyOneChild)" :icon-class="menuIcon(onlyOneChild)" />
+        <template #title>{{ onlyOneChild.meta.title }}</template>
       </el-menu-item>
     </template>
 
     <el-sub-menu v-else ref="subMenu" :index="resolvePath(item.path)" :style="{ backgroundColor: '#000c17' }">
       <template #title>
-        <item v-if="item.meta" :icon="item.meta && item.meta.icon" :title="item.meta.title" />
+        <!-- 官方折叠样式选择器为 .el-menu--collapse > .el-sub-menu > .el-sub-menu__title > span，
+             span 必须是直接子元素，中间不能再包一层容器 -->
+        <template v-if="item.meta">
+          <svg-icon v-if="item.meta.icon" :icon-class="item.meta.icon" />
+          <span>{{ item.meta.title }}</span>
+        </template>
       </template>
       <sidebar-item
         v-for="child in item.children"
@@ -25,12 +34,10 @@
 <script>
 import path from 'path'
 import { isExternal } from '@/utils/validate'
-import Item from './Item'
 import FixiOSBug from './FixiOSBug'
 
 export default {
   name: 'SidebarItem',
-  components: { Item },
   mixins: [FixiOSBug],
   props: {
     // route object
@@ -54,6 +61,10 @@ export default {
     return {}
   },
   methods: {
+    // 子路由未单独配图标时回退到父级，与原 Item 组件的取值一致
+    menuIcon(child) {
+      return (child.meta && child.meta.icon) || (this.item.meta && this.item.meta.icon)
+    },
     hasOneShowingChild(children = [], parent) {
       const showingChildren = children.filter(item => {
         if (item.hidden) {

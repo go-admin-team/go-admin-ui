@@ -1,58 +1,48 @@
 <template>
   <div class="login-page">
 
-    <!-- 左侧品牌区 -->
-    <div class="login-brand">
-      <!-- 几何装饰 -->
-      <div class="brand-deco brand-deco--circle1" />
-      <div class="brand-deco brand-deco--circle2" />
-      <div class="brand-deco brand-deco--circle3" />
+    <!-- 左侧：以启动 go-admin 的真实终端序列作为主视觉 -->
+    <div class="stage">
+      <div class="stage-glow" />
 
-      <div class="brand-content">
-        <div class="brand-logo-wrap">
-          <img
-            v-if="sysInfo && sysInfo.sys_app_logo"
-            :src="sysInfo.sys_app_logo"
-            class="brand-logo-img"
-            alt="logo"
-          >
-          <el-icon v-else class="brand-logo-icon"><Monitor /></el-icon>
+      <header class="stage-head">
+        <span class="wordmark">go<span class="wordmark-dash">-</span>admin</span>
+        <span class="stage-ver">v{{ version }}</span>
+      </header>
+
+      <div class="stage-main">
+        <div class="term" role="img" aria-label="go-admin 启动过程示意">
+          <div class="term-bar">
+            <i class="dot dot--r" /><i class="dot dot--y" /><i class="dot dot--g" />
+            <span class="term-path">~/go-admin</span>
+          </div>
+          <pre class="term-body"><code><span class="l l1"><span class="p">$</span> ./go-admin <span class="cmd">migrate</span> <span class="arg">-c config/settings.yml</span></span>
+<span class="l l2"><span class="ok">✓</span> database initialized</span>
+<span class="l l3"><span class="p">$</span> ./go-admin <span class="cmd">server</span> <span class="arg">-c config/settings.yml</span></span>
+<span class="l l4"><span class="ok">Server run at:</span></span>
+<span class="l l5">-  Local:   <span class="url">http://localhost:<span class="port">8000</span>/</span></span>
+<span class="l l6"><span class="ok">Swagger run at:</span></span>
+<span class="l l7">-  Local:   <span class="url">http://localhost:<span class="port">8000</span>/swagger/admin/index.html</span></span>
+<span class="l l8"><span class="p">$</span> <b class="caret" /></span></code></pre>
         </div>
-        <h1 class="brand-title">{{ sysInfo && sysInfo.sys_app_name || 'Go Admin' }}</h1>
-        <p class="brand-desc">高效、安全的企业级后台管理平台</p>
-        <div class="brand-features">
-          <div class="feature-item">
-            <el-icon><Lock /></el-icon>
-            <span>安全可靠</span>
-          </div>
-          <div class="feature-item">
-            <el-icon><Monitor /></el-icon>
-            <span>实时监控</span>
-          </div>
-          <div class="feature-item">
-            <el-icon><User /></el-icon>
-            <span>权限管理</span>
-          </div>
-        </div>
+
+        <!-- 吉祥物站在终端窗体的基线上，视线朝向左侧的输出 -->
+        <Gopher class="mascot" />
       </div>
 
-      <div class="brand-footer">
-        <a href="https://beian.miit.gov.cn" target="_blank" class="icp-link">沪ICP备XXXXXXXXX号-1</a>
-      </div>
+      <footer class="stage-foot">
+        <ul class="stack">
+          <li>Gin</li><li>GORM</li><li>Casbin</li><li>Vue 3</li><li>Element Plus</li>
+        </ul>
+        <a href="https://beian.miit.gov.cn" target="_blank" class="icp">沪ICP备XXXXXXXXX号-1</a>
+      </footer>
     </div>
 
-    <!-- 右侧表单区 -->
-    <div class="login-form-panel">
-      <!-- 装饰光晕 -->
-      <div class="panel-blob panel-blob--tr" />
-      <div class="panel-blob panel-blob--bl" />
-
+    <!-- 右侧：登录表单 -->
+    <div class="panel">
       <div class="form-box">
-        <div class="form-header">
-          <span class="form-badge">账号登录</span>
-          <h2 class="form-title">欢迎回来</h2>
-          <p class="form-subtitle">请输入您的账号和密码继续</p>
-        </div>
+        <h1 class="panel-title">{{ sysInfo && sysInfo.sys_app_name || 'go-admin' }}</h1>
+        <p class="panel-sub">使用管理员账号登录控制台</p>
 
         <el-form
           ref="loginForm"
@@ -116,25 +106,24 @@
                 :prefix-icon="Key"
                 @keyup.enter="handleLogin"
               />
-              <div class="captcha-wrap" title="点击刷新" @click="getCode">
+              <button type="button" class="captcha-wrap" title="点击刷新验证码" @click="getCode">
                 <img v-if="codeUrl" :src="codeUrl" class="captcha-img" alt="验证码">
-                <div v-else class="captcha-placeholder">
-                  <el-icon class="is-loading"><Loading /></el-icon>
-                </div>
-              </div>
+                <el-icon v-else class="is-loading"><Loading /></el-icon>
+              </button>
             </div>
           </el-form-item>
 
           <el-button
             :loading="loading"
-            type="primary"
             size="large"
             class="submit-btn"
             @click.prevent="handleLogin"
           >
-            {{ loading ? '登录中...' : '登 录' }}
+            {{ loading ? '登录中' : '登录' }}
           </el-button>
         </el-form>
+
+        <p class="panel-tip">忘记密码请联系系统管理员重置</p>
       </div>
     </div>
 
@@ -143,15 +132,19 @@
 
 <script>
 import { getCodeImg } from '@/api/login'
-import { User, Lock, Key, View, Hide, Monitor, Loading } from '@element-plus/icons-vue'
+import { User, Lock, Key, View, Hide, Loading } from '@element-plus/icons-vue'
+import Gopher from '@/components/Gopher'
+import { version } from '../../../package.json'
 
 export default {
   name: 'LoginPage',
+  components: { Gopher },
   setup() {
-    return { User, Lock, Key, View, Hide, Monitor, Loading }
+    return { User, Lock, Key, View, Hide, Loading }
   },
   data() {
     return {
+      version,
       codeUrl: '',
       loginForm: {
         username: 'admin',
@@ -254,7 +247,24 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-/* ── 页面容器 ── */
+/* ══════════════════════════════════════════════════
+   设计说明
+   主视觉取自开发者启动本项目时的真实终端输出，而非通用的
+   企业插画；强调色采用 Go 官方品牌色 #00ADD8，使配色属于
+   这个项目本身。左侧承担全部表现力，右侧保持绝对安静。
+   ══════════════════════════════════════════════════ */
+// 取自终端语法高亮：品牌青为主，绿/琥珀作为语义色，
+// 底色带靛蓝倾向而非中性灰，整体比纯深灰更有生气
+$ink:      #12233f;   // 左侧底：深靛蓝
+$ink-2:    #16305a;   // 渐变亮端
+$line:     #2a4574;   // 分隔
+$go:       #00c8ff;   // 品牌青（较官方色提亮，暗底上更醒目）
+$go-deep:  #00add8;   // Go 官方色，用于实底按钮
+$ok:       #5ce68b;   // 成功绿
+$amber:    #ffc44d;   // 数字/端口
+$dim:      #8ba0bd;
+$paper:    #f6f8fb;   // 右侧底
+
 .login-page {
   display: flex;
   width: 100vw;
@@ -262,437 +272,335 @@ export default {
   overflow: hidden;
 }
 
-/* ══════════════════════════════
-   左侧品牌区
-══════════════════════════════ */
-.login-brand {
+/* ── 左：终端主视觉 ─────────────────────────── */
+.stage {
   position: relative;
-  width: 45%;
+  width: 72%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 48px 40px;
+  padding: 44px 56px 40px;
+  background: linear-gradient(160deg, #0f1f3a 0%, #16305a 55%, #112544 100%);
   overflow: hidden;
-  background: linear-gradient(145deg, #002c8c 0%, #1677ff 55%, #40a9ff 100%);
-
-  /* 浮动圆形装饰 */
-  .brand-deco {
-    position: absolute;
-    border-radius: 50%;
-    opacity: 0.12;
-    background: #fff;
-  }
-
-  .brand-deco--circle1 {
-    width: 380px;
-    height: 380px;
-    top: -100px;
-    right: -120px;
-  }
-
-  .brand-deco--circle2 {
-    width: 220px;
-    height: 220px;
-    bottom: 60px;
-    left: -60px;
-  }
-
-  .brand-deco--circle3 {
-    width: 120px;
-    height: 120px;
-    bottom: 220px;
-    right: 40px;
-    opacity: 0.08;
-  }
 }
 
-.brand-content {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 20px;
-  margin-top: auto;
-  margin-bottom: auto;
-}
-
-.brand-logo-wrap {
-  width: 64px;
-  height: 64px;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1.5px solid rgba(255, 255, 255, 0.35);
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(4px);
-}
-
-.brand-logo-img {
-  width: 42px;
-  height: 42px;
-  object-fit: contain;
-  border-radius: 8px;
-}
-
-.brand-logo-icon {
-  font-size: 30px;
-  color: #fff;
-}
-
-.brand-title {
-  margin: 0;
-  font-size: 32px;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 1px;
-  line-height: 1.2;
-}
-
-.brand-desc {
-  margin: 0;
-  font-size: 15px;
-  color: rgba(255, 255, 255, 0.72);
-  line-height: 1.6;
-}
-
-.brand-features {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 14px;
-
-  .el-icon {
-    font-size: 16px;
-    background: rgba(255, 255, 255, 0.15);
-    padding: 6px;
-    border-radius: 8px;
-    color: #fff;
-  }
-}
-
-.brand-footer {
-  position: relative;
-  z-index: 1;
-}
-
-.icp-link {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
-  text-decoration: none;
-  transition: color 0.2s;
-
-  &:hover {
-    color: rgba(255, 255, 255, 0.7);
-  }
-}
-
-/* ══════════════════════════════
-   右侧表单区
-══════════════════════════════ */
-.login-form-panel {
-  flex: 1;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 24px;
-  overflow: hidden;
-  /* 浅渐变底色 + SVG 点阵纹理 */
-  background-color: #e8f4ff;
-  background-image:
-    linear-gradient(135deg, #e8f4ff 0%, #f0f8ff 50%, #f5fbff 100%),
-    radial-gradient(circle, rgba(22, 119, 255, 0.07) 1px, transparent 1px);
-  background-size: 100% 100%, 28px 28px;
-}
-
-/* 柔光晕装饰 */
-.panel-blob {
+// 单一光源，替代多个装饰圆
+// 铺满整个区域，让渐变自然衰减至透明；
+// 若给元素本身加 border-radius，渐变会在未完全透明处被裁出硬边
+.stage-glow {
   position: absolute;
-  border-radius: 50%;
+  inset: 0;
+  background:
+    radial-gradient(50% 46% at 84% 62%, rgba(0, 200, 255, 0.24) 0%, transparent 70%),
+    radial-gradient(48% 44% at 16% 24%, rgba(124, 92, 255, 0.14) 0%, transparent 68%);
   pointer-events: none;
-  filter: blur(72px);
 }
 
-.panel-blob--tr {
-  width: 340px;
-  height: 340px;
-  top: -80px;
-  right: -80px;
-  background: rgba(22, 119, 255, 0.15);
+.stage-head {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
 }
 
-.panel-blob--bl {
-  width: 260px;
-  height: 260px;
-  bottom: -60px;
-  left: -60px;
-  background: rgba(64, 169, 255, 0.12);
+.wordmark {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: #fff;
+}
+
+.wordmark-dash { color: $go; }
+
+.stage-ver {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: $dim;
+}
+
+/* 主区：终端 + 吉祥物。两端对齐舞台边缘，与上方 wordmark、
+   下方备案号共用同一组左右基准线；底部对齐让吉祥物站在终端基线上 */
+.stage-main {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  // 上下 auto：在页眉与页脚之间居中，避免主体压在顶部、下方留出大片空白
+  margin: auto 0;
+}
+
+.mascot {
+  flex: 0 0 clamp(130px, 14vw, 194px);
+  margin-bottom: -6px;
+  filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.32));
+}
+
+/* 终端窗体 */
+.term {
+  position: relative;
+  flex: 0 1 620px;
+  min-width: 0;
+  border: 1px solid $line;
+  border-radius: 10px;
+  background: rgba(8, 20, 40, 0.62);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.term-bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 14px;
+  border-bottom: 1px solid $line;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+.dot--r { background: #ff5f57; }
+.dot--y { background: #febc2e; }
+.dot--g { background: #28c840; }
+
+.term-path {
+  margin-left: 8px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: $dim;
+}
+
+.term-body {
+  margin: 0;
+  padding: 20px 22px 24px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.85;
+  color: #c9d1d9;
+  white-space: pre-wrap;
+  word-break: break-all;
+
+  .p    { color: $go; margin-right: 6px; }
+  .ok   { color: $ok; }
+  .cmd  { color: #fff; font-weight: 600; }        // 子命令
+  .arg  { color: $dim; }                           // 参数
+  .url  { color: $go; text-decoration-color: rgba(0, 200, 255, 0.35); }
+  .port { color: $amber; }                         // 端口
+
+  // 逐行浮现，模拟输出节奏；只播一次，不循环
+  .l {
+    display: block;
+    opacity: 0;
+    animation: line-in 0.32s ease forwards;
+  }
+  .l1 { animation-delay: 0.15s; }
+  .l2 { animation-delay: 0.50s; }
+  .l3 { animation-delay: 0.80s; }
+  .l4 { animation-delay: 1.10s; }
+  .l5 { animation-delay: 1.28s; }
+  .l6 { animation-delay: 1.46s; }
+  .l7 { animation-delay: 1.64s; }
+  .l8 { animation-delay: 1.86s; }
+}
+
+.caret {
+  display: inline-block;
+  width: 8px;
+  height: 15px;
+  vertical-align: -2px;
+  background: $go;
+  animation: blink 1.1s step-end infinite;
+}
+
+@keyframes line-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+.stage-foot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    color: $dim;
+  }
+}
+
+.icp {
+  font-size: 12px;
+  color: #4d5866;
+  text-decoration: none;
+
+  &:hover { color: $dim; }
+}
+
+/* ── 右：表单 ─────────────────────────────── */
+.panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 40px;
+  background: $paper;
 }
 
 .form-box {
-  position: relative;
-  z-index: 1;
   width: 100%;
-  max-width: 400px;
-  background: #fff;
-  border-radius: 16px;
-  padding: 40px 36px 36px;
-  box-shadow:
-    0 0 0 1px rgba(22, 119, 255, 0.08),
-    0 4px 6px rgba(0, 0, 0, 0.04),
-    0 16px 40px rgba(22, 119, 255, 0.12);
-  animation: form-enter 0.4s cubic-bezier(0.34, 1.06, 0.64, 1) forwards;
-
-  /* 顶部彩色渐变条 */
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    border-radius: 16px 16px 0 0;
-    background: linear-gradient(90deg, #1677ff 0%, #40a9ff 100%);
-  }
+  max-width: 300px;
 }
 
-@keyframes form-enter {
-  0% { opacity: 0; transform: translateY(20px) scale(0.98); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.form-header {
-  margin-bottom: 28px;
-}
-
-.form-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  color: #1677ff;
-  background: rgba(22, 119, 255, 0.08);
-  border: 1px solid rgba(22, 119, 255, 0.2);
-  margin-bottom: 12px;
-}
-
-.form-title {
+.panel-title {
   margin: 0 0 6px;
-  font-size: 26px;
-  font-weight: 700;
-  background: linear-gradient(135deg, #002c8c 0%, #1677ff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.2px;
+  color: #0d1117;
 }
 
-.form-subtitle {
-  margin: 0;
+.panel-sub {
+  margin: 0 0 30px;
   font-size: 13px;
-  color: #9ca3af;
+  color: #6b7280;
 }
 
-/* ── 表单样式 ── */
+.panel-tip {
+  margin: 22px 0 0;
+  font-size: 12px;
+  color: #9aa3af;
+}
+
 .login-form {
+  :deep(.el-form-item) { margin-bottom: 18px; }
+
   :deep(.el-form-item__label) {
-    font-size: 13px;
-    font-weight: 600;
-    color: #374151;
     padding-bottom: 6px;
+    font-size: 13px;
+    font-weight: 500;
     line-height: 1;
+    color: #374151;
   }
 
-  :deep(.el-form-item) {
-    margin-bottom: 20px;
-  }
-
+  // 描边式输入框：白底 + 细边框，聚焦时用 Go 品牌色标识
   :deep(.el-input__wrapper) {
+    padding: 1px 12px;
     border-radius: 8px;
-    box-shadow: 0 0 0 1px #e5e7eb !important;
-    transition: box-shadow 0.2s ease;
+    background: #fff;
+    box-shadow: 0 0 0 1px #dde2e9 inset;
+    transition: box-shadow 0.16s ease;
 
-    &:hover {
-      box-shadow: 0 0 0 1px #d1d5db !important;
+    &:hover { box-shadow: 0 0 0 1px #c3c9d2 inset; }
+
+    &.is-focus {
+      box-shadow: 0 0 0 1px $go-deep inset, 0 0 0 3px rgba(0, 173, 216, 0.16);
     }
   }
 
-  :deep(.el-input.is-focus .el-input__wrapper) {
-    box-shadow: 0 0 0 2px #3b82f6 !important;
-  }
-
-  :deep(.el-form-item.is-error .el-input__wrapper) {
-    box-shadow: 0 0 0 2px #ef4444 !important;
-  }
-
-  :deep(.el-input__prefix-inner .el-icon) {
-    color: #9ca3af;
-    font-size: 16px;
-  }
-
-  :deep(.el-input__inner) {
-    color: #111827;
-    font-size: 14px;
-
-    &::placeholder {
-      color: #c1c7d0;
-    }
-  }
+  :deep(.el-input__inner) { height: 40px; font-size: 14px; }
+  :deep(.el-input__prefix) { color: #9aa3af; }
 }
 
 .pwd-eye {
-  color: #9ca3af;
-  font-size: 16px;
   cursor: pointer;
-  transition: color 0.2s;
+  color: #9aa3af;
 
-  &:hover {
-    color: #3b82f6;
-  }
+  &:hover { color: $go-deep; }
 }
 
-/* ── 验证码 ── */
 .captcha-row {
   display: flex;
   gap: 10px;
-  align-items: center;
+  width: 100%;
 
-  .el-input {
-    flex: 1;
-  }
+  .el-input { flex: 1; }
 }
 
 .captcha-wrap {
-  width: 110px;
-  height: 40px;
   flex-shrink: 0;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  overflow: hidden;
-  cursor: pointer;
+  width: 104px;
+  height: 42px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f9fafb;
-  transition: border-color 0.2s;
+  border: 1px solid #dde2e9;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  overflow: hidden;
 
-  &:hover {
-    border-color: #3b82f6;
-  }
+  &:hover { border-color: $go-deep; }
+  &:focus-visible { outline: 2px solid $go-deep; outline-offset: 2px; }
 }
 
-.captcha-img {
+.captcha-img { width: 100%; height: 100%; object-fit: cover; }
+
+// 品牌青实底按钮：页面唯一的高饱和实色块，作为主操作的落点。
+// 刻意不使用 type="primary"，全局 .el-button--primary 以 !important
+// 锁定了品牌蓝，无法覆盖
+.login-form :deep(.submit-btn) {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.captcha-placeholder {
-  color: #c1c7d0;
-  font-size: 18px;
-}
-
-/* ── 登录按钮 ── */
-.submit-btn {
-  width: 100%;
-  height: 46px;
-  margin-top: 12px;
-  border-radius: 10px;
+  height: 42px;
+  margin-top: 4px;
+  border: none;
+  border-radius: 8px;
   font-size: 15px;
   font-weight: 600;
-  letter-spacing: 4px;
-  background: linear-gradient(135deg, #1677ff 0%, #40a9ff 100%) !important;
-  border: none !important;
-  box-shadow: 0 4px 16px rgba(22, 119, 255, 0.4);
-  transition: all 0.25s ease;
+  letter-spacing: 3px;
+  color: #04121f;
+  background: linear-gradient(135deg, #00c8ff 0%, #00add8 100%);
+  box-shadow: 0 4px 14px rgba(0, 173, 216, 0.28);
+  transition: filter 0.16s ease, box-shadow 0.16s ease;
 
-  &:hover {
-    background: linear-gradient(135deg, #0958d9 0%, #1677ff 100%) !important;
-    box-shadow: 0 8px 24px rgba(22, 119, 255, 0.5);
-    transform: translateY(-1px);
+  &:hover, &:focus {
+    color: #04121f;
+    filter: brightness(1.06);
+    box-shadow: 0 6px 18px rgba(0, 173, 216, 0.36);
   }
-
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(22, 119, 255, 0.3);
-  }
-
-  &.is-loading {
-    transform: none;
-    opacity: 0.85;
-  }
+  &:active { filter: brightness(0.96); box-shadow: 0 2px 8px rgba(0, 173, 216, 0.3); }
+  &.is-loading { color: rgba(4, 18, 31, 0.7); }
 }
 
-/* ── 响应式 ── */
-@media (max-width: 900px) {
-  .login-brand {
-    width: 40%;
-    padding: 36px 28px;
-  }
-
-  .brand-title {
-    font-size: 26px;
-  }
-
-  .form-box {
-    padding: 36px 28px;
-  }
+/* ── 响应式 ───────────────────────────────── */
+// 再窄下去终端会被挤到需要频繁折行，此时宁可让出吉祥物
+@media (max-width: 1120px) {
+  .mascot { display: none; }
+  .term { flex: 1 1 auto; }
 }
 
-@media (max-width: 680px) {
-  .login-page {
-    flex-direction: column;
-  }
+@media (max-width: 1100px) {
+  .stage { width: 60%; padding: 32px 36px; }
+}
 
-  .login-brand {
-    width: 100%;
-    height: 200px;
-    flex-direction: row;
-    align-items: center;
-    padding: 24px 28px;
+@media (max-width: 860px) {
+  .login-page { flex-direction: column; }
+  .stage { width: 100%; height: auto; padding: 24px; }
+  .stage-main { margin: 20px 0; }
+  .term-body { font-size: 12px; line-height: 1.9; }
+  .stage-foot { display: none; }
+  .panel { flex: 1; padding: 32px 24px; }
+  .form-box { max-width: 340px; }
+}
 
-    .brand-content {
-      flex-direction: row;
-      align-items: center;
-      gap: 16px;
-      margin: 0;
-    }
-
-    .brand-desc,
-    .brand-features {
-      display: none;
-    }
-
-    .brand-title {
-      font-size: 22px;
-    }
-
-    .brand-logo-wrap {
-      width: 48px;
-      height: 48px;
-    }
-  }
-
-  .login-form-panel {
-    flex: 1;
-    padding: 24px 16px;
-    overflow-y: auto;
-  }
-
-  .form-box {
-    padding: 28px 20px;
-  }
+/* 尊重系统的减少动效偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .term-body .l { animation: none; opacity: 1; }
+  .caret { animation: none; }
 }
 </style>

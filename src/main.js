@@ -6,6 +6,7 @@ import Cookies from 'js-cookie'
 import 'normalize.css/normalize.css' // a modern alternative to CSS resets
 
 import ElementPlus from 'element-plus'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import 'element-plus/dist/index.css'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
@@ -81,6 +82,12 @@ app.component('BasicLayout', BasicLayout)
 app.component('CodeEditor', Codemirror)
 app.component('SvgIcon', SvgIcon)
 
+// 全局注册 Element Plus 图标：模板中的 <el-icon><Xxx /></el-icon> 需要
+// 图标组件可被解析，否则会被当作未知 HTML 标签而不渲染任何内容
+for (const [name, comp] of Object.entries(ElementPlusIconsVue)) {
+  app.component(name, comp)
+}
+
 // 注册插件
 app.use(store)
 app.use(router)
@@ -103,3 +110,10 @@ setupErrorHandler(app)
 
 // 挂载应用
 app.mount('#app')
+
+// 应用挂载完成后淡出首屏加载层，动画结束再从 DOM 移除
+const loader = document.getElementById('loader-wrapper')
+if (loader) {
+  document.body.classList.add('loaded')
+  setTimeout(() => loader.remove(), 500)
+}
