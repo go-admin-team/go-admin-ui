@@ -37,7 +37,7 @@ export function generaMenu(routes, data) {
   data.forEach(item => {
     const menu = {
       path: item.path,
-      component: item.component === 'Layout' ? Layout : loadView(item.component),
+      component: item.component === 'Layout' ? Layout : loadView(item.component, item.menuName),
       // eslint-disable-next-line eqeqeq
       hidden: item.visible != '0',
       children: [],
@@ -59,10 +59,25 @@ export function generaMenu(routes, data) {
 // 可直接交给 Vue Router 作为异步组件使用
 const viewsModules = import.meta.glob('../../views/**/*.vue')
 
-export const loadView = (view) => { // 路由懒加载
+export const loadView = (view, name) => { // 路由懒加载
   const key = `../../views${view}.vue`
   // 兜底：索引未命中时回退到动态 import
-  return viewsModules[key] || (() => import(`../../views${view}.vue`))
+  const loader = viewsModules[key] || (() => import(`../../views${view}.vue`))
+  if (!name) return loader
+
+  // keep-alive 的 include 按组件 name 匹配，而缓存名单存放的是路由 name。
+  // 页面路由的 name 取自后端菜单配置，使用者在菜单管理里改一次名称，就与
+  // 写死在 .vue 文件里的组件 name 不再一致，页面缓存随即静默失效且无任何
+  // 提示。这里在组件解析完成后以路由 name 覆盖其 name，使两者不再依赖人
+  // 工保持一致。
+  //
+  // 返回副本而非就地修改：同一组件可能被多个菜单项复用，就地修改会让先解
+  // 析的那个路由丢掉自己的名字。
+  return () => Promise.resolve(loader()).then(mod => {
+    const comp = (mod && mod.default) || mod
+    if (!comp || comp.name === name) return comp
+    return { ...comp, name }
+  })
 }
 
 /**
