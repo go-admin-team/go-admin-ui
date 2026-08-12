@@ -193,7 +193,7 @@ import { formatJson } from '@/utils'
 import { Search, Refresh, Plus, Edit, Delete, Download } from '@element-plus/icons-vue'
 
 export default {
-  name: 'RoleManagement',
+  name: 'SysRoleManage',
   components: {
 
   },

@@ -167,7 +167,7 @@ import { formatJson } from '@/utils'
 import { Search, Refresh, Delete, Download } from '@element-plus/icons-vue'
 
 export default {
-  name: 'SysOperLogManage',
+  name: 'OperLog',
   setup() {
     return { Search, Refresh, Delete, Download }
   },

@@ -133,7 +133,7 @@ import { Search, Refresh, Edit, Delete, Upload } from '@element-plus/icons-vue'
 // import 'codemirror/mode/vue/vue'
 
 export default {
-  name: 'CodeGen',
+  name: 'Gen',
   components: { importTable, Codemirror },
   setup() {
     return { Search, Refresh, Edit, Delete, Upload }

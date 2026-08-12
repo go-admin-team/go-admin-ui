@@ -265,7 +265,7 @@ import { addSysJob, delSysJob, getSysJob, listSysJob, updateSysJob, removeJob, s
 import { Search, Refresh, Plus, Edit, Delete } from '@element-plus/icons-vue'
 
 export default {
-  name: 'SysJobManage',
+  name: 'ScheduleManage',
   components: {
 
   },
