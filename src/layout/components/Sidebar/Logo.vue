@@ -3,11 +3,11 @@
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
         <img v-if="showLogo" :src="appInfo.sys_app_logo" class="sidebar-logo" @error="showLogo = false">
-        <h1 v-else class="sidebar-title" :style="{ color: $store.state.settings.themeStyle === 'dark' ? variables.sidebarTitle : variables.sidebarLightTitle }">{{ appInfo && appInfo.sys_app_name }} </h1>
+        <h1 v-else class="sidebar-title" :style="{ color: $store.state.settings.themeStyle === 'dark' ? variables.sidebarTitle : variables.sidebarLightTitle }">{{ (appInfo && appInfo.sys_app_name) || 'Go Admin' }}</h1>
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
         <img v-if="showLogo" :src="appInfo.sys_app_logo" class="sidebar-logo" @error="showLogo = false">
-        <h1 class="sidebar-title" :style="{ color: $store.state.settings.themeStyle === 'dark' ? variables.sidebarTitle : variables.sidebarLightTitle }">{{ appInfo && appInfo.sys_app_name }} </h1>
+        <h1 class="sidebar-title" :style="{ color: $store.state.settings.themeStyle === 'dark' ? variables.sidebarTitle : variables.sidebarLightTitle }">{{ (appInfo && appInfo.sys_app_name) || 'Go Admin' }}</h1>
       </router-link>
     </transition>
   </div>
@@ -49,11 +49,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.sidebarLogoFade-enter-active {
-  transition: opacity 1.5s;
+.sidebarLogoFade-enter-active,
+.sidebarLogoFade-leave-active {
+  transition: opacity 0.28s ease;
 }
 
-.sidebarLogoFade-enter,
+.sidebarLogoFade-enter-from,
 .sidebarLogoFade-leave-to {
   opacity: 0;
 }
@@ -69,12 +70,19 @@ export default {
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
 
   & .sidebar-logo-link {
+    // 绝对定位使折叠/展开两个链接在过渡期重叠而非互相挤压，
+    // 否则同时存在时后者会被推出容器，造成 logo 错位、被裁切
+    position: absolute;
+    top: 0;
+    left: 0;
     height: 100%;
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
+    padding: 0 12px;
+    box-sizing: border-box;
 
     & .sidebar-logo {
       width: 28px;
