@@ -3,11 +3,12 @@
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
         <img v-if="showLogo" :src="appInfo.sys_app_logo" class="sidebar-logo" @error="showLogo = false">
-        <h1 v-else class="sidebar-title" :style="{ color: $store.state.settings.themeStyle === 'dark' ? variables.sidebarTitle : variables.sidebarLightTitle }">{{ (appInfo && appInfo.sys_app_name) || 'Go Admin' }}</h1>
+        <!-- 折叠后仅 54px，完整应用名会被裁成半截文字，改用首字母作标记 -->
+        <h1 v-else class="sidebar-title sidebar-title--mark" :title="appName" :style="{ color: titleColor }">{{ monogram }}</h1>
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
         <img v-if="showLogo" :src="appInfo.sys_app_logo" class="sidebar-logo" @error="showLogo = false">
-        <h1 class="sidebar-title" :style="{ color: $store.state.settings.themeStyle === 'dark' ? variables.sidebarTitle : variables.sidebarLightTitle }">{{ (appInfo && appInfo.sys_app_name) || 'Go Admin' }}</h1>
+        <h1 class="sidebar-title" :style="{ color: titleColor }">{{ appName }}</h1>
       </router-link>
     </transition>
   </div>
@@ -35,6 +36,17 @@ export default {
     ]),
     variables() {
       return variables
+    },
+    appName() {
+      return (this.appInfo && this.appInfo.sys_app_name) || 'Go Admin'
+    },
+    titleColor() {
+      return this.$store.state.settings.themeStyle === 'dark'
+        ? variables.sidebarTitle
+        : variables.sidebarLightTitle
+    },
+    monogram() {
+      return this.appName.trim().charAt(0).toUpperCase()
     }
   },
   watch: {
@@ -105,6 +117,12 @@ export default {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    // 折叠态的单字标记：放大字号补偿信息量的缺失
+    & .sidebar-title--mark {
+      font-size: 22px;
+      letter-spacing: 0;
     }
   }
 
