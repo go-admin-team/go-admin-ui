@@ -80,7 +80,7 @@
   font-size: 14px;
   font-weight: 600;
   color: #1e293b;
-  border-bottom: 2px solid #ede9fe;
+  border-bottom: 2px solid #e6f4ff;
   margin: 8px 0 20px;
   padding-bottom: 10px;
 
@@ -89,7 +89,7 @@
     display: inline-block;
     width: 4px;
     height: 16px;
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    background: linear-gradient(135deg, #1677ff, #40a9ff);
     border-radius: 2px;
     flex-shrink: 0;
   }
@@ -115,7 +115,7 @@
 .sortable-ghost {
   opacity: 0.8;
   color: #fff !important;
-  background: #4f46e5 !important;
+  background: #1677ff !important;
   border-radius: 6px;
 }
 
@@ -155,7 +155,7 @@
 }
 
 // ── 文字色工具 ──────────────────────────────────────────────
-.text-primary   { color: #4f46e5; }
+.text-primary   { color: #1677ff; }
 .text-success   { color: #10b981; }
 .text-warning   { color: #f59e0b; }
 .text-danger    { color: #f43f5e; }

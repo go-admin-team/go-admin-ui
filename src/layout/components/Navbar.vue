@@ -99,7 +99,7 @@ export default {
   position: relative;
   background: #fff;
   border-bottom: 1px solid #eef0f6;
-  box-shadow: 0 1px 8px rgba(79, 70, 229, 0.06);
+  box-shadow: 0 1px 8px rgba(22, 119, 255, 0.06);
 
   &::after {
     content: '';
