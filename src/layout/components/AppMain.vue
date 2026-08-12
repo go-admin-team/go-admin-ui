@@ -1,10 +1,16 @@
 <template>
   <section class="app-main" :style="appMainStyle">
-    <transition name="fade-transform" mode="out-in">
-      <keep-alive :include="cachedViews">
-        <router-view :key="key" />
-      </keep-alive>
-    </transition>
+    <!-- Vue Router 4 起 router-view 不能直接置于 transition / keep-alive 内：
+         keep-alive 收到的子节点是 RouterView 组件本身而非页面组件，include
+         按组件名匹配因而永不命中，缓存实际处于失效状态。改用 v-slot 取出已
+         匹配的组件再交给 keep-alive。 -->
+    <router-view v-slot="{ Component, route }">
+      <transition name="fade-transform" mode="out-in">
+        <keep-alive :include="cachedViews">
+          <component :is="Component" :key="route.path" />
+        </keep-alive>
+      </transition>
+    </router-view>
   </section>
 </template>
 
@@ -14,9 +20,6 @@ export default {
   computed: {
     cachedViews() {
       return this.$store.state.tagsView.cachedViews
-    },
-    key() {
-      return this.$route.path
     },
     appMainStyle() {
       if (!this.$store.state.settings.fixedHeader) return {}
