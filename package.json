@@ -70,7 +70,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@babel/core": "7.28.3",
+    "@babel/core": "^7.29.6",
     "@babel/eslint-parser": "^7.29.7",
     "@babel/preset-env": "^8.0.2",
     "@babel/register": "^7.29.7",
@@ -95,7 +95,7 @@
     "jest-transform-stub": "^2.0.0",
     "lint-staged": "17.3.0",
     "path-browserify": "^1.0.1",
-    "plop": "2.7.6",
+    "plop": "4.0.5",
     "sass": "^1.102.0",
     "svgo": "4.0.2",
     "vite": "^8.2.1",
