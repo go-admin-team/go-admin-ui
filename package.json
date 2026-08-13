@@ -89,6 +89,7 @@
     "connect": "3.7.0",
     "eslint": "7.32.0",
     "eslint-plugin-vue": "^9.33.0",
+    "fast-glob": "^3.3.3",
     "husky": "9.1.7",
     "jest": "27.5.1",
     "jest-serializer-vue": "^3.1.0",
