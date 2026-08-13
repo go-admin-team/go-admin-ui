@@ -12,7 +12,7 @@
     "lint": "eslint --ext .js,.vue src",
     "test:unit": "jest --clearCache && jest",
     "test:ci": "pnpm lint && pnpm test:unit",
-    "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml",
+    "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.config.mjs",
     "new": "plop",
     "prepare": "husky || true"
   },
@@ -97,7 +97,7 @@
     "path-browserify": "^1.0.1",
     "plop": "2.7.6",
     "sass": "^1.102.0",
-    "svgo": "1.3.2",
+    "svgo": "4.0.2",
     "vite": "^8.2.1",
     "vite-plugin-compression2": "^2.5.3",
     "vite-plugin-svg-icons": "^2.0.1"
