@@ -4,7 +4,21 @@
       <!-- 图标放默认插槽、标题放 title 插槽，这是 Element Plus 折叠菜单的契约：
            折叠时它据此隐藏文字并改用 tooltip 呈现；两者若同处一个插槽，文字不会
            被隐藏，只会被 54px 的侧边栏裁掉半截 -->
-      <el-menu-item v-if="onlyOneChild.meta" :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
+      <!-- el-menu 开启了 :router，index 会被直接交给 router.push；外链地址不在
+           路由表中，导航必然失败，因此外链改由 a 标签承载，不参与路由 -->
+      <a
+        v-if="onlyOneChild.meta && isExternalLink(resolvePath(onlyOneChild.path))"
+        :href="resolvePath(onlyOneChild.path)"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="sidebar-external-link"
+      >
+        <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
+          <svg-icon v-if="menuIcon(onlyOneChild)" :icon-class="menuIcon(onlyOneChild)" />
+          <template #title>{{ onlyOneChild.meta.title }}</template>
+        </el-menu-item>
+      </a>
+      <el-menu-item v-else-if="onlyOneChild.meta" :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
         <svg-icon v-if="menuIcon(onlyOneChild)" :icon-class="menuIcon(onlyOneChild)" />
         <template #title>{{ onlyOneChild.meta.title }}</template>
       </el-menu-item>
@@ -64,6 +78,9 @@ export default {
     // 子路由未单独配图标时回退到父级，与原 Item 组件的取值一致
     menuIcon(child) {
       return (child.meta && child.meta.icon) || (this.item.meta && this.item.meta.icon)
+    },
+    isExternalLink(path) {
+      return isExternal(path)
     },
     hasOneShowingChild(children = [], parent) {
       const showingChildren = children.filter(item => {

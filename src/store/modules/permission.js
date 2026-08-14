@@ -1,6 +1,7 @@
 import { constantRoutes } from '@/router'
 import { getRoutes } from '@/api/admin/sys-role'
 import Layout from '@/layout'
+import { resolveRedirect } from '@/utils/route'
 // import sysuserindex from '@/views/sysuser/index'
 
 /**
@@ -51,6 +52,15 @@ export function generaMenu(routes, data) {
     if (item.children) {
       generaMenu(menu.children, item.children)
     }
+
+    // 目录型路由自身没有页面组件，导航到它时父级匹配成功但没有子路由可渲染，
+    // 内容区呈现空白。补一个指向首个可见子路由的 redirect：直接输入目录地址、
+    // 或点击展开态下的目录项时，都会落到一个真实页面上。
+    const redirect = resolveRedirect(menu.path, menu.children)
+    if (redirect) {
+      menu.redirect = redirect
+    }
+
     routes.push(menu)
   })
 }

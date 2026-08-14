@@ -51,15 +51,6 @@ export function delUser(data) {
   })
 }
 
-// 导出用户
-export function exportUser(query) {
-  return request({
-    url: '/api/v1/sys-user/export',
-    method: 'get',
-    params: query
-  })
-}
-
 // 用户密码重置
 export function resetUserPwd(userId, password) {
   const data = {
@@ -92,14 +83,6 @@ export function updateUserProfile(data) {
     url: '/api/v1/sys-user/profile',
     method: 'put',
     data: data
-  })
-}
-
-// 下载用户导入模板
-export function importTemplate() {
-  return request({
-    url: '/api/v1/sys-user/importTemplate',
-    method: 'get'
   })
 }
 
