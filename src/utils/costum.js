@@ -4,7 +4,9 @@ export function parseTime(time, pattern) {
   if (arguments.length === 0 || !time) {
     return null
   }
-  if (time.indexOf('01-01-01') > -1) {
+  // 仅字符串才有 indexOf：入参也可能是时间戳数字或 Date 对象，
+  // 无条件调用会抛 TypeError: time.indexOf is not a function
+  if (typeof time === 'string' && time.indexOf('01-01-01') > -1) {
     return '-'
   }
   const format = pattern || '{y}-{m}-{d} {h}:{i}:{s}'
