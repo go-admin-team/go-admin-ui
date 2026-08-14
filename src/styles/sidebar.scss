@@ -70,6 +70,13 @@
       border-right: none !important;
     }
 
+    // 外链菜单项由 a 标签承载（不参与路由），该层不应影响菜单布局与配色
+    .sidebar-external-link {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+
     // 统一菜单项高度（Element Plus 2.x 默认 56px 偏大，收紧至 50px）
     .el-menu-item,
     .el-sub-menu__title,
