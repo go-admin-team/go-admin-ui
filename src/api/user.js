@@ -18,11 +18,12 @@ export function logout() {
 }
 
 // refreshtoken 刷新token
-export function refreshtoken(data) {
+// 后端路由为 GET /api/v1/refresh_token（app/admin/router/sys_router.go），
+// 此处此前写的是 POST /refreshtoken，路径与方法均不匹配，调用必然 404
+export function refreshtoken() {
   return request({
-    url: '/refreshtoken',
-    method: 'post',
-    data
+    url: '/api/v1/refresh_token',
+    method: 'get'
   })
 }
 
