@@ -1,0 +1,23 @@
+/*
+ * Tailwind CSS v4 entry point.
+ *
+ * Preflight is deliberately NOT imported. Tailwind's base reset restyles
+ * buttons, inputs, headings and table borders, which collides head-on with
+ * Element Plus (and with normalize.css, already loaded in main.js). Importing
+ * the layers individually and dropping the preflight line keeps the utility
+ * classes while leaving component styling untouched.
+ *
+ * Do not replace this with `@import "tailwindcss";` — that pulls preflight back
+ * in and silently breaks Element Plus components across the whole app.
+ *
+ * Known limitation: utilities live in a cascade layer, and unlayered styles
+ * always win over layered ones, so an Element Plus rule beats a Tailwind
+ * utility for the same property. Layout utilities on plain elements are
+ * unaffected. Phase P2 (design tokens) revisits this once Element Plus theming
+ * moves onto CSS variables.
+ */
+
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);

@@ -1,5 +1,4 @@
 import { createApp } from 'vue'
-import { ElMessage } from 'element-plus'
 
 import Cookies from 'js-cookie'
 
@@ -12,11 +11,15 @@ import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
 import '@/styles/index.scss' // global css
 import '@/styles/admin.scss'
+// Loaded last so utility classes sit after the project's own styles.
+// See the file header for why preflight is excluded.
+import '@/styles/tailwind.css'
 
 import { Codemirror } from 'vue-codemirror'
 
 import App from './App'
 import store from './store'
+import pinia from './stores'
 import router from './router'
 import permission from './directive/permission'
 
@@ -24,6 +27,7 @@ import { getDicts } from '@/api/admin/dict/data'
 import { getItems, setItems } from '@/api/table'
 import { getConfigKey } from '@/api/admin/sys-config'
 import { parseTime, resetForm, addDateRange, selectDictLabel, /* download,*/ selectItemsLabel } from '@/utils/costum'
+import { msgSuccess, msgError, msgInfo } from '@/utils/message'
 import { dialogDrag } from '@/utils/dialog' // dialog directive
 import { setupErrorHandler } from '@/utils/error-log' // error log
 
@@ -57,10 +61,8 @@ console.info(`欢迎使用go-admin，谢谢您对我们的支持，在使用过�
 const app = createApp(App)
 
 // 全局方法挂载（$前缀版本 + 无前缀版本同时注册，兼容历史代码）
-const msgSuccess = (msg) => ElMessage({ showClose: true, message: msg, type: 'success' })
-const msgError = (msg) => ElMessage({ showClose: true, message: msg, type: 'error' })
-const msgInfo = (msg) => ElMessage.info(msg)
-
+// Message helpers now live in @/utils/message; this only registers them.
+// New code should import them directly instead.
 const globalMethods = {
   getDicts, getItems, setItems, getConfigKey,
   parseTime, resetForm, addDateRange, selectDictLabel, selectItemsLabel,
@@ -89,7 +91,10 @@ for (const [name, comp] of Object.entries(ElementPlusIconsVue)) {
 }
 
 // 注册插件
+// Vuex and Pinia run side by side during the P1 migration.
+// Drop `app.use(store)` once every module has been ported.
 app.use(store)
+app.use(pinia)
 app.use(router)
 app.use(permission)
 app.use(Particles, {

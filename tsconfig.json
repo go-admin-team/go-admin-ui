@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "jsx": "preserve",
+    "jsxImportSource": "vue",
+
+    "strict": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+
+    // Key setting during migration: let .ts and legacy .js coexist, but do not
+    // type-check the .js. Enabling checkJs would surface thousands of errors
+    // across the 23,000 existing lines on day one.
+    "allowJs": true,
+    "checkJs": false,
+
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+
+    "types": ["vite/client"],
+    // No baseUrl: deprecated since TS 6, removed in TS 7. Under
+    // moduleResolution "Bundler", paths resolve relative to tsconfig.json.
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.d.ts",
+    "src/**/*.vue",
+    "tests/unit/**/*.ts"
+  ],
+  // tests/e2e and the *.config files run under Node and need @types/node. Node
+  // types are deliberately kept out of the browser side so application code
+  // cannot reach for build-time-only APIs such as fs/path.
+  "exclude": ["node_modules", "dist", "tests/e2e"]
+}
