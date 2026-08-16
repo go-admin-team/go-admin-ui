@@ -121,7 +121,10 @@ test.describe('侧边栏菜单导航功能验证', () => {
         }
         console.log(`[CONSOLE ERROR] ${text}`);
       }
-      if (type === 'warn') {
+      // Playwright's ConsoleMessage.type() returns 'warning', not 'warn'.
+      // While this read 'warn' the branch was never taken, so warning
+      // collection silently did nothing.
+      if (type === 'warning') {
         if (text.includes('handleMouseleave') ||
           text.includes('Failed to resolve component') ||
           text.includes('is not a function')) {
