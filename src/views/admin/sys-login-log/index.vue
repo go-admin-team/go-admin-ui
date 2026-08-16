@@ -254,7 +254,7 @@ export default {
     handleUpdate(row) {
       this.reset()
       const ID =
-                row.id || this.ids
+        row.id || this.ids
       getSysLoginlog(ID).then(response => {
         this.form = response.data
         this.open = true

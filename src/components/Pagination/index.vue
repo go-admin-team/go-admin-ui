@@ -19,7 +19,6 @@ import { scrollTo } from '@/utils/scroll-to'
 
 export default {
   name: 'PaginationComponent',
-  emits: ['update:page', 'update:limit', 'pagination'],
   props: {
     total: {
       required: true,
@@ -56,6 +55,7 @@ export default {
       default: false
     }
   },
+  emits: ['update:page', 'update:limit', 'pagination'],
   computed: {
     currentPage: {
       get() {

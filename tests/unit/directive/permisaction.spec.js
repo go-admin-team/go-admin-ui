@@ -1,9 +1,14 @@
 import { mount } from '@vue/test-utils'
 import permisaction from '@/directive/permission/permisaction'
 
-jest.mock('@/store', () => ({
-  getters: {
-    permisaction: ['admin:sysUser:add', 'admin:sysUser:edit']
+// store is a default export. vitest uses native ESM, so the factory must
+// provide an explicit `default` key — jest's CJS interop treated the whole
+// returned object as the default, which does not apply here.
+vi.mock('@/store', () => ({
+  default: {
+    getters: {
+      permisaction: ['admin:sysUser:add', 'admin:sysUser:edit']
+    }
   }
 }))
 

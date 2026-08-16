@@ -9,10 +9,10 @@ function makeVm(options = {}, overrides = {}) {
     ...crud.data(),
     crudOptions: () => options,
     // 全局方法（由 main.js 注入）
-    resetForm: jest.fn(),
-    msgSuccess: jest.fn(),
-    msgError: jest.fn(),
-    $confirm: jest.fn(() => Promise.resolve()),
+    resetForm: vi.fn(),
+    msgSuccess: vi.fn(),
+    msgError: vi.fn(),
+    $confirm: vi.fn(() => Promise.resolve()),
     $refs: { form: { validate: cb => cb(true) } },
     ...overrides
   }
@@ -34,7 +34,7 @@ describe('Mixins:crud', () => {
   })
 
   it('getList 按 { data: { list, count } } 结构解析响应', async () => {
-    const list = jest.fn(() => Promise.resolve({ data: { list: [{ id: 1 }], count: 7 } }))
+    const list = vi.fn(() => Promise.resolve({ data: { list: [{ id: 1 }], count: 7 } }))
     const vm = makeVm({ api: { list } })
 
     await vm.getList()
@@ -45,7 +45,7 @@ describe('Mixins:crud', () => {
   })
 
   it('getList 出错后 loading 必须归位', async () => {
-    const list = jest.fn(() => Promise.reject(new Error('boom')))
+    const list = vi.fn(() => Promise.reject(new Error('boom')))
     const vm = makeVm({ api: { list } })
 
     await vm.getList().catch(() => {})
@@ -59,7 +59,7 @@ describe('Mixins:crud', () => {
   })
 
   it('handleQuery 重置到第一页', async () => {
-    const list = jest.fn(() => Promise.resolve({ data: { list: [], count: 0 } }))
+    const list = vi.fn(() => Promise.resolve({ data: { list: [], count: 0 } }))
     const vm = makeVm({ api: { list } })
     vm.queryParams.pageIndex = 5
 
@@ -96,9 +96,9 @@ describe('Mixins:crud', () => {
   })
 
   it('submitForm 按主键有无选择新增或修改', async () => {
-    const add = jest.fn(() => Promise.resolve({ code: 200 }))
-    const update = jest.fn(() => Promise.resolve({ code: 200 }))
-    const list = jest.fn(() => Promise.resolve({ data: { list: [], count: 0 } }))
+    const add = vi.fn(() => Promise.resolve({ code: 200 }))
+    const update = vi.fn(() => Promise.resolve({ code: 200 }))
+    const list = vi.fn(() => Promise.resolve({ data: { list: [], count: 0 } }))
 
     const vmAdd = makeVm({ api: { add, update, list } })
     vmAdd.form = { id: undefined, name: '新' }
@@ -113,7 +113,7 @@ describe('Mixins:crud', () => {
   })
 
   it('校验未通过时不提交', async () => {
-    const add = jest.fn()
+    const add = vi.fn()
     const vm = makeVm({ api: { add } }, { $refs: { form: { validate: cb => cb(false) } } })
     vm.form = { name: '' }
 
@@ -123,8 +123,8 @@ describe('Mixins:crud', () => {
   })
 
   it('handleDelete 传 row 时删单条，不传时删选中项', async () => {
-    const del = jest.fn(() => Promise.resolve({ code: 200 }))
-    const list = jest.fn(() => Promise.resolve({ data: { list: [], count: 0 } }))
+    const del = vi.fn(() => Promise.resolve({ code: 200 }))
+    const list = vi.fn(() => Promise.resolve({ data: { list: [], count: 0 } }))
 
     const vm = makeVm({ api: { del, list } })
     vm.ids = [1, 2, 3]
@@ -137,7 +137,7 @@ describe('Mixins:crud', () => {
   })
 
   it('取消删除确认时不调用接口', async () => {
-    const del = jest.fn()
+    const del = vi.fn()
     const vm = makeVm({ api: { del } }, { $confirm: () => Promise.reject(new Error('cancel')) })
 
     await vm.handleDelete({ id: 1 })

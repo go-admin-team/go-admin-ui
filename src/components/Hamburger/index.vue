@@ -16,13 +16,13 @@
 <script>
 export default {
   name: 'AppHamburger',
-  emits: ['toggleClick'],
   props: {
     isActive: {
       type: Boolean,
       default: false
     }
   },
+  emits: ['toggleClick'],
   methods: {
     toggleClick() {
       this.$emit('toggleClick')

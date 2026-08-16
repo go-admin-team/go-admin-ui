@@ -60,10 +60,10 @@ import CountTo from 'vue-count-to'
 
 export default {
   name: 'PanelGroupComponent',
-  emits: ['handleSetLineChartData'],
   components: {
     CountTo
   },
+  emits: ['handleSetLineChartData'],
   methods: {
     handleSetLineChartData(type) {
       this.$emit('handleSetLineChartData', type)
