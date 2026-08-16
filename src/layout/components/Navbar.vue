@@ -7,7 +7,7 @@
 
     <div class="right-menu">
       <template v-if="device!=='mobile'">
-        <search id="header-search" class="right-menu-item" />
+        <header-search id="header-search" class="right-menu-item" />
 
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
 
@@ -39,7 +39,7 @@ import Breadcrumb from '@/components/Breadcrumb'
 import TopNav from '@/components/TopNav'
 import Hamburger from '@/components/Hamburger'
 import Screenfull from '@/components/Screenfull'
-import Search from '@/components/HeaderSearch'
+import HeaderSearch from '@/components/HeaderSearch'
 
 export default {
   components: {
@@ -47,7 +47,7 @@ export default {
     TopNav,
     Hamburger,
     Screenfull,
-    Search
+    HeaderSearch
   },
   computed: {
     ...mapGetters([
