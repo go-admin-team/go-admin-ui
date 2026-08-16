@@ -1,4 +1,4 @@
-import { login, logout, getInfo, refreshtoken } from '@/api/user'
+import { login, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 import storage from '@/utils/storage'
@@ -95,20 +95,6 @@ const actions = {
       })
     })
   },
-  // 刷新token
-  refreshToken({ commit, state }) {
-    return new Promise((resolve, reject) => {
-      refreshtoken({ token: state.token }).then(response => {
-        const { token } = response
-        commit('SET_TOKEN', token)
-        setToken(token)
-        resolve()
-      }).catch(error => {
-        reject(error)
-      })
-    })
-  },
-
   // remove token
   resetToken({ commit }) {
     return new Promise(resolve => {
