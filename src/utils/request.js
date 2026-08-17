@@ -83,7 +83,11 @@ service.interceptors.response.use(
       ).then(() => {
         location.reload() // 为了重新实例化vue-router对象 避免bug
       })
-      return false
+      // Reject, like the 401 branch above. Resolving with `false` broke the
+      // invariant the callers rely on -- that a resolved response means
+      // code === 200 -- so an expired session surfaced as an empty table with
+      // no error, and `response.data` threw wherever it was read.
+      return Promise.reject(new Error('登录状态已过期'))
     } else if (code === 400 || code === 403) {
       ElMessage({
         message: response.data.msg,
@@ -99,7 +103,10 @@ service.interceptors.response.use(
         message: response.data.msg,
         type: 'error'
       })
-      return Promise.reject('error')
+      // An Error, like every other branch here. Rejecting with a bare string
+      // left `error.message` undefined, so any caller following the
+      // `error?.message || fallback` pattern rendered an empty toast.
+      return Promise.reject(new Error(response.data.msg || 'error'))
     } else {
       return response.data
     }

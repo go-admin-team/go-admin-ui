@@ -50,7 +50,10 @@ router.beforeEach(async(to, from, next) => {
         } catch(error) {
           // remove token and go to login page to re-login
           // await store.dispatch('user/resetToken')
-          ElMessage.error(error || 'Has Error')
+          // ElMessage treats a non-string argument as its options bag, and an
+          // Error's `message` is non-enumerable -- passing the error straight
+          // through rendered an empty toast.
+          ElMessage.error(error?.message || 'Has Error')
           next(`/login?redirect=${to.path}`)
           NProgress.done()
         }
