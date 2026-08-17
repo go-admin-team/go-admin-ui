@@ -37,8 +37,8 @@ export default {
   mixins: [ResizeMixin],
   data() {
     return {
-      // Whether the settings drawer is open. Lives here because the navbar
-      // raises it and RightPanel renders it, and the two are siblings.
+      // Lives here because the navbar raises it and RightPanel renders it,
+      // and the two are siblings.
       settingsOpen: false
     }
   },

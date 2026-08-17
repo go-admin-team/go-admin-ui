@@ -269,10 +269,8 @@ $dim:      #8ba0bd;
 // 右侧面板的中性色走 design token，跟随明暗切换。
 // 左侧 hero 刻意维持深色单主题（见上方设计说明），故仍用字面色值；
 // 品牌青按钮同理 —— 它是整页唯一的强调实色，两个主题下都该是它。
-$paper:    var(--ga-bg-body);      // 右侧底（下沉面）
 $field:    var(--ga-bg-container); // 输入框底（抬升面）
 $edge:     var(--ga-border-light);
-$edge-hi:  var(--ga-border);
 
 .login-page {
   display: flex;
@@ -467,7 +465,7 @@ $edge-hi:  var(--ga-border);
   align-items: center;
   justify-content: center;
   padding: 40px 40px;
-  background: $paper;
+  background: var(--ga-bg-body);
 }
 
 .form-box {
@@ -514,7 +512,7 @@ $edge-hi:  var(--ga-border);
     box-shadow: 0 0 0 1px $edge inset;
     transition: box-shadow 0.16s ease;
 
-    &:hover { box-shadow: 0 0 0 1px $edge-hi inset; }
+    &:hover { box-shadow: 0 0 0 1px var(--ga-border) inset; }
 
     &.is-focus {
       box-shadow: 0 0 0 1px $go-deep inset, 0 0 0 3px rgba(0, 173, 216, 0.16);

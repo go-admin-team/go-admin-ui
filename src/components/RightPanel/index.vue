@@ -2,12 +2,6 @@
   <div ref="rightPanel" :class="{show:show}" class="rightPanel-container">
     <div class="rightPanel-background" />
     <div class="rightPanel">
-      <!--
-        The trigger used to be a 48px tile fixed to the right edge of the
-        viewport, which sat on top of whatever the page had there -- on a list
-        page that is the pinned action column. It now lives in the navbar icon
-        row, where settings belongs, and this component is driven by v-model.
-      -->
       <div class="rightPanel-head">
         <span class="rightPanel-title">系统布局配置</span>
         <button type="button" class="rightPanel-close" title="关闭" @click="show = false">
@@ -74,9 +68,8 @@ export default {
     addEventClick() {
       // Registered after the opening click has finished propagating. Otherwise
       // that same click reaches this listener, closest('.rightPanel') does not
-      // match the trigger, and the drawer closes in the same tick it opened.
-      // The old trigger sat inside .rightPanel, so closest() matched it and the
-      // problem stayed hidden until the trigger moved to the navbar.
+      // match the trigger outside the drawer, and it closes in the tick it
+      // opened.
       setTimeout(() => window.addEventListener('click', this.closeSidebar), 0)
     },
     closeSidebar(evt) {
