@@ -14,9 +14,21 @@ import { authenticate, installApiMocks } from './fixtures'
 
 const surfaces = [
   // No session: the guard bounces an authenticated visit to /login home
-  // The login hero types its terminal output in, last line at 1.86s + 0.32s.
-  // A shorter settle catches it on line one and makes the panel look empty.
-  { name: 'login', path: '/#/login', wait: '.login-page', anonymous: true, settle: 2600 },
+  // The login hero types its terminal output in. Waiting on the last line
+  // finishing beats a fixed sleep: it settles as soon as the animation is done
+  // rather than at a padded guess, and it does not need re-padding if the
+  // timings are retuned. Reduced-motion shows the lines at once, so it passes
+  // immediately there.
+  {
+    name: 'login',
+    path: '/#/login',
+    wait: '.login-page',
+    anonymous: true,
+    settled: () => {
+      const last = document.querySelector('.term-body .l8')
+      return !!last && getComputedStyle(last).opacity === '1'
+    }
+  },
   { name: 'list-page', path: '/#/demo/product', wait: '.el-table' },
   { name: 'dialog', path: '/#/demo/product', wait: '.el-table', open: '新增' },
   // The densest surface: department tree, search bar, toolbar, sortable table
@@ -45,7 +57,10 @@ for (const theme of ['light', 'dark'] as const) {
         }
 
         // Let transitions settle so shots are stable between runs
-        await page.waitForTimeout(surface.settle ?? 400)
+        if (surface.settled) {
+          await page.waitForFunction(surface.settled, null, { timeout: 10_000 })
+        }
+        await page.waitForTimeout(400)
         await page.screenshot({
           path: `test-results/shots/${theme}/${surface.name}.png`,
           fullPage: false
