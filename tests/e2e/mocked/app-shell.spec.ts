@@ -21,7 +21,7 @@ test.describe('app shell', () => {
 
   test('builds the sidebar from the backend menu', async({ page, context }) => {
     await authenticate(context);
-    const calls = await installApiMocks(page);
+    const { calls } = await installApiMocks(page);
 
     await page.goto('/#/demo/product');
     await page.waitForSelector('.el-menu');
@@ -73,7 +73,7 @@ test.describe('app shell', () => {
    */
   test('caches a visited page instead of refetching it', async({ page, context }) => {
     await authenticate(context);
-    const calls = await installApiMocks(page);
+    const { calls } = await installApiMocks(page);
 
     await page.goto('/#/demo/product');
     await page.waitForSelector('.el-table');
@@ -113,7 +113,7 @@ test.describe('app shell', () => {
    */
   test('caches a page whose menu name differs from the component name', async({ page, context }) => {
     await authenticate(context);
-    const calls = await installApiMocks(page);
+    const { calls } = await installApiMocks(page);
 
     await page.goto('/#/demo/renamed');
     await page.waitForSelector('.el-table');
