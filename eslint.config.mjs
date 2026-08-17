@@ -100,7 +100,8 @@ export default [
       '@stylistic/padded-blocks': [2, 'never'],
       '@stylistic/quotes': [2, 'single', {
         avoidEscape: true,
-        allowTemplateLiterals: true
+        // @stylistic deprecated the boolean form; 'always' is the equivalent
+        allowTemplateLiterals: 'always'
       }],
       '@stylistic/semi': [2, 'never'],
       '@stylistic/semi-spacing': [2, { before: false, after: true }],
