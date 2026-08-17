@@ -14,7 +14,9 @@ import { authenticate, installApiMocks } from './fixtures'
 
 const surfaces = [
   // No session: the guard bounces an authenticated visit to /login home
-  { name: 'login', path: '/#/login', wait: '.login-page', anonymous: true },
+  // The login hero types its terminal output in, last line at 1.86s + 0.32s.
+  // A shorter settle catches it on line one and makes the panel look empty.
+  { name: 'login', path: '/#/login', wait: '.login-page', anonymous: true, settle: 2600 },
   { name: 'list-page', path: '/#/demo/product', wait: '.el-table' },
   { name: 'dialog', path: '/#/demo/product', wait: '.el-table', open: '新增' },
   // The densest surface: department tree, search bar, toolbar, sortable table
@@ -43,7 +45,7 @@ for (const theme of ['light', 'dark'] as const) {
         }
 
         // Let transitions settle so shots are stable between runs
-        await page.waitForTimeout(400)
+        await page.waitForTimeout(surface.settle ?? 400)
         await page.screenshot({
           path: `test-results/shots/${theme}/${surface.name}.png`,
           fullPage: false

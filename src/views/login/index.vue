@@ -265,7 +265,14 @@ $go-deep:  #00add8;   // Go 官方色，用于实底按钮
 $ok:       #5ce68b;   // 成功绿
 $amber:    #ffc44d;   // 数字/端口
 $dim:      #8ba0bd;
-$paper:    #f6f8fb;   // 右侧底
+
+// 右侧面板的中性色走 design token，跟随明暗切换。
+// 左侧 hero 刻意维持深色单主题（见上方设计说明），故仍用字面色值；
+// 品牌青按钮同理 —— 它是整页唯一的强调实色，两个主题下都该是它。
+$paper:    var(--ga-bg-body);      // 右侧底（下沉面）
+$field:    var(--ga-bg-container); // 输入框底（抬升面）
+$edge:     var(--ga-border-light);
+$edge-hi:  var(--ga-border);
 
 .login-page {
   display: flex;
@@ -473,19 +480,19 @@ $paper:    #f6f8fb;   // 右侧底
   font-size: 22px;
   font-weight: 650;
   letter-spacing: -0.2px;
-  color: #0d1117;
+  color: var(--ga-text-1);
 }
 
 .panel-sub {
   margin: 0 0 30px;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--ga-text-2);
 }
 
 .panel-tip {
   margin: 22px 0 0;
   font-size: 12px;
-  color: #9aa3af;
+  color: var(--ga-text-3);
 }
 
 .login-form {
@@ -496,18 +503,18 @@ $paper:    #f6f8fb;   // 右侧底
     font-size: 13px;
     font-weight: 500;
     line-height: 1;
-    color: #374151;
+    color: var(--ga-text-2);
   }
 
   // 描边式输入框：白底 + 细边框，聚焦时用 Go 品牌色标识
   :deep(.el-input__wrapper) {
     padding: 1px 12px;
     border-radius: 8px;
-    background: #fff;
-    box-shadow: 0 0 0 1px #dde2e9 inset;
+    background: $field;
+    box-shadow: 0 0 0 1px $edge inset;
     transition: box-shadow 0.16s ease;
 
-    &:hover { box-shadow: 0 0 0 1px #c3c9d2 inset; }
+    &:hover { box-shadow: 0 0 0 1px $edge-hi inset; }
 
     &.is-focus {
       box-shadow: 0 0 0 1px $go-deep inset, 0 0 0 3px rgba(0, 173, 216, 0.16);
@@ -515,12 +522,12 @@ $paper:    #f6f8fb;   // 右侧底
   }
 
   :deep(.el-input__inner) { height: 40px; font-size: 14px; }
-  :deep(.el-input__prefix) { color: #9aa3af; }
+  :deep(.el-input__prefix) { color: var(--ga-text-3); }
 }
 
 .pwd-eye {
   cursor: pointer;
-  color: #9aa3af;
+  color: var(--ga-text-3);
 
   &:hover { color: $go-deep; }
 }
@@ -541,9 +548,9 @@ $paper:    #f6f8fb;   // 右侧底
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #dde2e9;
+  border: 1px solid $edge;
   border-radius: 8px;
-  background: #fff;
+  background: $field;
   cursor: pointer;
   overflow: hidden;
 
