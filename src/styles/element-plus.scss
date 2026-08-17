@@ -1,579 +1,164 @@
 // ══════════════════════════════════════════════════════════════════
-//  Design System — Element Plus 全量组件覆盖
-//  参考 Ant Design 5.x 蓝色体系
-//  Primary: #1677ff  Hover: #4096ff  Active: #0958d9
+//  Element Plus adjustments
+//
+//  Colour, radius and elevation are NOT set here -- they come from the design
+//  tokens in styles/tokens.css, which drive Element Plus through its own CSS
+//  variables. This file is only for the handful of structural tweaks that no
+//  variable expresses: density, type scale and a few borders element-plus
+//  draws that this layout does not want.
+//
+//  No `!important` anywhere. This stylesheet loads after element-plus's own,
+//  so equal specificity already wins. If a rule seems to need !important, the
+//  usual cause is that it belongs in tokens.css as a variable instead.
+//
+//  It replaced 18KB of hard-coded colour overrides carrying 105 !important
+//  declarations; keep it that way.
 // ══════════════════════════════════════════════════════════════════
 
-// ── 全局 CSS Token (Ant Design 5.x Blue Palette) ────────────────
-:root {
-  --el-color-primary:         #1677ff;
-  --el-color-primary-light-3: #4096ff;
-  --el-color-primary-light-5: #69b1ff;
-  --el-color-primary-light-7: #91caff;
-  --el-color-primary-light-8: #bae0ff;
-  --el-color-primary-light-9: #e6f4ff;
-  --el-color-primary-dark-2:  #0958d9;
-
-  --el-color-success:         #52c41a;
-  --el-color-danger:          #ff4d4f;
-  --el-color-warning:         #faad14;
-
-  --el-border-radius-base:    6px;
-  --el-border-radius-small:   4px;
-  --el-border-color:          #d9d9d9;
-  --el-border-color-light:    #f0f0f0;
-  --el-border-color-lighter:  #f5f5f5;
-
-  --el-text-color-primary:    #000000d9;
-  --el-text-color-regular:    #000000a6;
-  --el-text-color-secondary:  #00000073;
-  --el-text-color-placeholder:#00000040;
-
-  --el-bg-color:              #ffffff;
-  --el-fill-color-light:      #fafafa;
-}
-
-// ═══════════════════════════════════
-//  一、卡片 el-card
-// ═══════════════════════════════════
+// ── Card ──────────────────────────────────────────────────────────
 .el-card {
-  border-radius: 8px !important;
-  border: 1px solid #f0f0f0 !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04) !important;
-  transition: box-shadow 0.3s;
+  border-color: var(--ga-border-light);
 
-  &:hover {
-    box-shadow: 0 1px 6px rgba(0,0,0,0.1), 0 6px 18px rgba(0,21,41,0.08) !important;
-  }
-
+  // No hover elevation: on a table page every card lifting under the cursor
+  // turns the whole screen into a relief map.
   .el-card__header {
-    padding: 14px 16px !important;
+    padding: 14px 16px;
     min-height: unset;
-    border-bottom: 1px solid #f0f0f0 !important;
-    background: #fafafa;
-    border-radius: 8px 8px 0 0;
     font-size: 14px;
     font-weight: 600;
-    color: #000000d9;
   }
 
   .el-card__body {
-    padding: 16px !important;
+    padding: 16px;
   }
 }
 
-// ═══════════════════════════════════
-//  二、按钮 el-button
-// ═══════════════════════════════════
+// ── Button ────────────────────────────────────────────────────────
 .el-button {
-  border-radius: 6px;
   font-weight: 400;
-  transition: all 0.2s;
 
-  &--primary {
-    background: #1677ff !important;
-    border-color: #1677ff !important;
-    &:hover, &:focus {
-      background: #4096ff !important;
-      border-color: #4096ff !important;
-    }
-    &:active { background: #0958d9 !important; border-color: #0958d9 !important; }
-    &.is-plain {
-      background: #e6f4ff !important;
-      border-color: #91caff !important;
-      color: #1677ff !important;
-      &:hover { background: #1677ff !important; border-color: #1677ff !important; color: #fff !important; }
-    }
-    &.is-link { color: #1677ff !important; background: transparent !important; border: none !important; }
-  }
-
-  &--success {
-    background: #52c41a !important;
-    border-color: #52c41a !important;
-    &:hover { background: #73d13d !important; border-color: #73d13d !important; }
-    &.is-plain {
-      background: #f6ffed !important;
-      border-color: #b7eb8f !important;
-      color: #389e0d !important;
-      &:hover { background: #52c41a !important; color: #fff !important; border-color: #52c41a !important; }
-    }
-    &.is-link { color: #52c41a !important; background: transparent !important; border: none !important; }
-  }
-
-  &--danger {
-    background: #ff4d4f !important;
-    border-color: #ff4d4f !important;
-    &:hover { background: #ff7875 !important; border-color: #ff7875 !important; }
-    &.is-plain {
-      background: #fff2f0 !important;
-      border-color: #ffccc7 !important;
-      color: #cf1322 !important;
-      &:hover { background: #ff4d4f !important; color: #fff !important; border-color: #ff4d4f !important; }
-    }
-    &.is-link { color: #ff4d4f !important; background: transparent !important; border: none !important; }
-  }
-
-  &--warning {
-    background: #faad14 !important;
-    border-color: #faad14 !important;
-    color: #fff !important;
-    &:hover { background: #ffc53d !important; border-color: #ffc53d !important; }
-    &.is-plain {
-      background: #fffbe6 !important;
-      border-color: #ffe58f !important;
-      color: #d48806 !important;
-      &:hover { background: #faad14 !important; color: #fff !important; }
-    }
-  }
-
-  &--default, &:not([class*='--']) {
-    border-color: #d9d9d9 !important;
-    color: #000000d9 !important;
-    &:hover {
-      border-color: #4096ff !important;
-      color: #1677ff !important;
-      background: #fff !important;
-    }
+  &--small {
+    padding: 5px 11px;
   }
 }
 
-// ═══════════════════════════════════
-//  三、输入框
-// ═══════════════════════════════════
-.el-input {
-  &__wrapper {
-    border-radius: 6px;
-    box-shadow: 0 0 0 1px #d9d9d9 inset !important;
-    transition: box-shadow 0.2s;
-    &:hover { box-shadow: 0 0 0 1px #4096ff inset !important; }
-    &.is-focus {
-      box-shadow: 0 0 0 1px #1677ff inset, 0 0 0 3px rgba(22,119,255,0.1) !important;
-    }
-  }
-  &__prefix-icon, &__suffix-icon { color: #00000040; }
-}
-
-.el-textarea__inner {
-  border-radius: 6px;
-  border: 1px solid #d9d9d9;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  &:hover { border-color: #4096ff; }
-  &:focus {
-    border-color: #1677ff;
-    box-shadow: 0 0 0 3px rgba(22,119,255,0.1);
-    outline: none;
-  }
-}
-
-.el-select .el-input__wrapper.is-focus {
-  box-shadow: 0 0 0 1px #1677ff inset !important;
-}
-
-// ═══════════════════════════════════
-//  四、表格 el-table
-// ═══════════════════════════════════
+// ── Table ─────────────────────────────────────────────────────────
 .el-table {
-  border-radius: 8px;
+  border-radius: var(--ga-radius-lg);
   overflow: hidden;
-  border: 1px solid #f0f0f0 !important;
   font-size: 13px;
+  border: 1px solid var(--ga-border-light);
 
-  &::before, &::after { display: none; }
+  // element-plus paints a 1px pseudo-element border on the wrapper; the card
+  // around the table already provides that edge.
+  &::before,
+  &::after {
+    display: none;
+  }
 
   th.el-table__cell {
-    background: #fafafa !important;
-    color: #000000d9 !important;
     font-weight: 600;
     font-size: 13px;
-    border-bottom: 1px solid #f0f0f0 !important;
-    border-right: 1px solid #f0f0f0 !important;
     padding: 10px 0;
     white-space: nowrap;
+    background: var(--ga-bg-subtle);
+    border-bottom: 1px solid var(--ga-border-light);
   }
 
   td.el-table__cell {
-    border-bottom: 1px solid #f0f0f0 !important;
-    border-right: 1px solid #f5f5f5 !important;
-    color: #000000d9;
     padding: 9px 0;
     font-size: 13px;
   }
 
-  .el-table__row {
-    transition: background 0.15s;
-    &:hover td.el-table__cell { background: #e6f4ff !important; }
-    &:last-child td.el-table__cell { border-bottom: none !important; }
-  }
-
-  &.el-table--striped .el-table__row--striped td.el-table__cell {
-    background: #fafafa !important;
-  }
-
-  .el-checkbox__inner {
-    border-color: #d9d9d9;
-    border-radius: 3px;
+  .el-table__row:last-child td.el-table__cell {
+    border-bottom: none;
   }
 }
 
-// ═══════════════════════════════════
-//  五、表单 el-form
-// ═══════════════════════════════════
+// ── Form ──────────────────────────────────────────────────────────
 .el-form-item {
   margin-bottom: 18px;
 
   &__label {
     font-weight: 500;
-    color: #000000d9;
     font-size: 13px;
     line-height: 1.5;
-    padding-bottom: 4px;
   }
 
   &__error {
-    color: #ff4d4f;
     font-size: 12px;
     padding-top: 2px;
   }
 }
 
-.el-form--inline .el-form-item { margin-bottom: 10px; }
+// Search bars sit above a table and need to stay compact
+.el-form--inline .el-form-item {
+  margin-bottom: 10px;
+}
 
-// ═══════════════════════════════════
-//  六、对话框 el-dialog
-// ═══════════════════════════════════
+// ── Dialog ────────────────────────────────────────────────────────
 .el-dialog {
-  border-radius: 10px !important;
-  overflow: hidden;
-  transform: none;
-  left: 0;
-  position: relative;
-  margin: 0 auto;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.08), 0 3px 6px rgba(0,0,0,0.12) !important;
-
-  &__header {
-    padding: 16px 20px 12px !important;
-    border-bottom: 1px solid #f0f0f0;
-    background: #fafafa;
-    margin: 0 !important;
-  }
-
-  &__title {
-    font-weight: 600 !important;
-    color: #000000d9 !important;
-    font-size: 15px !important;
-  }
-
-  &__headerbtn {
-    top: 14px !important;
-    right: 16px !important;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    &:hover { background: #f0f0f0; }
-    .el-dialog__close {
-      color: #00000073 !important;
-      &:hover { color: #1677ff !important; }
-    }
-  }
-
-  &__body {
-    padding: 20px 24px !important;
-    color: #000000d9;
-    font-size: 14px;
-  }
-
-  &__footer {
-    padding: 12px 20px 16px !important;
-    border-top: 1px solid #f0f0f0;
-    background: #fafafa;
-    .dialog-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-    }
-  }
-}
-
-.el-dialog:not(.is-fullscreen) { margin-top: 6vh !important; }
-
-// ═══════════════════════════════════
-//  七、标签 el-tag
-// ═══════════════════════════════════
-.el-tag {
-  border-radius: 4px;
-  font-weight: 400;
-  font-size: 12px;
-  padding: 0 7px;
-  height: 22px;
-  line-height: 20px;
-  border: 1px solid;
-
-  &--success {
-    background: #f6ffed !important;
-    border-color: #b7eb8f !important;
-    color: #389e0d !important;
-  }
-  &--danger {
-    background: #fff2f0 !important;
-    border-color: #ffccc7 !important;
-    color: #cf1322 !important;
-  }
-  &--warning {
-    background: #fffbe6 !important;
-    border-color: #ffe58f !important;
-    color: #d48806 !important;
-  }
-  &--info {
-    background: #f5f5f5 !important;
-    border-color: #d9d9d9 !important;
-    color: #595959 !important;
-  }
-  &--primary, &:not([class*="el-tag--"]) {
-    background: #e6f4ff !important;
-    border-color: #91caff !important;
-    color: #1677ff !important;
-  }
-}
-
-// ═══════════════════════════════════
-//  八、分页 el-pagination
-// ═══════════════════════════════════
-.el-pagination {
-  .el-pager li {
-    border-radius: 6px;
-    min-width: 32px;
-    height: 32px;
-    line-height: 32px;
-    font-size: 13px;
-    border: 1px solid #d9d9d9;
-    margin: 0 2px;
-    background: #fff;
-    transition: all 0.2s;
-    &.is-active {
-      background: #1677ff !important;
-      border-color: #1677ff !important;
-      color: #fff !important;
-      font-weight: 600;
-    }
-    &:hover:not(.is-active) {
-      color: #1677ff;
-      border-color: #1677ff;
-    }
-  }
-
-  .btn-prev, .btn-next {
-    border-radius: 6px;
-    border: 1px solid #d9d9d9;
-    width: 32px;
-    height: 32px;
-    background: #fff;
-    &:hover { color: #1677ff; border-color: #1677ff; }
-    &:disabled { background: #f5f5f5; color: #d9d9d9; border-color: #d9d9d9; }
-  }
-}
-
-// ═══════════════════════════════════
-//  九、下拉面板
-// ═══════════════════════════════════
-.el-select-dropdown {
-  border-radius: 8px !important;
-  border: 1px solid #f0f0f0 !important;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.08), 0 3px 6px rgba(0,0,0,0.12) !important;
   overflow: hidden;
 
-  &__item {
-    font-size: 13px;
-    height: 34px;
-    line-height: 34px;
-    padding: 0 12px;
-    border-radius: 4px;
-    margin: 0 4px;
-    &.is-selected { color: #1677ff; font-weight: 600; background: #e6f4ff; }
-    &:hover:not(.is-selected) { background: #e6f4ff; color: #1677ff; }
-    &.is-disabled { color: #d9d9d9; }
-  }
-}
-
-// ═══════════════════════════════════
-//  十、Tabs
-// ═══════════════════════════════════
-.el-tabs {
-  &__active-bar { background: #1677ff; height: 2px; border-radius: 2px; }
-
-  // card 类型以边框区分选中态，指示条会在页签上方形成一条突兀的横线
-  &--card > .el-tabs__header .el-tabs__active-bar { display: none; }
-  &__item {
-    font-size: 14px;
-    font-weight: 400;
-    color: #000000a6;
-    padding: 0 16px;
-    &.is-active { color: #1677ff; font-weight: 600; }
-    &:hover:not(.is-active) { color: #1677ff; }
-  }
-  &__nav-wrap::after { background-color: #f0f0f0; height: 1px; }
-}
-
-// ═══════════════════════════════════
-//  十一、Dropdown
-// ═══════════════════════════════════
-.el-dropdown-menu {
-  border-radius: 8px;
-  border: 1px solid #f0f0f0;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.08), 0 3px 6px rgba(0,0,0,0.12);
-  padding: 4px;
-  overflow: hidden;
-
-  &__item {
-    border-radius: 4px;
-    font-size: 13px;
-    padding: 8px 12px;
-    color: #000000d9;
-    &:hover { background: #e6f4ff; color: #1677ff; }
-    &.is-disabled { color: #d9d9d9; }
-    &--divided { border-top: 1px solid #f0f0f0; margin-top: 4px; padding-top: 8px; }
+  &:not(.is-fullscreen) {
+    margin-top: 6vh;
   }
 
-  a { display: block; }
-}
-
-// ═══════════════════════════════════
-//  十二、Popover / Tooltip
-// ═══════════════════════════════════
-.el-popover {
-  border-radius: 8px !important;
-  border: 1px solid #f0f0f0 !important;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.08) !important;
-  padding: 12px !important;
-  font-size: 13px;
-}
-
-// ═══════════════════════════════════
-//  十三、Radio / Checkbox
-// ═══════════════════════════════════
-.el-radio {
-  .el-radio__inner { border-color: #d9d9d9; transition: all 0.2s; }
-  &.is-checked {
-    .el-radio__inner { border-color: #1677ff; background: #1677ff; }
-    .el-radio__label { color: #1677ff; }
+  .el-dialog__header {
+    padding: 15px 20px;
+    margin-right: 0;
+    border-bottom: 1px solid var(--ga-border-light);
   }
-}
 
-.el-checkbox {
-  .el-checkbox__inner { border-color: #d9d9d9; border-radius: 3px; transition: all 0.2s; }
-  &.is-checked {
-    .el-checkbox__inner { background: #1677ff; border-color: #1677ff; }
-    .el-checkbox__label { color: #1677ff; }
+  .el-dialog__body {
+    padding: 20px;
   }
-  &.is-indeterminate .el-checkbox__inner { background: #1677ff; border-color: #1677ff; }
-}
 
-// ═══════════════════════════════════
-//  十四、Switch / Progress
-// ═══════════════════════════════════
-.el-switch.is-checked .el-switch__core { border-color: #1677ff; background: #1677ff; }
-
-.el-progress-bar__inner {
-  background: linear-gradient(90deg, #40a9ff, #1677ff);
-  border-radius: 4px;
-}
-
-// ═══════════════════════════════════
-//  十五、消息 / Alert
-// ═══════════════════════════════════
-.el-message {
-  border-radius: 8px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-  border: 1px solid #f0f0f0;
-  padding: 12px 16px;
-}
-
-.el-alert {
-  border-radius: 8px;
-  border: none;
-  &.el-alert--success { background: #f6ffed; }
-  &.el-alert--warning { background: #fffbe6; }
-  &.el-alert--error   { background: #fff2f0; }
-  &.el-alert--info    { background: #e6f4ff; }
-}
-
-// ═══════════════════════════════════
-//  十六、面包屑
-// ═══════════════════════════════════
-.el-breadcrumb {
-  &__inner, &__inner a {
-    font-weight: 400 !important;
-    color: #000000a6;
-  }
-  &__inner.is-link, &__inner a {
-    &:hover { color: #1677ff; }
-  }
-  &__separator { color: #d9d9d9; }
-}
-
-// ═══════════════════════════════════
-//  十七、Upload
-// ═══════════════════════════════════
-.el-upload {
-  input[type="file"] { display: none !important; }
-  &__input { display: none; }
-  &-dragger {
-    border-radius: 8px;
-    border: 1px dashed #d9d9d9;
-    background: #fafafa;
-    transition: all 0.3s;
-    &:hover { border-color: #1677ff; background: #e6f4ff; }
-  }
-}
-
-.upload-container .el-upload {
-  width: 100%;
-  .el-upload-dragger { width: 100%; height: 200px; }
-}
-
-// ═══════════════════════════════════
-//  十八、DatePicker
-// ═══════════════════════════════════
-.el-date-editor { border-radius: 6px; }
-.el-range-editor.el-input__inner { display: inline-flex !important; }
-.el-range-separator { box-sizing: content-box; }
-.el-picker__popper {
-  border-radius: 8px !important;
-  border: 1px solid #f0f0f0 !important;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.08) !important;
-}
-
-// ═══════════════════════════════════
-//  十九、Drawer
-// ═══════════════════════════════════
-.el-drawer {
-  overflow-y: auto;
-  &__header {
-    padding: 16px 20px 12px;
-    border-bottom: 1px solid #f0f0f0;
-    background: #fafafa;
-    margin: 0;
-    font-weight: 600;
-    color: #000000d9;
-    font-size: 15px;
-  }
-  &__body { padding: 20px; }
-  &__footer {
+  .el-dialog__footer {
     padding: 12px 20px;
-    border-top: 1px solid #f0f0f0;
-    background: #fafafa;
+    border-top: 1px solid var(--ga-border-light);
   }
 }
 
-// ═══════════════════════════════════
-//  二十、Misc
-// ═══════════════════════════════════
-.el-tree-node__content > .el-checkbox { margin-right: 8px; }
-.cell .el-tag { margin-right: 0; }
-.small-padding .cell { padding-left: 5px; padding-right: 5px; }
-.fixed-width .el-button--mini { padding: 7px 10px; width: 60px; }
-.status-col .cell { padding: 0 10px; text-align: center; }
-.delete-popconfirm { margin-left: 10px; }
+// ── Pagination ────────────────────────────────────────────────────
+.el-pagination {
+  font-weight: 400;
+}
+
+// ── Misc layout fixes ─────────────────────────────────────────────
+// Date range inputs collapse without an explicit inline-flex
+.el-range-editor.el-input__inner {
+  display: inline-flex;
+}
+
+.el-range-separator {
+  box-sizing: content-box;
+}
+
+.el-tree-node__content > .el-checkbox {
+  margin-right: 8px;
+}
+
+// Utility classes used by table columns across several pages
+.cell .el-tag {
+  margin-right: 0;
+}
+
+.small-padding .cell {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.fixed-width .el-button--mini {
+  padding: 7px 10px;
+  width: 60px;
+}
+
+.status-col .cell {
+  padding: 0 10px;
+  text-align: center;
+}
+
+.delete-popconfirm {
+  margin-left: 10px;
+}
