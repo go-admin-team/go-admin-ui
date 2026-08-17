@@ -35,6 +35,35 @@ export interface SysUserQuery {
   deptId?: string
 }
 
+/**
+ * A department, as returned by /api/v1/dept.
+ *
+ * `status` and `sort` are the awkward pair: the list endpoint sends them as
+ * numbers, the dictionary that labels status sends its values as strings, and
+ * the write endpoints want numbers back. The form works in strings and converts
+ * on submit.
+ */
+export interface SysDept {
+  deptId?: number
+  parentId?: number
+  /** Materialised path of ancestors. `p_id === 0` marks a root, which cannot be deleted. */
+  p_id?: number
+  deptName?: string
+  sort?: number | string
+  leader?: string
+  phone?: string
+  email?: string
+  status?: number | string
+  children?: SysDept[]
+  createdAt?: string
+}
+
+/** Filters the department tree accepts. It is not paginated. */
+export interface SysDeptQuery {
+  deptName?: string
+  status?: string
+}
+
 /** A node of the department tree behind /api/v1/deptTree. */
 export interface DeptTreeNode {
   id: number

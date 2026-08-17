@@ -31,7 +31,10 @@ export const userInfo = {
       'admin:sysUser:add',
       'admin:sysUser:edit',
       'admin:sysUser:remove',
-      'admin:sysUser:resetPassword'
+      'admin:sysUser:resetPassword',
+      'admin:sysDept:add',
+      'admin:sysDept:edit',
+      'admin:sysDept:remove'
     ]
   }
 }
@@ -110,6 +113,16 @@ export const menuTree = {
           icon: 'star',
           noCache: false,
           children: null
+        },
+        {
+          path: 'sys-dept',
+          component: '/admin/sys-dept/index',
+          visible: '0',
+          menuName: 'SysDeptManage',
+          title: 'Dept',
+          icon: 'star',
+          noCache: false,
+          children: null
         }
       ]
     }
@@ -141,6 +154,54 @@ export const userRows = [
     deptId: 2,
     dept: { deptId: 2, deptName: '测试部' },
     createdAt: '2026-08-02T10:00:00Z'
+  }
+]
+
+/**
+ * Tree served by GET /api/v1/dept -- the whole collection in one body, with no
+ * `list`/`count` envelope and no paging. This is the shape `paginated: false`
+ * exists for.
+ */
+export const deptRows = [
+  {
+    deptId: 1,
+    parentId: 0,
+    p_id: 0,
+    deptName: '研发部',
+    sort: 1,
+    leader: '张三',
+    phone: '13800000001',
+    email: 'rd@example.com',
+    status: 2,
+    createdAt: '2026-08-01T10:00:00Z',
+    children: [
+      {
+        deptId: 3,
+        parentId: 1,
+        p_id: 1,
+        deptName: '前端组',
+        sort: 1,
+        leader: '李四',
+        phone: '13800000003',
+        email: 'fe@example.com',
+        status: 2,
+        createdAt: '2026-08-03T10:00:00Z',
+        children: []
+      }
+    ]
+  },
+  {
+    deptId: 2,
+    parentId: 0,
+    p_id: 0,
+    deptName: '测试部',
+    sort: 2,
+    leader: '王五',
+    phone: '13800000002',
+    email: 'qa@example.com',
+    status: 1,
+    createdAt: '2026-08-02T10:00:00Z',
+    children: []
   }
 ]
 
@@ -190,7 +251,12 @@ export async function installApiMocks(page: Page) {
     userDelete: 0,
     passwordReset: 0,
     /** Query string of each GET /api/v1/sys-user, in order. */
-    userListQueries: [] as string[]
+    userListQueries: [] as string[],
+    deptList: 0,
+    deptUpdate: 0,
+    deptDelete: 0,
+    /** Query string of each GET /api/v1/dept, in order. */
+    deptListQueries: [] as string[]
   }
 
   /** Milliseconds to hold a write open, so a test can submit again mid-flight. */
@@ -237,6 +303,30 @@ export async function installApiMocks(page: Page) {
       ? [{ label: '男', value: '0' }, { label: '女', value: '1' }]
       : [{ label: '停用', value: '1' }, { label: '正常', value: '2' }]
     await route.fulfill(json({ code: 200, data }))
+  })
+
+  await page.route('**/api/v1/dept*', async route => {
+    const method = route.request().method()
+    if (method === 'GET') {
+      calls.deptList++
+      calls.deptListQueries.push(new URL(route.request().url()).search)
+      await route.fulfill(json({ code: 200, data: deptRows }))
+      return
+    }
+    if (method === 'DELETE') calls.deptDelete++
+    await route.fulfill(json({ code: 200, msg: 'ok' }))
+  })
+
+  await page.route('**/api/v1/dept/*', async route => {
+    if (route.request().method() === 'PUT') {
+      calls.deptUpdate++
+      await route.fulfill(json({ code: 200, msg: 'ok' }))
+      return
+    }
+    const deptId = Number(route.request().url().split('/').pop())
+    const flat = deptRows.flatMap(d => [d, ...(d.children ?? [])])
+    const row = flat.find(d => d.deptId === deptId) ?? flat[0]
+    await route.fulfill(json({ code: 200, data: row }))
   })
 
   await page.route('**/api/v1/deptTree*', async route => {
