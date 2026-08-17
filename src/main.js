@@ -7,8 +7,14 @@ import 'normalize.css/normalize.css' // a modern alternative to CSS resets
 import ElementPlus from 'element-plus'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import 'element-plus/dist/index.css'
+// Element Plus keys dark mode off a `dark` class on <html>; this file supplies
+// the variable overrides. src/styles/tokens.css then points those variables at
+// the design tokens, so both themes resolve from one source.
+import 'element-plus/theme-chalk/dark/css-vars.css'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
+// Loaded before the project's own styles so both can build on the tokens
+import '@/styles/tokens.css'
 import '@/styles/index.scss' // global css
 import '@/styles/admin.scss'
 // Loaded last so utility classes sit after the project's own styles.
