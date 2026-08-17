@@ -56,6 +56,25 @@
       -->
       <el-table-column v-if="selection" type="selection" width="45" />
       <slot />
+      <!--
+        The pinned action column is rendered here rather than by each page, so the
+        class the nowrap rule needs cannot be misspelled or forgotten. Pages that
+        wrote it themselves used at least two different class conventions, none of
+        them documented, and getting it wrong wraps the cell -- which changes the
+        row height of the pinned column only, so the pinned rows stop lining up
+        with the scrolling ones.
+      -->
+      <el-table-column
+        v-if="$slots.actions"
+        label="操作"
+        fixed="right"
+        :width="actionsWidth"
+        class-name="pro-table__actions"
+      >
+        <template #default="scope">
+          <slot name="actions" v-bind="scope" />
+        </template>
+      </el-table-column>
       <template #empty>
         <slot name="empty">
           <el-empty :image-size="80" description="暂无数据" />
@@ -122,9 +141,16 @@ const props = withDefaults(defineProps<{
   selection?: boolean
   /** Primary key. Also enables selection that survives paging. */
   rowKey?: string
+  /**
+   * Width of the action column. Two text buttons need about 120px, two plus an
+   * overflow menu about 140. Keep it tight: this column is pinned, so whatever
+   * it takes is taken from the columns that have to scroll past it.
+   */
+  actionsWidth?: number | string
 }>(), {
   selection: false,
-  rowKey: ''
+  rowKey: '',
+  actionsWidth: 120
 })
 
 const tableRef = ref()
@@ -171,5 +197,11 @@ const handleReset = async() => {
 
 .pro-table__refresh {
   flex-shrink: 0;
+}
+
+/* el-table renders the cell, so this needs :deep to reach it. Lives with the
+   component that emits the class rather than in the global stylesheet. */
+.pro-table :deep(.pro-table__actions .cell) {
+  white-space: nowrap;
 }
 </style>

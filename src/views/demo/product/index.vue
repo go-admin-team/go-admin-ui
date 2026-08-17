@@ -20,7 +20,7 @@
         <el-button v-permisaction="['demo:product:add']" type="primary" @click="form.openCreate()">
           新增
         </el-button>
-        <!-- Secondary while it needs a selection; see views/admin/sys-user -->
+        <!-- Plain while it needs a selection; see AGENTS.md -->
         <el-button
           v-permisaction="['demo:product:delete']"
           type="danger"
@@ -32,7 +32,7 @@
         </el-button>
       </template>
 
-      <!-- min-width, not width: see the note in views/admin/sys-user -->
+      <!-- min-width, not width: see AGENTS.md -->
       <el-table-column label="名称" prop="name" min-width="120" show-overflow-tooltip />
       <el-table-column label="编码" prop="code" min-width="100" />
       <el-table-column label="单价" prop="price" min-width="90" align="right" />
@@ -46,16 +46,14 @@
       <el-table-column label="创建时间" min-width="110">
         <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
       </el-table-column>
-      <el-table-column label="操作" width="120" fixed="right" class-name="row-actions">
-        <template #default="{ row }">
-          <el-button v-permisaction="['demo:product:edit']" link type="primary" @click="form.openEdit(row)">
-            修改
-          </el-button>
-          <el-button v-permisaction="['demo:product:delete']" link type="danger" @click="remove(row.id)">
-            删除
-          </el-button>
-        </template>
-      </el-table-column>
+      <template #actions="{ row }">
+        <el-button v-permisaction="['demo:product:edit']" link type="primary" @click="form.openEdit(row)">
+          修改
+        </el-button>
+        <el-button v-permisaction="['demo:product:delete']" link type="danger" @click="remove(row.id)">
+          删除
+        </el-button>
+      </template>
     </ProTable>
 
     <!-- One dialog for both modes; useForm tells them apart by the primary key -->

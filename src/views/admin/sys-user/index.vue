@@ -23,7 +23,7 @@
       </el-col>
 
       <el-col :span="20" :xs="24">
-        <ProTable :table="table" selection row-key="userId">
+        <ProTable :table="table" selection row-key="userId" :actions-width="140">
           <template #search>
             <el-form-item label="用户名称">
               <el-input
@@ -64,15 +64,9 @@
               type="primary"
               @click="handleAdd"
             >新增</el-button>
-            <!--
-              Secondary, not filled. These act on a selection, so most of the
-              time they are disabled -- and a disabled filled button is a tinted
-              fill under white text: oklab(0.81) in light, which reads as a
-              rendering fault rather than as "pick a row first", and oklab(0.36)
-              in dark, which reads as enabled-but-muddy. A plain button greys out
-              unambiguously, and it stops two bulk actions competing with 新增 for
-              attention while they cannot even be used.
-            -->
+            <!-- Plain, not filled: these act on a selection and are usually
+                 disabled, and a disabled filled button reads as broken rather
+                 than as "pick a row first". See AGENTS.md. -->
             <el-button
               v-permisaction="['admin:sysUser:edit']"
               :disabled="table.single"
@@ -87,13 +81,8 @@
             >删除</el-button>
           </template>
 
-          <!--
-            min-width, not width, on everything that holds text. `width` is rigid:
-            the eight columns here summed to 925px inside an 841px container at a
-            1280px window, so the table overflowed AND the fixed 操作 column sat on
-            top of 创建时间. min-width lets el-table shrink columns to fit and hand
-            any surplus back to them.
-          -->
+          <!-- min-width, not width: width is rigid and overflows the container,
+               min-width lets el-table fit and redistribute. See AGENTS.md. -->
           <el-table-column label="编号" prop="userId" min-width="70" sortable="custom" />
           <el-table-column label="登录名" prop="username" min-width="100" sortable="custom" show-overflow-tooltip />
           <el-table-column label="昵称" prop="nickName" min-width="85" show-overflow-tooltip />
@@ -112,38 +101,33 @@
           <el-table-column label="创建时间" prop="createdAt" min-width="110" sortable="custom">
             <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
           </el-table-column>
-          <el-table-column label="操作" width="140" fixed="right" class-name="row-actions">
-            <template #default="{ row }">
-              <el-button
-                v-permisaction="['admin:sysUser:edit']"
-                link
-                type="primary"
-                @click="userForm.openEdit(row)"
-              >修改</el-button>
-              <el-button
-                v-if="row.userId !== 1"
-                v-permisaction="['admin:sysUser:remove']"
-                link
-                type="danger"
-                @click="remove(row.userId)"
-              >删除</el-button>
-              <!--
-                The less-used action moves behind a menu. Three text buttons made
-                this the widest column in the table, and it is pinned, so it was
-                the one covering 创建时间.
-              -->
-              <el-dropdown v-permisaction="['admin:sysUser:resetPassword']" trigger="click">
-                <el-button link type="primary" class="row-more" :title="`更多操作：${row.username}`">
-                  <el-icon><MoreFilled /></el-icon>
-                </el-button>
-                <template #dropdown>
-                  <el-dropdown-menu>
-                    <el-dropdown-item @click="handleResetPwd(row)">重置密码</el-dropdown-item>
-                  </el-dropdown-menu>
-                </template>
-              </el-dropdown>
-            </template>
-          </el-table-column>
+          <template #actions="{ row }">
+            <el-button
+              v-permisaction="['admin:sysUser:edit']"
+              link
+              type="primary"
+              @click="userForm.openEdit(row)"
+            >修改</el-button>
+            <el-button
+              v-if="row.userId !== 1"
+              v-permisaction="['admin:sysUser:remove']"
+              link
+              type="danger"
+              @click="remove(row.userId)"
+            >删除</el-button>
+            <!-- Icon rather than the words: this column is pinned, so its width
+                 comes out of the columns that scroll past it. -->
+            <el-button
+              v-permisaction="['admin:sysUser:resetPassword']"
+              link
+              type="primary"
+              class="row-icon-action"
+              :title="`重置密码：${row.username}`"
+              @click="handleResetPwd(row)"
+            >
+              <el-icon><Key /></el-icon>
+            </el-button>
+          </template>
         </ProTable>
       </el-col>
     </el-row>
@@ -315,7 +299,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import { ElMessageBox } from 'element-plus'
-import { MoreFilled } from '@element-plus/icons-vue'
+import { Key } from '@element-plus/icons-vue'
 import type { FormRules } from 'element-plus'
 
 import PageContainer from '@/components/PageContainer/index.vue'
@@ -506,8 +490,8 @@ const handleStatusChange = async(row: SysUser) => {
   margin-bottom: 12px;
 }
 
-/* Keeps the trigger on the text baseline of the two buttons beside it */
-.row-more {
+/* Keeps the icon on the text baseline of the buttons beside it */
+.row-icon-action {
   vertical-align: middle;
   margin-left: 4px;
 }

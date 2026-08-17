@@ -151,13 +151,6 @@
   margin-right: 0;
 }
 
-// A pinned action column has a fixed width; letting it wrap would change the
-// row height of that column only, so the pinned cells stop lining up with the
-// scrolling ones.
-.row-actions .cell {
-  white-space: nowrap;
-}
-
 .small-padding .cell {
   padding-left: 5px;
   padding-right: 5px;
