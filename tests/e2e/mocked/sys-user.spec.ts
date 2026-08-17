@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import type { Page } from '@playwright/test'
 import { authenticate, installApiMocks } from './fixtures'
 
 /**
@@ -9,6 +10,20 @@ import { authenticate, installApiMocks } from './fixtures'
  * actions. What is checked here is the behaviour the old page got wrong, so
  * these fail if the composables regress rather than merely if the markup moves.
  */
+/**
+ * Opens a row's overflow menu and picks an item.
+ *
+ * The row shows 修改 and 删除 directly; anything else lives behind the menu,
+ * because three text buttons made the pinned action column the widest in the
+ * table -- wide enough to cover 创建时间 at a 1280px window.
+ */
+async function pickRowAction(page: Page, row: RegExp, action: string) {
+  await page.getByRole('row', { name: row }).locator('.row-more').click()
+  // :visible matters -- every row keeps its own menu in the body, so an
+  // unscoped match finds one per row and trips strict mode.
+  await page.locator('.el-dropdown-menu__item:visible').filter({ hasText: action }).click()
+}
+
 test.describe('sys-user', () => {
   test.beforeEach(async({ context }) => {
     await authenticate(context)
@@ -76,7 +91,7 @@ test.describe('sys-user', () => {
     await expect.poll(() => calls.userListQueries.at(-1)).toContain('deptId=')
 
     // Scoped to the search bar: `name` matches a substring, so an unscoped
-    // '重置' also picks up the per-row 重置密码 buttons.
+    // '重置' also matches 重置密码 in the row overflow menus.
     await page.locator('.pro-table__search').getByRole('button', { name: '重置' }).click()
 
     await expect.poll(() => calls.userListQueries.at(-1)).not.toContain('deptId=')
@@ -200,7 +215,7 @@ test.describe('sys-user', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-user')
-    await page.getByRole('row', { name: /tester/ }).getByRole('button', { name: '重置密码' }).click()
+    await pickRowAction(page, /tester/, '重置密码')
 
     const dialog = page.getByRole('dialog').filter({ hasText: '重置密码' })
     await expect(dialog).toBeVisible()
@@ -227,7 +242,7 @@ test.describe('sys-user', () => {
     delays.passwordReset = 1500
 
     await page.goto('/#/admin/sys-user')
-    await page.getByRole('row', { name: /tester/ }).getByRole('button', { name: '重置密码' }).click()
+    await pickRowAction(page, /tester/, '重置密码')
 
     const dialog = page.getByRole('dialog').filter({ hasText: '重置密码' })
     const input = dialog.getByPlaceholder('请输入新密码')
@@ -251,7 +266,7 @@ test.describe('sys-user', () => {
 
     await page.goto('/#/admin/sys-user')
 
-    await page.getByRole('row', { name: /tester/ }).getByRole('button', { name: '重置密码' }).click()
+    await pickRowAction(page, /tester/, '重置密码')
     const passwordDialog = page.getByRole('dialog').filter({ hasText: '重置密码' })
     await passwordDialog.getByPlaceholder('请输入新密码').fill('Secret@123')
     await passwordDialog.getByRole('button', { name: '取 消' }).click()

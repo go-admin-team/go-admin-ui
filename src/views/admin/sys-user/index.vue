@@ -78,12 +78,19 @@
             >删除</el-button>
           </template>
 
-          <el-table-column label="编号" prop="userId" width="80" sortable="custom" />
-          <el-table-column label="登录名" prop="username" width="110" sortable="custom" show-overflow-tooltip />
-          <el-table-column label="昵称" prop="nickName" show-overflow-tooltip />
-          <el-table-column label="部门" prop="dept.deptName" show-overflow-tooltip />
-          <el-table-column label="手机号" prop="phone" width="120" />
-          <el-table-column label="状态" prop="status" width="80" sortable="custom">
+          <!--
+            min-width, not width, on everything that holds text. `width` is rigid:
+            the eight columns here summed to 925px inside an 841px container at a
+            1280px window, so the table overflowed AND the fixed 操作 column sat on
+            top of 创建时间. min-width lets el-table shrink columns to fit and hand
+            any surplus back to them.
+          -->
+          <el-table-column label="编号" prop="userId" min-width="70" sortable="custom" />
+          <el-table-column label="登录名" prop="username" min-width="100" sortable="custom" show-overflow-tooltip />
+          <el-table-column label="昵称" prop="nickName" min-width="85" show-overflow-tooltip />
+          <el-table-column label="部门" prop="dept.deptName" min-width="85" show-overflow-tooltip />
+          <el-table-column label="手机号" prop="phone" min-width="110" />
+          <el-table-column label="状态" prop="status" width="82" sortable="custom">
             <template #default="{ row }">
               <el-switch
                 v-model="row.status"
@@ -93,10 +100,18 @@
               />
             </template>
           </el-table-column>
-          <el-table-column label="创建时间" prop="createdAt" width="160" sortable="custom">
-            <template #default="{ row }">{{ parseTime(row.createdAt) }}</template>
+          <!--
+            Date only in the column, full timestamp on hover. A sortable header
+            plus "2026-08-01 14:00" needs ~141px; at 1280 the six flexible
+            columns have 584px between them, and spending a quarter of that on
+            two digits nobody scans made the cell wrap and every row 14px taller.
+          -->
+          <el-table-column label="创建时间" prop="createdAt" min-width="110" sortable="custom">
+            <template #default="{ row }">
+              <span :title="parseTime(row.createdAt)">{{ parseTime(row.createdAt, '{y}-{m}-{d}') }}</span>
+            </template>
           </el-table-column>
-          <el-table-column label="操作" width="170" fixed="right" class-name="small-padding">
+          <el-table-column label="操作" width="140" fixed="right" class-name="row-actions">
             <template #default="{ row }">
               <el-button
                 v-permisaction="['admin:sysUser:edit']"
@@ -111,12 +126,21 @@
                 type="danger"
                 @click="remove(row.userId)"
               >删除</el-button>
-              <el-button
-                v-permisaction="['admin:sysUser:resetPassword']"
-                link
-                type="primary"
-                @click="handleResetPwd(row)"
-              >重置密码</el-button>
+              <!--
+                The less-used action moves behind a menu. Three text buttons made
+                this the widest column in the table, and it is pinned, so it was
+                the one covering 创建时间.
+              -->
+              <el-dropdown v-permisaction="['admin:sysUser:resetPassword']" trigger="click">
+                <el-button link type="primary" class="row-more" :title="`更多操作：${row.username}`">
+                  <el-icon><MoreFilled /></el-icon>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item @click="handleResetPwd(row)">重置密码</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
             </template>
           </el-table-column>
         </ProTable>
@@ -290,6 +314,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import { ElMessageBox } from 'element-plus'
+import { MoreFilled } from '@element-plus/icons-vue'
 import type { FormRules } from 'element-plus'
 
 import PageContainer from '@/components/PageContainer/index.vue'
@@ -478,5 +503,11 @@ const handleStatusChange = async(row: SysUser) => {
 <style lang="scss" scoped>
 .dept-filter {
   margin-bottom: 12px;
+}
+
+/* Keeps the trigger on the text baseline of the two buttons beside it */
+.row-more {
+  vertical-align: middle;
+  margin-left: 4px;
 }
 </style>

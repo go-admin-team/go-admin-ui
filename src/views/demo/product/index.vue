@@ -30,20 +30,23 @@
         </el-button>
       </template>
 
-      <el-table-column label="名称" prop="name" show-overflow-tooltip />
-      <el-table-column label="编码" prop="code" />
-      <el-table-column label="单价" prop="price" />
-      <el-table-column label="状态">
+      <!-- min-width, not width: see the note in views/admin/sys-user -->
+      <el-table-column label="名称" prop="name" min-width="120" show-overflow-tooltip />
+      <el-table-column label="编码" prop="code" min-width="100" />
+      <el-table-column label="单价" prop="price" min-width="90" align="right" />
+      <el-table-column label="状态" min-width="90">
         <template #default="{ row }">
           <el-tag :type="row.status === '1' ? 'success' : 'info'">
             {{ row.status === '1' ? '正常' : '停用' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" width="180">
-        <template #default="{ row }">{{ parseTime(row.createdAt) }}</template>
+      <el-table-column label="创建时间" min-width="110">
+        <template #default="{ row }">
+          <span :title="parseTime(row.createdAt)">{{ parseTime(row.createdAt, '{y}-{m}-{d}') }}</span>
+        </template>
       </el-table-column>
-      <el-table-column label="操作" width="160">
+      <el-table-column label="操作" width="120" fixed="right" class-name="row-actions">
         <template #default="{ row }">
           <el-button v-permisaction="['demo:product:edit']" link type="primary" @click="form.openEdit(row)">
             修改

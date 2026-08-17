@@ -60,9 +60,16 @@
     font-weight: 600;
     font-size: 13px;
     padding: 10px 0;
-    white-space: nowrap;
     background: var(--ga-bg-subtle);
     border-bottom: 1px solid var(--ga-border-light);
+
+    // The nowrap has to sit on .cell, not on the th: .cell is what holds the
+    // label and the sort caret, and it does not inherit through. With it on the
+    // th only, a narrow sortable column wrapped its caret under its label and
+    // made the whole header row double height.
+    .cell {
+      white-space: nowrap;
+    }
   }
 
   td.el-table__cell {
@@ -142,6 +149,13 @@
 // Utility classes used by table columns across several pages
 .cell .el-tag {
   margin-right: 0;
+}
+
+// A pinned action column has a fixed width; letting it wrap would change the
+// row height of that column only, so the pinned cells stop lining up with the
+// scrolling ones.
+.row-actions .cell {
+  white-space: nowrap;
 }
 
 .small-padding .cell {
