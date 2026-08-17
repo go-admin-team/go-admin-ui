@@ -34,10 +34,10 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import { mapState } from 'pinia'
 import { useSettingsStore } from '@/stores/settings'
 import { useAppStore } from '@/stores/app'
+import { useUserStore } from '@/stores/user'
 import Breadcrumb from '@/components/Breadcrumb'
 import TopNav from '@/components/TopNav'
 import Hamburger from '@/components/Hamburger'
@@ -53,7 +53,7 @@ export default {
     HeaderSearch
   },
   computed: {
-    ...mapGetters(['avatar']),
+    ...mapState(useUserStore, ['avatar']),
     ...mapState(useAppStore, ['sidebar', 'device']),
     ...mapState(useSettingsStore, ['topNav']),
     setting: {
@@ -75,7 +75,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$store.dispatch('user/LogOut').then(() => {
+        useUserStore().LogOut().then(() => {
           location.reload()
         })
       })

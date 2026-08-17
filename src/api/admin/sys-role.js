@@ -73,6 +73,16 @@ export function getListrole(id) {
   })
 }
 
+/**
+ * The response interceptor unwraps axios' envelope, so this resolves with the
+ * payload itself. Typed via JSDoc so TypeScript callers see the real shape;
+ * drop once this module moves to .ts.
+ *
+ * @returns {Promise<{ code: number, msg?: string, data?: Array<{
+ *   path: string, component: string, visible: string, menuName: string,
+ *   title: string, icon?: string, noCache?: boolean, children?: unknown[] | null
+ * }> }>}
+ */
 export function getRoutes() {
   return request({
     url: '/api/v1/menurole',

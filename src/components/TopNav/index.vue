@@ -25,6 +25,8 @@
 </template>
 
 <script>
+import { mapState } from 'pinia'
+import { usePermissionStore } from '@/stores/permission'
 import { constantRoutes } from '@/router'
 
 export default {
@@ -51,9 +53,7 @@ export default {
       return this.topMenus.slice(this.visibleNumber)
     },
     // 所有的路由信息
-    routers() {
-      return this.$store.state.permission.topbarRouters
-    },
+    ...mapState(usePermissionStore, { routers: 'topbarRouters' }),
     // 设置子路由
     childrenMenus() {
       var childrenMenus = []
@@ -124,7 +124,7 @@ export default {
       }
       // 有匹配结果才更新，避免空数组覆盖掉初始 sidebarRouters
       if (routes.length > 0) {
-        this.$store.commit('permission/SET_SIDEBAR_ROUTERS', routes)
+        usePermissionStore().setSidebarRouters(routes)
       }
     }
   }

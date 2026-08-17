@@ -22,6 +22,7 @@
 import { mapState } from 'pinia'
 import path from 'path'
 import { useTagsViewStore } from '@/stores/tagsView'
+import { usePermissionStore } from '@/stores/permission'
 
 export default {
   name: 'TagsView',
@@ -38,9 +39,7 @@ export default {
       set() {}
     },
     ...mapState(useTagsViewStore, ['visitedViews']),
-    routes() {
-      return this.$store.state.permission.routes
-    }
+    ...mapState(usePermissionStore, ['routes'])
   },
   watch: {
     $route() {

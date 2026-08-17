@@ -133,6 +133,7 @@
 <script>
 import { getCodeImg } from '@/api/login'
 import { useSystemStore } from '@/stores/system'
+import { useUserStore } from '@/stores/user'
 import { User, Lock, Key, View, Hide, Loading } from '@element-plus/icons-vue'
 import Gopher from '@/components/Gopher'
 import { version } from '../../../package.json'
@@ -225,8 +226,8 @@ export default {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
           this.loading = true
-          this.$store
-            .dispatch('user/login', this.loginForm)
+          useUserStore()
+            .login(this.loginForm)
             .then(() => {
               this.$router.push({ path: this.redirect || '/', query: this.otherQuery }).catch(() => {})
             })

@@ -1,14 +1,14 @@
-import { createStore } from 'vuex'
+import { setActivePinia, createPinia } from 'pinia'
 
 /**
- * Behaviour lock for the permission module ahead of the Vuex -> Pinia port (P1).
- *
- * This module is the highest-risk single point of the migration: it builds the
- * dynamic route table from the backend menu, and it owns the runtime fix that
- * keeps keep-alive working (see the loadView tests below).
+ * Ported from the Vuex version together with the store itself.
  *
  * @/layout and @/router are mocked to keep the whole layout component tree out
  * of the test, which would otherwise pull in Element Plus and the router guard.
+ *
+ * One assertion changed on purpose: generateRoutes used to leave its promise
+ * pending forever on a non-200 response; it now rejects. See the case at the
+ * bottom.
  */
 
 const LayoutStub = { name: 'LayoutStub', template: '<div />' }
@@ -25,17 +25,8 @@ vi.mock('@/api/admin/sys-role', () => ({
   getRoutes: (...args) => getRoutes(...args)
 }))
 
-const permissionModule = await import('@/store/modules/permission')
-const { generaMenu, filterAsyncRoutes, loadView } = permissionModule
-const permission = permissionModule.default
-
-function makeStore() {
-  // state is a shared object literal, not a factory — reset between tests
-  Object.assign(permission.state, {
-    routes: [], addRoutes: [], defaultRoutes: [], topbarRouters: [], sidebarRouters: []
-  })
-  return createStore({ modules: { permission } })
-}
+const { usePermissionStore, generaMenu, filterAsyncRoutes, loadView } =
+  await import('@/stores/permission')
 
 // Matches the shape returned by the backend menu endpoint
 const menuItem = (over = {}) => ({
@@ -49,9 +40,13 @@ const menuItem = (over = {}) => ({
   ...over
 })
 
-describe('store/permission', () => {
+describe('stores/permission', () => {
+  let store
+
   beforeEach(() => {
     vi.clearAllMocks()
+    setActivePinia(createPinia())
+    store = usePermissionStore()
   })
 
   describe('generaMenu', () => {
@@ -83,8 +78,8 @@ describe('store/permission', () => {
 
     /**
      * The visibility flag is inverted and uses loose equality: a menu is hidden
-     * unless `visible` is exactly the string '0'. Backend sends strings, so a
-     * strict-equality "cleanup" during the port would hide every menu.
+     * unless `visible` is exactly the string '0'. The backend sends strings, so
+     * a strict-equality "cleanup" would hide every menu.
      */
     it('treats visible === "0" as shown and anything else as hidden', () => {
       const routes = []
@@ -108,9 +103,8 @@ describe('store/permission', () => {
     })
 
     /**
-     * A directory route renders nothing on its own, so navigating straight to it
-     * would leave the content area blank. generaMenu backfills a redirect to the
-     * first visible child.
+     * A directory route renders nothing on its own, so navigating straight to
+     * it would leave the content area blank.
      */
     it('backfills a redirect to the first visible child', () => {
       const routes = []
@@ -149,13 +143,13 @@ describe('store/permission', () => {
      * menu configuration. Renaming a menu in the admin UI would therefore break
      * caching silently.
      *
-     * loadView closes that gap at runtime by overriding the resolved component's
-     * name with the route name. This is also what protects the migration to
-     * <script setup>, which derives no component name of its own.
+     * loadView closes that gap at runtime by overriding the resolved
+     * component's name. This is also what protects the migration to
+     * <script setup>, which derives its name from the file instead.
      *
-     * If this test fails, page caching is broken app-wide with no error, no
-     * warning, and no visible symptom beyond pages re-fetching on every tab
-     * switch. Do not delete or weaken it.
+     * If this fails, page caching is broken app-wide with no error and no
+     * visible symptom beyond pages re-fetching on every tab switch. Do not
+     * delete or weaken it.
      */
     it('overrides the resolved component name with the route name', async() => {
       const resolved = await loadView('/error-page/404', 'SysUser')()
@@ -174,9 +168,7 @@ describe('store/permission', () => {
 
   describe('filterAsyncRoutes', () => {
     it('keeps routes without a roles constraint', () => {
-      const result = filterAsyncRoutes([{ path: '/a' }], ['editor'])
-
-      expect(result).toHaveLength(1)
+      expect(filterAsyncRoutes([{ path: '/a' }], ['editor'])).toHaveLength(1)
     })
 
     it('keeps routes whose meta.roles intersect the user roles', () => {
@@ -204,61 +196,52 @@ describe('store/permission', () => {
   describe('generateRoutes', () => {
     it('builds the route table and prepends the constant routes', async() => {
       getRoutes.mockResolvedValue({ code: 200, data: [menuItem({ component: 'Layout' })] })
-      const store = makeStore()
 
-      const dynamicRoutes = await store.dispatch('permission/generateRoutes', ['admin'])
+      const dynamicRoutes = await store.generateRoutes()
 
       expect(dynamicRoutes.some(r => r.path === '/demo')).toBe(true)
-      expect(store.state.permission.routes[0]).toMatchObject(constantRoutes[0])
-      expect(store.state.permission.sidebarRouters[0]).toMatchObject(constantRoutes[0])
+      expect(store.routes[0]).toMatchObject(constantRoutes[0])
+      expect(store.sidebarRouters[0]).toMatchObject(constantRoutes[0])
     })
 
     it('appends a catch-all route so unknown paths redirect home', async() => {
       getRoutes.mockResolvedValue({ code: 200, data: [menuItem({ component: 'Layout' })] })
-      const store = makeStore()
 
-      const dynamicRoutes = await store.dispatch('permission/generateRoutes', ['admin'])
+      const dynamicRoutes = await store.generateRoutes()
 
       expect(dynamicRoutes.at(-1)).toMatchObject({ path: '/:pathMatch(.*)*', redirect: '/' })
     })
 
     it('keeps the catch-all out of the sidebar route table', async() => {
       getRoutes.mockResolvedValue({ code: 200, data: [menuItem({ component: 'Layout' })] })
-      const store = makeStore()
 
-      await store.dispatch('permission/generateRoutes', ['admin'])
+      await store.generateRoutes()
 
-      const paths = store.state.permission.sidebarRouters.map(r => r.path)
-      expect(paths).not.toContain('/:pathMatch(.*)*')
+      expect(store.sidebarRouters.map(r => r.path)).not.toContain('/:pathMatch(.*)*')
     })
 
     /**
-     * KNOWN DEFECT, documented rather than asserted as desired behaviour.
+     * BEHAVIOUR CHANGE, deliberate.
      *
-     * When the backend answers with code !== 200 the action neither resolves nor
-     * rejects: it calls `this.$message(...)`, which does not exist on a Vuex
-     * store instance, and the resulting TypeError is swallowed by the trailing
-     * .catch that only console.logs. The promise is left pending forever, so the
-     * router guard awaiting it hangs and the user sits on a blank screen.
+     * The Vuex version neither resolved nor rejected on a non-200 code: it
+     * called `this.$message`, which does not exist on a store instance, and the
+     * resulting TypeError was swallowed by a .catch that only logged. The
+     * router guard then awaited a promise that never settled and the user was
+     * left staring at a blank screen.
      *
-     * The same hang occurs even without the TypeError, because resolve() is only
-     * reached in the success branch.
-     *
-     * This test pins the current behaviour so the P1 port does not silently
-     * change it; it should be replaced with a proper rejection assertion once
-     * the defect is fixed.
+     * Rejecting lets the guard's existing catch run, which surfaces the error
+     * and redirects to the login page.
      */
-    it('currently hangs forever when the backend reports a non-200 code', async() => {
+    it('rejects when the backend reports a non-200 code', async() => {
       getRoutes.mockResolvedValue({ code: 500, msg: 'boom' })
-      const store = makeStore()
 
-      const pending = store.dispatch('permission/generateRoutes', ['admin'])
-      const settled = await Promise.race([
-        pending.then(() => 'settled', () => 'settled'),
-        new Promise(resolve => setTimeout(() => resolve('still-pending'), 50))
-      ])
+      await expect(store.generateRoutes()).rejects.toThrow('boom')
+    })
 
-      expect(settled).toBe('still-pending')
+    it('propagates a network failure', async() => {
+      getRoutes.mockRejectedValue(new Error('offline'))
+
+      await expect(store.generateRoutes()).rejects.toThrow('offline')
     })
   })
 })

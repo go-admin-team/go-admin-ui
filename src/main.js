@@ -18,7 +18,6 @@ import '@/styles/tailwind.css'
 import { Codemirror } from 'vue-codemirror'
 
 import App from './App'
-import store from './store'
 import pinia from './stores'
 import router from './router'
 import permission from './directive/permission'
@@ -91,9 +90,6 @@ for (const [name, comp] of Object.entries(ElementPlusIconsVue)) {
 }
 
 // 注册插件
-// Vuex and Pinia run side by side during the P1 migration.
-// Drop `app.use(store)` once every module has been ported.
-app.use(store)
 app.use(pinia)
 app.use(router)
 app.use(permission)

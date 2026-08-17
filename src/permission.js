@@ -1,5 +1,6 @@
 import router from './router'
-import store from './store'
+import { useUserStore } from '@/stores/user'
+import { usePermissionStore } from '@/stores/permission'
 import { ElMessage } from 'element-plus'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
@@ -27,17 +28,18 @@ router.beforeEach(async(to, from, next) => {
       NProgress.done()
     } else {
       // determine whether the user has obtained his permission roles through getInfo
-      const hasRoles = store.getters.roles && store.getters.roles.length > 0
+      const hasRoles = useUserStore().roles.length > 0
       if (hasRoles) {
         next()
       } else {
         try {
-          // get user info
-          // note: roles must be a object array! such as: ['admin'] or ,['developer','editor']
-          const { roles } = await store.dispatch('user/getInfo')
+          // get user info; roles land on the store rather than being threaded
+          // through, since generateRoutes reads the menu the backend already
+          // filtered for this user
+          await useUserStore().getInfo()
 
           // generate accessible routes map based on roles
-          const accessRoutes = await store.dispatch('permission/generateRoutes', roles)
+          const accessRoutes = await usePermissionStore().generateRoutes()
 
           // dynamically add accessible routes
           accessRoutes.forEach(route => router.addRoute(route))

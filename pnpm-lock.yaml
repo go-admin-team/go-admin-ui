@@ -89,9 +89,6 @@ importers:
       vue3-treeselect:
         specifier: ^0.1.10
         version: 0.1.10(vue@3.5.41(typescript@6.0.3))
-      vuex:
-        specifier: ^4.1.0
-        version: 4.1.0(vue@3.5.41(typescript@6.0.3))
       xlsx:
         specifier: ^0.18.5
         version: 0.18.5
@@ -3653,11 +3650,6 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
-
-  vuex@4.1.0:
-    resolution: {integrity: sha512-hmV6UerDrPcgbSy9ORAtNXDr9M4wlNP4pEFKye4ujJF8oqgFFuxDCdOLS3eNoRTtq5O3hoBDh9Doj1bQMYHRbQ==}
-    peerDependencies:
-      vue: ^3.2.0
 
   w3c-keyname@2.2.8:
     resolution: {integrity: sha512-dpojBhNsCNN7T82Tm7k26A6G9ML3NkhDsnw9n/eoxSRlVBB4CEtIQ/KTCLI2Fwf3ataSXRhYFkQi3SlnFwPvPQ==}
@@ -7471,11 +7463,6 @@ snapshots:
       '@vue/shared': 3.5.41
     optionalDependencies:
       typescript: 6.0.3
-
-  vuex@4.1.0(vue@3.5.41(typescript@6.0.3)):
-    dependencies:
-      '@vue/devtools-api': 6.6.4
-      vue: 3.5.41(typescript@6.0.3)
 
   w3c-keyname@2.2.8: {}
 

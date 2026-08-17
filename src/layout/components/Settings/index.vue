@@ -70,6 +70,7 @@
 import { mapState } from 'pinia'
 import ThemePicker from '@/components/ThemePicker'
 import { useSettingsStore } from '@/stores/settings'
+import { usePermissionStore } from '@/stores/permission'
 
 /**
  * Two-way binding for one setting. Writes go through changeSetting rather than
@@ -103,8 +104,8 @@ export default {
       set(val) {
         useSettingsStore().changeSetting({ key: 'topNav', value: val })
         if (!val) {
-          // permission is still a Vuex module at this point in the migration
-          this.$store.commit('permission/SET_SIDEBAR_ROUTERS', this.$store.state.permission.defaultRoutes)
+          const permission = usePermissionStore()
+          permission.setSidebarRouters(permission.defaultRoutes)
         }
       }
     }

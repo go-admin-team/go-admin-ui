@@ -26,10 +26,10 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import { mapState } from 'pinia'
 import { useSettingsStore } from '@/stores/settings'
 import { useAppStore } from '@/stores/app'
+import { usePermissionStore } from '@/stores/permission'
 import Logo from './Logo'
 import SidebarItem from './SidebarItem'
 import variables from '@/styles/variables.module.scss'
@@ -37,9 +37,7 @@ import variables from '@/styles/variables.module.scss'
 export default {
   components: { SidebarItem, Logo },
   computed: {
-    ...mapGetters([
-      'sidebarRouters'
-    ]),
+    ...mapState(usePermissionStore, ['sidebarRouters']),
     ...mapState(useAppStore, ['sidebar']),
     activeMenu() {
       const route = this.$route
