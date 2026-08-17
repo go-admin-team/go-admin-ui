@@ -164,7 +164,11 @@ export const usePermissionStore = defineStore('permission', {
       const sidebarRoutes: AppRoute[] = []
       generaMenu(sidebarRoutes, menuData)
       this.setSidebarRouters((constantRoutes as AppRoute[]).concat(sidebarRoutes))
-      this.defaultRoutes = sidebarRoutes
+      // constantRoutes.concat, matching the Vuex SET_DEFAULT_ROUTES mutation.
+      // Settings restores the sidebar from this list when the user turns the top
+      // nav off; without the prefix that restore dropped every fixed route,
+      // including the dashboard entry, until the next full reload.
+      this.defaultRoutes = (constantRoutes as AppRoute[]).concat(sidebarRoutes)
       this.topbarRouters = sidebarRoutes
 
       return dynamicRoutes

@@ -204,6 +204,32 @@ describe('stores/permission', () => {
       expect(store.sidebarRouters[0]).toMatchObject(constantRoutes[0])
     })
 
+    // Settings restores the sidebar from defaultRoutes when the user turns the
+    // top nav off. The Vuex mutation prefixed constantRoutes; the Pinia port
+    // assigned the bare menu, so that restore dropped every fixed route --
+    // including the dashboard -- until the next full reload.
+    it('keeps the constant routes in defaultRoutes for the sidebar restore', async() => {
+      getRoutes.mockResolvedValue({ code: 200, data: [menuItem({ component: 'Layout' })] })
+
+      await store.generateRoutes()
+
+      expect(store.defaultRoutes[0]).toMatchObject(constantRoutes[0])
+      expect(store.defaultRoutes.some(r => r.path === '/demo')).toBe(true)
+    })
+
+    // The catch-all belongs to the router, never to the sidebar
+    it('keeps the catch-all out of the sidebar tables', async() => {
+      getRoutes.mockResolvedValue({ code: 200, data: [menuItem({ component: 'Layout' })] })
+
+      await store.generateRoutes()
+
+      const isCatchAll = r => String(r.path).includes('pathMatch')
+      expect(store.sidebarRouters.some(isCatchAll)).toBe(false)
+      expect(store.defaultRoutes.some(isCatchAll)).toBe(false)
+      expect(store.topbarRouters.some(isCatchAll)).toBe(false)
+      expect(store.addRoutes.some(isCatchAll)).toBe(true)
+    })
+
     it('appends a catch-all route so unknown paths redirect home', async() => {
       getRoutes.mockResolvedValue({ code: 200, data: [menuItem({ component: 'Layout' })] })
 
