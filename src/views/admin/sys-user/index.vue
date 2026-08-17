@@ -135,7 +135,7 @@
         :ref="userForm.bindFormRef"
         v-loading="userForm.loading"
         :model="userForm.model"
-        :rules="userRules"
+        :rules="userForm.rules"
         label-width="88px"
       >
         <el-row :gutter="16">
@@ -261,7 +261,7 @@
       <el-form
         :ref="passwordForm.bindFormRef"
         :model="passwordForm.model"
-        :rules="passwordRules"
+        :rules="passwordForm.rules"
         label-width="88px"
       >
         <el-form-item label="用户">
@@ -403,6 +403,7 @@ const userForm = useForm<SysUser, number>({
     roleId: undefined
   }),
   idKey: 'userId',
+  rules: userRules,
   api: { get: getUser, add: addUser, update: updateUser },
   title: { create: '添加用户', edit: '修改用户' },
   onSuccess: () => table.getList()
@@ -430,6 +431,7 @@ const passwordRules: FormRules = {
 
 const passwordForm = useForm<PasswordModel>({
   defaultModel: () => ({ userId: undefined, username: undefined, password: '' }),
+  rules: passwordRules,
   // Not a create/update pair, so it supplies its own handler. The old page used
   // ElMessageBox.prompt, which cannot validate a length or mask the input.
   submit: model => resetUserPwd(model.userId as number, model.password),

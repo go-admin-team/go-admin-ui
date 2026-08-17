@@ -67,7 +67,7 @@
         :ref="form.bindFormRef"
         v-loading="form.loading"
         :model="form.model"
-        :rules="rules"
+        :rules="form.rules"
         label-width="80px"
       >
         <el-form-item label="名称" prop="name">
@@ -142,6 +142,7 @@ const form = useForm<Product, number>({
     remark: undefined
   }),
   idKey: 'id',
+  rules,
   api: { get: getProduct, add: addProduct, update: updateProduct },
   onSuccess: () => table.getList()
 })

@@ -91,6 +91,11 @@ export interface UseFormReturn<TModel extends object, TId = unknown> {
   /** The el-form instance, once mounted. Read-only; write via bindFormRef. */
   formRef: FormInstance | undefined
   model: TModel
+  /**
+   * The rules passed in, handed back so the page can bind :rules="form.rules"
+   * rather than keeping its own copy.
+   */
+  rules: FormRules | undefined
   /** True while a submit is in flight. Bind to the confirm button's `loading`. */
   submitting: boolean
   /** True while `openEdit` is fetching the record. */
@@ -274,6 +279,7 @@ export function useForm<TModel extends object, TId = unknown>(
     bindFormRef,
     formRef,
     model,
+    rules,
     submitting,
     loading,
     visible,
