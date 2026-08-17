@@ -9,7 +9,7 @@
     "build:prod": "vite build",
     "build:stage": "vite build --mode staging",
     "preview": "vite preview",
-    "lint": "eslint src",
+    "lint": "eslint src tests",
     "type-check": "vue-tsc --noEmit && tsc -p tsconfig.node.json",
     "test:unit": "vitest run",
     "test:watch": "vitest",

@@ -38,7 +38,7 @@ describe('stores/tagsView', () => {
     })
 
     it('falls back to "no-name" when meta.title is empty', () => {
-      store.addView({ path: '/a', name: 'PageA', meta: {} })
+      store.addView({ path: '/a', name: 'PageA', meta: {}})
 
       expect(store.visitedViews[0].title).toBe('no-name')
     })
@@ -138,7 +138,7 @@ describe('stores/tagsView', () => {
   describe('setVisitedViews', () => {
     it('replaces the visited list wholesale', () => {
       store.addView(view('/a', 'PageA'))
-      store.setVisitedViews([{ path: '/restored', name: 'Restored', meta: {} }])
+      store.setVisitedViews([{ path: '/restored', name: 'Restored', meta: {}}])
 
       expect(store.visitedViews.map(v => v.path)).toEqual(['/restored'])
     })

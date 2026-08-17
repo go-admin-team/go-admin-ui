@@ -3,7 +3,6 @@ import permission from '@/directive/permission/permission'
 import { setActivePinia, createPinia } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
-
 // 指令通过 el.parentNode.removeChild(el) 移除元素，因此被测元素必须有父节点
 // The directive reads the real store, so seed it instead of mocking the module
 beforeEach(() => {
@@ -18,7 +17,7 @@ const factory = value =>
       data: () => ({ value })
     },
     {
-      global: { directives: { permission } }
+      global: { directives: { permission }}
     }
   )
 

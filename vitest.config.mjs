@@ -39,7 +39,12 @@ export default defineConfig({
       provider: 'v8',
       reportsDirectory: 'tests/unit/coverage',
       reporter: ['lcov', 'text-summary'],
-      include: ['src/utils/**/*.{js,ts,vue}', 'src/components/**/*.{js,ts,vue}'],
+      include: [
+        'src/utils/**/*.{js,ts,vue}',
+        'src/components/**/*.{js,ts,vue}',
+        'src/composables/**/*.ts',
+        'src/stores/**/*.ts'
+      ],
       exclude: ['src/utils/auth.js', 'src/utils/request.js']
     }
   }

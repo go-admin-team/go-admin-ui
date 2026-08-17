@@ -228,10 +228,13 @@ export default [
   },
 
   {
-    // Migrated from tests/unit/.eslintrc.js
+    // Migrated from tests/unit/.eslintrc.js. vitest, not jest: the specs call
+    // vi.fn()/vi.mock(), and the jest global set has no `vi` -- so with
+    // no-undef on, every spec reported it as undefined the moment lint reached
+    // the tests directory.
     files: ['tests/**/*.{js,ts}'],
     languageOptions: {
-      globals: { ...globals.jest }
+      globals: { ...globals.vitest }
     }
   }
 ]

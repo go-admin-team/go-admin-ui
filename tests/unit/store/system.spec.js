@@ -31,7 +31,7 @@ describe('stores/system', () => {
   })
 
   it('stores the fetched settings and mirrors them into local storage', async() => {
-    getSetting.mockResolvedValue({ data: { sysName: 'go-admin', logo: '/logo.png' } })
+    getSetting.mockResolvedValue({ data: { sysName: 'go-admin', logo: '/logo.png' }})
 
     const result = await store.settingDetail()
 
