@@ -49,7 +49,12 @@ export default defineConfig({
   projects: [
     {
       name: 'mocked',
-      testMatch: /mocked\/.*\.spec\.ts$/
+      // visual-baseline is a screenshot capture tool, not an assertion suite
+      testMatch: /mocked\/(?!visual-baseline).*\.spec\.ts$/
+    },
+    {
+      name: 'shots',
+      testMatch: /mocked\/visual-baseline\.spec\.ts$/
     },
     {
       name: 'live',
