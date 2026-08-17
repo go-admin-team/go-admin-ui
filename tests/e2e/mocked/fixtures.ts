@@ -1,4 +1,4 @@
-import { Page, BrowserContext } from '@playwright/test';
+import { Page, BrowserContext } from '@playwright/test'
 
 /**
  * Fixtures for the mock-driven e2e suite.
@@ -13,7 +13,7 @@ import { Page, BrowserContext } from '@playwright/test';
  * -- exactly what the Composition API / Pinia migration is at risk of breaking.
  */
 
-export const ADMIN_TOKEN = 'e2e-fake-token';
+export const ADMIN_TOKEN = 'e2e-fake-token'
 
 /** Shape returned by GET /api/v1/getinfo */
 export const userInfo = {
@@ -34,7 +34,7 @@ export const userInfo = {
       'admin:sysUser:resetPassword'
     ]
   }
-};
+}
 
 /**
  * Shape returned by GET /api/v1/menurole.
@@ -114,7 +114,7 @@ export const menuTree = {
       ]
     }
   ]
-};
+}
 
 /** Rows served by GET /api/v1/sys-user */
 export const userRows = [
@@ -142,7 +142,7 @@ export const userRows = [
     dept: { deptId: 2, deptName: '测试部' },
     createdAt: '2026-08-02T10:00:00Z'
   }
-];
+]
 
 /** Tree served by GET /api/v1/deptTree */
 export const deptTree = [
@@ -152,13 +152,13 @@ export const deptTree = [
     children: [{ id: 3, label: '前端组', children: [] }]
   },
   { id: 2, label: '测试部', children: [] }
-];
+]
 
 /** Rows served by GET /api/v1/demo-product */
 export const productRows = [
   { id: 1, name: 'Alpha', code: 'A-001', price: 10.5, status: '1', createdAt: '2026-08-01T10:00:00Z' },
   { id: 2, name: 'Beta', code: 'B-002', price: 20, status: '2', createdAt: '2026-08-02T10:00:00Z' }
-];
+]
 
 /** Injects the auth cookie so the router guard treats the session as signed in. */
 export async function authenticate(context: BrowserContext) {
@@ -170,7 +170,7 @@ export async function authenticate(context: BrowserContext) {
     httpOnly: false,
     secure: false,
     sameSite: 'Lax'
-  }]);
+  }])
 }
 
 /**
@@ -191,16 +191,16 @@ export async function installApiMocks(page: Page) {
     passwordReset: 0,
     /** Query string of each GET /api/v1/sys-user, in order. */
     userListQueries: [] as string[]
-  };
+  }
 
   /** Milliseconds to hold a write open, so a test can submit again mid-flight. */
-  const delays = { userWrite: 0, passwordReset: 0 };
+  const delays = { userWrite: 0, passwordReset: 0 }
 
   const json = (body: unknown) => ({
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify(body)
-  });
+  })
 
   // Registered FIRST on purpose: Playwright matches routes in reverse
   // registration order, so this catch-all must go in before the specific
@@ -208,98 +208,98 @@ export async function installApiMocks(page: Page) {
   // Settings and dictionary lookups are incidental to these tests; answering
   // them with an empty payload keeps nothing waiting on the network.
   await page.route('**/api/v1/**', async route => {
-    await route.fulfill(json({ code: 200, data: {} }));
-  });
+    await route.fulfill(json({ code: 200, data: {}}))
+  })
 
   await page.route('**/api/v1/getinfo*', async route => {
-    calls.getinfo++;
-    await route.fulfill(json(userInfo));
-  });
+    calls.getinfo++
+    await route.fulfill(json(userInfo))
+  })
 
   await page.route('**/api/v1/menurole*', async route => {
-    calls.menurole++;
-    await route.fulfill(json(menuTree));
-  });
+    calls.menurole++
+    await route.fulfill(json(menuTree))
+  })
 
   await page.route('**/api/v1/demo-product*', async route => {
     if (route.request().method() === 'GET') {
-      calls.productList++;
-      await route.fulfill(json({ code: 200, data: { list: productRows, count: productRows.length } }));
-      return;
+      calls.productList++
+      await route.fulfill(json({ code: 200, data: { list: productRows, count: productRows.length }}))
+      return
     }
-    await route.fulfill(json({ code: 200, msg: 'ok' }));
-  });
+    await route.fulfill(json({ code: 200, msg: 'ok' }))
+  })
 
   // ── sys-user ────────────────────────────────────────────────────
   await page.route('**/api/v1/dict-data/option-select*', async route => {
-    const dictType = new URL(route.request().url()).searchParams.get('dictType');
+    const dictType = new URL(route.request().url()).searchParams.get('dictType')
     const data = dictType === 'sys_user_sex'
       ? [{ label: '男', value: '0' }, { label: '女', value: '1' }]
-      : [{ label: '停用', value: '1' }, { label: '正常', value: '2' }];
-    await route.fulfill(json({ code: 200, data }));
-  });
+      : [{ label: '停用', value: '1' }, { label: '正常', value: '2' }]
+    await route.fulfill(json({ code: 200, data }))
+  })
 
   await page.route('**/api/v1/deptTree*', async route => {
-    await route.fulfill(json({ code: 200, data: deptTree }));
-  });
+    await route.fulfill(json({ code: 200, data: deptTree }))
+  })
 
   await page.route('**/api/v1/post*', async route => {
     await route.fulfill(json({
       code: 200,
       data: { list: [{ postId: 1, postName: '工程师', status: '2' }], count: 1 }
-    }));
-  });
+    }))
+  })
 
   await page.route('**/api/v1/role*', async route => {
     await route.fulfill(json({
       code: 200,
       data: { list: [{ roleId: 1, roleName: '管理员', status: '2' }], count: 1 }
-    }));
-  });
+    }))
+  })
 
   await page.route('**/api/v1/configKey/**', async route => {
-    await route.fulfill(json({ code: 200, data: { configValue: 'Init@123' } }));
-  });
+    await route.fulfill(json({ code: 200, data: { configValue: 'Init@123' }}))
+  })
 
   await page.route('**/api/v1/sys-user*', async route => {
-    const request = route.request();
-    const method = request.method();
+    const request = route.request()
+    const method = request.method()
 
     if (method === 'GET') {
-      calls.userList++;
-      calls.userListQueries.push(new URL(request.url()).search);
-      await route.fulfill(json({ code: 200, data: { list: userRows, count: userRows.length } }));
-      return;
+      calls.userList++
+      calls.userListQueries.push(new URL(request.url()).search)
+      await route.fulfill(json({ code: 200, data: { list: userRows, count: userRows.length }}))
+      return
     }
 
-    if (method === 'POST') calls.userCreate++;
-    if (method === 'PUT') calls.userUpdate++;
-    if (method === 'DELETE') calls.userDelete++;
+    if (method === 'POST') calls.userCreate++
+    if (method === 'PUT') calls.userUpdate++
+    if (method === 'DELETE') calls.userDelete++
 
     // Held open so a test can click the confirm button again while the first
     // submit is still in flight -- the situation the submit guard exists for.
     if (delays.userWrite) {
-      await new Promise(resolve => setTimeout(resolve, delays.userWrite));
+      await new Promise(resolve => setTimeout(resolve, delays.userWrite))
     }
-    await route.fulfill(json({ code: 200, msg: 'ok' }));
-  });
+    await route.fulfill(json({ code: 200, msg: 'ok' }))
+  })
 
   await page.route('**/api/v1/user/pwd/reset*', async route => {
-    calls.passwordReset++;
+    calls.passwordReset++
     if (delays.passwordReset) {
-      await new Promise(resolve => setTimeout(resolve, delays.passwordReset));
+      await new Promise(resolve => setTimeout(resolve, delays.passwordReset))
     }
-    await route.fulfill(json({ code: 200, msg: 'ok' }));
-  });
+    await route.fulfill(json({ code: 200, msg: 'ok' }))
+  })
 
   // Registered after the list route because the two need separate globs: `*`
   // does not cross a `/`, so `sys-user*` never matches `sys-user/2`.
   await page.route('**/api/v1/sys-user/*', async route => {
-    const userId = Number(route.request().url().split('/').pop());
-    const row = userRows.find(user => user.userId === userId) ?? userRows[0];
+    const userId = Number(route.request().url().split('/').pop())
+    const row = userRows.find(user => user.userId === userId) ?? userRows[0]
     // The detail endpoint returns fields the list omits
-    await route.fulfill(json({ code: 200, data: { ...row, remark: '来自详情接口' } }));
-  });
+    await route.fulfill(json({ code: 200, data: { ...row, remark: '来自详情接口' }}))
+  })
 
-  return { calls, delays };
+  return { calls, delays }
 }

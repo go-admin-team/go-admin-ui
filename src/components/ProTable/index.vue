@@ -48,7 +48,13 @@
       @selection-change="table.handleSelectionChange"
       @sort-change="table.handleSortChange"
     >
-      <el-table-column v-if="selection" type="selection" width="45" :reserve-selection="!!rowKey" />
+      <!--
+        No reserve-selection: it makes el-table keep rows selected across a data
+        change and, crucially, skip the selection-change event. After a bulk
+        delete the deleted ids stayed in the selection, the bulk button stayed
+        enabled, and a second click deleted ids that no longer existed.
+      -->
+      <el-table-column v-if="selection" type="selection" width="45" />
       <slot />
       <template #empty>
         <slot name="empty">
@@ -131,6 +137,14 @@ const tableRef = ref()
  */
 const handleReset = async() => {
   tableRef.value?.clearSort()
+  // Not required for correctness: with reserve-selection gone, el-table clears
+  // its own selection as soon as `rows` is reassigned, and emits
+  // selection-change so useTable follows. This only makes the boxes untick on
+  // the click rather than when the response lands -- otherwise a slow list
+  // request leaves them visibly ticked while the bulk buttons are already
+  // disabled. Do NOT copy this onto every data-changing path; the others are
+  // handled by that reassignment.
+  tableRef.value?.clearSelection()
   await props.table.resetQuery()
 }
 </script>
