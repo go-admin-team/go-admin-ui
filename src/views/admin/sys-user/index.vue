@@ -64,15 +64,24 @@
               type="primary"
               @click="handleAdd"
             >新增</el-button>
+            <!--
+              Secondary, not filled. These act on a selection, so most of the
+              time they are disabled -- and a disabled filled button is a tinted
+              fill under white text: oklab(0.81) in light, which reads as a
+              rendering fault rather than as "pick a row first", and oklab(0.36)
+              in dark, which reads as enabled-but-muddy. A plain button greys out
+              unambiguously, and it stops two bulk actions competing with 新增 for
+              attention while they cannot even be used.
+            -->
             <el-button
               v-permisaction="['admin:sysUser:edit']"
-              type="success"
               :disabled="table.single"
               @click="handleEditSelected"
             >修改</el-button>
             <el-button
               v-permisaction="['admin:sysUser:remove']"
               type="danger"
+              plain
               :disabled="table.multiple"
               @click="remove(table.selectedIds)"
             >删除</el-button>

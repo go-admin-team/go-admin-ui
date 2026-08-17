@@ -20,9 +20,11 @@
         <el-button v-permisaction="['demo:product:add']" type="primary" @click="form.openCreate()">
           新增
         </el-button>
+        <!-- Secondary while it needs a selection; see views/admin/sys-user -->
         <el-button
           v-permisaction="['demo:product:delete']"
           type="danger"
+          plain
           :disabled="table.multiple"
           @click="remove(table.selectedIds)"
         >
