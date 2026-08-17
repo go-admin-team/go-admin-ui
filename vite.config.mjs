@@ -41,8 +41,12 @@ export default defineConfig(({ mode }) => {
         // 浏览器无 Node 内置模块，需指向 polyfill；等价于 webpack 的 resolve.fallback
         path: 'path-browserify'
       },
-      // 与 Vue CLI 保持一致：允许 import 时省略 .vue 后缀
-      extensions: ['.mjs', '.js', '.jsx', '.json', '.vue']
+      // 与 Vue CLI 保持一致：允许 import 时省略 .vue 后缀。
+      // NOTE: this replaces Vite's defaults, so the TypeScript extensions have
+      // to be listed explicitly -- omitting them breaks `import x from './y'`
+      // for .ts modules in dev (the production build resolves them anyway,
+      // which is why this only surfaces when the dev server runs).
+      extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json', '.vue']
     },
 
     // 业务代码沿用 process.env.VUE_APP_* 写法，此处做等价注入
