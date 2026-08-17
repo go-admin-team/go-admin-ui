@@ -89,9 +89,9 @@ export default {
   height: 50px;
   overflow: hidden;
   position: relative;
-  background: #fff;
-  border-bottom: 1px solid #eef0f6;
-  box-shadow: 0 1px 8px rgba(22, 119, 255, 0.06);
+  background: var(--ga-bg-container);
+  border-bottom: 1px solid var(--ga-border-light);
+  box-shadow: var(--ga-shadow-sm);
 
   &::after {
     content: '';
@@ -100,7 +100,7 @@ export default {
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(90deg, #1677ff 0%, #40a9ff 100%);
+    background: linear-gradient(90deg, var(--ga-brand) 0%, var(--el-color-primary-light-3) 100%);
     opacity: 0.7;
   }
 
@@ -111,10 +111,10 @@ export default {
     cursor: pointer;
     transition: background .3s;
     -webkit-tap-highlight-color: transparent;
-    color: #1677ff;
+    color: var(--ga-brand);
 
     &:hover {
-      background: rgba(22, 119, 255, .06)
+      background: var(--ga-bg-hover)
     }
   }
 
@@ -141,7 +141,7 @@ export default {
       padding: 0 10px;
       height: 100%;
       font-size: 18px;
-      color: #64748b;
+      color: var(--ga-text-2);
       vertical-align: text-bottom;
 
       &.hover-effect {
@@ -150,8 +150,8 @@ export default {
         border-radius: 4px;
 
         &:hover {
-          background: rgba(22, 119, 255, .06);
-          color: #1677ff;
+          background: var(--ga-bg-hover);
+          color: var(--ga-brand);
         }
       }
     }
@@ -171,8 +171,8 @@ export default {
           width: 32px;
           height: 32px;
           border-radius: 50%;
-          border: 2px solid rgba(22, 119, 255, 0.2);
-          box-shadow: 0 0 0 2px #fff;
+          border: 2px solid var(--el-color-primary-light-7);
+          box-shadow: 0 0 0 2px var(--ga-bg-container);
         }
 
         .ri-arrow-down-s-fill {
@@ -181,7 +181,7 @@ export default {
           right: -18px;
           top: 16px;
           font-size: 12px;
-          color: #94a3b8;
+          color: var(--ga-text-3);
         }
       }
     }

@@ -260,7 +260,7 @@
     overflow-y: auto;
 
     &::-webkit-scrollbar-track-piece {
-      background: #d3dce6;
+      background: var(--ga-border);
     }
 
     &::-webkit-scrollbar {
@@ -268,7 +268,7 @@
     }
 
     &::-webkit-scrollbar-thumb {
-      background: #99a9bf;
+      background: var(--ga-text-3);
       border-radius: 20px;
     }
   }

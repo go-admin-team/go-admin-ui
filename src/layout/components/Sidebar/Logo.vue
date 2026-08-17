@@ -77,7 +77,10 @@ export default {
   width: 100%;
   height: 64px;
   line-height: 64px;
-  background: linear-gradient(135deg, #002c8c 0%, #1677ff 60%, #40a9ff 100%);
+  background: linear-gradient(135deg,
+    color-mix(in oklab, var(--ga-brand), #000 45%) 0%,
+    var(--ga-brand) 60%,
+    var(--el-color-primary-light-3) 100%);
   text-align: center;
   overflow: hidden;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);

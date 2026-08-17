@@ -105,7 +105,7 @@ export default {
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, .05);
   transition: all .25s cubic-bezier(.7, .3, .1, 1);
   transform: translate(100%);
-  background: #fff;
+  background: var(--ga-bg-container);
   z-index: 40000;
 }
 
