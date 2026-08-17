@@ -93,8 +93,11 @@ export default {
 
 <style scoped>
 .pagination-container {
-  background: var(--ga-bg-container);
-  padding: 32px 16px;
+  /* No background of its own: it lives inside a card that already has one, and
+     painting the same token again produced a visible band whenever the two
+     resolved differently -- which they do the moment a page puts the table on
+     any other surface. */
+  padding: 14px 4px 4px;
 }
 .pagination-container.hidden {
   display: none;

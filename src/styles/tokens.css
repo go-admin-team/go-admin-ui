@@ -97,10 +97,22 @@
   --ga-danger:  #ef4444;
   --ga-info:    #94a3b8;
 
+  /* A monotonic ladder, measured by relative luminance rather than eyeballed:
+   * sidebar 3.7 -> body 6.5 -> card 12.0 -> header/fill 18.1 -> dialog 24.4.
+   * Light mode separates the sidebar by inverting it; dark mode cannot, so the
+   * separation has to come from value. The sidebar was previously 6.3 against a
+   * body of 6.5 -- a difference of 0.1, which is why the navigation had no edge
+   * at all and the whole screen read as one surface.
+   *
+   * The sidebar sits BELOW the page rather than above it: it is chrome, so it
+   * should recede and leave the content card as the brightest plane. */
   --ga-bg-body:      #0d1417;
   --ga-bg-container: #151e22;
-  --ga-bg-elevated:  #1b262b;
-  --ga-bg-subtle:    #111a1e;
+  --ga-bg-elevated:  #212d33;
+  /* Lighter than the container here, darker than it in light mode. Both are
+   * "one step away from the surface", which is what this token means -- and it
+   * also feeds el-fill-color, where a hover in dark must lift, not sink. */
+  --ga-bg-subtle:    #1c262b;
   --ga-bg-hover:     rgba(58, 165, 199, 0.10);
 
   --ga-text-1:        rgba(232, 240, 243, 0.90);
@@ -112,8 +124,8 @@
   --ga-border:       #2a383e;
   --ga-border-light: #202c31;
 
-  --ga-sidebar-bg:        #0b1417;
-  --ga-sidebar-bg-sub:    #08100f;
+  --ga-sidebar-bg:        #070d10;
+  --ga-sidebar-bg-sub:    #05090b;
   --ga-sidebar-hover:     #16262c;
   --ga-sidebar-text:      rgba(232, 240, 243, 0.68);
   --ga-sidebar-text-active: #ffffff;
