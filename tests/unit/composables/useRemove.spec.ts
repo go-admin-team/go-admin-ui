@@ -3,7 +3,7 @@ import { useRemove } from '@/composables/useRemove'
 import { deferred } from '../support/async'
 
 const confirm = vi.hoisted(() => vi.fn())
-vi.mock('element-plus', () => ({ ElMessageBox: { confirm } }))
+vi.mock('element-plus', () => ({ ElMessageBox: { confirm }}))
 
 vi.mock('@/utils/message', () => ({
   msgSuccess: vi.fn(),
@@ -101,6 +101,26 @@ describe('useRemove', () => {
     pending.resolve()
     expect(await first).toBe(true)
     expect(removing.value).toBe(false)
+  })
+
+  // The guard used to key off `removing`, which is only set after the dialog is
+  // confirmed -- so two clicks both passed it, both queued a dialog, and
+  // confirming both sent two DELETEs for the same ids.
+  it('opens one dialog when the trigger is clicked twice', async() => {
+    const gate = deferred<string>()
+    confirm.mockReturnValue(gate.promise)
+    const api = vi.fn().mockResolvedValue(undefined)
+    const { remove } = useRemove({ api })
+
+    const first = remove(7)
+    const second = remove(7)
+
+    expect(await second).toBe(false)
+    expect(confirm).toHaveBeenCalledTimes(1)
+
+    gate.resolve('confirm')
+    expect(await first).toBe(true)
+    expect(api).toHaveBeenCalledTimes(1)
   })
 
   it('asks nothing when there is nothing selected', async() => {

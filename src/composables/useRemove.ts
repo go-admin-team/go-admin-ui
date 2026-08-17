@@ -76,26 +76,37 @@ export function useRemove(options: UseRemoveOptions): UseRemoveReturn {
 
   const removing = ref(false)
 
+  /**
+   * Guards the whole interaction, including the time the confirm dialog is on
+   * screen. `removing` cannot do this job: it drives a button's loading state,
+   * so it must only be true while the request is actually in flight -- but the
+   * window that needs guarding opens the moment the trigger is clicked. Keying
+   * the guard off `removing` let a double-clicked delete button queue two
+   * dialogs and, once both were confirmed, send two DELETEs for the same ids.
+   */
+  let pending = false
+
   const remove = async(target: Id | Id[] | undefined): Promise<boolean> => {
-    if (removing.value) return false
+    if (pending) return false
 
     const ids = (Array.isArray(target) ? target : [target])
       .filter((id): id is Id => id !== undefined && id !== null && id !== '')
     if (!ids.length) return false
 
+    pending = true
     try {
-      await ElMessageBox.confirm(confirmText(ids.length), '提示', {
-        type: 'warning',
-        confirmButtonText: '确定',
-        cancelButtonText: '取消'
-      })
-    } catch {
-      // Dismissing the dialog is a decision, not a failure
-      return false
-    }
+      try {
+        await ElMessageBox.confirm(confirmText(ids.length), '提示', {
+          type: 'warning',
+          confirmButtonText: '确定',
+          cancelButtonText: '取消'
+        })
+      } catch {
+        // Dismissing the dialog is a decision, not a failure
+        return false
+      }
 
-    removing.value = true
-    try {
+      removing.value = true
       await api(ids)
       if (successMessage !== null) msgSuccess(successMessage ?? '删除成功')
       await onSuccess?.(ids)
@@ -104,6 +115,7 @@ export function useRemove(options: UseRemoveOptions): UseRemoveReturn {
       onError?.(error)
       return false
     } finally {
+      pending = false
       removing.value = false
     }
   }
