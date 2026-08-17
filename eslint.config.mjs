@@ -210,6 +210,24 @@ export default [
   },
 
   {
+    // `<script setup lang="ts">` blocks. vue-eslint-parser hands the script to
+    // whatever parserOptions.parser names, and its default cannot read type
+    // annotations -- without this every TypeScript SFC fails with a bare
+    // "Parsing error: Unexpected token".
+    //
+    // The parser is set for all .vue files, not just the TypeScript ones. It
+    // reads plain JavaScript equally well, and there is no way to select a file
+    // by the lang attribute of its script block.
+    files: ['**/*.vue'],
+    languageOptions: {
+      parserOptions: {
+        parser: tseslint.parser,
+        ecmaFeatures: { jsx: true }
+      }
+    }
+  },
+
+  {
     // Migrated from tests/unit/.eslintrc.js
     files: ['tests/**/*.{js,ts}'],
     languageOptions: {

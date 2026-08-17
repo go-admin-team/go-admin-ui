@@ -26,7 +26,10 @@
     "skipLibCheck": true,
     "noEmit": true,
 
-    "types": ["vite/client"],
+    // vitest/globals types describe/it/expect/vi, which the specs use without
+    // importing (test.globals is on in vitest.config.mjs). The .js specs were
+    // never checked; the .ts ones are.
+    "types": ["vite/client", "vitest/globals"],
     // No baseUrl: deprecated since TS 6, removed in TS 7. Under
     // moduleResolution "Bundler", paths resolve relative to tsconfig.json.
     "paths": {
