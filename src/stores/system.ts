@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { getSetting } from '@/api/login'
 import storage from '@/utils/storage'
+import { asApi } from '@/types/api'
 
 /** Application branding returned by GET /api/v1/setting */
 export interface AppInfo {
@@ -31,7 +32,9 @@ export const useSystemStore = defineStore('system', {
     },
 
     async settingDetail() {
-      const response = await getSetting()
+      // api/login.js is untyped, so the envelope is asserted here rather than
+      // inferred. See utils/request.d.ts for what request actually resolves to.
+      const response = await asApi<AppInfo>(getSetting())
       this.setInfo(response.data)
       return response.data
     }
