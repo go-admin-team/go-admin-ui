@@ -46,8 +46,14 @@ const viewsModules = import.meta.glob('../views/**/*.vue')
  */
 export const loadView = (view: string, name?: string) => {
   const key = `../views${view}.vue`
-  // Fall back to a dynamic import when the index misses
-  const loader = viewsModules[key] || (() => import(`../views${view}.vue`))
+  const loader = viewsModules[key]
+  if (!loader) {
+    // viewsModules is import.meta.glob over the same directory, so it already
+    // holds every key this template could build. A `|| import(...)` fallback
+    // could only ever be reached for a path that does NOT exist, where it
+    // produced an opaque chunk-load failure instead of naming the component.
+    throw new Error(`loadView: no component at src/views${view}.vue (check the menu's component path)`)
+  }
   if (!name) return loader
 
   return () => Promise.resolve(loader()).then(mod => {
@@ -90,24 +96,6 @@ export function generaMenu(routes: AppRoute[], data: BackendMenu[]) {
 
     routes.push(menu)
   })
-}
-
-/** Keeps routes whose meta.roles intersects the user's roles. */
-export function filterAsyncRoutes(routes: AppRoute[], roles: string[]): AppRoute[] {
-  const res: AppRoute[] = []
-
-  routes.forEach(route => {
-    const tmp = { ...route }
-    const required = tmp.meta?.roles as string[] | undefined
-    if (!required || roles.some(role => required.includes(role))) {
-      if (tmp.children) {
-        tmp.children = filterAsyncRoutes(tmp.children, roles)
-      }
-      res.push(tmp)
-    }
-  })
-
-  return res
 }
 
 /**
@@ -154,15 +142,22 @@ export const usePermissionStore = defineStore('permission', {
 
       const menuData = (response.data || []) as BackendMenu[]
 
-      const dynamicRoutes: AppRoute[] = []
-      generaMenu(dynamicRoutes, menuData)
-      dynamicRoutes.push({ path: '/:pathMatch(.*)*', redirect: '/', hidden: true } as AppRoute)
-      this.setRoutes(dynamicRoutes)
-
-      // Built a second time on purpose: the sidebar table must not contain the
-      // catch-all route appended above.
+      // Walked once. The menu was previously built twice over the same data --
+      // doubling the work and producing a second loadView closure per page --
+      // only so the sidebar copy could omit the catch-all. Appending it to a
+      // separate array achieves that without the second walk.
       const sidebarRoutes: AppRoute[] = []
       generaMenu(sidebarRoutes, menuData)
+
+      // Shares route objects with sidebarRoutes rather than copying them, so
+      // nothing here may mutate a route in place -- every consumer (Sidebar,
+      // TopNav, Settings) only reads. Building the tree twice used to make that
+      // safe by accident; now it is a rule.
+      const dynamicRoutes: AppRoute[] = [
+        ...sidebarRoutes,
+        { path: '/:pathMatch(.*)*', redirect: '/', hidden: true } as AppRoute
+      ]
+      this.setRoutes(dynamicRoutes)
       this.setSidebarRouters((constantRoutes as AppRoute[]).concat(sidebarRoutes))
       // constantRoutes.concat, matching the Vuex SET_DEFAULT_ROUTES mutation.
       // Settings restores the sidebar from this list when the user turns the top

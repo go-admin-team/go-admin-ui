@@ -25,7 +25,7 @@ vi.mock('@/api/admin/sys-role', () => ({
   getRoutes: (...args) => getRoutes(...args)
 }))
 
-const { usePermissionStore, generaMenu, filterAsyncRoutes, loadView } =
+const { usePermissionStore, generaMenu, loadView } =
   await import('@/stores/permission')
 
 // Matches the shape returned by the backend menu endpoint
@@ -163,33 +163,6 @@ describe('stores/permission', () => {
 
       expect(first.name).toBe('NameOne')
       expect(second.name).toBe('NameTwo')
-    })
-  })
-
-  describe('filterAsyncRoutes', () => {
-    it('keeps routes without a roles constraint', () => {
-      expect(filterAsyncRoutes([{ path: '/a' }], ['editor'])).toHaveLength(1)
-    })
-
-    it('keeps routes whose meta.roles intersect the user roles', () => {
-      const routes = [
-        { path: '/admin-only', meta: { roles: ['admin'] } },
-        { path: '/editor-only', meta: { roles: ['editor'] } }
-      ]
-
-      expect(filterAsyncRoutes(routes, ['editor']).map(r => r.path)).toEqual(['/editor-only'])
-    })
-
-    it('filters children recursively', () => {
-      const routes = [{
-        path: '/parent',
-        children: [
-          { path: 'a', meta: { roles: ['admin'] } },
-          { path: 'b', meta: { roles: ['editor'] } }
-        ]
-      }]
-
-      expect(filterAsyncRoutes(routes, ['editor'])[0].children.map(r => r.path)).toEqual(['b'])
     })
   })
 
