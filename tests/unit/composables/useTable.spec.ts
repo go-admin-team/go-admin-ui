@@ -16,17 +16,30 @@ const page = (rows: Row[], count = rows.length): ApiResponse<PageResult<Row>> =>
 
 /**
  * useTable registers an onMounted hook, so it has to run inside a component.
- * The wrapper is returned so tests that need it can unmount.
+ *
+ * `queries` holds a copy of the query as it was at each call. Asserting on
+ * `api.mock.calls` directly does not work here: useTable hands the same live
+ * reactive object to every call, so a recorded argument reflects the state at
+ * assertion time rather than at call time -- which makes an assertion like
+ * "search() sent pageIndex 1" pass even if the reset happened afterwards.
  */
 function setup(options: UseTableOptions<Row, Query>) {
   let api!: UseTableReturn<Row, Query>
+  const queries: Array<Record<string, unknown>> = []
+  const recording = {
+    ...options,
+    api: (query: Parameters<typeof options.api>[0]) => {
+      queries.push({ ...query })
+      return options.api(query)
+    }
+  }
   const wrapper = mount(defineComponent({
     setup() {
-      api = useTable<Row, Query>(options)
+      api = useTable<Row, Query>(recording)
       return () => h('div')
     }
   }))
-  return { table: api, wrapper }
+  return { table: api, wrapper, queries }
 }
 
 describe('useTable', () => {
@@ -53,13 +66,11 @@ describe('useTable', () => {
 
   it('sends the paging keys along with the default query', async() => {
     const api = vi.fn().mockResolvedValue(page([]))
-    setup({ api, defaultQuery: () => ({ name: 'seed' }), pageSize: 25 })
+    const { queries } = setup({ api, defaultQuery: () => ({ name: 'seed' }), pageSize: 25 })
 
     await flushPromises()
 
-    expect(api).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'seed', pageIndex: 1, pageSize: 25 })
-    )
+    expect(queries.at(-1)).toMatchObject({ name: 'seed', pageIndex: 1, pageSize: 25 })
   })
 
   // The bug this covers: pages that set loading = false inside .then() only left
@@ -136,13 +147,15 @@ describe('useTable', () => {
   // searching from page 3 returned page 3 of the new result set.
   it('search() returns to page 1', async() => {
     const api = vi.fn().mockResolvedValue(page([]))
-    const { table } = setup({ api, immediate: false })
+    const { table, queries } = setup({ api, immediate: false })
 
     table.query.pageIndex = 3
     await table.search()
 
     expect(table.query.pageIndex).toBe(1)
-    expect(api).toHaveBeenCalledWith(expect.objectContaining({ pageIndex: 1 }))
+    // The snapshot, not the live object: this has to fail if search() ever
+    // fetches first and resets the page afterwards
+    expect(queries.at(-1)?.pageIndex).toBe(1)
   })
 
   // el-form's resetFields() only restores fields carrying a matching `prop`, so
@@ -163,22 +176,37 @@ describe('useTable', () => {
     expect(table.query.pageIndex).toBe(1)
   })
 
+  // A reset clears filters. Snapping a user who chose 50 条/页 back to 10 reads
+  // as a bug from the outside, so the page size survives.
+  it('resetQuery() keeps the page size the user chose', async() => {
+    const api = vi.fn().mockResolvedValue(page([]))
+    const { table, queries } = setup({ api, immediate: false, defaultQuery: () => ({ name: '' }) })
+
+    await table.handlePagination({ page: 3, limit: 50 })
+    table.query.name = 'typed'
+
+    await table.resetQuery()
+
+    expect(table.query.name).toBe('')
+    expect(table.query.pageIndex).toBe(1)
+    expect(table.query.pageSize).toBe(50)
+    expect(queries.at(-1)?.pageSize).toBe(50)
+  })
+
   it('resetQuery() also clears the active sort', async() => {
     const api = vi.fn().mockResolvedValue(page([]))
-    const { table } = setup({ api, immediate: false })
+    const { table, queries } = setup({ api, immediate: false })
 
     await table.handleSortChange({ prop: 'createdAt', order: 'descending' })
     await table.resetQuery()
 
-    const afterReset = api.mock.lastCall?.[0] as Record<string, unknown>
-    expect('createdAtOrder' in afterReset).toBe(false)
+    expect('createdAtOrder' in (queries.at(-1) as object)).toBe(false)
 
     // The internal sort key must be forgotten too, or the next sort would try to
     // delete a key that is no longer there and leave its own behind.
     await table.handleSortChange({ prop: 'username', order: 'ascending' })
-    const afterSort = api.mock.lastCall?.[0] as Record<string, unknown>
-    expect(afterSort.usernameOrder).toBe('asc')
-    expect('createdAtOrder' in afterSort).toBe(false)
+    expect(queries.at(-1)?.usernameOrder).toBe('asc')
+    expect('createdAtOrder' in (queries.at(-1) as object)).toBe(false)
   })
 
   it('drops the selection when the query is reset', async() => {
@@ -197,26 +225,24 @@ describe('useTable', () => {
   describe('sorting', () => {
     it('sends {prop}Order and clears the previous column', async() => {
       const api = vi.fn().mockResolvedValue(page([]))
-      const { table } = setup({ api, immediate: false })
+      const { table, queries } = setup({ api, immediate: false })
 
       await table.handleSortChange({ prop: 'createdAt', order: 'descending' })
-      expect(api).toHaveBeenLastCalledWith(expect.objectContaining({ createdAtOrder: 'desc' }))
+      expect(queries.at(-1)?.createdAtOrder).toBe('desc')
 
       await table.handleSortChange({ prop: 'username', order: 'ascending' })
-      const lastQuery = api.mock.lastCall?.[0] as Record<string, unknown>
-      expect(lastQuery.usernameOrder).toBe('asc')
-      expect('createdAtOrder' in lastQuery).toBe(false)
+      expect(queries.at(-1)?.usernameOrder).toBe('asc')
+      expect('createdAtOrder' in (queries.at(-1) as object)).toBe(false)
     })
 
     it('removes the sort key when the column is unsorted', async() => {
       const api = vi.fn().mockResolvedValue(page([]))
-      const { table } = setup({ api, immediate: false })
+      const { table, queries } = setup({ api, immediate: false })
 
       await table.handleSortChange({ prop: 'createdAt', order: 'descending' })
       await table.handleSortChange({ prop: 'createdAt', order: null })
 
-      const lastQuery = api.mock.lastCall?.[0] as Record<string, unknown>
-      expect('createdAtOrder' in lastQuery).toBe(false)
+      expect('createdAtOrder' in (queries.at(-1) as object)).toBe(false)
     })
   })
 
@@ -282,13 +308,13 @@ describe('useTable', () => {
 
   it('handlePagination writes both page and size into the query', async() => {
     const api = vi.fn().mockResolvedValue(page([]))
-    const { table } = setup({ api, immediate: false })
+    const { table, queries } = setup({ api, immediate: false })
 
     await table.handlePagination({ page: 3, limit: 50 })
 
     expect(table.query.pageIndex).toBe(3)
     expect(table.query.pageSize).toBe(50)
-    expect(api).toHaveBeenCalledWith(expect.objectContaining({ pageIndex: 3, pageSize: 50 }))
+    expect(queries.at(-1)).toMatchObject({ pageIndex: 3, pageSize: 50 })
   })
 
   it('exposes loading while a request is in flight', async() => {
