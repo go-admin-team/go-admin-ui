@@ -1,10 +1,10 @@
-import store from '@/store'
+import { useUserStore } from '@/stores/user'
 
 export default {
   mounted(el, binding, vnode) {
     const { value } = binding
     const all_permission = '*:*:*'
-    const permissions = store.getters && store.getters.permisaction
+    const permissions = useUserStore().permisaction
 
     if (value && value instanceof Array && value.length > 0) {
       const permissionFlag = value

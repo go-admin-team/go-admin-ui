@@ -5,7 +5,8 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'pinia'
+import { useUserStore } from '@/stores/user'
 import adminDashboard from './admin'
 import editorDashboard from './editor'
 
@@ -18,9 +19,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters([
-      'roles'
-    ])
+    ...mapState(useUserStore, ['roles'])
   },
   created() {
     // if (!this.roles.includes('admin')) {

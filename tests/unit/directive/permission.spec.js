@@ -1,18 +1,16 @@
 import { mount } from '@vue/test-utils'
 import permission from '@/directive/permission/permission'
+import { setActivePinia, createPinia } from 'pinia'
+import { useUserStore } from '@/stores/user'
 
-// store is a default export. vitest uses native ESM, so the factory must
-// provide an explicit `default` key — jest's CJS interop treated the whole
-// returned object as the default, which does not apply here.
-vi.mock('@/store', () => ({
-  default: {
-    getters: {
-      roles: ['editor']
-    }
-  }
-}))
 
 // 指令通过 el.parentNode.removeChild(el) 移除元素，因此被测元素必须有父节点
+// The directive reads the real store, so seed it instead of mocking the module
+beforeEach(() => {
+  setActivePinia(createPinia())
+  useUserStore().roles = ['editor']
+})
+
 const factory = value =>
   mount(
     {

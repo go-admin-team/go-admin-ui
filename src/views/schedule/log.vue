@@ -30,6 +30,7 @@
 <script>
 
 import { unWsLogout } from '@/api/ws'
+import { useUserStore } from '@/stores/user'
 export default {
   name: 'JobLog',
   data() {
@@ -55,8 +56,8 @@ export default {
   },
   methods: {
     initWebSocket() { // 初始化weosocket
-      console.log(this.$store.state.user.token)
-      const wsuri = 'ws://127.0.0.1:8000/ws/' + this.id + '/' + this.group + '?token=' + this.$store.state.user.token
+      console.log(useUserStore().token)
+      const wsuri = 'ws://127.0.0.1:8000/ws/' + this.id + '/' + this.group + '?token=' + useUserStore().token
       this.websock = new WebSocket(wsuri)
       this.websock.onmessage = this.websocketonmessage
       this.websock.onopen = this.websocketonopen

@@ -1,10 +1,15 @@
-import { createStore } from 'vuex'
+import { setActivePinia, createPinia } from 'pinia'
 
 /**
- * Behaviour lock for the user module ahead of the Vuex -> Pinia port (P1).
+ * Ported from the Vuex version together with the store itself.
  *
- * The module reads the token at import time via getToken(), so the auth mock
- * must be hoisted above the import — vi.mock does that automatically.
+ * Two intentional differences from the Vuex behaviour, both asserted below:
+ *   - getInfo resolves with the profile instead of the raw `{ code, data }`
+ *     envelope, so the router guard's `const { roles } = ...` finally works
+ *   - changeRoles is gone; it was an unreferenced vue-element-admin demo
+ *
+ * The store reads the token at creation time, so the auth mock must be hoisted
+ * above the import — vi.mock does that.
  */
 
 const api = {
@@ -18,8 +23,6 @@ const auth = {
   removeToken: vi.fn()
 }
 const storage = { clear: vi.fn() }
-const routerMock = { addRoute: vi.fn() }
-const resetRouter = vi.fn()
 
 vi.mock('@/api/user', () => ({
   login: (...args) => api.login(...args),
@@ -34,130 +37,113 @@ vi.mock('@/utils/auth', () => ({
 vi.mock('@/utils/storage', () => ({
   default: { clear: (...args) => storage.clear(...args) }
 }))
-vi.mock('@/router', () => ({
-  default: { addRoute: (...args) => routerMock.addRoute(...args) },
-  resetRouter: (...args) => resetRouter(...args)
-}))
 
-const { default: user } = await import('@/store/modules/user')
+const { useUserStore } = await import('@/stores/user')
 
-function makeStore() {
-  // state is a shared object literal, not a factory — reset between tests
-  Object.assign(user.state, {
-    token: '',
-    name: '',
-    avatar: '',
-    introduction: '',
-    roles: [],
-    permissions: [],
-    permisaction: []
-  })
-  return createStore({ modules: { user } })
-}
+const profile = (over = {}) => ({
+  roles: ['admin'],
+  name: 'Admin',
+  avatar: 'http://cdn/a.png',
+  introduction: 'hello',
+  permissions: ['admin:sysUser:add'],
+  ...over
+})
 
-describe('store/user', () => {
+describe('stores/user', () => {
   let store
 
   beforeEach(() => {
     vi.clearAllMocks()
-    store = makeStore()
+    setActivePinia(createPinia())
+    store = useUserStore()
   })
-
-  const state = () => store.state.user
 
   describe('login', () => {
     it('stores the token in both state and the cookie', async() => {
       api.login.mockResolvedValue({ token: 'tok-1' })
 
-      await store.dispatch('user/login', { username: 'admin', password: 'x' })
+      await store.login({ username: 'admin', password: 'x' })
 
-      expect(state().token).toBe('tok-1')
+      expect(store.token).toBe('tok-1')
       expect(auth.setToken).toHaveBeenCalledWith('tok-1')
     })
 
     it('propagates the rejection and leaves the token empty', async() => {
       api.login.mockRejectedValue(new Error('bad credentials'))
 
-      await expect(store.dispatch('user/login', {})).rejects.toThrow('bad credentials')
-      expect(state().token).toBe('')
+      await expect(store.login({})).rejects.toThrow('bad credentials')
+      expect(store.token).toBe('')
       expect(auth.setToken).not.toHaveBeenCalled()
     })
   })
 
   describe('getInfo', () => {
     it('populates profile, roles and permissions', async() => {
-      api.getInfo.mockResolvedValue({
-        data: {
-          roles: ['admin'],
-          name: 'Admin',
-          avatar: 'http://cdn/a.png',
-          introduction: 'hello',
-          permissions: ['admin:sysUser:add']
-        }
-      })
+      api.getInfo.mockResolvedValue({ data: profile() })
 
-      await store.dispatch('user/getInfo')
+      await store.getInfo()
 
-      expect(state().roles).toEqual(['admin'])
-      expect(state().name).toBe('Admin')
-      expect(state().introduction).toBe('hello')
+      expect(store.roles).toEqual(['admin'])
+      expect(store.name).toBe('Admin')
+      expect(store.introduction).toBe('hello')
     })
 
     /**
-     * SET_PERMISSIONS writes to `permisaction`, not to the `permissions` field
-     * that also exists on state. The v-permisaction directive reads
-     * `permisaction`, so the naming mismatch is load-bearing: renaming it during
-     * the Pinia port would silently break every permission-guarded button.
+     * Resolving with the profile rather than the envelope is what makes the
+     * router guard's `const { roles } = await getInfo()` work; under Vuex it
+     * silently produced undefined.
+     */
+    it('resolves with the profile itself', async() => {
+      api.getInfo.mockResolvedValue({ code: 200, data: profile() })
+
+      const result = await store.getInfo()
+
+      expect(result.roles).toEqual(['admin'])
+    })
+
+    /**
+     * SET_PERMISSIONS wrote to `permisaction`, not to `permissions`. The
+     * v-permisaction directive reads the former, so the naming is load-bearing.
      */
     it('writes permissions into the permisaction field', async() => {
-      api.getInfo.mockResolvedValue({
-        data: { roles: ['admin'], name: 'A', avatar: '', introduction: '', permissions: ['p1'] }
-      })
+      api.getInfo.mockResolvedValue({ data: profile({ permissions: ['p1'] }) })
 
-      await store.dispatch('user/getInfo')
+      await store.getInfo()
 
-      expect(state().permisaction).toEqual(['p1'])
-      expect(state().permissions).toEqual([])
+      expect(store.permisaction).toEqual(['p1'])
     })
 
     it('prefixes a relative avatar with the API base url', async() => {
-      api.getInfo.mockResolvedValue({
-        data: { roles: ['admin'], name: 'A', avatar: '/pic/a.png', introduction: '', permissions: [] }
-      })
+      api.getInfo.mockResolvedValue({ data: profile({ avatar: '/pic/a.png' }) })
 
-      await store.dispatch('user/getInfo')
+      await store.getInfo()
 
       // VUE_APP_BASE_API is defined as '' under test, so the value passes through
-      expect(state().avatar).toBe('/pic/a.png')
+      expect(store.avatar).toBe('/pic/a.png')
     })
 
     it('keeps an absolute avatar url untouched', async() => {
-      api.getInfo.mockResolvedValue({
-        data: { roles: ['admin'], name: 'A', avatar: 'http://cdn/a.png', introduction: '', permissions: [] }
-      })
+      api.getInfo.mockResolvedValue({ data: profile({ avatar: 'http://cdn/a.png' }) })
 
-      await store.dispatch('user/getInfo')
+      await store.getInfo()
 
-      expect(state().avatar).toBe('http://cdn/a.png')
+      expect(store.avatar).toBe('http://cdn/a.png')
     })
 
     it('rejects when roles come back empty', async() => {
-      api.getInfo.mockResolvedValue({
-        data: { roles: [], name: 'A', avatar: '', introduction: '', permissions: [] }
-      })
+      api.getInfo.mockResolvedValue({ data: profile({ roles: [] }) })
 
-      await expect(store.dispatch('user/getInfo')).rejects.toBe(
-        'getInfo: roles must be a non-null array!'
-      )
+      await expect(store.getInfo()).rejects.toThrow('roles must be a non-null array')
     })
 
     it('clears the token and resolves when the response carries no data', async() => {
-      store.commit('user/SET_TOKEN', 'stale')
+      store.token = 'stale'
       api.getInfo.mockResolvedValue({})
 
-      await store.dispatch('user/getInfo')
+      const result = await store.getInfo()
 
-      expect(state().token).toBe('')
+      expect(result).toBeUndefined()
+      expect(store.token).toBe('')
       expect(auth.removeToken).toHaveBeenCalled()
     })
   })
@@ -165,36 +151,36 @@ describe('store/user', () => {
   describe('LogOut', () => {
     it('clears token, roles, permissions, cookie and local storage', async() => {
       api.logout.mockResolvedValue({})
-      store.commit('user/SET_TOKEN', 'tok')
-      store.commit('user/SET_ROLES', ['admin'])
-      store.commit('user/SET_PERMISSIONS', ['p1'])
+      store.token = 'tok'
+      store.roles = ['admin']
+      store.permisaction = ['p1']
 
-      await store.dispatch('user/LogOut')
+      await store.LogOut()
 
-      expect(state().token).toBe('')
-      expect(state().roles).toEqual([])
-      expect(state().permisaction).toEqual([])
+      expect(store.token).toBe('')
+      expect(store.roles).toEqual([])
+      expect(store.permisaction).toEqual([])
       expect(auth.removeToken).toHaveBeenCalled()
       expect(storage.clear).toHaveBeenCalled()
     })
 
     it('keeps state intact when the logout request fails', async() => {
       api.logout.mockRejectedValue(new Error('network'))
-      store.commit('user/SET_TOKEN', 'tok')
+      store.token = 'tok'
 
-      await expect(store.dispatch('user/LogOut')).rejects.toThrow('network')
-      expect(state().token).toBe('tok')
+      await expect(store.LogOut()).rejects.toThrow('network')
+      expect(store.token).toBe('tok')
       expect(storage.clear).not.toHaveBeenCalled()
     })
   })
 
   describe('resetToken', () => {
-    it('clears the token without calling the api', async() => {
-      store.commit('user/SET_TOKEN', 'tok')
+    it('clears the token without calling the api', () => {
+      store.token = 'tok'
 
-      await store.dispatch('user/resetToken')
+      store.resetToken()
 
-      expect(state().token).toBe('')
+      expect(store.token).toBe('')
       expect(auth.removeToken).toHaveBeenCalled()
       expect(api.logout).not.toHaveBeenCalled()
     })

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import store from '@/store'
+import { useUserStore } from '@/stores/user'
 import { getToken } from '@/utils/auth'
 
 // create an axios instance
@@ -15,7 +15,7 @@ service.interceptors.request.use(
   config => {
     // do something before request is sent
 
-    if (store.getters.token) {
+    if (useUserStore().token) {
       // let each request carry token
       // ['X-Token'] is a custom headers key
       // please modify it according to the actual situation
@@ -53,7 +53,7 @@ service.interceptors.response.use(
   response => {
     const code = response.data.code
     if (code === 401) {
-      store.dispatch('user/resetToken')
+      useUserStore().resetToken()
       if (location.href.indexOf('login') !== -1) {
         location.reload() // 为了重新实例化vue-router对象 避免bug
       } else {
@@ -71,7 +71,7 @@ service.interceptors.response.use(
       }
       return Promise.reject(new Error('Unauthorized'))
     } else if (code === 6401) {
-      store.dispatch('user/resetToken')
+      useUserStore().resetToken()
       ElMessageBox.confirm(
         '登录状态已过期，您可以继续留在该页面，或者重新登录',
         '系统提示',
