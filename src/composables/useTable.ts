@@ -120,13 +120,21 @@ export function useTable<TRow extends object, TQuery extends object = Record<str
   const loading = ref(false)
   const selection = ref([]) as Ref<TRow[]>
 
+  /**
+   * The filters plus the page index -- everything a reset restores.
+   *
+   * pageSize is deliberately absent: it belongs to the pagination control, not
+   * to the filter form, and the two have different reset semantics. Including
+   * it here would mean rebuilding it on every reset and then writing the user's
+   * choice back over the top.
+   */
   const buildQuery = () => ({
     ...defaultQuery(),
-    pageIndex: 1,
-    pageSize
+    pageIndex: 1
   }) as TQuery & PageQuery
 
-  const query = reactive(buildQuery()) as TQuery & PageQuery
+  /** Seeded once; from then on the pagination control owns pageSize. */
+  const query = reactive({ ...buildQuery(), pageSize }) as TQuery & PageQuery
 
   /**
    * Identifies the most recent request. A response whose token no longer
@@ -184,9 +192,10 @@ export function useTable<TRow extends object, TQuery extends object = Record<str
     const target = query as Record<string, unknown>
     // Object.assign alone would not be enough: it overwrites the keys the
     // default declares and leaves every other one in place, which is precisely
-    // the externally-set filters and sort keys this is meant to clear.
+    // the externally-set filters and sort keys this is meant to clear. pageSize
+    // is outside the reset surface -- see buildQuery.
     for (const key of Object.keys(target)) {
-      if (!(key in fresh)) delete target[key]
+      if (key !== 'pageSize' && !(key in fresh)) delete target[key]
     }
     Object.assign(query, fresh)
     sortKey = null
