@@ -1,8 +1,9 @@
+import { mapState } from 'pinia'
+import { useAppStore } from '@/stores/app'
+
 export default {
   computed: {
-    device() {
-      return this.$store.state.app.device
-    }
+    ...mapState(useAppStore, ['device'])
   },
   mounted() {
     // In order to fix the click on menu on the ios device will trigger the mouseleave bug

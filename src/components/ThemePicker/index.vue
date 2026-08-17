@@ -8,7 +8,9 @@
 </template>
 
 <script>
+import { mapState } from 'pinia'
 import elementPlusPkg from 'element-plus/package.json'
+import { useSettingsStore } from '@/stores/settings'
 
 const version = elementPlusPkg.version // element-plus version from node_modules
 const ORIGINAL_THEME = '#1890FF' // default color
@@ -23,9 +25,7 @@ export default {
     }
   },
   computed: {
-    defaultTheme() {
-      return this.$store.state.settings.theme
-    }
+    ...mapState(useSettingsStore, { defaultTheme: 'theme' })
   },
   watch: {
     defaultTheme: {

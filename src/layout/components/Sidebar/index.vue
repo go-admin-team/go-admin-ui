@@ -5,9 +5,9 @@
       <el-menu
         :default-active="activeMenu"
         :collapse="isCollapse"
-        :background-color=" $store.state.settings.themeStyle === 'light' ? variables.menuLightBg : variables.menuBg"
-        :text-color="$store.state.settings.themeStyle === 'light' ? 'rgba(0,0,0,.65)' : '#fff'"
-        :active-text-color="$store.state.settings.theme"
+        :background-color="themeStyle === 'light' ? variables.menuLightBg : variables.menuBg"
+        :text-color="themeStyle === 'light' ? 'rgba(0,0,0,.65)' : '#fff'"
+        :active-text-color="theme"
         :unique-opened="true"
         :collapse-transition="true"
         :router="true"
@@ -27,6 +27,9 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { mapState } from 'pinia'
+import { useSettingsStore } from '@/stores/settings'
+import { useAppStore } from '@/stores/app'
 import Logo from './Logo'
 import SidebarItem from './SidebarItem'
 import variables from '@/styles/variables.module.scss'
@@ -35,9 +38,9 @@ export default {
   components: { SidebarItem, Logo },
   computed: {
     ...mapGetters([
-      'sidebarRouters',
-      'sidebar'
+      'sidebarRouters'
     ]),
+    ...mapState(useAppStore, ['sidebar']),
     activeMenu() {
       const route = this.$route
       const { meta, path } = route
@@ -47,9 +50,8 @@ export default {
       }
       return path
     },
-    showLogo() {
-      return this.$store.state.settings.sidebarLogo
-    },
+    ...mapState(useSettingsStore, ['theme', 'themeStyle']),
+    ...mapState(useSettingsStore, { showLogo: 'sidebarLogo' }),
     variables() {
       return variables
     },

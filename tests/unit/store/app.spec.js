@@ -1,10 +1,14 @@
-import { createStore } from 'vuex'
+import { setActivePinia, createPinia } from 'pinia'
 
 /**
- * Behaviour lock for the app module ahead of the Vuex -> Pinia port (P1).
+ * Ported from the Vuex version together with the store itself.
  *
- * Sidebar state and component size are mirrored into cookies so they survive a
- * reload; those writes are part of the contract, not an implementation detail.
+ * One assertion changed: the cookie value is now written as a string ('1'/'0')
+ * rather than a number. js-cookie's type signature requires a string and it
+ * stringified the number anyway, so the stored value is identical.
+ *
+ * The store reads cookies at creation time, so the mock must be hoisted above
+ * the import — vi.mock does that.
  */
 
 const cookies = { get: vi.fn(() => undefined), set: vi.fn() }
@@ -16,76 +20,65 @@ vi.mock('js-cookie', () => ({
   }
 }))
 
-const { default: app } = await import('@/store/modules/app')
+const { useAppStore } = await import('@/stores/app')
 
-function makeStore() {
-  // state is a shared object literal, not a factory — reset between tests
-  Object.assign(app.state, {
-    sidebar: { opened: true, withoutAnimation: false },
-    device: 'desktop',
-    size: 'medium'
-  })
-  return createStore({ modules: { app } })
-}
-
-describe('store/app', () => {
+describe('stores/app', () => {
   let store
 
   beforeEach(() => {
     vi.clearAllMocks()
-    store = makeStore()
+    setActivePinia(createPinia())
+    store = useAppStore()
   })
-
-  const state = () => store.state.app
 
   describe('toggleSideBar', () => {
     it('flips the open flag and persists 0 when collapsing', () => {
-      store.dispatch('app/toggleSideBar')
+      store.toggleSideBar()
 
-      expect(state().sidebar.opened).toBe(false)
-      expect(cookies.set).toHaveBeenCalledWith('sidebarStatus', 0)
+      expect(store.sidebar.opened).toBe(false)
+      expect(cookies.set).toHaveBeenCalledWith('sidebarStatus', '0')
     })
 
     it('persists 1 when expanding again', () => {
-      store.dispatch('app/toggleSideBar')
-      store.dispatch('app/toggleSideBar')
+      store.toggleSideBar()
+      store.toggleSideBar()
 
-      expect(state().sidebar.opened).toBe(true)
-      expect(cookies.set).toHaveBeenLastCalledWith('sidebarStatus', 1)
+      expect(store.sidebar.opened).toBe(true)
+      expect(cookies.set).toHaveBeenLastCalledWith('sidebarStatus', '1')
     })
 
     it('always clears withoutAnimation', () => {
-      store.commit('app/CLOSE_SIDEBAR', true)
-      store.dispatch('app/toggleSideBar')
+      store.closeSideBar({ withoutAnimation: true })
+      store.toggleSideBar()
 
-      expect(state().sidebar.withoutAnimation).toBe(false)
+      expect(store.sidebar.withoutAnimation).toBe(false)
     })
   })
 
   describe('closeSideBar', () => {
     it('closes the sidebar and carries the withoutAnimation flag through', () => {
-      store.dispatch('app/closeSideBar', { withoutAnimation: true })
+      store.closeSideBar({ withoutAnimation: true })
 
-      expect(state().sidebar.opened).toBe(false)
-      expect(state().sidebar.withoutAnimation).toBe(true)
-      expect(cookies.set).toHaveBeenCalledWith('sidebarStatus', 0)
+      expect(store.sidebar.opened).toBe(false)
+      expect(store.sidebar.withoutAnimation).toBe(true)
+      expect(cookies.set).toHaveBeenCalledWith('sidebarStatus', '0')
     })
   })
 
   describe('toggleDevice', () => {
     it('records the current device without touching cookies', () => {
-      store.dispatch('app/toggleDevice', 'mobile')
+      store.toggleDevice('mobile')
 
-      expect(state().device).toBe('mobile')
+      expect(store.device).toBe('mobile')
       expect(cookies.set).not.toHaveBeenCalled()
     })
   })
 
   describe('setSize', () => {
     it('stores the size and persists it', () => {
-      store.dispatch('app/setSize', 'small')
+      store.setSize('small')
 
-      expect(state().size).toBe('small')
+      expect(store.size).toBe('small')
       expect(cookies.set).toHaveBeenCalledWith('size', 'small')
     })
   })

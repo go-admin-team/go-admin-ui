@@ -191,6 +191,7 @@
 <script>
 import { getSetConfig, updateSetConfig } from '@/api/admin/sys-config'
 import { getToken } from '@/utils/auth'
+import { useSystemStore } from '@/stores/system'
 import { Setting, OfficeBuilding, Lock, Picture, Upload, Brush, Check } from '@element-plus/icons-vue'
 
 export default {
@@ -254,7 +255,7 @@ export default {
             this.msgSuccess(response.msg)
             this.getList()
             const { sys_app_name, sys_app_logo } = this.form
-            this.$store.commit('system/SET_INFO', { sys_app_logo, sys_app_name })
+            useSystemStore().setInfo({ sys_app_logo, sys_app_name })
           } else {
             this.msgError(response.msg)
           }

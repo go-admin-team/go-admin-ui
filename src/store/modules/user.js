@@ -2,6 +2,7 @@ import { login, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 import storage from '@/utils/storage'
+import { useTagsViewStore } from '@/stores/tagsView'
 
 const state = {
   token: getToken(),
@@ -124,7 +125,7 @@ const actions = {
       accessRoutes.forEach(route => router.addRoute(route))
 
       // reset visited views and cached views
-      dispatch('tagsView/delAllViews', null, { root: true })
+      useTagsViewStore().delAllViews()
 
       resolve()
     })

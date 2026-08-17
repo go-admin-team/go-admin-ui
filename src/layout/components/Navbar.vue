@@ -35,6 +35,9 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { mapState } from 'pinia'
+import { useSettingsStore } from '@/stores/settings'
+import { useAppStore } from '@/stores/app'
 import Breadcrumb from '@/components/Breadcrumb'
 import TopNav from '@/components/TopNav'
 import Hamburger from '@/components/Hamburger'
@@ -50,32 +53,21 @@ export default {
     HeaderSearch
   },
   computed: {
-    ...mapGetters([
-      'sidebar',
-      'avatar',
-      'device'
-    ]),
+    ...mapGetters(['avatar']),
+    ...mapState(useAppStore, ['sidebar', 'device']),
+    ...mapState(useSettingsStore, ['topNav']),
     setting: {
       get() {
-        return this.$store.state.settings.showSettings
+        return useSettingsStore().showSettings
       },
       set(val) {
-        this.$store.dispatch('settings/changeSetting', {
-          key: 'showSettings',
-          value: val
-        })
-      }
-    },
-    topNav: {
-      get() {
-        return this.$store.state.settings.topNav
+        useSettingsStore().changeSetting({ key: 'showSettings', value: val })
       }
     }
-
   },
   methods: {
     toggleSideBar() {
-      this.$store.dispatch('app/toggleSideBar')
+      useAppStore().toggleSideBar()
     },
     async logout() {
       this.$confirm('确定注销并退出系统吗？', '提示', {

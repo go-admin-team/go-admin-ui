@@ -179,6 +179,7 @@
   </el-card>
 </template>
 <script>
+import { useTagsViewStore } from '@/stores/tagsView'
 import { getGenTable, updateGenTable, getTableTree } from '@/api/tools/gen'
 // import { listTable } from '@/api/tools/gen'
 import { optionselect as getDictOptionselect } from '@/api/admin/dict/type'
@@ -340,7 +341,7 @@ export default {
     },
     /** 关闭按钮 */
     close() {
-      this.$store.dispatch('tagsView/delView', this.$route)
+      useTagsViewStore().delView(this.$route)
       this.$router.push({ path: '/dev-tools/gen', query: { t: Date.now() }})
     }
   }

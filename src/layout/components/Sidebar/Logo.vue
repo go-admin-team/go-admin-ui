@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar-logo-container" :class="{'collapse':collapse}" :style="{ backgroundColor: $store.state.settings.themeStyle === 'dark' ? variables.menuBg : variables.menuLightBg }">
+  <div class="sidebar-logo-container" :class="{'collapse':collapse}" :style="{ backgroundColor: themeStyle === 'dark' ? variables.menuBg : variables.menuLightBg }">
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
         <img v-if="showLogo" :src="appInfo.sys_app_logo" class="sidebar-logo" @error="showLogo = false">
@@ -17,7 +17,9 @@
 <script>
 
 import variables from '@/styles/variables.module.scss'
-import { mapGetters } from 'vuex'
+import { mapState } from 'pinia'
+import { useSystemStore } from '@/stores/system'
+import { useSettingsStore } from '@/stores/settings'
 
 export default {
   name: 'SidebarLogo',
@@ -31,9 +33,8 @@ export default {
     return { showLogo: false }
   },
   computed: {
-    ...mapGetters([
-      'appInfo'
-    ]),
+    ...mapState(useSystemStore, { appInfo: 'info' }),
+    ...mapState(useSettingsStore, ['themeStyle']),
     variables() {
       return variables
     },
@@ -41,7 +42,7 @@ export default {
       return (this.appInfo && this.appInfo.sys_app_name) || 'Go Admin'
     },
     titleColor() {
-      return this.$store.state.settings.themeStyle === 'dark'
+      return this.themeStyle === 'dark'
         ? variables.sidebarTitle
         : variables.sidebarLightTitle
     },

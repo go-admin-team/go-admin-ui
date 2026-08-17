@@ -67,83 +67,55 @@
 </template>
 
 <script>
+import { mapState } from 'pinia'
 import ThemePicker from '@/components/ThemePicker'
+import { useSettingsStore } from '@/stores/settings'
+
+/**
+ * Two-way binding for one setting. Writes go through changeSetting rather than
+ * assigning to state directly, preserving the guard that ignores unknown keys.
+ */
+const settingModel = key => ({
+  get() {
+    return useSettingsStore()[key]
+  },
+  set(value) {
+    useSettingsStore().changeSetting({ key, value })
+  }
+})
 
 export default {
   components: { ThemePicker },
   data() {
     return {
-      activeColor: this.$store.state.settings.theme
+      activeColor: useSettingsStore().theme
     }
   },
   computed: {
-    theme() {
-      return this.$store.state.settings.theme
-    },
-    themeStyle() {
-      return this.$store.state.settings.themeStyle
-    },
-    fixedHeader: {
-      get() {
-        return this.$store.state.settings.fixedHeader
-      },
-      set(val) {
-        this.$store.dispatch('settings/changeSetting', {
-          key: 'fixedHeader',
-          value: val
-        })
-      }
-    },
+    ...mapState(useSettingsStore, ['theme', 'themeStyle']),
+    fixedHeader: settingModel('fixedHeader'),
+    tagsView: settingModel('tagsView'),
+    sidebarLogo: settingModel('sidebarLogo'),
     topNav: {
       get() {
-        return this.$store.state.settings.topNav
+        return useSettingsStore().topNav
       },
       set(val) {
-        this.$store.dispatch('settings/changeSetting', {
-          key: 'topNav',
-          value: val
-        })
+        useSettingsStore().changeSetting({ key: 'topNav', value: val })
         if (!val) {
+          // permission is still a Vuex module at this point in the migration
           this.$store.commit('permission/SET_SIDEBAR_ROUTERS', this.$store.state.permission.defaultRoutes)
         }
-      }
-    },
-    tagsView: {
-      get() {
-        return this.$store.state.settings.tagsView
-      },
-      set(val) {
-        this.$store.dispatch('settings/changeSetting', {
-          key: 'tagsView',
-          value: val
-        })
-      }
-    },
-    sidebarLogo: {
-      get() {
-        return this.$store.state.settings.sidebarLogo
-      },
-      set(val) {
-        this.$store.dispatch('settings/changeSetting', {
-          key: 'sidebarLogo',
-          value: val
-        })
       }
     }
   },
   methods: {
     themeChange(val) {
       this.activeColor = val
-      this.$store.dispatch('settings/changeSetting', {
-        key: 'theme',
-        value: val
-      })
+      useSettingsStore().changeSetting({ key: 'theme', value: val })
     },
     handleTheme(val) {
-      this.$store.dispatch('settings/changeSetting', {
-        key: 'themeStyle',
-        value: val
-      })
+      useSettingsStore().changeSetting({ key: 'themeStyle', value: val })
     }
   }
 }

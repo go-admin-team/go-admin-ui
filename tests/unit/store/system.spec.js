@@ -1,10 +1,11 @@
-import { createStore } from 'vuex'
+import { setActivePinia, createPinia } from 'pinia'
 
 /**
- * Behaviour lock for the system module ahead of the Vuex -> Pinia port (P1).
+ * Ported from the Vuex version together with the store itself; assertions are
+ * unchanged.
  *
- * The module reads local storage at import time to seed its state, so the
- * storage mock must be hoisted above the import — vi.mock does that.
+ * The store seeds its state from local storage at creation time, so the storage
+ * mock must be hoisted above the import — vi.mock does that.
  */
 
 const getSetting = vi.fn()
@@ -18,28 +19,23 @@ vi.mock('@/utils/storage', () => ({
   }
 }))
 
-const { default: system } = await import('@/store/modules/system')
+const { useSystemStore } = await import('@/stores/system')
 
-function makeStore() {
-  // state is a shared object literal, not a factory — reset between tests
-  system.state.info = {}
-  return createStore({ modules: { system } })
-}
-
-describe('store/system', () => {
+describe('stores/system', () => {
   let store
 
   beforeEach(() => {
     vi.clearAllMocks()
-    store = makeStore()
+    setActivePinia(createPinia())
+    store = useSystemStore()
   })
 
   it('stores the fetched settings and mirrors them into local storage', async() => {
     getSetting.mockResolvedValue({ data: { sysName: 'go-admin', logo: '/logo.png' } })
 
-    const result = await store.dispatch('system/settingDetail')
+    const result = await store.settingDetail()
 
-    expect(store.state.system.info).toEqual({ sysName: 'go-admin', logo: '/logo.png' })
+    expect(store.info).toEqual({ sysName: 'go-admin', logo: '/logo.png' })
     expect(storage.set).toHaveBeenCalledWith('app_info', { sysName: 'go-admin', logo: '/logo.png' })
     expect(result).toEqual({ sysName: 'go-admin', logo: '/logo.png' })
   })
@@ -47,8 +43,20 @@ describe('store/system', () => {
   it('propagates the rejection and writes nothing', async() => {
     getSetting.mockRejectedValue(new Error('offline'))
 
-    await expect(store.dispatch('system/settingDetail')).rejects.toThrow('offline')
+    await expect(store.settingDetail()).rejects.toThrow('offline')
     expect(storage.set).not.toHaveBeenCalled()
-    expect(store.state.system.info).toEqual({})
+    expect(store.info).toEqual({})
+  })
+
+  /**
+   * The settings page writes branding straight into the store after a save, so
+   * the sidebar logo updates without a refetch.
+   */
+  it('accepts a direct update without touching the api', () => {
+    store.setInfo({ sys_app_name: 'Renamed' })
+
+    expect(store.info).toEqual({ sys_app_name: 'Renamed' })
+    expect(storage.set).toHaveBeenCalledWith('app_info', { sys_app_name: 'Renamed' })
+    expect(getSetting).not.toHaveBeenCalled()
   })
 })

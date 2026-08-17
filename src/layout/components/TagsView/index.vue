@@ -41,7 +41,10 @@
 </template>
 
 <script>
+import { mapState } from 'pinia'
 import path from 'path'
+import { useSettingsStore } from '@/stores/settings'
+import { useTagsViewStore } from '@/stores/tagsView'
 
 export default {
   data() {
@@ -55,15 +58,11 @@ export default {
     }
   },
   computed: {
-    visitedViews() {
-      return this.$store.state.tagsView.visitedViews
-    },
+    ...mapState(useTagsViewStore, ['visitedViews']),
     routes() {
       return this.$store.state.permission.routes
     },
-    theme() {
-      return this.$store.state.settings.theme
-    }
+    ...mapState(useSettingsStore, ['theme'])
   },
   watch: {
     $route() {
@@ -105,14 +104,14 @@ export default {
       // 页面初始化加载判断缓存中是否有数据
       const oldViews = JSON.parse(sessionStorage.getItem('tabViews')) || []
       if (oldViews.length > 0) {
-        this.$store.state.tagsView.visitedViews = oldViews
+        useTagsViewStore().setVisitedViews(oldViews)
       }
     },
     handleTagsOver(index) {
       const tags = document.querySelectorAll('.tags-item')
       const item = tags[index - 1]
-      item.style.cssText = `color:${this.$store.state.settings.theme};background:${
-        this.$store.state.settings.theme.colorRgb()
+      item.style.cssText = `color:${this.theme};background:${
+        this.theme.colorRgb()
       }`
     },
     handleTagsLeave(index) {
@@ -154,14 +153,14 @@ export default {
       for (const tag of affixTags) {
         // Must have tag name
         if (tag.name) {
-          this.$store.dispatch('tagsView/addVisitedView', tag)
+          useTagsViewStore().addVisitedView(tag)
         }
       }
     },
     addTags() {
       const { name } = this.$route
       if (name) {
-        this.$store.dispatch('tagsView/addView', this.$route)
+        useTagsViewStore().addView(this.$route)
         this.isActive()
       }
       return false
@@ -174,7 +173,7 @@ export default {
             // this.$refs.scrollPane.moveToTarget(tag)
             // when query is different then update
             if (tag.to.fullPath !== this.$route.fullPath) {
-              this.$store.dispatch('tagsView/updateVisitedView', this.$route)
+              useTagsViewStore().updateVisitedView(this.$route)
             }
             break
           }
@@ -182,12 +181,11 @@ export default {
       })
     },
     refreshSelectedTag(view) {
-      this.$store.dispatch('tagsView/delCachedView', view).then(() => {
-        const { fullPath } = view
-        this.$nextTick(() => {
-          this.$router.replace({
-            path: '/redirect' + fullPath
-          })
+      useTagsViewStore().delCachedView(view)
+      const { fullPath } = view
+      this.$nextTick(() => {
+        this.$router.replace({
+          path: '/redirect' + fullPath
         })
       })
     },
@@ -196,26 +194,23 @@ export default {
       const index = this.visitedViews.findIndex(item => item.fullPath === routerPath)
       if (index > -1) {
         const path = this.visitedViews[index]
-        this.$store.dispatch('tagsView/delView', path).then(({ visitedViews }) => {
-          if (this.editableTabsValue === path.fullPath) {
-            this.toLastView(visitedViews, path)
-          }
-        })
+        const { visitedViews } = useTagsViewStore().delView(path)
+        if (this.editableTabsValue === path.fullPath) {
+          this.toLastView(visitedViews, path)
+        }
       }
     },
     closeOthersTags() {
       this.$router.push(this.selectedTag.path).catch(e => e)
-      this.$store.dispatch('tagsView/delOthersViews', this.selectedTag).then(() => {
-        this.moveToCurrentTag()
-      })
+      useTagsViewStore().delOthersViews(this.selectedTag)
+      this.moveToCurrentTag()
     },
     closeAllTags(view) {
-      this.$store.dispatch('tagsView/delAllViews').then(({ visitedViews }) => {
-        if (this.affixTags.some(tag => tag.path === view.path)) {
-          return
-        }
-        this.toLastView(visitedViews, view)
-      })
+      const { visitedViews } = useTagsViewStore().delAllViews()
+      if (this.affixTags.some(tag => tag.path === view.path)) {
+        return
+      }
+      this.toLastView(visitedViews, view)
     },
     toLastView(visitedViews, view) {
       const latestView = visitedViews.slice(-1)[0]

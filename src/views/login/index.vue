@@ -132,6 +132,7 @@
 
 <script>
 import { getCodeImg } from '@/api/login'
+import { useSystemStore } from '@/stores/system'
 import { User, Lock, Key, View, Hide, Loading } from '@element-plus/icons-vue'
 import Gopher from '@/components/Gopher'
 import { version } from '../../../package.json'
@@ -190,7 +191,7 @@ export default {
   },
   methods: {
     getSystemSetting() {
-      this.$store.dispatch('system/settingDetail').then((ret) => {
+      useSystemStore().settingDetail().then((ret) => {
         this.sysInfo = ret
         document.title = ret.sys_app_name
       })

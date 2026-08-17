@@ -1,7 +1,7 @@
 <template>
-  <div :class="classObj" class="app-wrapper" :style="{'--current-color': $store.state.settings.theme}">
+  <div :class="classObj" class="app-wrapper" :style="{'--current-color': theme}">
     <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside" />
-    <sidebar class="sidebar-container" :style="{ backgroundColor: $store.state.settings.themeStyle === 'dark' ? variables.menuBg : variables.menuLightBg }" />
+    <sidebar class="sidebar-container" :style="{ backgroundColor: themeStyle === 'dark' ? variables.menuBg : variables.menuLightBg }" />
     <div :class="{hasTagsView:needTagsView}" class="main-container">
       <div :class="{'fixed-header':fixedHeader}">
         <navbar />
@@ -19,7 +19,9 @@
 import RightPanel from '@/components/RightPanel'
 import { AppMain, Navbar, Settings, Sidebar, TagsView } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
-import { mapState } from 'vuex'
+import { mapState } from 'pinia'
+import { useSettingsStore } from '@/stores/settings'
+import { useAppStore } from '@/stores/app'
 import variables from '@/styles/variables.module.scss'
 
 export default {
@@ -34,13 +36,9 @@ export default {
   },
   mixins: [ResizeMixin],
   computed: {
-    ...mapState({
-      sidebar: state => state.app.sidebar,
-      device: state => state.app.device,
-      showSettings: state => state.settings.showSettings,
-      needTagsView: state => state.settings.tagsView,
-      fixedHeader: state => state.settings.fixedHeader
-    }),
+    ...mapState(useAppStore, ['sidebar', 'device']),
+    ...mapState(useSettingsStore, ['showSettings', 'fixedHeader', 'theme', 'themeStyle']),
+    ...mapState(useSettingsStore, { needTagsView: 'tagsView' }),
     classObj() {
       return {
         hideSidebar: !this.sidebar.opened,
@@ -55,7 +53,7 @@ export default {
   },
   methods: {
     handleClickOutside() {
-      this.$store.dispatch('app/closeSideBar', { withoutAnimation: false })
+      useAppStore().closeSideBar({ withoutAnimation: false })
     }
   }
 }

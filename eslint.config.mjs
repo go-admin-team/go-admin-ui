@@ -197,6 +197,18 @@ export default [
   },
 
   {
+    // Leading `|` and `&` are the idiomatic layout for multi-line TypeScript
+    // union and intersection types, which the JS-oriented `after` setting
+    // rejects. Scoped to .ts so the rule is unchanged for JS bitwise operators.
+    files: ['**/*.ts', '**/*.tsx'],
+    rules: {
+      '@stylistic/operator-linebreak': [2, 'after', {
+        overrides: { '?': 'before', ':': 'before', '|': 'before', '&': 'before' }
+      }]
+    }
+  },
+
+  {
     // Migrated from tests/unit/.eslintrc.js
     files: ['tests/**/*.{js,ts}'],
     languageOptions: {

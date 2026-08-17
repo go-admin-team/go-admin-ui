@@ -17,6 +17,7 @@
 </template>
 
 <script>
+import { useTagsViewStore } from '@/stores/tagsView'
 import { updateUserPwd } from '@/api/admin/sys-user'
 
 export default {
@@ -68,7 +69,7 @@ export default {
       })
     },
     close() {
-      this.$store.dispatch('tagsView/delView', this.$route)
+      useTagsViewStore().delView(this.$route)
       this.$router.push({ path: '/index' })
     }
   }
