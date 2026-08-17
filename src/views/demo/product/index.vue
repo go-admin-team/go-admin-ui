@@ -44,9 +44,7 @@
         </template>
       </el-table-column>
       <el-table-column label="创建时间" min-width="110">
-        <template #default="{ row }">
-          <span :title="parseTime(row.createdAt)">{{ parseTime(row.createdAt, '{y}-{m}-{d}') }}</span>
-        </template>
+        <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
       </el-table-column>
       <el-table-column label="操作" width="120" fixed="right" class-name="row-actions">
         <template #default="{ row }">
@@ -115,8 +113,8 @@ import type { FormRules } from 'element-plus'
 
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
+import DateCell from '@/components/DateCell/index.vue'
 import { useTable, useForm, useRemove } from '@/composables'
-import { parseTime } from '@/utils/costum'
 
 import {
   listProduct, getProduct, addProduct, updateProduct, delProduct

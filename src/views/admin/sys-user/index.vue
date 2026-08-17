@@ -109,16 +109,8 @@
               />
             </template>
           </el-table-column>
-          <!--
-            Date only in the column, full timestamp on hover. A sortable header
-            plus "2026-08-01 14:00" needs ~141px; at 1280 the six flexible
-            columns have 584px between them, and spending a quarter of that on
-            two digits nobody scans made the cell wrap and every row 14px taller.
-          -->
           <el-table-column label="创建时间" prop="createdAt" min-width="110" sortable="custom">
-            <template #default="{ row }">
-              <span :title="parseTime(row.createdAt)">{{ parseTime(row.createdAt, '{y}-{m}-{d}') }}</span>
-            </template>
+            <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
           </el-table-column>
           <el-table-column label="操作" width="140" fixed="right" class-name="row-actions">
             <template #default="{ row }">
@@ -328,9 +320,9 @@ import type { FormRules } from 'element-plus'
 
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
+import DateCell from '@/components/DateCell/index.vue'
 import { useTable, useForm, useDict, useRemove } from '@/composables'
 import { msgSuccess } from '@/utils/message'
-import { parseTime } from '@/utils/costum'
 
 import {
   listUser, getUser, addUser, updateUser, delUser, resetUserPwd, changeUserStatus
