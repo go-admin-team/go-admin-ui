@@ -1,0 +1,161 @@
+<template>
+  <div class="pro-table">
+    <el-form
+      v-if="$slots.search"
+      :model="table.query"
+      inline
+      label-width="auto"
+      class="pro-table__search"
+      @submit.prevent="table.search"
+    >
+      <slot name="search" />
+      <el-form-item>
+        <!--
+          native-type="submit" makes this the form's default submit button, so
+          Enter in any search field reaches @submit.prevent above and nothing
+          else needs a @keyup.enter of its own. Without it the browser's implicit
+          submission rule applies, which only fires when the form has exactly one
+          field that blocks it -- so Enter worked on some search bars, did
+          nothing on others, and double-fired on any page that added its own
+          @keyup.enter to compensate.
+        -->
+        <el-button type="primary" native-type="submit" :loading="table.loading">搜索</el-button>
+        <el-button @click="handleReset">重置</el-button>
+      </el-form-item>
+    </el-form>
+
+    <div v-if="$slots.toolbar" class="pro-table__toolbar">
+      <div class="pro-table__toolbar-actions">
+        <slot name="toolbar" />
+      </div>
+      <el-button
+        class="pro-table__refresh"
+        :loading="table.loading"
+        circle
+        title="刷新"
+        @click="table.getList"
+      >
+        <el-icon><Refresh /></el-icon>
+      </el-button>
+    </div>
+
+    <el-table
+      ref="tableRef"
+      v-loading="table.loading"
+      :data="table.rows"
+      :row-key="rowKey"
+      v-bind="$attrs"
+      @selection-change="table.handleSelectionChange"
+      @sort-change="table.handleSortChange"
+    >
+      <el-table-column v-if="selection" type="selection" width="45" :reserve-selection="!!rowKey" />
+      <slot />
+      <template #empty>
+        <slot name="empty">
+          <el-empty :image-size="80" description="暂无数据" />
+        </slot>
+      </template>
+    </el-table>
+
+    <!--
+      `pagination` carries both the page and the size, and handlePagination
+      writes both back into the query -- which flows straight back down as
+      :page and :limit. Handling update:page and update:limit as well would
+      only set the same values a moment earlier.
+    -->
+    <Pagination
+      v-show="table.total > 0"
+      :total="table.total"
+      :page="table.query.pageIndex"
+      :limit="table.query.pageSize"
+      @pagination="table.handlePagination"
+    />
+  </div>
+</template>
+
+<script setup lang="ts" generic="TRow extends object, TQuery extends object">
+import { ref } from 'vue'
+import { Refresh } from '@element-plus/icons-vue'
+import Pagination from '@/components/Pagination/index.vue'
+import type { UseTableReturn } from '@/composables/useTable'
+
+/**
+ * Wiring for a list page: search form, toolbar, table and pagination, all bound
+ * to one useTable result.
+ *
+ * Columns stay as <el-table-column> in the default slot rather than moving into
+ * a `columns` array. A column config looks tidier until the first page needs a
+ * switch, a tag, a nested prop or a conditional button -- then it grows render
+ * functions and per-type flags, and ends up a worse version of the slot API
+ * Element Plus already has. What repeats across pages is the plumbing, so only
+ * the plumbing is here.
+ *
+ *   <ProTable :table="table" selection row-key="userId">
+ *     <template #search>...el-form-items...</template>
+ *     <template #toolbar>...buttons...</template>
+ *     <el-table-column label="登录名" prop="username" />
+ *   </ProTable>
+ *
+ * Attributes not listed below land on the inner el-table, so `border`,
+ * `max-height`, `row-class-name` and the rest work as usual.
+ */
+defineOptions({ name: 'ProTable', inheritAttrs: false })
+
+const props = withDefaults(defineProps<{
+  /**
+   * The useTable result driving this table.
+   *
+   * The component is generic in the row and query types rather than declaring
+   * them as some open Record: `UseTableReturn` is invariant in both -- among
+   * other things it holds `(rows: TRow[]) => void` -- so a widened parameter
+   * would reject every page that types its own rows, which is the point of
+   * typing them.
+   */
+  table: UseTableReturn<TRow, TQuery>
+  /** Render a leading selection column. */
+  selection?: boolean
+  /** Primary key. Also enables selection that survives paging. */
+  rowKey?: string
+}>(), {
+  selection: false,
+  rowKey: ''
+})
+
+const tableRef = ref()
+
+/**
+ * resetQuery drops the sort key from the query, but the header keeps drawing
+ * its arrow until el-table is told as well -- leaving the column marked as
+ * sorted while the list is not. Clearing it lives here rather than in useTable,
+ * which stays free of anything Element Plus.
+ */
+const handleReset = async() => {
+  tableRef.value?.clearSort()
+  await props.table.resetQuery()
+}
+</script>
+
+<style lang="scss" scoped>
+.pro-table__search {
+  margin-bottom: 4px;
+}
+
+.pro-table__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.pro-table__toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pro-table__refresh {
+  flex-shrink: 0;
+}
+</style>
