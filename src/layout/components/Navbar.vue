@@ -11,6 +11,19 @@
 
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
 
+        <span
+          v-if="showSettings"
+          id="layout-settings"
+          class="right-menu-item hover-effect"
+          role="button"
+          tabindex="0"
+          title="系统布局配置"
+          @click="$emit('open-settings')"
+          @keyup.enter="$emit('open-settings')"
+        >
+          <i class="ri-settings-3-line" />
+        </span>
+
       </template>
 
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="hover">
@@ -52,10 +65,12 @@ export default {
     Screenfull,
     HeaderSearch
   },
+  // The layout owns the drawer's open state; the navbar only asks for it
+  emits: ['open-settings'],
   computed: {
     ...mapState(useUserStore, ['avatar']),
     ...mapState(useAppStore, ['sidebar', 'device']),
-    ...mapState(useSettingsStore, ['topNav']),
+    ...mapState(useSettingsStore, ['topNav', 'showSettings']),
     setting: {
       get() {
         return useSettingsStore().showSettings

@@ -4,11 +4,11 @@
     <sidebar class="sidebar-container" :style="{ backgroundColor: themeStyle === 'dark' ? variables.menuBg : variables.menuLightBg }" />
     <div :class="{hasTagsView:needTagsView}" class="main-container">
       <div :class="{'fixed-header':fixedHeader}">
-        <navbar />
+        <navbar @open-settings="settingsOpen = true" />
         <tags-view v-if="needTagsView" />
       </div>
       <app-main />
-      <right-panel v-if="showSettings">
+      <right-panel v-if="showSettings" v-model="settingsOpen">
         <settings />
       </right-panel>
     </div>
@@ -35,6 +35,13 @@ export default {
     TagsView
   },
   mixins: [ResizeMixin],
+  data() {
+    return {
+      // Whether the settings drawer is open. Lives here because the navbar
+      // raises it and RightPanel renders it, and the two are siblings.
+      settingsOpen: false
+    }
+  },
   computed: {
     ...mapState(useAppStore, ['sidebar', 'device']),
     ...mapState(useSettingsStore, ['showSettings', 'fixedHeader', 'theme', 'themeStyle']),

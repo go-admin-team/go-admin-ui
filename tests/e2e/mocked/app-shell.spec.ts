@@ -131,6 +131,29 @@ test.describe('app shell', () => {
     expect(calls.productList).toBe(beforeReturn)
   })
 
+  // The trigger used to be a tile fixed to the right edge of the viewport, which
+  // covered whatever the page had there -- on a list page, the pinned action
+  // column. It lives in the navbar icon row now.
+  test('the settings drawer opens from the navbar, not from a floating tile', async({ page, context }) => {
+    await authenticate(context)
+    await installApiMocks(page)
+
+    await page.goto('/#/demo/product')
+    await page.waitForSelector('.el-table')
+
+    // Nothing floating over the content any more
+    await expect(page.locator('.handle-button')).toHaveCount(0)
+
+    const drawer = page.locator('.rightPanel-container')
+    await expect(drawer).not.toHaveClass(/show/)
+
+    await page.locator('#layout-settings').click()
+    await expect(drawer).toHaveClass(/show/)
+
+    await page.locator('.rightPanel-close').click()
+    await expect(drawer).not.toHaveClass(/show/)
+  })
+
   test('opens a tab per visited page', async({ page, context }) => {
     await authenticate(context)
     await installApiMocks(page)

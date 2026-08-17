@@ -2,8 +2,17 @@
   <div ref="rightPanel" :class="{show:show}" class="rightPanel-container">
     <div class="rightPanel-background" />
     <div class="rightPanel">
-      <div class="handle-button" :style="{'top':buttonTop+'px','background-color':theme}" @click="show=!show">
-        <i :class="show?'ri-close-line':'ri-settings-line'" />
+      <!--
+        The trigger used to be a 48px tile fixed to the right edge of the
+        viewport, which sat on top of whatever the page had there -- on a list
+        page that is the pinned action column. It now lives in the navbar icon
+        row, where settings belongs, and this component is driven by v-model.
+      -->
+      <div class="rightPanel-head">
+        <span class="rightPanel-title">系统布局配置</span>
+        <button type="button" class="rightPanel-close" title="关闭" @click="show = false">
+          <i class="ri-close-line" />
+        </button>
       </div>
       <div class="rightPanel-items">
         <slot />
@@ -20,22 +29,27 @@ import { useSettingsStore } from '@/stores/settings'
 export default {
   name: 'RightPanel',
   props: {
-    clickNotClose: {
+    /** Drawer visibility. Owned by the layout, toggled from the navbar. */
+    modelValue: {
       default: false,
       type: Boolean
     },
-    buttonTop: {
-      default: 250,
-      type: Number
+    clickNotClose: {
+      default: false,
+      type: Boolean
     }
   },
-  data() {
-    return {
-      show: false
-    }
-  },
+  emits: ['update:modelValue'],
   computed: {
-    ...mapState(useSettingsStore, ['theme'])
+    ...mapState(useSettingsStore, ['theme']),
+    show: {
+      get() {
+        return this.modelValue
+      },
+      set(value) {
+        this.$emit('update:modelValue', value)
+      }
+    }
   },
   watch: {
     show(value) {
@@ -58,7 +72,12 @@ export default {
   },
   methods: {
     addEventClick() {
-      window.addEventListener('click', this.closeSidebar)
+      // Registered after the opening click has finished propagating. Otherwise
+      // that same click reaches this listener, closest('.rightPanel') does not
+      // match the trigger, and the drawer closes in the same tick it opened.
+      // The old trigger sat inside .rightPanel, so closest() matched it and the
+      // problem stayed hidden until the trigger moved to the navbar.
+      setTimeout(() => window.addEventListener('click', this.closeSidebar), 0)
     },
     closeSidebar(evt) {
       const parent = evt.target.closest('.rightPanel')
@@ -124,22 +143,38 @@ export default {
   }
 }
 
-.handle-button {
-  width: 48px;
-  height: 48px;
-  position: absolute;
-  left: -48px;
-  text-align: center;
-  font-size: 24px;
-  border-radius: 6px 0 0 6px !important;
-  z-index: 0;
-  pointer-events: auto;
+.rightPanel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ga-border-light);
+}
+
+.rightPanel-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ga-text-1);
+}
+
+.rightPanel-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--ga-radius-sm);
+  background: transparent;
+  color: var(--ga-text-2);
+  font-size: 18px;
   cursor: pointer;
-  color: #fff;
-  line-height: 48px;
-  i {
-    font-size: 24px;
-    line-height: 48px;
+
+  &:hover {
+    background: var(--ga-bg-subtle);
+    color: var(--ga-text-1);
   }
 }
 </style>
