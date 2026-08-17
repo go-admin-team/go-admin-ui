@@ -12,7 +12,9 @@
  *      never run.
  *   2. A failed call arrives as a rejection that has ALREADY been reported to
  *      the user. Callers must catch it to restore their own state (loading,
- *      submitting), but must not show a second message.
+ *      submitting), but must not show a second message. Such errors carry
+ *      `reported: true`, so a catch block that also handles client-side
+ *      failures can tell which of the two it is holding.
  *
  * The composables in src/composables encode both rules so pages do not have to.
  */

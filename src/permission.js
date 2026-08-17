@@ -50,10 +50,17 @@ router.beforeEach(async(to, from, next) => {
         } catch(error) {
           // remove token and go to login page to re-login
           // await store.dispatch('user/resetToken')
+          // Only report what nobody has reported yet. An HTTP failure here has
+          // already produced a toast from the response interceptor; the one
+          // failure this catch knows about on its own is a client-side throw,
+          // such as getInfo's "roles must be a non-null array".
+          //
+          // The message is read off `.message` rather than passed as the error:
           // ElMessage treats a non-string argument as its options bag, and an
-          // Error's `message` is non-enumerable -- passing the error straight
-          // through rendered an empty toast.
-          ElMessage.error(error?.message || 'Has Error')
+          // Error's `message` is non-enumerable, so the toast came out empty.
+          if (!error?.reported) {
+            ElMessage.error(error?.message || 'Has Error')
+          }
           next(`/login?redirect=${to.path}`)
           NProgress.done()
         }

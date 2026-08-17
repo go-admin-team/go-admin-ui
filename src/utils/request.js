@@ -3,6 +3,17 @@ import { ElMessageBox, ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import { getToken } from '@/utils/auth'
 
+/**
+ * Marks an error whose message this interceptor has already shown the user.
+ *
+ * "The interceptor already reported it, do not report it again" is stated in
+ * src/types/api.ts and in every composable's onError doc, but nothing enforced
+ * it -- so a catch block that wanted to surface a client-side failure had no
+ * way to tell the two apart and showed a second toast for every HTTP failure
+ * too. Callers can now check `error.reported`.
+ */
+const reported = error => Object.assign(error, { reported: true })
+
 // create an axios instance
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
@@ -69,7 +80,7 @@ service.interceptors.response.use(
           location.reload() // 为了重新实例化vue-router对象 避免bug
         })
       }
-      return Promise.reject(new Error('Unauthorized'))
+      return Promise.reject(reported(new Error('Unauthorized')))
     } else if (code === 6401) {
       useUserStore().resetToken()
       ElMessageBox.confirm(
@@ -87,14 +98,14 @@ service.interceptors.response.use(
       // invariant the callers rely on -- that a resolved response means
       // code === 200 -- so an expired session surfaced as an empty table with
       // no error, and `response.data` threw wherever it was read.
-      return Promise.reject(new Error('登录状态已过期'))
+      return Promise.reject(reported(new Error('登录状态已过期')))
     } else if (code === 400 || code === 403) {
       ElMessage({
         message: response.data.msg,
         type: 'error',
         duration: 5 * 1000
       })
-      return Promise.reject(new Error(response.data.msg))
+      return Promise.reject(reported(new Error(response.data.msg)))
     } else if (code !== 200) {
       // Notification.error({
       //   title: response.data.msg
@@ -105,8 +116,9 @@ service.interceptors.response.use(
       })
       // An Error, like every other branch here. Rejecting with a bare string
       // left `error.message` undefined, so any caller following the
-      // `error?.message || fallback` pattern rendered an empty toast.
-      return Promise.reject(new Error(response.data.msg || 'error'))
+      // `error?.message || fallback` pattern rendered an empty toast -- the
+      // same defect the 401/6401 branches were fixed for.
+      return Promise.reject(reported(new Error(response.data.msg || 'error')))
     } else {
       return response.data
     }
@@ -118,7 +130,7 @@ service.interceptors.response.use(
         type: 'error',
         duration: 5 * 1000
       })
-      return Promise.reject(error)
+      return Promise.reject(reported(error))
     }
     console.log('err' + error) // for debug
 
@@ -128,7 +140,7 @@ service.interceptors.response.use(
       duration: 5 * 1000
     })
 
-    return Promise.reject(error)
+    return Promise.reject(reported(error))
   }
 )
 
