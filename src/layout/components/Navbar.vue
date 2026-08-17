@@ -11,18 +11,12 @@
 
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
 
-        <span
+        <settings-trigger
           v-if="showSettings"
           id="layout-settings"
           class="right-menu-item hover-effect"
-          role="button"
-          tabindex="0"
-          title="系统布局配置"
           @click="$emit('open-settings')"
-          @keyup.enter="$emit('open-settings')"
-        >
-          <i class="ri-settings-3-line" />
-        </span>
+        />
 
       </template>
 
@@ -56,6 +50,7 @@ import TopNav from '@/components/TopNav'
 import Hamburger from '@/components/Hamburger'
 import Screenfull from '@/components/Screenfull'
 import HeaderSearch from '@/components/HeaderSearch'
+import SettingsTrigger from '@/components/SettingsTrigger'
 
 export default {
   components: {
@@ -63,7 +58,8 @@ export default {
     TopNav,
     Hamburger,
     Screenfull,
-    HeaderSearch
+    HeaderSearch,
+    SettingsTrigger
   },
   // The layout owns the drawer's open state; the navbar only asks for it
   emits: ['open-settings'],
