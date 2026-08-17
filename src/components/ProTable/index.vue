@@ -89,6 +89,7 @@
       only set the same values a moment earlier.
     -->
     <Pagination
+      v-if="paginated"
       v-show="table.total > 0"
       :total="table.total"
       :page="table.query.pageIndex"
@@ -142,6 +143,12 @@ const props = withDefaults(defineProps<{
   /** Primary key. Also enables selection that survives paging. */
   rowKey?: string
   /**
+   * Render the pager. Turn off for the endpoints that answer with the whole
+   * collection -- pass `paginated: false` to useTable as well, so it stops
+   * sending paging keys the endpoint does not read.
+   */
+  paginated?: boolean
+  /**
    * Width of the action column. Two text buttons need about 120px, two plus an
    * overflow menu about 140. Keep it tight: this column is pinned, so whatever
    * it takes is taken from the columns that have to scroll past it.
@@ -150,6 +157,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   selection: false,
   rowKey: '',
+  paginated: true,
   actionsWidth: 120
 })
 

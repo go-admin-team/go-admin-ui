@@ -276,6 +276,60 @@ describe('useTable', () => {
     })
   })
 
+  // The department and menu endpoints answer with the whole tree and their pages
+  // never had a pager. Sending pageIndex/pageSize to them is noise, and reading
+  // `{ list, count }` off an array yields an empty table.
+  describe('paginated: false', () => {
+    const tree = [{ id: 1, name: 'root' }, { id: 2, name: 'other' }]
+
+    it('reads the body as the collection', async() => {
+      const api = vi.fn().mockResolvedValue({ code: 200, msg: 'ok', data: tree })
+      const { table } = setup({ api, paginated: false })
+
+      await flushPromises()
+
+      expect(table.rows).toEqual(tree)
+      expect(table.total).toBe(2)
+    })
+
+    it('sends no paging keys', async() => {
+      const api = vi.fn().mockResolvedValue({ code: 200, msg: 'ok', data: tree })
+      const { queries } = setup({ api, paginated: false, defaultQuery: () => ({ name: 'x' }) })
+
+      await flushPromises()
+
+      const sent = queries.at(-1) as Record<string, unknown>
+      expect(sent.name).toBe('x')
+      expect('pageIndex' in sent).toBe(false)
+      expect('pageSize' in sent).toBe(false)
+    })
+
+    it('still searches and resets without reintroducing paging keys', async() => {
+      const api = vi.fn().mockResolvedValue({ code: 200, msg: 'ok', data: tree })
+      const { table, queries } = setup({ api, paginated: false, defaultQuery: () => ({ name: '' }) })
+      await flushPromises()
+
+      table.query.name = 'typed'
+      await table.search()
+      expect(queries.at(-1)).toMatchObject({ name: 'typed' })
+      expect('pageIndex' in (queries.at(-1) as object)).toBe(false)
+
+      await table.resetQuery()
+      expect(table.query.name).toBe('')
+      expect('pageSize' in (queries.at(-1) as object)).toBe(false)
+    })
+
+    it('tolerates a body that is not an array', async() => {
+      const api = vi.fn().mockResolvedValue({ code: 200, msg: 'ok', data: null })
+      const { table } = setup({ api, paginated: false })
+
+      await flushPromises()
+
+      expect(table.rows).toEqual([])
+      expect(table.total).toBe(0)
+    })
+  })
+
   it('reads a non-standard response through transform', async() => {
     const api = vi.fn().mockResolvedValue({
       code: 200,

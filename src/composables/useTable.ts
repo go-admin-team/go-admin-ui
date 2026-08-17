@@ -23,8 +23,14 @@ import type { ApiResponse, Id, PageQuery, PageResult } from '@/types/api'
  */
 
 export interface UseTableOptions<TRow, TQuery extends object = Record<string, never>> {
-  /** The list endpoint. Receives the merged query object. */
-  api: (query: TQuery & PageQuery) => Promise<ApiResponse<PageResult<TRow>>>
+  /**
+   * The list endpoint. Receives the merged query object.
+   *
+   * Either shape is accepted, and which one applies follows `paginated`: a
+   * paginated endpoint answers with `{ list, count }`, a non-paginated one with
+   * the collection itself.
+   */
+  api: (query: TQuery & PageQuery) => Promise<ApiResponse<PageResult<TRow> | TRow[]>>
 
   /**
    * Initial query state, as a factory so `reset()` can rebuild it. Paging keys
@@ -35,8 +41,18 @@ export interface UseTableOptions<TRow, TQuery extends object = Record<string, ne
   /** Primary-key field, used to derive `selectedIds`. */
   idKey?: keyof TRow & string
 
-  /** Rows per page on first load. */
+  /** Rows per page on first load. Ignored when `paginated` is false. */
   pageSize?: number
+
+  /**
+   * Whether the endpoint pages.
+   *
+   * Set false for the endpoints that answer with the whole collection in one
+   * call -- the department and menu trees do, and their pages never had a pager.
+   * No paging keys are then sent, ProTable renders no pagination, and the
+   * response body is read as the array itself rather than as `{ list, count }`.
+   */
+  paginated?: boolean
 
   /** Fetch on mount. Set false when the first load must wait on something else. */
   immediate?: boolean
@@ -111,6 +127,7 @@ export function useTable<TRow extends object, TQuery extends object = Record<str
     idKey,
     pageSize = DEFAULT_PAGE_SIZE,
     immediate = true,
+    paginated = true,
     transform,
     onError
   } = options
@@ -130,11 +147,20 @@ export function useTable<TRow extends object, TQuery extends object = Record<str
    */
   const buildQuery = () => ({
     ...defaultQuery(),
-    pageIndex: 1
+    ...(paginated ? { pageIndex: 1 } : {})
   }) as TQuery & PageQuery
 
-  /** Seeded once; from then on the pagination control owns pageSize. */
-  const query = reactive({ ...buildQuery(), pageSize }) as TQuery & PageQuery
+  /**
+   * Seeded once; from then on the pagination control owns pageSize.
+   *
+   * A non-paginated table carries neither paging key, so nothing sends them to
+   * an endpoint that does not read them. They stay on the type because the only
+   * code that touches them -- ProTable's pager -- is the code that is not
+   * rendered in that case.
+   */
+  const query = reactive(
+    paginated ? { ...buildQuery(), pageSize } : buildQuery()
+  ) as TQuery & PageQuery
 
   /**
    * Identifies the most recent request. A response whose token no longer
@@ -150,9 +176,15 @@ export function useTable<TRow extends object, TQuery extends object = Record<str
    */
   let sortKey: string | null = null
 
-  const readPage = (response: ApiResponse<PageResult<TRow>>) => {
+  const readPage = (response: ApiResponse<PageResult<TRow> | TRow[]>) => {
     if (transform) return transform(response as ApiResponse<unknown>)
-    const page = response?.data
+    const body = response?.data
+    if (!paginated) {
+      // The collection arrives as the body itself
+      const rows = (Array.isArray(body) ? body : []) as TRow[]
+      return { rows, total: rows.length }
+    }
+    const page = body as PageResult<TRow> | undefined
     return { rows: page?.list ?? [], total: page?.count ?? 0 }
   }
 
@@ -179,7 +211,9 @@ export function useTable<TRow extends object, TQuery extends object = Record<str
   }
 
   const search = () => {
-    query.pageIndex = 1
+    // Guarded: writing the key back would put it on a query that deliberately
+    // does not carry it.
+    if (paginated) query.pageIndex = 1
     return getList()
   }
 
@@ -195,7 +229,8 @@ export function useTable<TRow extends object, TQuery extends object = Record<str
     // the externally-set filters and sort keys this is meant to clear. pageSize
     // is outside the reset surface -- see buildQuery.
     for (const key of Object.keys(target)) {
-      if (key !== 'pageSize' && !(key in fresh)) delete target[key]
+      if (key === 'pageSize' && paginated) continue
+      if (!(key in fresh)) delete target[key]
     }
     Object.assign(query, fresh)
     sortKey = null
