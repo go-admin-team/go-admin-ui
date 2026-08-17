@@ -129,6 +129,23 @@ export function useForm<TModel extends object, TId = unknown>(
   } = options
 
   const formRef = ref<FormInstance>()
+
+  /**
+   * Guards the whole submit interaction, validation included. `submitting`
+   * cannot do it: that drives the confirm button's loading state, so it must
+   * only be true while the request is actually in flight.
+   */
+  let pending = false
+
+  /**
+   * Identifies the most recent openEdit. Clicking one row's edit button and
+   * then another fires two detail requests, and without this the slower one
+   * wins whichever row it belongs to -- so the dialog ends up showing the first
+   * record while the user believes they opened the second, and saving writes to
+   * the wrong one. Same token scheme as useTable.getList.
+   */
+  let loadToken = 0
+
   const bindFormRef = (el: unknown) => {
     formRef.value = (el as FormInstance | null) ?? undefined
   }
@@ -176,15 +193,22 @@ export function useForm<TModel extends object, TId = unknown>(
       visible.value = true
       return
     }
+    const token = ++loadToken
     loading.value = true
     try {
       const response = await api.get(resolveId(idOrRow))
-      model.value = response.data
+      if (token !== loadToken) return
+      // Merged onto the defaults rather than assigned: a record deleted by
+      // someone else answers `{code:200, data:null}`, and assigning that
+      // straight through renders the dialog against null. Merging also restores
+      // any field the detail endpoint happens to omit.
+      model.value = Object.assign(defaultModel(), response.data ?? {})
       visible.value = true
     } catch(error) {
+      if (token !== loadToken) return
       onError?.(error)
     } finally {
-      loading.value = false
+      if (token === loadToken) loading.value = false
     }
   }
 
@@ -199,30 +223,34 @@ export function useForm<TModel extends object, TId = unknown>(
   }
 
   const submit = async(): Promise<boolean> => {
-    // The guard is the point of this whole function: without it a
-    // double-clicked confirm button submits twice.
-    if (submitting.value) return false
+    // Guards from entry, not from the request. `submitting` is only set once
+    // validation has passed, so keying the guard off it left the whole
+    // `await form.validate()` window open: two Enter presses both got past it
+    // and both submitted. Same shape of hole useRemove had around its confirm
+    // dialog.
+    if (pending) return false
+    pending = true
 
-    const form = formRef.value
-    if (form) {
-      // Element Plus rejects rather than resolving false when validation fails.
-      const valid = await form.validate().catch(() => false)
-      if (!valid) return false
-    } else if (rules) {
-      // Rules were declared but no el-form ever reached formRef, so every one of
-      // them is being skipped rather than enforced.
-      console.warn('useForm: validation rules were given but no el-form is attached, so nothing is being validated. Bind it with :ref="form.bindFormRef".')
-    }
-
-    const send = resolveSubmit()
-    if (!send) {
-      console.error('useForm: no submit handler -- pass `submit`, or `api.add`/`api.update` with an `idKey`.')
-      return false
-    }
-
-    const editing = isEdit.value
-    submitting.value = true
     try {
+      const form = formRef.value
+      if (form) {
+        // Element Plus rejects rather than resolving false when validation fails.
+        const valid = await form.validate().catch(() => false)
+        if (!valid) return false
+      } else if (rules) {
+        // Rules were declared but no el-form ever reached formRef, so every one
+        // of them is being skipped rather than enforced.
+        console.warn('useForm: validation rules were given but no el-form is attached, so nothing is being validated. Bind it with :ref="form.bindFormRef".')
+      }
+
+      const send = resolveSubmit()
+      if (!send) {
+        console.error('useForm: no submit handler -- pass `submit`, or `api.add`/`api.update` with an `idKey`.')
+        return false
+      }
+
+      const editing = isEdit.value
+      submitting.value = true
       await send(model.value)
       if (successMessage !== null) {
         const text = typeof successMessage === 'function'
@@ -237,6 +265,7 @@ export function useForm<TModel extends object, TId = unknown>(
       onError?.(error)
       return false
     } finally {
+      pending = false
       submitting.value = false
     }
   }

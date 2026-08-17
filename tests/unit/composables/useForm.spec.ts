@@ -62,7 +62,7 @@ describe('useForm', () => {
         msg: 'ok',
         data: { userId: 7, username: 'admin', nickName: 'Admin' }
       } as ApiResponse<User>)
-      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { get } })
+      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { get }})
 
       await form.openEdit({ userId: 7 })
 
@@ -75,8 +75,8 @@ describe('useForm', () => {
     })
 
     it('openEdit accepts a bare id as well as a row', async() => {
-      const get = vi.fn().mockResolvedValue({ code: 200, msg: 'ok', data: { userId: 9 } })
-      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { get } })
+      const get = vi.fn().mockResolvedValue({ code: 200, msg: 'ok', data: { userId: 9 }})
+      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { get }})
 
       await form.openEdit(9)
 
@@ -90,6 +90,30 @@ describe('useForm', () => {
 
       expect(form.model.username).toBe('from-row')
       expect(form.visible).toBe(true)
+    })
+
+    // Clicking one row's edit button then another fires two detail requests.
+    // Without a token the slower one wins: the dialog shows the first record
+    // while the user believes they opened the second, and saving writes to the
+    // wrong one.
+    it('ignores a detail response that a later openEdit superseded', async() => {
+      const first = deferred<ApiResponse<User>>()
+      const second = deferred<ApiResponse<User>>()
+      const get = vi.fn()
+        .mockReturnValueOnce(first.promise)
+        .mockReturnValueOnce(second.promise)
+      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { get }})
+
+      const firstCall = form.openEdit(1)
+      const secondCall = form.openEdit(2)
+
+      second.resolve({ code: 200, msg: 'ok', data: { userId: 2, username: 'row-two' }})
+      await secondCall
+      first.resolve({ code: 200, msg: 'ok', data: { userId: 1, username: 'row-one' }})
+      await firstCall
+
+      expect(form.model.username).toBe('row-two')
+      expect(form.loading).toBe(false)
     })
 
     it('keeps the form closed and clears loading when the record fails to load', async() => {
@@ -167,7 +191,7 @@ describe('useForm', () => {
     it('refuses a second submit while the first is in flight', async() => {
       const pending = deferred<void>()
       const add = vi.fn().mockReturnValue(pending.promise)
-      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { add } })
+      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { add }})
 
       form.openCreate()
       const first = form.submit()
@@ -184,9 +208,37 @@ describe('useForm', () => {
       expect(form.submitting).toBe(false)
     })
 
+    // The guard has to cover validation too. `submitting` is only set after
+    // `await form.validate()`, so with a real el-form attached two calls can
+    // both get past `if (submitting.value)` while the first is still
+    // validating -- the same shape of hole useRemove had around its dialog.
+    // The existing in-flight test cannot see it: with no form attached there is
+    // no await before the flag is set.
+    it('refuses a second submit while the first is still validating', async() => {
+      const gate = deferred<boolean>()
+      const add = vi.fn().mockResolvedValue(undefined)
+      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { add }})
+
+      form.formRef = {
+        validate: () => gate.promise,
+        clearValidate: vi.fn(),
+        resetFields: vi.fn()
+      } as never
+      form.openCreate()
+
+      const first = form.submit()
+      const second = form.submit()
+
+      gate.resolve(true)
+
+      expect(await first).toBe(true)
+      expect(await second).toBe(false)
+      expect(add).toHaveBeenCalledTimes(1)
+    })
+
     it('does not submit when validation fails', async() => {
       const add = vi.fn().mockResolvedValue(undefined)
-      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { add } })
+      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { add }})
 
       form.formRef = formStub(false) as never
       form.openCreate()
@@ -201,7 +253,7 @@ describe('useForm', () => {
 
     it('submits once validation passes', async() => {
       const add = vi.fn().mockResolvedValue(undefined)
-      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { add } })
+      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { add }})
 
       form.formRef = formStub(true) as never
       form.openCreate()
@@ -239,7 +291,7 @@ describe('useForm', () => {
       const add = vi.fn()
         .mockRejectedValueOnce(new Error('500'))
         .mockResolvedValueOnce(undefined)
-      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { add } })
+      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { add }})
 
       form.openCreate()
       expect(await form.submit()).toBe(false)
@@ -328,8 +380,8 @@ describe('useForm', () => {
 
   describe('closing', () => {
     it('close hides the form and discards the model', async() => {
-      const get = vi.fn().mockResolvedValue({ code: 200, msg: 'ok', data: { userId: 4, username: 'admin' } })
-      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { get } })
+      const get = vi.fn().mockResolvedValue({ code: 200, msg: 'ok', data: { userId: 4, username: 'admin' }})
+      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { get }})
 
       await form.openEdit(4)
       form.close()
