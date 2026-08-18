@@ -45,7 +45,7 @@ export default defineConfig({
         'src/composables/**/*.ts',
         'src/stores/**/*.ts'
       ],
-      exclude: ['src/utils/auth.js', 'src/utils/request.js']
+      exclude: ['src/utils/auth.js']
     }
   }
 })
