@@ -1,0 +1,151 @@
+import { test, expect } from '@playwright/test'
+import { authenticate, installApiMocks } from './fixtures'
+
+/**
+ * The menu page: the last of the tree tables, and the most conditional form in
+ * the app -- which fields exist depends on whether the entry is a directory, a
+ * page or a button.
+ */
+test.describe('sys-menu', () => {
+  test.beforeEach(async({ context }) => {
+    await authenticate(context)
+  })
+
+  test('renders the tree without a pager', async({ page }) => {
+    const { calls } = await installApiMocks(page)
+
+    await page.goto('/#/admin/sys-menu')
+    await page.waitForSelector('.el-table')
+
+    await expect(page.getByRole('cell', { name: '系统管理' })).toBeVisible()
+    await expect(page.getByRole('cell', { name: '用户管理' })).toBeVisible()
+    await expect(page.locator('.pagination-container')).toHaveCount(0)
+
+    expect(calls.menu.listQueries.at(-1) ?? '').not.toContain('pageIndex')
+  })
+
+  // A button-level entry has no route of its own, so it is never in the sidebar
+  test('a button entry shows no visibility state', async({ page }) => {
+    await installApiMocks(page)
+
+    await page.goto('/#/admin/sys-menu')
+    await page.waitForSelector('.el-table')
+
+    await expect(page.getByRole('row', { name: /用户管理/ }).getByText('显示')).toBeVisible()
+    await expect(page.getByRole('row', { name: /用户新增/ }).getByText('--')).toBeVisible()
+  })
+
+  test('the permission column reveals the routes it grants', async({ page }) => {
+    await installApiMocks(page)
+
+    await page.goto('/#/admin/sys-menu')
+    await page.waitForSelector('.el-table')
+
+    await page.getByText('admin:sysUser:list').hover()
+
+    const popover = page.locator('.el-popover:visible')
+    await expect(popover).toContainText('用户列表')
+    await expect(popover).toContainText('/api/v1/sys-user')
+  })
+
+  // Which fields exist follows the type: a directory has no permission code, a
+  // button has no route, icon or visibility.
+  test('the form follows the menu type', async({ page }) => {
+    await installApiMocks(page)
+
+    await page.goto('/#/admin/sys-menu')
+    await page.waitForSelector('.el-table')
+    await page.locator('.pro-table__toolbar').getByRole('button', { name: '新增' }).click()
+
+    const dialog = page.getByRole('dialog').filter({ hasText: '添加菜单' })
+    await expect(dialog).toBeVisible()
+
+    // 目录 is the default: routes yes, permission no
+    await expect(dialog.getByPlaceholder('请输入路由地址')).toBeVisible()
+    await expect(dialog.getByPlaceholder('如 admin:sysUser:add')).toHaveCount(0)
+
+    // Element Plus hides the native input and paints a label, so click the label
+    const typeGroup = dialog.locator('.el-form-item').filter({ hasText: '菜单类型' })
+    await typeGroup.locator('.el-radio__label').filter({ hasText: /^菜单$/ }).click()
+    await expect(dialog.getByPlaceholder('如 admin:sysUser:add')).toBeVisible()
+    await expect(dialog.locator('.el-transfer')).toBeVisible()
+
+    await typeGroup.locator('.el-radio__label').filter({ hasText: /^按钮$/ }).click()
+    await expect(dialog.getByPlaceholder('请输入路由地址')).toHaveCount(0)
+    await expect(dialog.getByPlaceholder('如 admin:sysUser:add')).toBeVisible()
+  })
+
+  test('adding under a row preselects that row as the parent', async({ page }) => {
+    await installApiMocks(page)
+
+    await page.goto('/#/admin/sys-menu')
+    await page.waitForSelector('.el-table')
+
+    await page.getByRole('row', { name: /系统管理/ }).getByRole('button', { name: '新增' }).click()
+
+    const dialog = page.getByRole('dialog').filter({ hasText: '添加菜单' })
+    await expect(dialog.locator('.el-form-item').filter({ hasText: '上级菜单' })
+      .locator('.el-select__wrapper')).toHaveText('系统管理')
+  })
+
+  test('editing loads the record', async({ page }) => {
+    await installApiMocks(page)
+
+    await page.goto('/#/admin/sys-menu')
+    await page.waitForSelector('.el-table')
+
+    await page.getByRole('row', { name: /用户管理/ }).getByRole('button', { name: '修改' }).click()
+
+    const dialog = page.getByRole('dialog').filter({ hasText: '修改菜单' })
+    await expect(dialog).toBeVisible()
+    await expect(dialog.getByPlaceholder('请输入菜单标题')).toHaveValue('用户管理')
+    await expect(dialog.getByPlaceholder('请输入组件路径')).toHaveValue('/admin/sys-user/index')
+  })
+
+  // The old page maintained the expanded list from the transfer's move events,
+  // and its removal branch pushed nothing -- so revoking a route emptied it.
+  test('revoking a route shrinks the granted set rather than clearing it', async({ page }) => {
+    const { calls } = await installApiMocks(page)
+    const bodies: string[] = []
+    await page.route(/\/api\/v1\/menu\/\d+/, async route => {
+      if (route.request().method() === 'PUT') bodies.push(route.request().postData() ?? '')
+      await route.fallback()
+    })
+
+    await page.goto('/#/admin/sys-menu')
+    await page.waitForSelector('.el-table')
+    await page.getByRole('row', { name: /用户管理/ }).getByRole('button', { name: '修改' }).click()
+
+    const dialog = page.getByRole('dialog').filter({ hasText: '修改菜单' })
+    const transfer = dialog.locator('.el-transfer')
+    await expect(transfer).toBeVisible()
+
+    // Grant the second route, so two are held
+    // The left panel lists the routes not yet granted; its checkbox is a label too
+    await transfer.locator('.el-transfer-panel').first()
+      .locator('.el-transfer-panel__list .el-checkbox').first().click()
+    await transfer.getByRole('button', { name: '授权' }).click()
+
+    await dialog.getByRole('button', { name: '确 定' }).click()
+    await expect.poll(() => calls.menu.update).toBeGreaterThan(0)
+
+    const sent = JSON.parse(bodies.at(-1) || '{}')
+    expect(sent.apis.length).toBe(2)
+    // Kept in step with the ids rather than rebuilt from move events
+    expect(sent.sysApi.length).toBe(2)
+  })
+
+  test('deleting asks first, then reloads', async({ page }) => {
+    const { calls } = await installApiMocks(page)
+
+    await page.goto('/#/admin/sys-menu')
+    await page.waitForSelector('.el-table')
+    const before = calls.menu.list
+
+    await page.getByRole('row', { name: /用户新增/ }).getByRole('button', { name: '删除' }).click()
+    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+
+    await expect.poll(() => calls.menu.remove).toBe(1)
+    await expect.poll(() => calls.menu.list).toBeGreaterThan(before)
+  })
+})

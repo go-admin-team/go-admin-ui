@@ -126,11 +126,19 @@ export interface SysMenu {
   noCache?: boolean
   /** Permission code, in the 模块:资源:操作 form. */
   permission?: string
+  /** Display title, which is what the tree shows -- menuName is the route name. */
+  title?: string
+  action?: string
+  /** Ids of the backend routes this menu grants; `sysApi` is the same set, expanded. */
+  apis?: number[]
+  sysApi?: SysApi[]
   children?: SysMenu[]
   createdAt?: string
 }
 
 export interface SysMenuQuery {
+  /** The tree is searched by display title, not by route name. */
+  title?: string
   menuName?: string
   visible?: string
 }
@@ -150,6 +158,8 @@ export interface SysApiQuery {
   title?: string
   path?: string
   action?: string
+  /** 'SYS' for infrastructure routes, 'BUS' for the grantable ones. */
+  type?: string
 }
 
 /** A configuration entry. `configKey` is what getConfigKey looks up. */

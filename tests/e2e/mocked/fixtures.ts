@@ -46,7 +46,10 @@ export const userInfo = {
       'admin:sysRole:remove',
       'admin:sysConfig:add',
       'admin:sysConfig:edit',
-      'admin:sysConfig:remove'
+      'admin:sysConfig:remove',
+      'admin:sysMenu:add',
+      'admin:sysMenu:edit',
+      'admin:sysMenu:remove'
     ]
   }
 }
@@ -165,6 +168,16 @@ export const menuTree = {
           icon: 'star',
           noCache: false,
           children: null
+        },
+        {
+          path: 'sys-menu',
+          component: '/admin/sys-menu/index',
+          visible: '0',
+          menuName: 'SysMenuManage',
+          title: 'Menu',
+          icon: 'star',
+          noCache: false,
+          children: null
         }
       ]
     }
@@ -244,6 +257,67 @@ export const deptRows = [
     status: 1,
     createdAt: '2026-08-02T10:00:00Z',
     children: []
+  }
+]
+
+/**
+ * Rows served by GET /api/v1/menu -- the whole tree, like the department one.
+ *
+ * `sysApi` is the expanded form of `apis`: the backend routes this menu grants.
+ * The 权限标识 column shows it in a popover.
+ */
+export const menuRows = [
+  {
+    menuId: 1,
+    parentId: 0,
+    title: '系统管理',
+    menuName: 'SystemRoot',
+    menuType: 'M',
+    path: '/admin',
+    component: 'Layout',
+    icon: 'setting',
+    sort: 1,
+    visible: '0',
+    permission: '',
+    apis: [] as number[],
+    sysApi: [] as Array<Record<string, unknown>>,
+    createdAt: '2026-08-01T10:00:00Z',
+    children: [
+      {
+        menuId: 2,
+        parentId: 1,
+        title: '用户管理',
+        menuName: 'SysUserManage',
+        menuType: 'C',
+        path: 'sys-user',
+        component: '/admin/sys-user/index',
+        icon: 'user',
+        sort: 1,
+        visible: '0',
+        permission: 'admin:sysUser:list',
+        apis: [10],
+        sysApi: [{ id: 10, title: '用户列表', path: '/api/v1/sys-user', action: 'GET', type: 'BUS' }],
+        createdAt: '2026-08-02T10:00:00Z',
+        children: []
+      },
+      {
+        menuId: 3,
+        parentId: 2,
+        title: '用户新增',
+        menuName: '',
+        menuType: 'F',
+        path: '',
+        component: '',
+        icon: '',
+        sort: 2,
+        visible: '0',
+        permission: 'admin:sysUser:add',
+        apis: [] as number[],
+        sysApi: [] as Array<Record<string, unknown>>,
+        createdAt: '2026-08-03T10:00:00Z',
+        children: []
+      }
+    ]
   }
 ]
 
@@ -394,7 +468,9 @@ export async function installApiMocks(page: Page) {
       ? [{ label: '男', value: '0' }, { label: '女', value: '1' }]
       : dictType === 'sys_yes_no'
         ? [{ label: '是', value: 'Y' }, { label: '否', value: 'N' }]
-        : [{ label: '停用', value: '1' }, { label: '正常', value: '2' }]
+        : dictType === 'sys_show_hide'
+          ? [{ label: '显示', value: '0' }, { label: '隐藏', value: '1' }]
+          : [{ label: '停用', value: '1' }, { label: '正常', value: '2' }]
     await route.fulfill(json({ code: 200, data }))
   })
 
@@ -404,6 +480,19 @@ export async function installApiMocks(page: Page) {
 
   await page.route('**/api/v1/deptTree*', async route => {
     await route.fulfill(json({ code: 200, data: deptTree }))
+  })
+
+  await page.route(/\/api\/v1\/sys-api(\?|$)/, async route => {
+    await route.fulfill(json({
+      code: 200,
+      data: {
+        list: [
+          { id: 10, title: '用户列表', path: '/api/v1/sys-user', action: 'GET', type: 'BUS' },
+          { id: 11, title: '用户新增', path: '/api/v1/sys-user', action: 'POST', type: 'BUS' }
+        ],
+        count: 2
+      }
+    }))
   })
 
   await page.route('**/api/v1/roleMenuTreeselect/*', async route => {
@@ -458,7 +547,14 @@ export async function installApiMocks(page: Page) {
     }),
     post: await mockCrud(page, { base: 'post', rows: postRows, idKey: 'postId' }),
     role: await mockCrud(page, { base: 'role', rows: roleRows, idKey: 'roleId' }),
-    config: await mockCrud(page, { base: 'config', rows: configRows, idKey: 'id' })
+    config: await mockCrud(page, { base: 'config', rows: configRows, idKey: 'id' }),
+    menu: await mockCrud(page, {
+      base: 'menu',
+      rows: menuRows,
+      idKey: 'menuId',
+      paginated: false,
+      childrenKey: 'children'
+    })
   }
 
   return { calls, delays }
