@@ -68,12 +68,6 @@ export interface UseTableOptions<TRow, TQuery extends object = Record<string, ne
   immediate?: boolean
 
   /**
-   * Escape hatch for endpoints that do not return `{ list, count }`.
-   * Given the raw response, return the rows and the total.
-   */
-  transform?: (response: ApiResponse<unknown>) => { rows: TRow[], total: number }
-
-  /**
    * Called when a request fails. The interceptor has already shown the user a
    * message, so this is for extra handling only -- do not report the error
    * again from here.
@@ -139,7 +133,6 @@ export function useTable<TRow extends object, TQuery extends object = Record<str
     immediate = true,
     paginated = true,
     defaultSort,
-    transform,
     onError
   } = options
 
@@ -191,7 +184,6 @@ export function useTable<TRow extends object, TQuery extends object = Record<str
   let sortKey: string | null = defaultSort ? `${defaultSort.prop}Order` : null
 
   const readPage = (response: ApiResponse<PageResult<TRow> | TRow[]>) => {
-    if (transform) return transform(response as ApiResponse<unknown>)
     const body = response?.data
     if (!paginated) {
       // The collection arrives as the body itself

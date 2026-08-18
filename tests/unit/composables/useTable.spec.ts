@@ -379,26 +379,6 @@ describe('useTable', () => {
     })
   })
 
-  it('reads a non-standard response through transform', async() => {
-    const api = vi.fn().mockResolvedValue({
-      code: 200,
-      msg: 'ok',
-      data: { records: [{ id: 3, name: 'c' }], totalCount: 9 }
-    })
-    const { table } = setup({
-      api,
-      transform: response => {
-        const body = (response as ApiResponse<{ records: Row[], totalCount: number }>).data
-        return { rows: body.records, total: body.totalCount }
-      }
-    })
-
-    await flushPromises()
-
-    expect(table.rows).toEqual([{ id: 3, name: 'c' }])
-    expect(table.total).toBe(9)
-  })
-
   it('tolerates a response with no body', async() => {
     const api = vi.fn().mockResolvedValue({ code: 200, msg: 'ok' })
     const { table } = setup({ api })
