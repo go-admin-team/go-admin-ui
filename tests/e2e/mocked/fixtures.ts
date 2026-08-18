@@ -34,7 +34,11 @@ export const userInfo = {
       'admin:sysUser:resetPassword',
       'admin:sysDept:add',
       'admin:sysDept:edit',
-      'admin:sysDept:remove'
+      'admin:sysDept:remove',
+      'admin:sysPost:add',
+      'admin:sysPost:edit',
+      'admin:sysPost:remove',
+      'admin:sysPost:export'
     ]
   }
 }
@@ -123,6 +127,16 @@ export const menuTree = {
           icon: 'star',
           noCache: false,
           children: null
+        },
+        {
+          path: 'sys-post',
+          component: '/admin/sys-post/index',
+          visible: '0',
+          menuName: 'SysPostManage',
+          title: 'Post',
+          icon: 'star',
+          noCache: false,
+          children: null
         }
       ]
     }
@@ -205,6 +219,28 @@ export const deptRows = [
   }
 ]
 
+/** Rows served by GET /api/v1/post */
+export const postRows = [
+  {
+    postId: 1,
+    postCode: 'ceo',
+    postName: '董事长',
+    sort: 1,
+    status: 2,
+    remark: '',
+    createdAt: '2026-08-01T10:00:00Z'
+  },
+  {
+    postId: 2,
+    postCode: 'dev',
+    postName: '开发工程师',
+    sort: 2,
+    status: 1,
+    remark: '',
+    createdAt: '2026-08-02T10:00:00Z'
+  }
+]
+
 /** Tree served by GET /api/v1/deptTree */
 export const deptTree = [
   {
@@ -256,7 +292,12 @@ export async function installApiMocks(page: Page) {
     deptUpdate: 0,
     deptDelete: 0,
     /** Query string of each GET /api/v1/dept, in order. */
-    deptListQueries: [] as string[]
+    deptListQueries: [] as string[],
+    postList: 0,
+    postCreate: 0,
+    postUpdate: 0,
+    postDelete: 0,
+    postListQueries: [] as string[]
   }
 
   /** Milliseconds to hold a write open, so a test can submit again mid-flight. */
@@ -334,10 +375,28 @@ export async function installApiMocks(page: Page) {
   })
 
   await page.route('**/api/v1/post*', async route => {
-    await route.fulfill(json({
-      code: 200,
-      data: { list: [{ postId: 1, postName: '工程师', status: '2' }], count: 1 }
-    }))
+    const method = route.request().method()
+    if (method === 'GET') {
+      calls.postList++
+      calls.postListQueries.push(new URL(route.request().url()).search)
+      await route.fulfill(json({ code: 200, data: { list: postRows, count: postRows.length }}))
+      return
+    }
+    if (method === 'POST') calls.postCreate++
+    if (method === 'PUT') calls.postUpdate++
+    if (method === 'DELETE') calls.postDelete++
+    await route.fulfill(json({ code: 200, msg: 'ok' }))
+  })
+
+  await page.route('**/api/v1/post/*', async route => {
+    if (route.request().method() === 'PUT') {
+      calls.postUpdate++
+      await route.fulfill(json({ code: 200, msg: 'ok' }))
+      return
+    }
+    const postId = Number(route.request().url().split('/').pop())
+    const row = postRows.find(p => p.postId === postId) ?? postRows[0]
+    await route.fulfill(json({ code: 200, data: row }))
   })
 
   await page.route('**/api/v1/role*', async route => {
