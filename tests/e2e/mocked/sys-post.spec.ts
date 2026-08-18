@@ -92,6 +92,22 @@ test.describe('sys-post', () => {
     expect(typeof sent.status).toBe('number')
   })
 
+  test('creating a post reaches the create endpoint', async({ page }) => {
+    const { calls } = await installApiMocks(page)
+
+    await page.goto('/#/admin/sys-post')
+    await page.waitForSelector('.el-table')
+
+    await page.locator('.pro-table__toolbar').getByRole('button', { name: '新增' }).click()
+    const dialog = page.getByRole('dialog').filter({ hasText: '添加岗位' })
+    await dialog.getByPlaceholder('请输入岗位名称').fill('产品经理')
+    await dialog.getByPlaceholder('请输入编码名称').fill('pm')
+    await dialog.getByRole('button', { name: '确 定' }).click()
+
+    await expect.poll(() => calls.postCreate).toBe(1)
+    await expect(dialog).toBeHidden()
+  })
+
   test('deleting a row asks first, then reloads', async({ page }) => {
     const { calls } = await installApiMocks(page)
 

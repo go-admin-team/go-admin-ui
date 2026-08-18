@@ -20,6 +20,47 @@ test.describe('sys-role', () => {
     await expect(page.getByRole('cell', { name: '系统管理员' })).toBeVisible()
   })
 
+  test('sends paging keys with the list request', async({ page }) => {
+    const { calls } = await installApiMocks(page)
+
+    await page.goto('/#/admin/sys-role')
+    await page.waitForSelector('.el-table')
+
+    expect(calls.roleList).toBeGreaterThan(0)
+    const sent = calls.roleListQueries.at(-1) ?? ''
+    expect(sent).toContain('pageIndex=1')
+    expect(sent).toContain('pageSize=')
+  })
+
+  test('deleting a row asks first, then reloads', async({ page }) => {
+    const { calls } = await installApiMocks(page)
+
+    await page.goto('/#/admin/sys-role')
+    await page.waitForSelector('.el-table')
+    const before = calls.roleList
+
+    await page.getByRole('row', { name: /普通角色/ }).getByRole('button', { name: '删除' }).click()
+    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+
+    await expect.poll(() => calls.roleDelete).toBe(1)
+    await expect.poll(() => calls.roleList).toBeGreaterThan(before)
+  })
+
+  test('saving an edit reaches the update endpoint', async({ page }) => {
+    const { calls } = await installApiMocks(page)
+
+    await page.goto('/#/admin/sys-role')
+    await page.waitForSelector('.el-table')
+
+    await page.getByRole('row', { name: /普通角色/ }).getByRole('button', { name: '修改' }).click()
+    const dialog = page.getByRole('dialog').filter({ hasText: '修改角色' })
+    await expect(dialog).toBeVisible()
+    await dialog.getByRole('button', { name: '确 定' }).click()
+
+    await expect.poll(() => calls.roleUpdate).toBe(1)
+    await expect(dialog).toBeHidden()
+  })
+
   // Before the migration this opened nothing at all: the dialog was gated on
   // `openDataScope` while its visibility was bound to the edit dialog's `open`,
   // which that path never set. Verified against the old page -- zero dialogs

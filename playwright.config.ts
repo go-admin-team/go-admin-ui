@@ -24,6 +24,16 @@ export default defineConfig({
   testDir: './tests/e2e',
   timeout: 30_000,
   retries: 0,
+
+  /**
+   * One worker. Every spec drives the same Vite dev server, so the runs compete
+   * for it rather than for CPU -- and measured, the whole suite takes 1.5m
+   * serially against 1.2m in parallel. That 18 seconds buys nothing and costs
+   * determinism: under parallel load a dialog in sys-user.spec intermittently
+   * failed to open, reproducibly in the full suite and never on its own or
+   * serially. A flaky suite is worse than a slightly slower one.
+   */
+  workers: 1,
   reporter: [['list']],
 
   use: {

@@ -178,6 +178,9 @@ test.describe('sys-user', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-user')
+    // Wait for the list, as every other case here does. Clicking 新增 while the
+    // page is still resolving its lookups raced under parallel load.
+    await page.waitForSelector('.el-table')
     await page.getByRole('button', { name: '新增' }).click()
     const dialog = page.getByRole('dialog').filter({ hasText: '添加用户' })
     await expect(dialog).toBeVisible()

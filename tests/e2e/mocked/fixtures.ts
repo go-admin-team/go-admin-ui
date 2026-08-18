@@ -540,7 +540,7 @@ export async function installApiMocks(page: Page) {
     await route.fulfill(json({ code: 200, data: row }))
   })
 
-  await page.route('**/api/v1/config', async route => {
+  await page.route('**/api/v1/config*', async route => {
     const method = route.request().method()
     if (method === 'GET') {
       calls.configList++
@@ -550,12 +550,6 @@ export async function installApiMocks(page: Page) {
     }
     if (method === 'DELETE') calls.configDelete++
     await route.fulfill(json({ code: 200, msg: 'ok' }))
-  })
-
-  await page.route('**/api/v1/config?*', async route => {
-    calls.configList++
-    calls.configListQueries.push(new URL(route.request().url()).search)
-    await route.fulfill(json({ code: 200, data: { list: configRows, count: configRows.length }}))
   })
 
   await page.route('**/api/v1/config/*', async route => {
