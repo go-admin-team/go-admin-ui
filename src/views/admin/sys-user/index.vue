@@ -368,7 +368,8 @@ const initPassword = ref('')
 
 onMounted(async() => {
   const [depts, posts, roles, config] = await Promise.allSettled([
-    asApi<DeptTreeNode[]>(treeselect()),
+    // No asApi: sys-dept is typed now. The others still need it.
+    treeselect(),
     asApi<PageResult<SysPost>>(listPost({ pageSize: 1000 })),
     asApi<PageResult<SysRole>>(listRole({ pageSize: 1000 })),
     asApi<{ configValue: string }>(getConfigKey('sys_user_initPassword'))
