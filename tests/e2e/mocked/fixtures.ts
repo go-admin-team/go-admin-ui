@@ -38,7 +38,11 @@ export const userInfo = {
       'admin:sysPost:add',
       'admin:sysPost:edit',
       'admin:sysPost:remove',
-      'admin:sysPost:export'
+      'admin:sysPost:export',
+      'admin:sysRole:add',
+      'admin:sysRole:edit',
+      'admin:sysRole:update',
+      'admin:sysRole:remove'
     ]
   }
 }
@@ -137,6 +141,16 @@ export const menuTree = {
           icon: 'star',
           noCache: false,
           children: null
+        },
+        {
+          path: 'sys-role',
+          component: '/admin/sys-role/index',
+          visible: '0',
+          menuName: 'SysRoleManage',
+          title: 'Role',
+          icon: 'star',
+          noCache: false,
+          children: null
         }
       ]
     }
@@ -219,6 +233,32 @@ export const deptRows = [
   }
 ]
 
+/** Rows served by GET /api/v1/role */
+export const roleRows = [
+  {
+    roleId: 1,
+    roleName: '系统管理员',
+    roleKey: 'admin',
+    roleSort: 1,
+    dataScope: '1',
+    status: '2',
+    remark: '',
+    menuIds: [1, 2],
+    createdAt: '2026-08-01T10:00:00Z'
+  },
+  {
+    roleId: 2,
+    roleName: '普通角色',
+    roleKey: 'common',
+    roleSort: 2,
+    dataScope: '2',
+    status: '1',
+    remark: '',
+    menuIds: [1],
+    createdAt: '2026-08-02T10:00:00Z'
+  }
+]
+
 /** Rows served by GET /api/v1/post */
 export const postRows = [
   {
@@ -297,7 +337,12 @@ export async function installApiMocks(page: Page) {
     postCreate: 0,
     postUpdate: 0,
     postDelete: 0,
-    postListQueries: [] as string[]
+    postListQueries: [] as string[],
+    roleList: 0,
+    roleUpdate: 0,
+    roleDelete: 0,
+    roleDataScope: 0,
+    roleListQueries: [] as string[]
   }
 
   /** Milliseconds to hold a write open, so a test can submit again mid-flight. */
@@ -370,6 +415,56 @@ export async function installApiMocks(page: Page) {
     await route.fulfill(json({ code: 200, data: row }))
   })
 
+  await page.route('**/api/v1/role*', async route => {
+    const method = route.request().method()
+    const url = route.request().url()
+    if (/\/role-status/.test(url)) {
+      await route.fulfill(json({ code: 200, msg: 'ok' }))
+      return
+    }
+    if (/\/roledatascope/.test(url)) {
+      calls.roleDataScope++
+      await route.fulfill(json({ code: 200, msg: 'ok' }))
+      return
+    }
+    if (method === 'GET') {
+      calls.roleList++
+      calls.roleListQueries.push(new URL(url).search)
+      await route.fulfill(json({ code: 200, data: { list: roleRows, count: roleRows.length }}))
+      return
+    }
+    if (method === 'DELETE') calls.roleDelete++
+    await route.fulfill(json({ code: 200, msg: 'ok' }))
+  })
+
+  await page.route('**/api/v1/role/*', async route => {
+    if (route.request().method() === 'PUT') {
+      calls.roleUpdate++
+      await route.fulfill(json({ code: 200, msg: 'ok' }))
+      return
+    }
+    const roleId = Number(route.request().url().split('/').pop())
+    const row = roleRows.find(r => r.roleId === roleId) ?? roleRows[0]
+    await route.fulfill(json({ code: 200, data: row }))
+  })
+
+  await page.route('**/api/v1/roleMenuTreeselect/*', async route => {
+    await route.fulfill(json({
+      code: 200,
+      data: {
+        menus: [{ id: 1, label: '系统管理', children: [{ id: 2, label: '用户管理', children: [] }] }],
+        checkedKeys: [2]
+      }
+    }))
+  })
+
+  await page.route('**/api/v1/roleDeptTreeselect/*', async route => {
+    await route.fulfill(json({
+      code: 200,
+      data: { depts: deptTree, checkedKeys: [1] }
+    }))
+  })
+
   await page.route('**/api/v1/deptTree*', async route => {
     await route.fulfill(json({ code: 200, data: deptTree }))
   })
@@ -397,13 +492,6 @@ export async function installApiMocks(page: Page) {
     const postId = Number(route.request().url().split('/').pop())
     const row = postRows.find(p => p.postId === postId) ?? postRows[0]
     await route.fulfill(json({ code: 200, data: row }))
-  })
-
-  await page.route('**/api/v1/role*', async route => {
-    await route.fulfill(json({
-      code: 200,
-      data: { list: [{ roleId: 1, roleName: '管理员', status: '2' }], count: 1 }
-    }))
   })
 
   await page.route('**/api/v1/configKey/**', async route => {
