@@ -42,7 +42,10 @@ export const userInfo = {
       'admin:sysRole:add',
       'admin:sysRole:edit',
       'admin:sysRole:update',
-      'admin:sysRole:remove'
+      'admin:sysRole:remove',
+      'admin:sysConfig:add',
+      'admin:sysConfig:edit',
+      'admin:sysConfig:remove'
     ]
   }
 }
@@ -151,6 +154,16 @@ export const menuTree = {
           icon: 'star',
           noCache: false,
           children: null
+        },
+        {
+          path: 'sys-config',
+          component: '/admin/sys-config/index',
+          visible: '0',
+          menuName: 'SysConfigManage',
+          title: 'Config',
+          icon: 'star',
+          noCache: false,
+          children: null
         }
       ]
     }
@@ -230,6 +243,35 @@ export const deptRows = [
     status: 1,
     createdAt: '2026-08-02T10:00:00Z',
     children: []
+  }
+]
+
+/**
+ * Rows served by GET /api/v1/config.
+ *
+ * The primary key is `id`, not `configId` -- worth stating, because the page's
+ * export used to project the latter and wrote an empty column for it.
+ */
+export const configRows = [
+  {
+    id: 1,
+    configName: '初始密码',
+    configKey: 'sys_user_initPassword',
+    configValue: 'Init@123',
+    configType: 'Y',
+    isFrontend: '2',
+    remark: '新建用户的默认密码',
+    createdAt: '2026-08-02T10:00:00Z'
+  },
+  {
+    id: 2,
+    configName: '应用名称',
+    configKey: 'sys_app_name',
+    configValue: 'go-admin',
+    configType: 'N',
+    isFrontend: '1',
+    remark: '',
+    createdAt: '2026-08-01T10:00:00Z'
   }
 ]
 
@@ -342,7 +384,11 @@ export async function installApiMocks(page: Page) {
     roleUpdate: 0,
     roleDelete: 0,
     roleDataScope: 0,
-    roleListQueries: [] as string[]
+    roleListQueries: [] as string[],
+    configList: 0,
+    configUpdate: 0,
+    configDelete: 0,
+    configListQueries: [] as string[]
   }
 
   /** Milliseconds to hold a write open, so a test can submit again mid-flight. */
@@ -491,6 +537,35 @@ export async function installApiMocks(page: Page) {
     }
     const postId = Number(route.request().url().split('/').pop())
     const row = postRows.find(p => p.postId === postId) ?? postRows[0]
+    await route.fulfill(json({ code: 200, data: row }))
+  })
+
+  await page.route('**/api/v1/config', async route => {
+    const method = route.request().method()
+    if (method === 'GET') {
+      calls.configList++
+      calls.configListQueries.push(new URL(route.request().url()).search)
+      await route.fulfill(json({ code: 200, data: { list: configRows, count: configRows.length }}))
+      return
+    }
+    if (method === 'DELETE') calls.configDelete++
+    await route.fulfill(json({ code: 200, msg: 'ok' }))
+  })
+
+  await page.route('**/api/v1/config?*', async route => {
+    calls.configList++
+    calls.configListQueries.push(new URL(route.request().url()).search)
+    await route.fulfill(json({ code: 200, data: { list: configRows, count: configRows.length }}))
+  })
+
+  await page.route('**/api/v1/config/*', async route => {
+    if (route.request().method() === 'PUT') {
+      calls.configUpdate++
+      await route.fulfill(json({ code: 200, msg: 'ok' }))
+      return
+    }
+    const id = Number(route.request().url().split('/').pop())
+    const row = configRows.find(c => c.id === id) ?? configRows[0]
     await route.fulfill(json({ code: 200, data: row }))
   })
 
