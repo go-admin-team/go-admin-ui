@@ -91,11 +91,36 @@ const form = useForm<Product, number>({
 })
 
 const { remove } = useRemove({
-  api: ids => delProduct({ ids: ids.map(Number) }),
+  api: delProduct,
   onSuccess: () => table.getList()
 })
 // 模板：@click="remove(row.id)" / @click="remove(table.selectedIds)"
 ```
+
+### useTable 的几个选项
+
+- **`paginated: false`** —— 接口一次返回整个集合、页面本来就没有分页器时用（部门树、菜单树）。
+  不发分页键，响应体当集合读，`ProTable` 也不渲染分页器。
+- **`defaultSort: { prop, order }`** —— 列表默认按某列排序时用。它同时记住"当前排序的是哪一列"，
+  否则第一次手动排序会把新键**加在**默认键旁边，后端收到两个互相矛盾的排序。
+  同一个值也传给 `ProTable`，表头箭头才会一致。
+- **`immediate: false`** —— 首次加载要等别的东西就绪时用。
+
+### 导出用 `useExport`
+
+```ts
+const { exportExcel, exporting } = useExport()
+
+const handleExport = () => exportExcel({
+  header: ['编号', '名称'],
+  fields: ['id', 'name'],
+  rows: table.rows,
+  filename: '岗位管理'
+})
+```
+
+**不要自己写** `import('@/vendor/Export2Excel')` 那一套 —— 之前 5 个页面各抄了一份。
+导出的是**传进去的行**，也就是当前这一页，不是整个集合；默认确认文案已经这么说了。
 
 比 mixin 好在哪：**一个页面可以调多次**。mixin 把名字合并进组件，一页只能用一次，
 所以需要第二个表单的页面只能整个绕开它 —— 17 个列表页里有 16 个就是这么做的。
