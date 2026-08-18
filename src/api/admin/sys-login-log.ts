@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { ApiResponse, PageQuery, PageResult } from '@/types/api'
+import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
 import type { SysLoginLog } from '@/types/admin'
 
 /** Login audit endpoints. Read and delete only -- nothing writes these. */
@@ -19,10 +19,10 @@ export function getSysLoginlog(id: number) {
   })
 }
 
-export function delSysLoginlog(data: { ids: number[] }) {
+export function delSysLoginlog(ids: Id[]) {
   return request<ApiResponse<null>>({
     url: '/api/v1/sys-login-log',
     method: 'delete',
-    data
+    data: { ids: ids.map(Number) }
   })
 }

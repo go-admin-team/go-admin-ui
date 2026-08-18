@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { ApiResponse, PageQuery, PageResult } from '@/types/api'
+import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
 import type { SysPost } from '@/types/admin'
 
 /** Post (job title) endpoints. */
@@ -19,11 +19,20 @@ export function getPost(postId: number) {
   })
 }
 
+/** Numbers on the wire, strings in the form -- see the note in sys-dept. */
+const toWire = (data: SysPost): SysPost => ({ ...data, status: Number(data.status) as never })
+
+/** The mirror of toWire, for the record a form is about to edit. */
+export const postToForm = (data: SysPost): SysPost => ({
+  ...data,
+  status: String(data.status ?? '1')
+})
+
 export function addPost(data: SysPost) {
   return request<ApiResponse<SysPost>>({
     url: '/api/v1/post',
     method: 'post',
-    data
+    data: toWire(data)
   })
 }
 
@@ -32,14 +41,14 @@ export function updatePost(data: SysPost, id: number) {
   return request<ApiResponse<SysPost>>({
     url: '/api/v1/post/' + id,
     method: 'put',
-    data
+    data: toWire(data)
   })
 }
 
-export function delPost(data: { ids: number[] }) {
+export function delPost(ids: Id[]) {
   return request<ApiResponse<null>>({
     url: '/api/v1/post',
     method: 'delete',
-    data
+    data: { ids: ids.map(Number) }
   })
 }

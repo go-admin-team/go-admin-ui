@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { ApiResponse, PageQuery, PageResult } from '@/types/api'
+import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
 import type { SysApi, SysApiQuery } from '@/types/admin'
 
 /** Endpoints for the backend route registry shown under 接口管理. */
@@ -35,10 +35,10 @@ export function updateSysApi(data: SysApi) {
   })
 }
 
-export function delSysApi(data: { ids: number[] }) {
+export function delSysApi(ids: Id[]) {
   return request<ApiResponse<null>>({
     url: '/api/v1/sys-api',
     method: 'delete',
-    data
+    data: { ids: ids.map(Number) }
   })
 }

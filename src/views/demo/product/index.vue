@@ -149,8 +149,7 @@ const form = useForm<Product, number>({
 })
 
 const { remove } = useRemove({
-  // Ids arrive as string | number; this endpoint wants numbers
-  api: ids => delProduct({ ids: ids.map(Number) }),
+  api: delProduct,
   onSuccess: () => table.getList()
 })
 </script>

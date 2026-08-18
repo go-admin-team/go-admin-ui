@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { ApiResponse, PageQuery, PageResult } from '@/types/api'
+import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
 import type { BackendMenu } from '@/stores/permission'
 import type { DeptTreeNode, SysRole, SysRoleQuery } from '@/types/admin'
 
@@ -54,11 +54,11 @@ export function changeRoleStatus(roleId: number, status: string) {
   })
 }
 
-export function delRole(data: { ids: number[] }) {
+export function delRole(ids: Id[]) {
   return request<ApiResponse<null>>({
     url: '/api/v1/role',
     method: 'delete',
-    data
+    data: { ids: ids.map(Number) }
   })
 }
 

@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { ApiResponse, PageQuery, PageResult } from '@/types/api'
+import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
 import type { SysJob, SysJobQuery } from '@/types/admin'
 
 /** Scheduled job endpoints. */
@@ -36,11 +36,11 @@ export function updateSysJob(data: SysJob) {
   })
 }
 
-export function delSysJob(data: { ids: number[] }) {
+export function delSysJob(ids: Id[]) {
   return request<ApiResponse<null>>({
     url: '/api/v1/sysjob',
     method: 'delete',
-    data
+    data: { ids: ids.map(Number) }
   })
 }
 

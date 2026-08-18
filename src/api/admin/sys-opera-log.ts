@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { ApiResponse, PageQuery, PageResult } from '@/types/api'
+import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
 import type { SysOperaLog } from '@/types/admin'
 
 /** Operation audit endpoints. Read and delete only. */
@@ -20,10 +20,10 @@ export function listSysOperlog(query: Partial<PageQuery> & Record<string, unknow
   })
 }
 
-export function delSysOperlog(data: { ids: number[] }) {
+export function delSysOperlog(ids: Id[]) {
   return request<ApiResponse<null>>({
     url: '/api/v1/sys-opera-log',
     method: 'delete',
-    data
+    data: { ids: ids.map(Number) }
   })
 }

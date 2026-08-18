@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { ApiResponse, PageQuery, PageResult } from '@/types/api'
+import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
 import type { SysConfig, SysConfigQuery } from '@/types/admin'
 
 /** Configuration endpoints. */
@@ -44,11 +44,11 @@ export function updateConfig(data: SysConfig & { id?: number }) {
   })
 }
 
-export function delConfig(data: { ids: number[] }) {
+export function delConfig(ids: Id[]) {
   return request<ApiResponse<null>>({
     url: '/api/v1/config',
     method: 'delete',
-    data
+    data: { ids: ids.map(Number) }
   })
 }
 

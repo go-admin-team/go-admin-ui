@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { ApiResponse } from '@/types/api'
+import type { ApiResponse, Id } from '@/types/api'
 import type { DeptTreeNode, SysDept, SysDeptQuery } from '@/types/admin'
 
 /**
@@ -42,11 +42,33 @@ export function roleDeptTreeselect(roleId: number) {
   })
 }
 
+/**
+ * Numbers on the wire, strings in the form.
+ *
+ * The list sends `status` and `sort` as numbers, the dictionary that labels
+ * status keys on strings, and the write endpoints want numbers back. Pages work
+ * in strings throughout so their radio groups match the dictionary, and the
+ * conversion happens here -- it is a fact about these endpoints, not something
+ * each page should re-derive.
+ */
+const toWire = (data: SysDept): SysDept => ({
+  ...data,
+  status: Number(data.status),
+  sort: Number(data.sort)
+})
+
+/** The mirror of toWire, for the record a form is about to edit. */
+export const deptToForm = (data: SysDept): SysDept => ({
+  ...data,
+  status: String(data.status ?? '2'),
+  sort: String(data.sort ?? 0)
+})
+
 export function addDept(data: SysDept) {
   return request<ApiResponse<SysDept>>({
     url: '/api/v1/dept',
     method: 'post',
-    data
+    data: toWire(data)
   })
 }
 
@@ -55,14 +77,14 @@ export function updateDept(data: SysDept, id: number) {
   return request<ApiResponse<SysDept>>({
     url: '/api/v1/dept/' + id,
     method: 'put',
-    data
+    data: toWire(data)
   })
 }
 
-export function delDept(data: { ids: number[] }) {
+export function delDept(ids: Id[]) {
   return request<ApiResponse<null>>({
     url: '/api/v1/dept',
     method: 'delete',
-    data
+    data: { ids: ids.map(Number) }
   })
 }

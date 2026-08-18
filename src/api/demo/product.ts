@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { ApiResponse, PageQuery, PageResult } from '@/types/api'
+import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
 
 /**
  * Reference API module. Function names follow the list / get / add / update /
@@ -58,10 +58,10 @@ export function updateProduct(data: Product) {
   })
 }
 
-export function delProduct(data: { ids: number[] }) {
+export function delProduct(ids: Id[]) {
   return request<ApiResponse<null>>({
     url: '/api/v1/demo-product',
     method: 'delete',
-    data
+    data: { ids: ids.map(Number) }
   })
 }

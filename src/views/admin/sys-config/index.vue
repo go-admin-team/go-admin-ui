@@ -181,7 +181,7 @@ const form = useForm<ConfigRow, number>({
 })
 
 const { remove } = useRemove({
-  api: ids => delConfig({ ids: ids.map(Number) }),
+  api: delConfig,
   onSuccess: () => table.getList()
 })
 

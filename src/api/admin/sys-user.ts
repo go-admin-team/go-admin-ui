@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { ApiResponse, PageQuery, PageResult } from '@/types/api'
+import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
 import type { SysUser, SysUserQuery } from '@/types/admin'
 
 /**
@@ -44,11 +44,11 @@ export function updateUser(data: SysUser) {
   })
 }
 
-export function delUser(data: { ids: number[] }) {
+export function delUser(ids: Id[]) {
   return request<ApiResponse<null>>({
     url: '/api/v1/sys-user',
     method: 'delete',
-    data
+    data: { ids: ids.map(Number) }
   })
 }
 

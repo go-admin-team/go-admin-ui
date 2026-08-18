@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { ApiResponse, DictOption, PageQuery, PageResult } from '@/types/api'
+import type { ApiResponse, DictOption, PageQuery, PageResult, Id } from '@/types/api'
 import type { DictData, DictDataQuery } from '@/types/admin'
 
 /** Dictionary entry endpoints. */
@@ -44,11 +44,11 @@ export function updateData(data: DictData) {
   })
 }
 
-export function delData(data: { ids: number[] }) {
+export function delData(ids: Id[]) {
   return request<ApiResponse<null>>({
     url: '/api/v1/dict/data',
     method: 'delete',
-    data
+    data: { ids: ids.map(Number) }
   })
 }
 

@@ -452,7 +452,7 @@ const handleResetPwd = (row: SysUser) => {
 
 // ── Row actions ───────────────────────────────────────────────────
 const { remove } = useRemove({
-  api: ids => delUser({ ids: ids.map(Number) }),
+  api: delUser,
   confirmText: count => `确认删除选中的 ${count} 个用户？`,
   onSuccess: () => table.getList()
 })

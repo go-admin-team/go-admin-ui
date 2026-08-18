@@ -303,7 +303,7 @@ const handleDataScope = async(row: SysRole) => {
 
 // ── Row actions ───────────────────────────────────────────────────
 const { remove } = useRemove({
-  api: ids => delRole({ ids: ids.map(Number) }),
+  api: delRole,
   onSuccess: () => table.getList()
 })
 

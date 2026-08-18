@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { ApiResponse } from '@/types/api'
+import type { ApiResponse, Id } from '@/types/api'
 import type { SysMenu, SysMenuQuery } from '@/types/admin'
 
 /**
@@ -49,10 +49,10 @@ export function updateMenu(data: SysMenu, id: number) {
   })
 }
 
-export function delMenu(data: { ids: number[] }) {
+export function delMenu(ids: Id[]) {
   return request<ApiResponse<null>>({
     url: '/api/v1/menu',
     method: 'delete',
-    data
+    data: { ids: ids.map(Number) }
   })
 }
