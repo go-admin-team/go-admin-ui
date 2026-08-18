@@ -26,7 +26,7 @@ test.describe('sys-config', () => {
     await page.goto('/#/admin/sys-config')
     await page.waitForSelector('.el-table')
 
-    expect(calls.configListQueries.at(-1) ?? '').toContain('createdAtOrder=desc')
+    expect(calls.config.listQueries.at(-1) ?? '').toContain('createdAtOrder=desc')
   })
 
   // The old page tracked its default sort by hand and, on reset, restored it
@@ -40,11 +40,11 @@ test.describe('sys-config', () => {
 
     await page.locator('th').filter({ hasText: '名称' }).first()
       .locator('.sort-caret.ascending').click()
-    await expect.poll(() => calls.configListQueries.at(-1)).toContain('configNameOrder=asc')
+    await expect.poll(() => calls.config.listQueries.at(-1)).toContain('configNameOrder=asc')
 
     await page.locator('.pro-table__search').getByRole('button', { name: '重置' }).click()
 
-    const sent = calls.configListQueries.at(-1) ?? ''
+    const sent = calls.config.listQueries.at(-1) ?? ''
     expect(sent).toContain('createdAtOrder=desc')
     expect(sent).not.toContain('OrderOrder')
     expect(sent).not.toContain('configNameOrder')
@@ -59,9 +59,9 @@ test.describe('sys-config', () => {
     await page.locator('th').filter({ hasText: '编码' }).first()
       .locator('.sort-caret.ascending').click()
 
-    await expect.poll(() => calls.configListQueries.at(-1)).toContain('idOrder=asc')
+    await expect.poll(() => calls.config.listQueries.at(-1)).toContain('idOrder=asc')
     // Two contradictory orders would otherwise reach the backend
-    expect(calls.configListQueries.at(-1) ?? '').not.toContain('createdAtOrder')
+    expect(calls.config.listQueries.at(-1) ?? '').not.toContain('createdAtOrder')
   })
 
   test('the key column reveals its value on hover', async({ page }) => {
@@ -98,12 +98,12 @@ test.describe('sys-config', () => {
 
     await page.goto('/#/admin/sys-config')
     await page.waitForSelector('.el-table')
-    const before = calls.configList
+    const before = calls.config.list
 
     await page.getByRole('row', { name: /应用名称/ }).getByRole('button', { name: '删除' }).click()
     await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
 
-    await expect.poll(() => calls.configDelete).toBe(1)
-    await expect.poll(() => calls.configList).toBeGreaterThan(before)
+    await expect.poll(() => calls.config.remove).toBe(1)
+    await expect.poll(() => calls.config.list).toBeGreaterThan(before)
   })
 })

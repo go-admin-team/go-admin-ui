@@ -35,7 +35,7 @@ test.describe('sys-dept', () => {
 
     await expect(page.locator('.pagination-container')).toHaveCount(0)
 
-    const sent = calls.deptListQueries.at(-1) ?? ''
+    const sent = calls.dept.listQueries.at(-1) ?? ''
     expect(sent).not.toContain('pageIndex')
     expect(sent).not.toContain('pageSize')
   })
@@ -45,13 +45,13 @@ test.describe('sys-dept', () => {
 
     await page.goto('/#/admin/sys-dept')
     await page.waitForSelector('.el-table')
-    const before = calls.deptList
+    const before = calls.dept.list
 
     await page.getByPlaceholder('请输入部门名称').fill('研发')
     await page.getByPlaceholder('请输入部门名称').press('Enter')
 
-    await expect.poll(() => calls.deptList).toBeGreaterThan(before)
-    const sent = calls.deptListQueries.at(-1) ?? ''
+    await expect.poll(() => calls.dept.list).toBeGreaterThan(before)
+    const sent = calls.dept.listQueries.at(-1) ?? ''
     expect(sent).toContain('deptName=')
     expect(sent).not.toContain('pageIndex')
   })
@@ -121,7 +121,7 @@ test.describe('sys-dept', () => {
     await dialog.getByPlaceholder('请输入部门名称').fill('前端小组')
     await dialog.getByRole('button', { name: '确 定' }).click()
 
-    await expect.poll(() => calls.deptUpdate).toBe(1)
+    await expect.poll(() => calls.dept.update).toBe(1)
     const sent = JSON.parse(bodies.at(-1) || '{}')
     expect(typeof sent.status).toBe('number')
     expect(typeof sent.sort).toBe('number')

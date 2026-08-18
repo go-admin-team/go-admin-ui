@@ -27,8 +27,8 @@ test.describe('app shell', () => {
     await page.waitForSelector('.el-menu')
 
     // Guard order: getInfo first, then the menu that depends on its roles
-    expect(calls.getinfo).toBe(1)
-    expect(calls.menurole).toBe(1)
+    expect(calls.extra.getinfo).toBe(1)
+    expect(calls.extra.menurole).toBe(1)
 
     await expect(page.locator('.el-sub-menu__title', { hasText: 'Demo' })).toBeVisible()
     await expect(page.locator('.el-menu-item', { hasText: 'Product' })).toBeVisible()
@@ -77,7 +77,7 @@ test.describe('app shell', () => {
 
     await page.goto('/#/demo/product')
     await page.waitForSelector('.el-table')
-    expect(calls.productList).toBe(1)
+    expect(calls.product.list).toBe(1)
 
     // Navigate away to a sibling page
     await page.locator('.el-menu-item', { hasText: 'Second' }).click()
@@ -86,7 +86,7 @@ test.describe('app shell', () => {
 
     // Whatever the sibling page did on its own is irrelevant; what matters is
     // that returning to a cached page issues no further request.
-    const beforeReturn = calls.productList
+    const beforeReturn = calls.product.list
 
     await page.locator('.tags-view-item', { hasText: 'Product' }).click()
     await page.waitForURL(/#\/demo\/product/)
@@ -96,7 +96,7 @@ test.describe('app shell', () => {
     await page.waitForTimeout(600)
 
     // A cached page is reactivated, not recreated, so created() never re-runs
-    expect(calls.productList).toBe(beforeReturn)
+    expect(calls.product.list).toBe(beforeReturn)
   })
 
   /**
@@ -122,13 +122,13 @@ test.describe('app shell', () => {
     await page.waitForURL(/#\/demo\/second/)
     await page.waitForSelector('.el-table')
 
-    const beforeReturn = calls.productList
+    const beforeReturn = calls.product.list
 
     await page.locator('.tags-view-item', { hasText: 'Renamed' }).click()
     await page.waitForURL(/#\/demo\/renamed/)
     await page.waitForTimeout(600)
 
-    expect(calls.productList).toBe(beforeReturn)
+    expect(calls.product.list).toBe(beforeReturn)
   })
 
   // The trigger used to be a tile fixed to the right edge of the viewport, which

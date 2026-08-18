@@ -35,8 +35,8 @@ test.describe('sys-user', () => {
     await page.getByPlaceholder('请输入用户名称').fill('tester')
     await page.getByRole('button', { name: '搜索' }).click()
 
-    await expect.poll(() => calls.userList).toBeGreaterThan(1)
-    const latest = calls.userListQueries[calls.userListQueries.length - 1]
+    await expect.poll(() => calls.user.list).toBeGreaterThan(1)
+    const latest = calls.user.listQueries[calls.user.listQueries.length - 1]
     expect(latest).toContain('username=tester')
     expect(latest).toContain('pageIndex=1')
   })
@@ -51,15 +51,15 @@ test.describe('sys-user', () => {
 
     await page.goto('/#/admin/sys-user')
     await expect(page.locator('.el-table__row')).toHaveCount(2)
-    const before = calls.userList
+    const before = calls.user.list
 
     await page.getByPlaceholder('请输入用户名称').fill('tester')
     await page.getByPlaceholder('请输入用户名称').press('Enter')
 
-    await expect.poll(() => calls.userListQueries.at(-1)).toContain('username=tester')
+    await expect.poll(() => calls.user.listQueries.at(-1)).toContain('username=tester')
     // Settle, then confirm the search fired once and not twice
     await page.waitForTimeout(500)
-    expect(calls.userList).toBe(before + 1)
+    expect(calls.user.list).toBe(before + 1)
   })
 
   // The department filter is set by clicking the tree, so it never appears in
@@ -73,13 +73,13 @@ test.describe('sys-user', () => {
     await expect(page.locator('.el-table__row')).toHaveCount(2)
 
     await page.locator('.el-tree-node__label').filter({ hasText: '测试部' }).click()
-    await expect.poll(() => calls.userListQueries.at(-1)).toContain('deptId=')
+    await expect.poll(() => calls.user.listQueries.at(-1)).toContain('deptId=')
 
     // Scoped to the search bar: `name` matches a substring, so an unscoped
     // '重置' also matches 重置密码 in the row overflow menus.
     await page.locator('.pro-table__search').getByRole('button', { name: '重置' }).click()
 
-    await expect.poll(() => calls.userListQueries.at(-1)).not.toContain('deptId=')
+    await expect.poll(() => calls.user.listQueries.at(-1)).not.toContain('deptId=')
   })
 
   test('sorting sends the order key the backend reads', async({ page }) => {
@@ -90,7 +90,7 @@ test.describe('sys-user', () => {
 
     await page.locator('th').filter({ hasText: '登录名' }).locator('.sort-caret.ascending').click()
 
-    await expect.poll(() => calls.userListQueries.at(-1)).toContain('usernameOrder=asc')
+    await expect.poll(() => calls.user.listQueries.at(-1)).toContain('usernameOrder=asc')
   })
 
   test('the create dialog opens seeded with the configured initial password', async({ page }) => {
@@ -150,10 +150,10 @@ test.describe('sys-user', () => {
     // Second click lands while the first request is still open
     await confirm.click({ force: true })
 
-    await expect.poll(() => calls.userCreate, { timeout: 5000 }).toBe(1)
+    await expect.poll(() => calls.user.create, { timeout: 5000 }).toBe(1)
     await expect(dialog).toBeHidden()
     // Still one after everything has settled
-    expect(calls.userCreate).toBe(1)
+    expect(calls.user.create).toBe(1)
   })
 
   test('a validation failure keeps the dialog open and sends nothing', async({ page }) => {
@@ -167,7 +167,7 @@ test.describe('sys-user', () => {
 
     await expect(dialog.locator('.el-form-item__error').first()).toBeVisible()
     await expect(dialog).toBeVisible()
-    expect(calls.userCreate).toBe(0)
+    expect(calls.user.create).toBe(0)
   })
 
   // bindFormRef is a function ref, and Vue calls a function ref with null when
@@ -193,7 +193,7 @@ test.describe('sys-user', () => {
 
     await expect(dialog.locator('.el-form-item__error').first()).toBeVisible()
     await expect(dialog).toBeVisible()
-    expect(calls.userCreate).toBe(0)
+    expect(calls.user.create).toBe(0)
   })
 
   // The second useForm on the page. Under the old mixin a page had one `form`,
@@ -213,12 +213,12 @@ test.describe('sys-user', () => {
     await dialog.getByPlaceholder('请输入新密码').fill('123')
     await dialog.getByRole('button', { name: '确 定' }).click()
     await expect(dialog.locator('.el-form-item__error')).toBeVisible()
-    expect(calls.passwordReset).toBe(0)
+    expect(calls.extra.passwordReset).toBe(0)
 
     await dialog.getByPlaceholder('请输入新密码').fill('Secret@123')
     await dialog.getByRole('button', { name: '确 定' }).click()
 
-    await expect.poll(() => calls.passwordReset).toBe(1)
+    await expect.poll(() => calls.extra.passwordReset).toBe(1)
     await expect(dialog).toBeHidden()
   })
 
@@ -244,9 +244,9 @@ test.describe('sys-user', () => {
     await page.keyboard.press('Enter')
     await page.keyboard.press('Enter')
 
-    await expect.poll(() => calls.passwordReset, { timeout: 5000 }).toBe(1)
+    await expect.poll(() => calls.extra.passwordReset, { timeout: 5000 }).toBe(1)
     await expect(dialog).toBeHidden()
-    expect(calls.passwordReset).toBe(1)
+    expect(calls.extra.passwordReset).toBe(1)
   })
 
   test('the two forms keep their own state', async({ page }) => {
@@ -282,7 +282,7 @@ test.describe('sys-user', () => {
 
     await bulk.click()
     await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
-    await expect.poll(() => calls.userDelete).toBe(1)
+    await expect.poll(() => calls.user.remove).toBe(1)
 
     // Otherwise a second click deletes ids the server no longer has
     await expect(bulk).toBeDisabled()
@@ -315,7 +315,7 @@ test.describe('sys-user', () => {
     await confirm.getByRole('button', { name: '取消' }).click()
 
     await expect(confirm).toBeHidden()
-    expect(calls.userDelete).toBe(0)
+    expect(calls.user.remove).toBe(0)
   })
 
   test('deleting a confirmed row reloads the list', async({ page }) => {
@@ -323,13 +323,13 @@ test.describe('sys-user', () => {
 
     await page.goto('/#/admin/sys-user')
     await expect(page.locator('.el-table__row')).toHaveCount(2)
-    const before = calls.userList
+    const before = calls.user.list
 
     await page.getByRole('row', { name: /tester/ }).getByRole('button', { name: '删除' }).click()
     await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
 
-    await expect.poll(() => calls.userDelete).toBe(1)
-    await expect.poll(() => calls.userList).toBeGreaterThan(before)
+    await expect.poll(() => calls.user.remove).toBe(1)
+    await expect.poll(() => calls.user.list).toBeGreaterThan(before)
   })
 
   // The row with userId 1 is the built-in super admin

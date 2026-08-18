@@ -23,7 +23,7 @@ test.describe('sys-post', () => {
     await expect(page.locator('.el-table__row')).toHaveCount(2)
     await expect(page.getByRole('cell', { name: '董事长' })).toBeVisible()
 
-    const sent = calls.postListQueries.at(-1) ?? ''
+    const sent = calls.post.listQueries.at(-1) ?? ''
     expect(sent).toContain('pageIndex=1')
     expect(sent).toContain('pageSize=')
   })
@@ -87,7 +87,7 @@ test.describe('sys-post', () => {
     await dialog.getByPlaceholder('请输入岗位名称').fill('高级开发工程师')
     await dialog.getByRole('button', { name: '确 定' }).click()
 
-    await expect.poll(() => calls.postUpdate).toBeGreaterThan(0)
+    await expect.poll(() => calls.post.update).toBeGreaterThan(0)
     const sent = JSON.parse(bodies.at(-1) || '{}')
     expect(typeof sent.status).toBe('number')
   })
@@ -104,7 +104,7 @@ test.describe('sys-post', () => {
     await dialog.getByPlaceholder('请输入编码名称').fill('pm')
     await dialog.getByRole('button', { name: '确 定' }).click()
 
-    await expect.poll(() => calls.postCreate).toBe(1)
+    await expect.poll(() => calls.post.create).toBe(1)
     await expect(dialog).toBeHidden()
   })
 
@@ -113,13 +113,13 @@ test.describe('sys-post', () => {
 
     await page.goto('/#/admin/sys-post')
     await page.waitForSelector('.el-table')
-    const before = calls.postList
+    const before = calls.post.list
 
     await page.getByRole('row', { name: /开发工程师/ }).getByRole('button', { name: '删除' }).click()
     await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
 
-    await expect.poll(() => calls.postDelete).toBe(1)
-    await expect.poll(() => calls.postList).toBeGreaterThan(before)
+    await expect.poll(() => calls.post.remove).toBe(1)
+    await expect.poll(() => calls.post.list).toBeGreaterThan(before)
   })
 
   test('export asks before writing anything', async({ page }) => {

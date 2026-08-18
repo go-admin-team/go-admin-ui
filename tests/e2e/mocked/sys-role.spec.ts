@@ -26,8 +26,8 @@ test.describe('sys-role', () => {
     await page.goto('/#/admin/sys-role')
     await page.waitForSelector('.el-table')
 
-    expect(calls.roleList).toBeGreaterThan(0)
-    const sent = calls.roleListQueries.at(-1) ?? ''
+    expect(calls.role.list).toBeGreaterThan(0)
+    const sent = calls.role.listQueries.at(-1) ?? ''
     expect(sent).toContain('pageIndex=1')
     expect(sent).toContain('pageSize=')
   })
@@ -37,13 +37,13 @@ test.describe('sys-role', () => {
 
     await page.goto('/#/admin/sys-role')
     await page.waitForSelector('.el-table')
-    const before = calls.roleList
+    const before = calls.role.list
 
     await page.getByRole('row', { name: /普通角色/ }).getByRole('button', { name: '删除' }).click()
     await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
 
-    await expect.poll(() => calls.roleDelete).toBe(1)
-    await expect.poll(() => calls.roleList).toBeGreaterThan(before)
+    await expect.poll(() => calls.role.remove).toBe(1)
+    await expect.poll(() => calls.role.list).toBeGreaterThan(before)
   })
 
   test('saving an edit reaches the update endpoint', async({ page }) => {
@@ -57,7 +57,7 @@ test.describe('sys-role', () => {
     await expect(dialog).toBeVisible()
     await dialog.getByRole('button', { name: '确 定' }).click()
 
-    await expect.poll(() => calls.roleUpdate).toBe(1)
+    await expect.poll(() => calls.role.update).toBe(1)
     await expect(dialog).toBeHidden()
   })
 
@@ -107,7 +107,7 @@ test.describe('sys-role', () => {
     await expect(dialog).toBeVisible()
     await dialog.getByRole('button', { name: '确 定' }).click()
 
-    await expect.poll(() => calls.roleDataScope).toBe(1)
+    await expect.poll(() => calls.extra.roleDataScope).toBe(1)
     await expect(dialog).toBeHidden()
   })
 

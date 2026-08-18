@@ -1,4 +1,5 @@
 import { Page, BrowserContext } from '@playwright/test'
+import { mockCrud, json } from './support/crud'
 
 /**
  * Fixtures for the mock-driven e2e suite.
@@ -353,145 +354,56 @@ export async function authenticate(context: BrowserContext) {
 }
 
 /**
- * Stubs every backend call the app shell makes. Counters are returned so tests
- * can assert on request volume, which is how keep-alive caching is detected:
- * a cached page does not re-run its created() hook and therefore issues no
- * second list request.
+ * Stubs every backend call the app shell makes, plus one mock per resource.
+ *
+ * Resources are composed from mockCrud rather than written out here, so adding a
+ * page means adding a line and its rows, not another block of routes whose glob
+ * has to be checked against every earlier one.
+ *
+ * The counters are grouped by resource -- `calls.post.list`, not
+ * `calls.postList`. Endpoints that are not CRUD (the password reset, the role's
+ * data scope) keep their own entries under `calls.extra`.
  */
 export async function installApiMocks(page: Page) {
-  const calls = {
-    getinfo: 0,
-    menurole: 0,
-    productList: 0,
-    userList: 0,
-    userCreate: 0,
-    userUpdate: 0,
-    userDelete: 0,
-    passwordReset: 0,
-    /** Query string of each GET /api/v1/sys-user, in order. */
-    userListQueries: [] as string[],
-    deptList: 0,
-    deptUpdate: 0,
-    deptDelete: 0,
-    /** Query string of each GET /api/v1/dept, in order. */
-    deptListQueries: [] as string[],
-    postList: 0,
-    postCreate: 0,
-    postUpdate: 0,
-    postDelete: 0,
-    postListQueries: [] as string[],
-    roleList: 0,
-    roleUpdate: 0,
-    roleDelete: 0,
-    roleDataScope: 0,
-    roleListQueries: [] as string[],
-    configList: 0,
-    configUpdate: 0,
-    configDelete: 0,
-    configListQueries: [] as string[]
-  }
+  const extra = { getinfo: 0, menurole: 0, passwordReset: 0, roleDataScope: 0 }
 
   /** Milliseconds to hold a write open, so a test can submit again mid-flight. */
   const delays = { userWrite: 0, passwordReset: 0 }
 
-  const json = (body: unknown) => ({
-    status: 200,
-    contentType: 'application/json',
-    body: JSON.stringify(body)
-  })
-
   // Registered FIRST on purpose: Playwright matches routes in reverse
-  // registration order, so this catch-all must go in before the specific
-  // handlers below or it would swallow every request.
-  // Settings and dictionary lookups are incidental to these tests; answering
-  // them with an empty payload keeps nothing waiting on the network.
+  // registration order, so this catch-all must go in before anything else or it
+  // would swallow every request. Settings and other incidental lookups are
+  // answered with an empty payload so nothing waits on the network.
   await page.route('**/api/v1/**', async route => {
     await route.fulfill(json({ code: 200, data: {}}))
   })
 
   await page.route('**/api/v1/getinfo*', async route => {
-    calls.getinfo++
+    extra.getinfo++
     await route.fulfill(json(userInfo))
   })
 
   await page.route('**/api/v1/menurole*', async route => {
-    calls.menurole++
+    extra.menurole++
     await route.fulfill(json(menuTree))
   })
 
-  await page.route('**/api/v1/demo-product*', async route => {
-    if (route.request().method() === 'GET') {
-      calls.productList++
-      await route.fulfill(json({ code: 200, data: { list: productRows, count: productRows.length }}))
-      return
-    }
-    await route.fulfill(json({ code: 200, msg: 'ok' }))
-  })
-
-  // ── sys-user ────────────────────────────────────────────────────
   await page.route('**/api/v1/dict-data/option-select*', async route => {
     const dictType = new URL(route.request().url()).searchParams.get('dictType')
     const data = dictType === 'sys_user_sex'
       ? [{ label: '男', value: '0' }, { label: '女', value: '1' }]
-      : [{ label: '停用', value: '1' }, { label: '正常', value: '2' }]
+      : dictType === 'sys_yes_no'
+        ? [{ label: '是', value: 'Y' }, { label: '否', value: 'N' }]
+        : [{ label: '停用', value: '1' }, { label: '正常', value: '2' }]
     await route.fulfill(json({ code: 200, data }))
   })
 
-  await page.route('**/api/v1/dept*', async route => {
-    const method = route.request().method()
-    if (method === 'GET') {
-      calls.deptList++
-      calls.deptListQueries.push(new URL(route.request().url()).search)
-      await route.fulfill(json({ code: 200, data: deptRows }))
-      return
-    }
-    if (method === 'DELETE') calls.deptDelete++
-    await route.fulfill(json({ code: 200, msg: 'ok' }))
+  await page.route('**/api/v1/configKey/**', async route => {
+    await route.fulfill(json({ code: 200, data: { configValue: 'Init@123' }}))
   })
 
-  await page.route('**/api/v1/dept/*', async route => {
-    if (route.request().method() === 'PUT') {
-      calls.deptUpdate++
-      await route.fulfill(json({ code: 200, msg: 'ok' }))
-      return
-    }
-    const deptId = Number(route.request().url().split('/').pop())
-    const flat = deptRows.flatMap(d => [d, ...(d.children ?? [])])
-    const row = flat.find(d => d.deptId === deptId) ?? flat[0]
-    await route.fulfill(json({ code: 200, data: row }))
-  })
-
-  await page.route('**/api/v1/role*', async route => {
-    const method = route.request().method()
-    const url = route.request().url()
-    if (/\/role-status/.test(url)) {
-      await route.fulfill(json({ code: 200, msg: 'ok' }))
-      return
-    }
-    if (/\/roledatascope/.test(url)) {
-      calls.roleDataScope++
-      await route.fulfill(json({ code: 200, msg: 'ok' }))
-      return
-    }
-    if (method === 'GET') {
-      calls.roleList++
-      calls.roleListQueries.push(new URL(url).search)
-      await route.fulfill(json({ code: 200, data: { list: roleRows, count: roleRows.length }}))
-      return
-    }
-    if (method === 'DELETE') calls.roleDelete++
-    await route.fulfill(json({ code: 200, msg: 'ok' }))
-  })
-
-  await page.route('**/api/v1/role/*', async route => {
-    if (route.request().method() === 'PUT') {
-      calls.roleUpdate++
-      await route.fulfill(json({ code: 200, msg: 'ok' }))
-      return
-    }
-    const roleId = Number(route.request().url().split('/').pop())
-    const row = roleRows.find(r => r.roleId === roleId) ?? roleRows[0]
-    await route.fulfill(json({ code: 200, data: row }))
+  await page.route('**/api/v1/deptTree*', async route => {
+    await route.fulfill(json({ code: 200, data: deptTree }))
   })
 
   await page.route('**/api/v1/roleMenuTreeselect/*', async route => {
@@ -505,107 +417,49 @@ export async function installApiMocks(page: Page) {
   })
 
   await page.route('**/api/v1/roleDeptTreeselect/*', async route => {
-    await route.fulfill(json({
-      code: 200,
-      data: { depts: deptTree, checkedKeys: [1] }
-    }))
+    await route.fulfill(json({ code: 200, data: { depts: deptTree, checkedKeys: [1] }}))
   })
 
-  await page.route('**/api/v1/deptTree*', async route => {
-    await route.fulfill(json({ code: 200, data: deptTree }))
-  })
-
-  await page.route('**/api/v1/post*', async route => {
-    const method = route.request().method()
-    if (method === 'GET') {
-      calls.postList++
-      calls.postListQueries.push(new URL(route.request().url()).search)
-      await route.fulfill(json({ code: 200, data: { list: postRows, count: postRows.length }}))
-      return
-    }
-    if (method === 'POST') calls.postCreate++
-    if (method === 'PUT') calls.postUpdate++
-    if (method === 'DELETE') calls.postDelete++
+  await page.route('**/api/v1/roledatascope*', async route => {
+    extra.roleDataScope++
     await route.fulfill(json({ code: 200, msg: 'ok' }))
   })
 
-  await page.route('**/api/v1/post/*', async route => {
-    if (route.request().method() === 'PUT') {
-      calls.postUpdate++
-      await route.fulfill(json({ code: 200, msg: 'ok' }))
-      return
-    }
-    const postId = Number(route.request().url().split('/').pop())
-    const row = postRows.find(p => p.postId === postId) ?? postRows[0]
-    await route.fulfill(json({ code: 200, data: row }))
-  })
-
-  await page.route('**/api/v1/config*', async route => {
-    const method = route.request().method()
-    if (method === 'GET') {
-      calls.configList++
-      calls.configListQueries.push(new URL(route.request().url()).search)
-      await route.fulfill(json({ code: 200, data: { list: configRows, count: configRows.length }}))
-      return
-    }
-    if (method === 'DELETE') calls.configDelete++
-    await route.fulfill(json({ code: 200, msg: 'ok' }))
-  })
-
-  await page.route('**/api/v1/config/*', async route => {
-    if (route.request().method() === 'PUT') {
-      calls.configUpdate++
-      await route.fulfill(json({ code: 200, msg: 'ok' }))
-      return
-    }
-    const id = Number(route.request().url().split('/').pop())
-    const row = configRows.find(c => c.id === id) ?? configRows[0]
-    await route.fulfill(json({ code: 200, data: row }))
-  })
-
-  await page.route('**/api/v1/configKey/**', async route => {
-    await route.fulfill(json({ code: 200, data: { configValue: 'Init@123' }}))
-  })
-
-  await page.route('**/api/v1/sys-user*', async route => {
-    const request = route.request()
-    const method = request.method()
-
-    if (method === 'GET') {
-      calls.userList++
-      calls.userListQueries.push(new URL(request.url()).search)
-      await route.fulfill(json({ code: 200, data: { list: userRows, count: userRows.length }}))
-      return
-    }
-
-    if (method === 'POST') calls.userCreate++
-    if (method === 'PUT') calls.userUpdate++
-    if (method === 'DELETE') calls.userDelete++
-
-    // Held open so a test can click the confirm button again while the first
-    // submit is still in flight -- the situation the submit guard exists for.
-    if (delays.userWrite) {
-      await new Promise(resolve => setTimeout(resolve, delays.userWrite))
-    }
+  await page.route('**/api/v1/role-status*', async route => {
     await route.fulfill(json({ code: 200, msg: 'ok' }))
   })
 
   await page.route('**/api/v1/user/pwd/reset*', async route => {
-    calls.passwordReset++
+    extra.passwordReset++
     if (delays.passwordReset) {
       await new Promise(resolve => setTimeout(resolve, delays.passwordReset))
     }
     await route.fulfill(json({ code: 200, msg: 'ok' }))
   })
 
-  // Registered after the list route because the two need separate globs: `*`
-  // does not cross a `/`, so `sys-user*` never matches `sys-user/2`.
-  await page.route('**/api/v1/sys-user/*', async route => {
-    const userId = Number(route.request().url().split('/').pop())
-    const row = userRows.find(user => user.userId === userId) ?? userRows[0]
-    // The detail endpoint returns fields the list omits
-    await route.fulfill(json({ code: 200, data: { ...row, remark: '来自详情接口' }}))
-  })
+  const calls = {
+    extra,
+    product: await mockCrud(page, { base: 'demo-product', rows: productRows, idKey: 'id' }),
+    user: await mockCrud(page, {
+      base: 'sys-user',
+      rows: userRows,
+      idKey: 'userId',
+      // The detail endpoint returns fields the list omits
+      detail: row => ({ ...row, remark: '来自详情接口' }),
+      delays: { write: delays.userWrite }
+    }),
+    dept: await mockCrud(page, {
+      base: 'dept',
+      rows: deptRows,
+      idKey: 'deptId',
+      // /api/v1/dept answers with the whole tree, not a page
+      paginated: false,
+      childrenKey: 'children'
+    }),
+    post: await mockCrud(page, { base: 'post', rows: postRows, idKey: 'postId' }),
+    role: await mockCrud(page, { base: 'role', rows: roleRows, idKey: 'roleId' }),
+    config: await mockCrud(page, { base: 'config', rows: configRows, idKey: 'id' })
+  }
 
   return { calls, delays }
 }
