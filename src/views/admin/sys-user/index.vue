@@ -316,8 +316,6 @@ import { listRole } from '@/api/admin/sys-role'
 import { treeselect } from '@/api/admin/sys-dept'
 import { getConfigKey } from '@/api/admin/sys-config'
 
-import { asApi } from '@/types/api'
-import type { PageResult } from '@/types/api'
 import type { DeptTreeNode, SysPost, SysRole, SysUser, SysUserQuery } from '@/types/admin'
 
 // Must match the menu_name the backend serves, or keep-alive silently misses
@@ -368,11 +366,10 @@ const initPassword = ref('')
 
 onMounted(async() => {
   const [depts, posts, roles, config] = await Promise.allSettled([
-    // No asApi: sys-dept is typed now. The others still need it.
     treeselect(),
-    asApi<PageResult<SysPost>>(listPost({ pageSize: 1000 })),
-    asApi<PageResult<SysRole>>(listRole({ pageSize: 1000 })),
-    asApi<{ configValue: string }>(getConfigKey('sys_user_initPassword'))
+    listPost({ pageSize: 1000 }),
+    listRole({ pageSize: 1000 }),
+    getConfigKey('sys_user_initPassword')
   ])
   // allSettled, not all: one failing lookup must not leave the other three
   // unset. The interceptor has already reported whichever failed.

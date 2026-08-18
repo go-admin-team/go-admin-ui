@@ -16,7 +16,8 @@
  *      `reported: true`, so a catch block that also handles client-side
  *      failures can tell which of the two it is holding.
  *
- * The composables in src/composables encode both rules so pages do not have to.
+ * The composables in src/composables encode both rules so pages do not have to,
+ * and tests/unit/utils/request.spec.ts pins them.
  */
 
 /** Envelope every endpoint responds with. */
@@ -62,17 +63,3 @@ export interface DictOption {
   value: string
   [key: string]: unknown
 }
-
-/**
- * Asserts the payload of a call into an api/ module that is still JavaScript.
- *
- * Those modules pass no type argument to `request`, so their calls resolve to
- * `Promise<unknown>` and cannot be handed to a typed composable. This says what
- * the endpoint returns, at the call site, until the module itself is converted.
- *
- *   const { data } = await asApi<SysPost[]>(listPost({ pageSize: 1000 }))
- *
- * Every use is a place P4 will delete. Prefer converting the module.
- */
-export const asApi = <T>(call: Promise<unknown>): Promise<ApiResponse<T>> =>
-  call as Promise<ApiResponse<T>>
