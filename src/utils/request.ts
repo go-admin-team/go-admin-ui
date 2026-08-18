@@ -24,6 +24,17 @@ export interface ReportedError extends Error {
 const reported = <E extends Error>(error: E): E & { reported: true } =>
   Object.assign(error, { reported: true as const })
 
+/**
+ * Narrows what a `catch` binding holds.
+ *
+ * TypeScript types a caught value as `unknown`, correctly -- anything can be
+ * thrown. Everything this application catches comes from the interceptor above
+ * and is an Error, but a stray throw would not be, so this keeps a message
+ * either way rather than asserting.
+ */
+export const asReportedError = (error: unknown): ReportedError =>
+  error instanceof Error ? error : new Error(String(error))
+
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API,
   // withCredentials: true, // send cookies when cross-domain requests

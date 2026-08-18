@@ -1,5 +1,7 @@
 import { ref } from 'vue'
 import type { Ref } from 'vue'
+import { asReportedError } from '@/utils/request'
+import type { ReportedError } from '@/utils/request'
 import { ElMessageBox } from 'element-plus'
 import { msgSuccess } from '@/utils/message'
 import type { Id } from '@/types/api'
@@ -44,7 +46,7 @@ export interface UseRemoveOptions {
    * message, so this is for extra handling only -- do not report it again.
    * Not called when the user simply cancels.
    */
-  onError?: (error: unknown) => void
+  onError?: (error: ReportedError) => void
 }
 
 export interface UseRemoveReturn {
@@ -112,7 +114,7 @@ export function useRemove(options: UseRemoveOptions): UseRemoveReturn {
       await onSuccess?.(ids)
       return true
     } catch(error) {
-      onError?.(error)
+      onError?.(asReportedError(error))
       return false
     } finally {
       pending = false

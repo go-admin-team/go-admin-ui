@@ -1,5 +1,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import type { Ref } from 'vue'
+import { asReportedError } from '@/utils/request'
+import type { ReportedError } from '@/utils/request'
 import type { ApiResponse, Id, PageQuery, PageResult } from '@/types/api'
 
 /**
@@ -72,7 +74,7 @@ export interface UseTableOptions<TRow, TQuery extends object = Record<string, ne
    * message, so this is for extra handling only -- do not report the error
    * again from here.
    */
-  onError?: (error: unknown) => void
+  onError?: (error: ReportedError) => void
 }
 
 /**
@@ -210,7 +212,7 @@ export function useTable<TRow extends object, TQuery extends object = Record<str
       // interceptor has already told the user what went wrong.
       rows.value = []
       total.value = 0
-      onError?.(error)
+      onError?.(asReportedError(error))
     } finally {
       if (token === currentToken) loading.value = false
     }

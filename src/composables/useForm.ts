@@ -1,5 +1,7 @@
 import { ref, reactive, computed, nextTick } from 'vue'
 import type { Ref } from 'vue'
+import { asReportedError } from '@/utils/request'
+import type { ReportedError } from '@/utils/request'
 import type { FormInstance, FormRules } from 'element-plus'
 import { msgSuccess } from '@/utils/message'
 import type { ApiResponse } from '@/types/api'
@@ -67,7 +69,7 @@ export interface UseFormOptions<TModel extends object, TId = unknown> {
    * Called when a submit fails. The interceptor has already shown the user a
    * message, so this is for extra handling only -- do not report it again.
    */
-  onError?: (error: unknown) => void
+  onError?: (error: ReportedError) => void
 }
 
 /**
@@ -211,7 +213,7 @@ export function useForm<TModel extends object, TId = unknown>(
       visible.value = true
     } catch(error) {
       if (token !== loadToken) return
-      onError?.(error)
+      onError?.(asReportedError(error))
     } finally {
       if (token === loadToken) loading.value = false
     }
@@ -267,7 +269,7 @@ export function useForm<TModel extends object, TId = unknown>(
       await onSuccess?.(model.value)
       return true
     } catch(error) {
-      onError?.(error)
+      onError?.(asReportedError(error))
       return false
     } finally {
       pending = false
