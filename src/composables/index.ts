@@ -16,3 +16,6 @@ export { useRemove } from './useRemove'
 export type { UseRemoveOptions, UseRemoveReturn } from './useRemove'
 
 export { useDict, dictLabel, clearDictCache } from './useDict'
+
+export { useExport } from './useExport'
+export type { ExportOptions, UseExportReturn } from './useExport'
