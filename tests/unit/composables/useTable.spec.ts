@@ -279,6 +279,55 @@ describe('useTable', () => {
   // The department and menu endpoints answer with the whole tree and their pages
   // never had a pager. Sending pageIndex/pageSize to them is noise, and reading
   // `{ list, count }` off an array yields an empty table.
+  // A page whose list arrives pre-sorted has to record which column that is, or
+  // the first manual sort adds its key beside the default one and the backend
+  // receives two contradictory orders.
+  describe('defaultSort', () => {
+    it('sends the default order key on the first load', async() => {
+      const api = vi.fn().mockResolvedValue(page([]))
+      const { queries } = setup({ api, defaultSort: { prop: 'createdAt', order: 'descending' }})
+
+      await flushPromises()
+
+      expect(queries.at(-1)?.createdAtOrder).toBe('desc')
+    })
+
+    it('replaces it when another column is sorted', async() => {
+      const api = vi.fn().mockResolvedValue(page([]))
+      const { table, queries } = setup({
+        api,
+        immediate: false,
+        defaultSort: { prop: 'createdAt', order: 'descending' }
+      })
+
+      await table.handleSortChange({ prop: 'name', order: 'ascending' })
+
+      const sent = queries.at(-1) as Record<string, unknown>
+      expect(sent.nameOrder).toBe('asc')
+      expect('createdAtOrder' in sent).toBe(false)
+    })
+
+    it('restores it on reset', async() => {
+      const api = vi.fn().mockResolvedValue(page([]))
+      const { table, queries } = setup({
+        api,
+        immediate: false,
+        defaultSort: { prop: 'createdAt', order: 'descending' }
+      })
+
+      await table.handleSortChange({ prop: 'name', order: 'ascending' })
+      await table.resetQuery()
+
+      const sent = queries.at(-1) as Record<string, unknown>
+      expect(sent.createdAtOrder).toBe('desc')
+      expect('nameOrder' in sent).toBe(false)
+
+      // And the restored key is tracked, so the next sort replaces it too
+      await table.handleSortChange({ prop: 'name', order: 'ascending' })
+      expect('createdAtOrder' in (queries.at(-1) as object)).toBe(false)
+    })
+  })
+
   describe('paginated: false', () => {
     const tree = [{ id: 1, name: 'root' }, { id: 2, name: 'other' }]
 

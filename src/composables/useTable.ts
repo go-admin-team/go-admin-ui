@@ -45,6 +45,16 @@ export interface UseTableOptions<TRow, TQuery extends object = Record<string, ne
   pageSize?: number
 
   /**
+   * Column the list arrives sorted by.
+   *
+   * Seeds both the query key and the internal record of which column is sorted,
+   * so the first manual sort replaces it instead of sending two contradictory
+   * order keys. Pass the same value to ProTable's `default-sort` for the header
+   * arrow to match.
+   */
+  defaultSort?: { prop: string, order: 'ascending' | 'descending' }
+
+  /**
    * Whether the endpoint pages.
    *
    * Set false for the endpoints that answer with the whole collection in one
@@ -128,6 +138,7 @@ export function useTable<TRow extends object, TQuery extends object = Record<str
     pageSize = DEFAULT_PAGE_SIZE,
     immediate = true,
     paginated = true,
+    defaultSort,
     transform,
     onError
   } = options
@@ -145,8 +156,11 @@ export function useTable<TRow extends object, TQuery extends object = Record<str
    * it here would mean rebuilding it on every reset and then writing the user's
    * choice back over the top.
    */
+  const sortValue = (order: 'ascending' | 'descending') => order === 'ascending' ? 'asc' : 'desc'
+
   const buildQuery = () => ({
     ...defaultQuery(),
+    ...(defaultSort ? { [`${defaultSort.prop}Order`]: sortValue(defaultSort.order) } : {}),
     ...(paginated ? { pageIndex: 1 } : {})
   }) as TQuery & PageQuery
 
@@ -174,7 +188,7 @@ export function useTable<TRow extends object, TQuery extends object = Record<str
    * reads. Only one column sorts at a time, so the previous column's key is
    * cleared before the new one is set.
    */
-  let sortKey: string | null = null
+  let sortKey: string | null = defaultSort ? `${defaultSort.prop}Order` : null
 
   const readPage = (response: ApiResponse<PageResult<TRow> | TRow[]>) => {
     if (transform) return transform(response as ApiResponse<unknown>)
@@ -233,7 +247,8 @@ export function useTable<TRow extends object, TQuery extends object = Record<str
       if (!(key in fresh)) delete target[key]
     }
     Object.assign(query, fresh)
-    sortKey = null
+    // Back to the default sort, not to no sort: buildQuery just restored its key
+    sortKey = defaultSort ? `${defaultSort.prop}Order` : null
     selection.value = []
     return getList()
   }
@@ -250,7 +265,7 @@ export function useTable<TRow extends object, TQuery extends object = Record<str
     }
     if (prop && order) {
       sortKey = `${prop}Order`
-      target[sortKey] = order === 'ascending' ? 'asc' : 'desc'
+      target[sortKey] = sortValue(order as 'ascending' | 'descending')
     }
     return search()
   }
