@@ -121,20 +121,14 @@ import DateCell from '@/components/DateCell/index.vue'
 import { useTable, useForm, useRemove, useDict, useExport, dictLabel } from '@/composables'
 
 import { listPost, getPost, addPost, updatePost, delPost } from '@/api/admin/sys-post'
-import type { SysPost } from '@/types/admin'
+import type { SysPost, SysPostQuery } from '@/types/admin'
 
 // Must match the menu_name the backend serves, or keep-alive silently misses
 defineOptions({ name: 'SysPostManage' })
 
 const { sys_normal_disable } = useDict('sys_normal_disable')
 
-interface PostQuery {
-  postCode?: string
-  postName?: string
-  status?: string
-}
-
-const table = useTable<SysPost, PostQuery>({
+const table = useTable<SysPost, SysPostQuery>({
   api: listPost,
   idKey: 'postId',
   defaultQuery: () => ({ postCode: undefined, postName: undefined, status: undefined })

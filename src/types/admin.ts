@@ -71,7 +71,6 @@ export interface DeptTreeNode {
   children?: DeptTreeNode[]
 }
 
-/** A post (job title), as offered in the user form. */
 /** A post (job title). */
 export interface SysPost {
   postId?: number
@@ -81,6 +80,13 @@ export interface SysPost {
   status?: string
   remark?: string
   createdAt?: string
+}
+
+/** Filters the post list accepts. */
+export interface SysPostQuery {
+  postCode?: string
+  postName?: string
+  status?: string
 }
 
 /** A role. `dataScope` selects which departments its holders can see. */

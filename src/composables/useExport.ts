@@ -67,8 +67,10 @@ export function useExport(): UseExportReturn {
       }
 
       exporting.value = true
-      const excel = await import('@/vendor/Export2Excel')
-      excel.export_json_to_excel({
+      // Destructured rather than held as a namespace: reaching through the
+      // module object keeps its other export alive in the chunk.
+      const { export_json_to_excel } = await import('@/vendor/Export2Excel')
+      export_json_to_excel({
         header,
         data: rows.map(row => fields.map(field => row[field])),
         filename,
