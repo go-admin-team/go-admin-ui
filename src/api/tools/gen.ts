@@ -9,18 +9,25 @@ import type { ApiResponse, PageQuery, PageResult } from '@/types/api'
  * backend does not hold to.
  */
 
-/** A table registered with the generator. */
-export interface GenTable {
-  tableId?: number
-  tableName?: string
-  tableComment?: string
-  className?: string
-  packageName?: string
-  moduleName?: string
-  businessName?: string
-  functionName?: string
-  columns?: Array<Record<string, unknown>>
-  [key: string]: unknown
+/**
+ * A generator table row, as the list endpoints send it.
+ *
+ * Left open rather than enumerated: the generator's shapes track its templates
+ * and both consuming pages are still Options API with no type checking, so named
+ * fields here would be guesses nothing verifies. Narrow this when those pages
+ * are migrated and the real shape can be read off working code.
+ */
+export type GenTable = Record<string, unknown>
+
+/**
+ * What the detail endpoint answers with -- the table's own settings under
+ * `info`, its columns under `list`. Not a GenTable: the detail response is
+ * shaped differently from a list row, which is easy to miss because an open
+ * record type would have absorbed the difference silently.
+ */
+export interface GenTableDetail {
+  info: Record<string, unknown>
+  list: Array<Record<string, unknown>>
 }
 
 export function listTable(query: Partial<PageQuery> & Record<string, unknown>) {
@@ -41,7 +48,7 @@ export function listDbTable(query: Partial<PageQuery> & Record<string, unknown>)
 }
 
 export function getGenTable(tableId: number) {
-  return request<ApiResponse<GenTable>>({
+  return request<ApiResponse<GenTableDetail>>({
     url: '/api/v1/sys/tables/info/' + tableId,
     method: 'get'
   })
