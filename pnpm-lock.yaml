@@ -86,9 +86,6 @@ importers:
       vue3-dnd:
         specifier: ^2.1.0
         version: 2.1.0(vue@3.5.41(typescript@6.0.3))
-      vue3-treeselect:
-        specifier: ^0.1.10
-        version: 0.1.10(vue@3.5.41(typescript@6.0.3))
       xlsx:
         specifier: ^0.18.5
         version: 0.18.5
@@ -3637,11 +3634,6 @@ packages:
     resolution: {integrity: sha512-szeB4ldsrnXTwBLmkmBuZaP9zE0eL4o8LCgTPeejOHCBsIOEUDf9W8TKCo+rj3cSVfbaa6Y5b27YVa99PI5HhA==}
     peerDependencies:
       vue: ^3.0.0-0 || ^2.6.0
-
-  vue3-treeselect@0.1.10:
-    resolution: {integrity: sha512-QawdAbzmlZ7T3uBdSU4FRnrnmcV0Q9Jrph5hUBQJcXmM9OZ8lULQo7O7YbKxkOyuDX9Yx2rGjs6L5FKcL1FeXA==}
-    peerDependencies:
-      vue: ^3.0.0
 
   vue@3.5.41:
     resolution: {integrity: sha512-2laE0p+aK+/AOPG/XL/WepOs/GlK755LJ1XECi9kDUrz1FKNw8rb2Xzlw9JS1rqEV55nb0ttsKxVlTCcd+R5cg==}
@@ -7449,10 +7441,6 @@ snapshots:
       vue-demi: 0.14.10(vue@3.5.41(typescript@6.0.3))
     transitivePeerDependencies:
       - '@vue/composition-api'
-
-  vue3-treeselect@0.1.10(vue@3.5.41(typescript@6.0.3)):
-    dependencies:
-      vue: 3.5.41(typescript@6.0.3)
 
   vue@3.5.41(typescript@6.0.3):
     dependencies:

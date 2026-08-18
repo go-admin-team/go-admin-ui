@@ -6,7 +6,6 @@
  * rather than an attempt to model the real API, because three of them are
  * scheduled for replacement in phase P4 of the migration plan:
  *
- *   vue3-treeselect -> Element Plus native el-tree-select (3 pages)
  *   vue-count-to    -> in-house composable (1 usage)
  *   vue-cropper     -> kept (avatar cropping; replacing it is not worth the risk)
  *   dropzone        -> kept (form generator)
@@ -14,14 +13,6 @@
  * Remove the matching entry as each package is replaced, so stale declarations
  * do not mask genuinely missing types.
  */
-
-declare module 'vue3-treeselect' {
-  import type { DefineComponent } from 'vue'
-  const Treeselect: DefineComponent<Record<string, unknown>, Record<string, unknown>, unknown>
-  export default Treeselect
-}
-
-declare module 'vue3-treeselect/dist/vue3-treeselect.css'
 
 declare module 'vue-cropper' {
   import type { DefineComponent } from 'vue'

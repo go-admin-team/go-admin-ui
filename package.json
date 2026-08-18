@@ -71,7 +71,6 @@
     "vue-cropper": "^1.1.4",
     "vue-router": "^4.6.4",
     "vue3-dnd": "^2.1.0",
-    "vue3-treeselect": "^0.1.10",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
