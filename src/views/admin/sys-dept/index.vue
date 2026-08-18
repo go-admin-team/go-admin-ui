@@ -158,7 +158,7 @@ import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
 import { useTable, useForm, useRemove, useDict, dictLabel } from '@/composables'
 
-import { getDeptList, getDept, addDept, updateDept, delDept } from '@/api/admin/sys-dept'
+import { getDeptList, getDept, addDept, updateDept, delDept, deptToForm } from '@/api/admin/sys-dept'
 import type { SysDept, SysDeptQuery } from '@/types/admin'
 
 // Must match the menu_name the backend serves, or keep-alive silently misses
@@ -195,17 +195,6 @@ const rules: FormRules = {
   phone: [{ pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }]
 }
 
-/**
- * The list sends status and sort as numbers, the status dictionary keys on
- * strings, and the write endpoints want numbers. The form holds strings so the
- * radio group matches the dictionary, and converts on the way out.
- */
-const toPayload = (model: SysDept): SysDept => ({
-  ...model,
-  status: Number(model.status),
-  sort: Number(model.sort)
-})
-
 const form = useForm<SysDept, number>({
   defaultModel: () => ({
     deptId: undefined,
@@ -223,18 +212,10 @@ const form = useForm<SysDept, number>({
   api: {
     get: async(id: number) => {
       const response = await getDept(id)
-      // Back to strings for the form controls
-      return {
-        ...response,
-        data: {
-          ...response.data,
-          status: String(response.data?.status ?? '2'),
-          sort: String(response.data?.sort ?? 0)
-        }
-      }
+      return { ...response, data: deptToForm(response.data) }
     },
-    add: model => addDept(toPayload(model)),
-    update: model => updateDept(toPayload(model), model.deptId as number)
+    add: addDept,
+    update: model => updateDept(model, model.deptId as number)
   },
   onSuccess: () => table.getList()
 })
@@ -246,7 +227,7 @@ const handleAdd = (row?: SysDept) =>
 const handleUpdate = (row: SysDept) => form.openEdit(row)
 
 const { remove } = useRemove({
-  api: ids => delDept({ ids: ids.map(Number) }),
+  api: delDept,
   confirmText: () => '确认删除该部门？其下级部门也会一并删除。',
   onSuccess: () => table.getList()
 })

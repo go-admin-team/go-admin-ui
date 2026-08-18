@@ -120,7 +120,7 @@ import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
 import { useTable, useForm, useRemove, useDict, useExport, dictLabel } from '@/composables'
 
-import { listPost, getPost, addPost, updatePost, delPost } from '@/api/admin/sys-post'
+import { listPost, getPost, addPost, updatePost, delPost, postToForm } from '@/api/admin/sys-post'
 import type { SysPost, SysPostQuery } from '@/types/admin'
 
 // Must match the menu_name the backend serves, or keep-alive silently misses
@@ -140,9 +140,6 @@ const rules: FormRules = {
   sort: [{ required: true, message: '岗位顺序不能为空', trigger: 'blur' }]
 }
 
-/** Status is a number on the wire and a string in the dictionary; see sys-dept. */
-const toPayload = (model: SysPost): SysPost => ({ ...model, status: Number(model.status) as never })
-
 const form = useForm<SysPost, number>({
   defaultModel: () => ({
     postId: undefined,
@@ -158,16 +155,16 @@ const form = useForm<SysPost, number>({
   api: {
     get: async(id: number) => {
       const response = await getPost(id)
-      return { ...response, data: { ...response.data, status: String(response.data?.status ?? '1') }}
+      return { ...response, data: postToForm(response.data) }
     },
-    add: model => addPost(toPayload(model)),
-    update: model => updatePost(toPayload(model), model.postId as number)
+    add: addPost,
+    update: model => updatePost(model, model.postId as number)
   },
   onSuccess: () => table.getList()
 })
 
 const { remove } = useRemove({
-  api: ids => delPost({ ids: ids.map(Number) }),
+  api: delPost,
   onSuccess: () => table.getList()
 })
 
