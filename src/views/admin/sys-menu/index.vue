@@ -5,7 +5,7 @@
       :table="table"
       :paginated="false"
       row-key="menuId"
-      :actions-width="180"
+      :actions-width="132"
       default-expand-all
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     >
@@ -82,11 +82,21 @@
         <el-button v-permisaction="['admin:sysMenu:edit']" link type="primary" @click="form.openEdit(row)">
           修改
         </el-button>
-        <el-button v-permisaction="['admin:sysMenu:add']" link type="primary" @click="handleAdd(row)">
-          新增
-        </el-button>
         <el-button v-permisaction="['admin:sysMenu:remove']" link type="danger" @click="remove(row.menuId)">
           删除
+        </el-button>
+        <!-- Icon rather than the words, per the two-button rule: this column is
+             pinned, so every pixel it takes comes out of the columns that would
+             otherwise scroll past it. -->
+        <el-button
+          v-permisaction="['admin:sysMenu:add']"
+          link
+          type="primary"
+          class="row-icon-action"
+          :title="`在「${row.title}」下新增`"
+          @click="handleAdd(row)"
+        >
+          <el-icon><Plus /></el-icon>
         </el-button>
       </template>
     </ProTable>
@@ -388,6 +398,11 @@ const { remove } = useRemove({
 </script>
 
 <style lang="scss" scoped>
+/* Keeps the icon on the text baseline of the buttons beside it */
+.row-icon-action {
+  vertical-align: middle;
+  margin-left: 4px;
+}
 
 .api-transfer {
   display: inline-block;
