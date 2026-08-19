@@ -274,22 +274,47 @@ const table = useTable<SysMenu, SysMenuQuery>({
 })
 
 /**
- * Parent picker: the live tree under a synthetic root, so a top-level menu can
- * be created. Derived from the rows already on screen rather than refetching the
- * whole menu every time the dialog opens, which is what the previous version did.
+ * Parent picker: the whole tree under a synthetic root, so a top-level menu can
+ * be created.
+ *
+ * Deliberately NOT derived from `table.rows`. Those are the search results, and
+ * a menu's parent is very often a branch the search filtered out -- opening 修改
+ * on a match would then find no node for its own parentId, render an empty
+ * selection, and save the menu re-parented to whatever the user picked next.
  */
 const ROOT_ID = 0
+const menuTree = ref<SysMenu[]>([])
 const parentOptions = computed<SysMenu[]>(() => [
-  { menuId: ROOT_ID, title: '主类目', children: table.rows }
+  { menuId: ROOT_ID, title: '主类目', children: menuTree.value }
 ])
+
+const loadMenuTree = async() => {
+  try {
+    const response = await listMenu({})
+    menuTree.value = response.data ?? []
+  } catch {
+    // Reported by the interceptor; the picker stays on its last good tree
+  }
+}
 
 // ── The API permission transfer ───────────────────────────────────
 const apiOptions = ref<SysApi[]>([])
 
-onMounted(async() => {
-  // BUS routes only: the SYS ones are infrastructure, not grantable
-  const response = await listSysApi({ pageSize: 10000, type: 'BUS' })
-  apiOptions.value = response.data?.list ?? []
+const loadApiOptions = async() => {
+  try {
+    // BUS routes only: the SYS ones are infrastructure, not grantable
+    const response = await listSysApi({ pageSize: 10000, type: 'BUS' })
+    apiOptions.value = response.data?.list ?? []
+  } catch {
+    // Reported by the interceptor. Without the catch this rejects inside the
+    // mounted hook with nobody attached, and the transfer silently renders
+    // empty -- from which any move writes `sysApi: []` onto the model.
+  }
+}
+
+onMounted(() => {
+  void loadMenuTree()
+  void loadApiOptions()
 })
 
 const rules: FormRules = {
@@ -322,7 +347,10 @@ const form = useForm<SysMenu, number>({
     add: addMenu,
     update: model => updateMenu(model, model.menuId as number)
   },
-  onSuccess: () => table.getList()
+  onSuccess: () => {
+    void loadMenuTree()
+    return table.getList()
+  }
 })
 
 /** 'F' is a button-level entry: it has no route, icon or visibility of its own. */
@@ -352,11 +380,15 @@ const handleAdd = (row?: SysMenu) =>
 const { remove } = useRemove({
   api: delMenu,
   confirmText: () => '确认删除该菜单？其下级菜单也会一并删除。',
-  onSuccess: () => table.getList()
+  onSuccess: () => {
+    void loadMenuTree()
+    return table.getList()
+  }
 })
 </script>
 
 <style lang="scss" scoped>
+
 .api-transfer {
   display: inline-block;
   text-align: left;

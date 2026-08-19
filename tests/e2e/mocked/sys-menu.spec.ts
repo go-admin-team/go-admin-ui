@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { authenticate, installApiMocks } from './fixtures'
+import { authenticate, installApiMocks, menuRows } from './fixtures'
 
 /**
  * The menu page: the last of the tree tables, and the most conditional form in
@@ -84,6 +84,46 @@ test.describe('sys-menu', () => {
     await page.getByRole('row', { name: /系统管理/ }).getByRole('button', { name: '新增' }).click()
 
     const dialog = page.getByRole('dialog').filter({ hasText: '添加菜单' })
+    await expect(dialog.locator('.el-form-item').filter({ hasText: '上级菜单' })
+      .locator('.el-select__wrapper')).toHaveText('系统管理')
+  })
+
+  // The picker used to read `table.rows`, so a search truncated it: opening 修改
+  // on a match whose parent had been filtered away left the field empty, and
+  // saving re-parented the menu to whatever was picked next.
+  test('the parent picker keeps the whole tree after a search', async({ page }) => {
+    await installApiMocks(page)
+
+    // Registered after installApiMocks so it wins -- routes match in reverse
+    // registration order. A filtered list answers with the leaf alone.
+    await page.route(/\/api\/v1\/menu(\?|$)/, async route => {
+      const url = new URL(route.request().url())
+      if (route.request().method() !== 'GET' || !url.searchParams.get('title')) {
+        await route.fallback()
+        return
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 200,
+          msg: 'ok',
+          data: [{ ...menuRows[0].children![0], children: [] }]
+        })
+      })
+    })
+
+    await page.goto('/#/admin/sys-menu')
+    await page.waitForSelector('.el-table')
+
+    await page.getByPlaceholder('请输入菜单名称').fill('用户管理')
+    await page.getByPlaceholder('请输入菜单名称').press('Enter')
+    await expect(page.getByRole('cell', { name: '系统管理' })).toHaveCount(0)
+
+    await page.getByRole('row', { name: /用户管理/ }).getByRole('button', { name: '修改' }).click()
+
+    const dialog = page.getByRole('dialog').filter({ hasText: '修改菜单' })
+    // Its parent was filtered out of the list, but the picker still resolves it
     await expect(dialog.locator('.el-form-item').filter({ hasText: '上级菜单' })
       .locator('.el-select__wrapper')).toHaveText('系统管理')
   })
