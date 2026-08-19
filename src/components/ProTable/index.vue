@@ -181,6 +181,13 @@ const handleReset = async() => {
   tableRef.value?.clearSelection()
   await props.table.resetQuery()
 }
+
+/**
+ * The inner el-table, for the few things only it can do -- toggling a row's
+ * checkbox from a row click, for instance. Everything routine is on `table`;
+ * reach for this only when el-table's own instance API is the answer.
+ */
+defineExpose({ tableRef })
 </script>
 
 <style lang="scss" scoped>
