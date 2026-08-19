@@ -28,6 +28,15 @@
   color: var(--ga-text-2);
 }
 
+// ── A row action rendered as an icon ─────────────────────────────
+// The third action in a pinned column, where the words would cost width the
+// scrolling columns need. Keeps the icon on the text baseline of the buttons
+// beside it.
+.row-icon-action {
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
 // ── 搜索栏 ─────────────────────────────────────────────────────
 // 业务页面统一使用 .search-form 包裹搜索区域
 .search-form {

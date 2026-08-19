@@ -398,11 +398,6 @@ const { remove } = useRemove({
 </script>
 
 <style lang="scss" scoped>
-/* Keeps the icon on the text baseline of the buttons beside it */
-.row-icon-action {
-  vertical-align: middle;
-  margin-left: 4px;
-}
 
 .api-transfer {
   display: inline-block;

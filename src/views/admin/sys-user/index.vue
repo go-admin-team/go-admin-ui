@@ -488,9 +488,4 @@ const handleStatusChange = async(row: SysUser) => {
   margin-bottom: 12px;
 }
 
-/* Keeps the icon on the text baseline of the buttons beside it */
-.row-icon-action {
-  vertical-align: middle;
-  margin-left: 4px;
-}
 </style>
