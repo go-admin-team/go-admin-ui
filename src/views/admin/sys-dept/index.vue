@@ -157,7 +157,7 @@ import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
 import { useTable, useForm, useRemove, useDict, useTreePicker, dictLabel } from '@/composables'
 
-import { getDeptList, getDept, addDept, updateDept, delDept, deptToForm } from '@/api/admin/sys-dept'
+import { getDeptList, getDeptForForm, addDept, updateDept, delDept } from '@/api/admin/sys-dept'
 import type { SysDept, SysDeptQuery } from '@/types/admin'
 
 // Must match the menu_name the backend serves, or keep-alive silently misses
@@ -207,10 +207,7 @@ const form = useForm<SysDept, number>({
   rules,
   title: { create: '添加部门', edit: '修改部门' },
   api: {
-    get: async(id: number) => {
-      const response = await getDept(id)
-      return { ...response, data: deptToForm(response.data) }
-    },
+    get: getDeptForForm,
     add: addDept,
     update: model => updateDept(model, model.deptId as number)
   },

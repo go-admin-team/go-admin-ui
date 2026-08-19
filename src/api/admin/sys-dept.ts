@@ -57,12 +57,17 @@ const toWire = (data: SysDept): SysDept => ({
   sort: Number(data.sort)
 })
 
-/** The mirror of toWire, for the record a form is about to edit. */
-export const deptToForm = (data: SysDept): SysDept => ({
+const toForm = (data: SysDept): SysDept => ({
   ...data,
   status: String(data.status ?? '2'),
   sort: String(data.sort ?? 0)
 })
+
+/** getDept with the record already shaped for a form. */
+export const getDeptForForm = async(deptId: number) => {
+  const response = await getDept(deptId)
+  return { ...response, data: toForm(response.data) }
+}
 
 export function addDept(data: SysDept) {
   return request<ApiResponse<SysDept>>({
