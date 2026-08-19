@@ -49,7 +49,10 @@ export const userInfo = {
       'admin:sysConfig:remove',
       'admin:sysMenu:add',
       'admin:sysMenu:edit',
-      'admin:sysMenu:remove'
+      'admin:sysMenu:remove',
+      'admin:sysLoginLog:remove',
+      'admin:sysOperLog:query',
+      'admin:sysOperLog:remove'
     ]
   }
 }
@@ -178,6 +181,26 @@ export const menuTree = {
           icon: 'star',
           noCache: false,
           children: null
+        },
+        {
+          path: 'sys-login-log',
+          component: '/admin/sys-login-log/index',
+          visible: '0',
+          menuName: 'SysLoginLogManage',
+          title: 'LoginLog',
+          icon: 'star',
+          noCache: false,
+          children: null
+        },
+        {
+          path: 'sys-oper-log',
+          component: '/admin/sys-oper-log/index',
+          visible: '0',
+          menuName: 'OperLog',
+          title: 'OperLog',
+          icon: 'star',
+          noCache: false,
+          children: null
         }
       ]
     }
@@ -257,6 +280,64 @@ export const deptRows = [
     status: 1,
     createdAt: '2026-08-02T10:00:00Z',
     children: []
+  }
+]
+
+/** Rows served by GET /api/v1/sys-login-log */
+export const loginLogRows = [
+  {
+    id: 1,
+    username: 'admin',
+    ipaddr: '192.168.1.10',
+    loginLocation: '内网',
+    browser: 'Chrome',
+    os: 'macOS',
+    platform: 'Mac',
+    status: '2',
+    msg: '登录成功',
+    loginTime: '2026-08-03T09:00:00Z',
+    createdAt: '2026-08-03T09:00:00Z'
+  },
+  {
+    id: 2,
+    username: 'tester',
+    ipaddr: '192.168.1.11',
+    loginLocation: '内网',
+    browser: 'Firefox',
+    os: 'Windows',
+    status: '1',
+    msg: '密码错误',
+    loginTime: '2026-08-02T09:00:00Z'
+  }
+]
+
+/** Rows served by GET /api/v1/sys-opera-log */
+export const operLogRows = [
+  {
+    id: 1,
+    operName: 'admin',
+    requestMethod: 'POST',
+    operUrl: '/api/v1/sys-user',
+    operIp: '192.168.1.10',
+    operLocation: '内网',
+    latencyTime: '12ms',
+    operParam: '{"username":"newbie"}',
+    jsonResult: '{"code":200}',
+    status: '2',
+    operTime: '2026-08-03T10:00:00Z'
+  },
+  {
+    id: 2,
+    operName: 'tester',
+    requestMethod: 'DELETE',
+    operUrl: '/api/v1/post',
+    operIp: '192.168.1.11',
+    operLocation: '内网',
+    latencyTime: '8ms',
+    operParam: '{"ids":[3]}',
+    jsonResult: '{"code":500}',
+    status: '1',
+    operTime: '2026-08-02T10:00:00Z'
   }
 ]
 
@@ -439,7 +520,7 @@ export async function authenticate(context: BrowserContext) {
  * data scope) keep their own entries under `calls.extra`.
  */
 export async function installApiMocks(page: Page) {
-  const extra = { getinfo: 0, menurole: 0, passwordReset: 0, roleDataScope: 0 }
+  const extra = { getinfo: 0, menurole: 0, passwordReset: 0, roleDataScope: 0, operLogClean: 0 }
 
   /** Milliseconds to hold a write open, so a test can submit again mid-flight. */
   const delays = { userWrite: 0, passwordReset: 0 }
@@ -464,13 +545,15 @@ export async function installApiMocks(page: Page) {
 
   await page.route('**/api/v1/dict-data/option-select*', async route => {
     const dictType = new URL(route.request().url()).searchParams.get('dictType')
-    const data = dictType === 'sys_user_sex'
-      ? [{ label: '男', value: '0' }, { label: '女', value: '1' }]
-      : dictType === 'sys_yes_no'
-        ? [{ label: '是', value: 'Y' }, { label: '否', value: 'N' }]
-        : dictType === 'sys_show_hide'
-          ? [{ label: '显示', value: '0' }, { label: '隐藏', value: '1' }]
-          : [{ label: '停用', value: '1' }, { label: '正常', value: '2' }]
+    // Labels follow the seed data in go-admin/config/db.sql -- sys_common_status
+    // is 2=正常 / 1=关闭, which is not the same as sys_normal_disable's 停用.
+    const DICTS: Record<string, Array<{ label: string, value: string }>> = {
+      sys_user_sex: [{ label: '男', value: '0' }, { label: '女', value: '1' }],
+      sys_yes_no: [{ label: '是', value: 'Y' }, { label: '否', value: 'N' }],
+      sys_show_hide: [{ label: '显示', value: '0' }, { label: '隐藏', value: '1' }],
+      sys_common_status: [{ label: '正常', value: '2' }, { label: '关闭', value: '1' }]
+    }
+    const data = DICTS[dictType ?? ''] ?? [{ label: '停用', value: '1' }, { label: '正常', value: '2' }]
     await route.fulfill(json({ code: 200, data }))
   })
 
@@ -507,6 +590,11 @@ export async function installApiMocks(page: Page) {
 
   await page.route('**/api/v1/roleDeptTreeselect/*', async route => {
     await route.fulfill(json({ code: 200, data: { depts: deptTree, checkedKeys: [1] }}))
+  })
+
+  await page.route('**/api/v1/operlog/clean*', async route => {
+    extra.operLogClean++
+    await route.fulfill(json({ code: 200, msg: 'ok' }))
   })
 
   await page.route('**/api/v1/roledatascope*', async route => {
@@ -548,6 +636,12 @@ export async function installApiMocks(page: Page) {
     post: await mockCrud(page, { base: 'post', rows: postRows, idKey: 'postId' }),
     role: await mockCrud(page, { base: 'role', rows: roleRows, idKey: 'roleId' }),
     config: await mockCrud(page, { base: 'config', rows: configRows, idKey: 'id' }),
+    loginLog: await mockCrud(page, {
+      base: 'sys-login-log', rows: loginLogRows, idKey: 'id'
+    }),
+    operLog: await mockCrud(page, {
+      base: 'sys-opera-log', rows: operLogRows, idKey: 'id'
+    }),
     menu: await mockCrud(page, {
       base: 'menu',
       rows: menuRows,
