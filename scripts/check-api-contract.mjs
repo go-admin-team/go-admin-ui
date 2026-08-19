@@ -156,15 +156,9 @@ const migratedPages = () => {
  * are deliberately absent: there is no contract to check.
  */
 const OPTIONS_PAGES = {
-  'admin/sys-api/index.vue': ['SysApi'],
-  'admin/dict/index.vue': ['SysDictType'],
-  'admin/dict/data.vue': ['SysDictData'],
-  'schedule/index.vue': ['SysJob'],
-  'dev-tools/gen/index.vue': ['SysTables', 'DBTables'],
   'dev-tools/gen/editTable.vue': ['SysTables', 'SysColumns'],
   'dev-tools/gen/genInfoForm.vue': ['SysTables'],
-  'dev-tools/gen/basicInfoForm.vue': ['SysTables'],
-  'dev-tools/gen/importTable.vue': ['DBTables']
+  'dev-tools/gen/basicInfoForm.vue': ['SysTables']
 }
 
 /** fixture export -> model. */
@@ -249,6 +243,12 @@ for (const [page, model] of Object.entries(PAGES)) {
 
   note(`${page} -> ${snakeCase(model)}.go`, 'sent but not bound by the DTO',
     [...sent].filter(k => !accepted.has(k) && !ALLOWED.has(k)))
+}
+
+for (const page of Object.keys(OPTIONS_PAGES)) {
+  // A page that has migrated is covered by the derived list; leaving it here too
+  // means its query check silently never runs
+  if (page in PAGES) problems.push(`${page}\n    migrated -- remove it from OPTIONS_PAGES`)
 }
 
 for (const [page, models] of Object.entries(OPTIONS_PAGES)) {
