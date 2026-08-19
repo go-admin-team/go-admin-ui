@@ -179,24 +179,30 @@ export interface SysConfigQuery {
   configType?: string
 }
 
-/** A dictionary type; its entries are DictData. */
-export interface DictType {
-  dictId?: number
+/** A dictionary type; its entries are SysDictData. */
+export interface SysDictType {
+  /**
+   * `id` on the wire. The column is dict_id, but the struct tags it `json:"id"`,
+   * so a page reading dictId gets undefined -- which is what the type used to
+   * say, and why the data page's type picker keyed every option on undefined.
+   */
+  id?: number
   dictName?: string
   dictType?: string
+  /** '1' disabled, '2' normal. Number on the wire; see the api module. */
   status?: string
   remark?: string
   createdAt?: string
 }
 
-export interface DictTypeQuery {
+export interface SysDictTypeQuery {
   dictName?: string
   dictType?: string
   status?: string
 }
 
 /** One entry of a dictionary. */
-export interface DictData {
+export interface SysDictData {
   dictCode?: number
   dictSort?: number
   dictLabel?: string
@@ -210,7 +216,7 @@ export interface DictData {
   createdAt?: string
 }
 
-export interface DictDataQuery {
+export interface SysDictDataQuery {
   dictType?: string
   dictLabel?: string
   status?: string
@@ -227,8 +233,14 @@ export interface SysJob {
   args?: string
   misfirePolicy?: number
   concurrent?: number
-  status?: number
-  entryId?: number
+  /** '1' disabled, '2' normal. Number on the wire; see the api module. */
+  status?: number | string
+  /**
+   * Snake case, alone among every field in this file: the Go struct tags it
+   * `json:"entry_id"`. Zero means the job is not scheduled with cron right now,
+   * which is what decides between the 启动 and 停止 buttons.
+   */
+  entry_id?: number
   createdAt?: string
 }
 
