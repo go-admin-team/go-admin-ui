@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { authenticate, installApiMocks } from './fixtures'
+import { captureBodies } from './support/crud'
 
 /**
  * The post page: a standard paginated list, migrated from the Options API.
@@ -73,11 +74,7 @@ test.describe('sys-post', () => {
   // write endpoints want numbers back.
   test('submits status as a number', async({ page }) => {
     const { calls } = await installApiMocks(page)
-    const bodies: string[] = []
-    await page.route('**/api/v1/post/*', async route => {
-      if (route.request().method() === 'PUT') bodies.push(route.request().postData() ?? '')
-      await route.fallback()
-    })
+    const bodies = await captureBodies(page, '**/api/v1/post/*', 'PUT')
 
     await page.goto('/#/admin/sys-post')
     await page.waitForSelector('.el-table')

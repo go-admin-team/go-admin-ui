@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { authenticate, installApiMocks, menuRows } from './fixtures'
+import { captureBodies, json } from './support/crud'
 
 /**
  * The menu page: the last of the tree tables, and the most conditional form in
@@ -102,15 +103,11 @@ test.describe('sys-menu', () => {
         await route.fallback()
         return
       }
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          code: 200,
-          msg: 'ok',
-          data: [{ ...menuRows[0].children![0], children: [] }]
-        })
-      })
+      await route.fulfill(json({
+        code: 200,
+        msg: 'ok',
+        data: [{ ...menuRows[0].children![0], children: [] }]
+      }))
     })
 
     await page.goto('/#/admin/sys-menu')
@@ -146,11 +143,7 @@ test.describe('sys-menu', () => {
   // and its removal branch pushed nothing -- so revoking a route emptied it.
   test('revoking a route shrinks the granted set rather than clearing it', async({ page }) => {
     const { calls } = await installApiMocks(page)
-    const bodies: string[] = []
-    await page.route(/\/api\/v1\/menu\/\d+/, async route => {
-      if (route.request().method() === 'PUT') bodies.push(route.request().postData() ?? '')
-      await route.fallback()
-    })
+    const bodies = await captureBodies(page, /\/api\/v1\/menu\/\d+/, 'PUT')
 
     await page.goto('/#/admin/sys-menu')
     await page.waitForSelector('.el-table')

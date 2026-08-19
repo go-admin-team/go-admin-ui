@@ -109,3 +109,24 @@ export async function mockCrud<TRow extends Record<string, unknown>>(
 
   return calls
 }
+
+/**
+ * Records the bodies a page sends, without taking over the response.
+ *
+ * A mock that only counts calls cannot tell a working write from a silent
+ * no-op -- that is how a page keyed on a field the endpoint never sends passed
+ * its delete test. Register it after installApiMocks so it wins (routes match
+ * in reverse registration order); it falls through to whatever mock answers.
+ */
+export async function captureBodies(
+  page: Page,
+  url: string | RegExp,
+  method: 'POST' | 'PUT' | 'DELETE'
+): Promise<string[]> {
+  const bodies: string[] = []
+  await page.route(url, async(route: Route) => {
+    if (route.request().method() === method) bodies.push(route.request().postData() ?? '')
+    await route.fallback()
+  })
+  return bodies
+}

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { authenticate, installApiMocks } from './fixtures'
+import { captureBodies } from './support/crud'
 
 /**
  * The two audit pages. They read and delete and nothing writes them, so neither
@@ -50,11 +51,7 @@ test.describe('sys-login-log', () => {
 
   test('deleting asks first, then reloads', async({ page }) => {
     const { calls } = await installApiMocks(page)
-    const bodies: string[] = []
-    await page.route('**/api/v1/sys-login-log', async route => {
-      if (route.request().method() === 'DELETE') bodies.push(route.request().postData() ?? '')
-      await route.fallback()
-    })
+    const bodies = await captureBodies(page, '**/api/v1/sys-login-log', 'DELETE')
 
     await page.goto('/#/admin/sys-login-log')
     await page.waitForSelector('.el-table')
@@ -73,11 +70,7 @@ test.describe('sys-login-log', () => {
 
   test('bulk delete sends the ids of the checked rows', async({ page }) => {
     const { calls } = await installApiMocks(page)
-    const bodies: string[] = []
-    await page.route('**/api/v1/sys-login-log', async route => {
-      if (route.request().method() === 'DELETE') bodies.push(route.request().postData() ?? '')
-      await route.fallback()
-    })
+    const bodies = await captureBodies(page, '**/api/v1/sys-login-log', 'DELETE')
 
     await page.goto('/#/admin/sys-login-log')
     await page.waitForSelector('.el-table')
