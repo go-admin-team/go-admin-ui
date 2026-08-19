@@ -48,7 +48,7 @@ const parseStructs = source => {
       continue
     }
     const embedded = line.match(/^\s*((?:\w+\.)?\w+)\s*$/)
-    if (embedded && !line.trim().startsWith('//')) {
+    if (embedded) {
       structs[current].push(['@embed', embedded[1].split('.').pop()])
     }
   }
@@ -60,6 +60,7 @@ const goFiles = dir => readdirSync(dir).filter(f => f.endsWith('.go')).map(f => 
 const MODEL_DIRS = [
   'common/models',
   'app/admin/models',
+  'app/demo/models', // the reference module
   'app/jobs/models', // scheduled jobs
   'app/other/models/tools' // the code generator's own tables
 ]
@@ -69,7 +70,10 @@ for (const dir of MODEL_DIRS) {
   const path = join(GO, dir)
   if (!existsSync(path)) continue
   for (const file of goFiles(path)) {
-    Object.assign(structs, parseStructs(readFileSync(file, 'utf8')), structs)
+    for (const [name, fields] of Object.entries(parseStructs(readFileSync(file, 'utf8')))) {
+      // First directory wins: common/models holds the embedded bases
+      if (!(name in structs)) structs[name] = fields
+    }
   }
 }
 
@@ -86,23 +90,58 @@ const fieldsOf = (name, seen = new Set()) => {
 }
 
 const formTagsOf = dtoFile => {
-  const path = join(GO, 'app/admin/service/dto', dtoFile)
-  if (!existsSync(path)) return null
-  return new Set([...readFileSync(path, 'utf8').matchAll(/form:"(\w+)"/g)].map(m => m[1]))
+  for (const dir of DTO_DIRS) {
+    const path = join(GO, dir, dtoFile)
+    if (existsSync(path)) {
+      return new Set([...readFileSync(path, 'utf8').matchAll(/form:"(\w+)"/g)].map(m => m[1]))
+    }
+  }
+  return null
 }
 
 // ── What the front end claims ─────────────────────────────────────
 
-/** page -> [model, dto file]. Add a row when a page joins the composable layer. */
-const PAGES = {
-  'admin/sys-user/index.vue': ['SysUser', 'sys_user.go'],
-  'admin/sys-dept/index.vue': ['SysDept', 'sys_dept.go'],
-  'admin/sys-menu/index.vue': ['SysMenu', 'sys_menu.go'],
-  'admin/sys-role/index.vue': ['SysRole', 'sys_role.go'],
-  'admin/sys-post/index.vue': ['SysPost', 'sys_post.go'],
-  'admin/sys-config/index.vue': ['SysConfig', 'sys_config.go'],
-  'admin/sys-login-log/index.vue': ['SysLoginLog', 'sys_login_log.go'],
-  'admin/sys-oper-log/index.vue': ['SysOperaLog', 'sys_opera_log.go']
+/**
+ * Frontend model name -> Go struct, for the few that cannot be matched by name.
+ * Everything else is derived from the `useTable<Model, Query>` the page already
+ * declares, so a page joining the composable layer is covered without anyone
+ * remembering to add it here.
+ */
+const MODEL_ALIASES = {
+  ConfigRow: 'SysConfig', // a local intersection type in sys-config
+  Product: 'DemoProduct' // the demo module names its struct after its table
+}
+
+/** Where a resource's DTO may live. */
+const DTO_DIRS = [
+  'app/admin/service/dto',
+  'app/demo/service/dto',
+  'app/jobs/service/dto',
+  'app/other/service/dto'
+]
+
+const snakeCase = name => name.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase()
+
+/** Every .vue under src/views, recursively. */
+const vueFiles = function * (dir) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name)
+    if (entry.isDirectory()) yield * vueFiles(path)
+    else if (entry.name.endsWith('.vue')) yield path
+  }
+}
+
+/** Derives page -> model from the useTable generic each migrated page states. */
+const migratedPages = () => {
+  const found = {}
+  for (const path of vueFiles(join(UI, 'src/views'))) {
+    const text = readFileSync(path, 'utf8')
+    const declared = text.match(/useTable<\s*(\w+)\s*,/)
+    if (!declared) continue
+    const name = declared[1]
+    found[path.slice(join(UI, 'src/views').length + 1)] = MODEL_ALIASES[name] ?? name
+  }
+  return found
 }
 
 /**
@@ -184,25 +223,31 @@ for (const [name, model] of Object.entries(FIXTURES)) {
     keys.filter(k => !(k in fields) && !ALLOWED.has(k)))
 }
 
-for (const [page, [model, dto]] of Object.entries(PAGES)) {
-  const path = join(UI, 'src/views', page)
-  if (!existsSync(path)) { problems.push(`${page}\n    file not found`); continue }
-  const text = readFileSync(path, 'utf8')
+const PAGES = migratedPages()
+
+for (const [page, model] of Object.entries(PAGES)) {
+  const text = readFileSync(join(UI, 'src/views', page), 'utf8')
   const fields = fieldsOf(model)
+  if (!Object.keys(fields).length) {
+    // Loud rather than silently uncovered: either the struct moved, or the page
+    // names its rows something new and MODEL_ALIASES needs an entry.
+    problems.push(`${page}\n    useTable declares ${model}, which matches no Go struct`)
+    continue
+  }
 
-  const read = rowFieldsIn(text)
   note(`${page} -> ${model}`, 'read but not on the model',
-    [...read].filter(k => !(k in fields) && !ALLOWED.has(k)))
+    [...rowFieldsIn(text)].filter(k => !(k in fields) && !ALLOWED.has(k)))
 
-  const accepted = formTagsOf(dto)
-  if (!accepted) { problems.push(`${page}\n    no dto file ${dto}`); continue }
+  const accepted = formTagsOf(`${snakeCase(model)}.go`)
+  if (!accepted) continue // no DTO for this resource; the row check still ran
+
   const sent = new Set([...text.matchAll(/\btable\.query\.(\w+)/g)].map(m => m[1]))
   const defaults = text.match(/defaultQuery:\s*\(\)\s*=>\s*\(\{(.*?)\}\)/s)
   if (defaults) for (const m of defaults[1].matchAll(/(\w+):/g)) sent.add(m[1])
   const sort = text.match(/defaultSort:\s*\{\s*prop:\s*'(\w+)'/)
   if (sort) sent.add(`${sort[1]}Order`)
 
-  note(`${page} -> dto/${dto}`, 'sent but not bound by the DTO',
+  note(`${page} -> ${snakeCase(model)}.go`, 'sent but not bound by the DTO',
     [...sent].filter(k => !accepted.has(k) && !ALLOWED.has(k)))
 }
 
@@ -220,7 +265,7 @@ for (const [page, models] of Object.entries(OPTIONS_PAGES)) {
 if (problems.length) {
   console.error(`API contract mismatch (${problems.length}):\n`)
   for (const p of problems) console.error(`  ${p}\n`)
-  console.error('Each of these is a field the server never sends or never reads.')
+  console.error('Each of these is a field the server never sends, never reads, or a model this cannot resolve.')
   process.exit(1)
 }
 console.log(
