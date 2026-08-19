@@ -125,6 +125,29 @@ test.describe('sys-menu', () => {
       .locator('.el-select__wrapper')).toHaveText('系统管理')
   })
 
+  // The picker and the list read the same endpoint, so fetching the tree on
+  // mount and again after every write costs a second copy of a body already on
+  // screen. It loads on first use instead.
+  test('the tree costs no request until a dialog needs it', async({ page }) => {
+    const { calls } = await installApiMocks(page)
+
+    await page.goto('/#/admin/sys-menu')
+    await page.waitForSelector('.el-table')
+    await page.waitForTimeout(300)
+
+    // Just the list; nothing has asked for the picker yet
+    expect(calls.menu.list).toBe(1)
+
+    await page.locator('.pro-table__toolbar').getByRole('button', { name: '新增' }).click()
+    await expect.poll(() => calls.menu.list).toBe(2)
+
+    // Opening it again reuses the tree it already has
+    await page.getByRole('dialog').getByRole('button', { name: '取 消' }).click()
+    await page.locator('.pro-table__toolbar').getByRole('button', { name: '新增' }).click()
+    await page.waitForTimeout(300)
+    expect(calls.menu.list).toBe(2)
+  })
+
   test('editing loads the record', async({ page }) => {
     await installApiMocks(page)
 

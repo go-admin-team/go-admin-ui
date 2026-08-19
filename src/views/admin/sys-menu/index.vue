@@ -79,7 +79,7 @@
       </el-table-column>
 
       <template #actions="{ row }">
-        <el-button v-permisaction="['admin:sysMenu:edit']" link type="primary" @click="form.openEdit(row)">
+        <el-button v-permisaction="['admin:sysMenu:edit']" link type="primary" @click="handleEdit(row)">
           修改
         </el-button>
         <el-button v-permisaction="['admin:sysMenu:remove']" link type="danger" @click="remove(row.menuId)">
@@ -120,7 +120,7 @@
             <el-form-item label="上级菜单" prop="parentId">
               <el-tree-select
                 v-model="form.model.parentId"
-                :data="parentOptions"
+                :data="parent.options"
                 :props="{ label: 'title', children: 'children' }"
                 node-key="menuId"
                 placeholder="选择上级菜单"
@@ -265,7 +265,7 @@ import DateCell from '@/components/DateCell/index.vue'
 import MethodTag from '@/components/MethodTag/index.vue'
 import FieldLabel from '@/components/FieldLabel/index.vue'
 import IconSelect from '@/components/IconSelect/index.vue'
-import { useTable, useForm, useRemove, useDict, dictLabel } from '@/composables'
+import { useTable, useForm, useRemove, useDict, useTreePicker, dictLabel } from '@/composables'
 
 import { listMenu, getMenu, addMenu, updateMenu, delMenu } from '@/api/admin/sys-menu'
 import { listSysApi } from '@/api/admin/sys-api'
@@ -283,29 +283,16 @@ const table = useTable<SysMenu, SysMenuQuery>({
   defaultQuery: () => ({ title: undefined, visible: undefined })
 })
 
-/**
- * Parent picker: the whole tree under a synthetic root, so a top-level menu can
- * be created.
- *
- * Deliberately NOT derived from `table.rows`. Those are the search results, and
- * a menu's parent is very often a branch the search filtered out -- opening 修改
- * on a match would then find no node for its own parentId, render an empty
- * selection, and save the menu re-parented to whatever the user picked next.
- */
 const ROOT_ID = 0
-const menuTree = ref<SysMenu[]>([])
-const parentOptions = computed<SysMenu[]>(() => [
-  { menuId: ROOT_ID, title: '主类目', children: menuTree.value }
-])
 
-const loadMenuTree = async() => {
-  try {
-    const response = await listMenu({})
-    menuTree.value = response.data ?? []
-  } catch {
-    // Reported by the interceptor; the picker stays on its last good tree
-  }
-}
+/** The unfiltered tree; see useTreePicker for why it is not `table.rows`. */
+const parent = useTreePicker<SysMenu>({
+  api: () => listMenu({}),
+  idKey: 'menuId',
+  labelKey: 'title',
+  rootLabel: '主类目',
+  rootId: ROOT_ID
+})
 
 // ── The API permission transfer ───────────────────────────────────
 const apiOptions = ref<SysApi[]>([])
@@ -322,10 +309,7 @@ const loadApiOptions = async() => {
   }
 }
 
-onMounted(() => {
-  void loadMenuTree()
-  void loadApiOptions()
-})
+onMounted(loadApiOptions)
 
 const rules: FormRules = {
   title: [{ required: true, message: '菜单标题不能为空', trigger: 'blur' }],
@@ -358,7 +342,7 @@ const form = useForm<SysMenu, number>({
     update: model => updateMenu(model, model.menuId as number)
   },
   onSuccess: () => {
-    void loadMenuTree()
+    parent.invalidate()
     return table.getList()
   }
 })
@@ -384,14 +368,21 @@ const grantedApiIds = computed<number[]>({
   }
 })
 
-const handleAdd = (row?: SysMenu) =>
+const handleAdd = (row?: SysMenu) => {
+  void parent.ensure()
   form.openCreate(row ? { parentId: row.menuId } : { parentId: ROOT_ID })
+}
+
+const handleEdit = (row: SysMenu) => {
+  void parent.ensure()
+  return form.openEdit(row)
+}
 
 const { remove } = useRemove({
   api: delMenu,
   confirmText: () => '确认删除该菜单？其下级菜单也会一并删除。',
   onSuccess: () => {
-    void loadMenuTree()
+    parent.invalidate()
     return table.getList()
   }
 })
