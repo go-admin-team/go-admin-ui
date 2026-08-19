@@ -61,7 +61,18 @@ export function getSetConfig(query?: Record<string, unknown>) {
   })
 }
 
-export function updateSetConfig(data: Record<string, unknown>) {
+/** One setting, as the endpoint's body element. */
+export interface SetConfigEntry {
+  configKey: string
+  configValue: string
+}
+
+/**
+ * Takes a list, not an object. Update2Set binds `[]dto.GetSetSysConfigReq`, and
+ * the type here used to say Record<string, unknown> while its only caller sent
+ * an array all along.
+ */
+export function updateSetConfig(data: SetConfigEntry[]) {
   return request<ApiResponse<null>>({
     url: '/api/v1/set-config',
     method: 'put',
