@@ -1,17 +1,16 @@
 <template>
   <!--
-    承载子路由的容器。此前是裸 <router-view />，其渲染出的叶子页不受任何
-    keep-alive 管辖，导致「日志管理」下的登录日志、操作日志每次进入都被重建，
-    搜索条件与分页位置全部丢失。
+    Carries the child routes. It used to be a bare <router-view />, whose leaf
+    pages fall outside keep-alive's reach: every visit to 登录日志 or 操作日志
+    rebuilt the page, losing its filters and page position.
   -->
   <router-view-keep-alive />
 </template>
 
-<script>
-import RouterViewKeepAlive from '@/layout/components/RouterViewKeepAlive'
+<script setup lang="ts">
+import RouterViewKeepAlive from '@/layout/components/RouterViewKeepAlive.vue'
 
-export default {
-  name: 'Log',
-  components: { RouterViewKeepAlive }
-}
+// keep-alive matches `include` on the component name, and the list it is given
+// holds route names from the backend menu
+defineOptions({ name: 'Log' })
 </script>
