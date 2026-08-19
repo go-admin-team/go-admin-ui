@@ -52,9 +52,7 @@
               </el-table-column>
               <el-table-column prop="path" label="路径" min-width="240">
                 <template #default="{ row: api }">
-                  <el-tag :type="METHOD_TAGS[api.action] ?? 'primary'" disable-transitions>
-                    {{ api.action }}
-                  </el-tag>
+                  <MethodTag :method="api.action" />
                   {{ api.path }}
                 </template>
               </el-table-column>
@@ -254,6 +252,7 @@ import type { FormRules } from 'element-plus'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
+import MethodTag from '@/components/MethodTag/index.vue'
 import FieldLabel from '@/components/FieldLabel/index.vue'
 import IconSelect from '@/components/IconSelect/index.vue'
 import { useTable, useForm, useRemove, useDict, dictLabel } from '@/composables'
@@ -266,14 +265,6 @@ import type { SysApi, SysMenu, SysMenuQuery } from '@/types/admin'
 defineOptions({ name: 'SysMenuManage' })
 
 const { sys_show_hide } = useDict('sys_show_hide')
-
-/** Tag colour per HTTP method, for the permission popover. */
-const METHOD_TAGS: Record<string, 'primary' | 'success' | 'warning' | 'danger'> = {
-  GET: 'primary',
-  POST: 'success',
-  PUT: 'warning',
-  DELETE: 'danger'
-}
 
 const table = useTable<SysMenu, SysMenuQuery>({
   api: listMenu,
