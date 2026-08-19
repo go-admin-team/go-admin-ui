@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { ApiResponse, PageQuery, PageResult } from '@/types/api'
+import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
 
 /**
  * Code generator endpoints.
@@ -17,7 +17,41 @@ import type { ApiResponse, PageQuery, PageResult } from '@/types/api'
  * fields here would be guesses nothing verifies. Narrow this when those pages
  * are migrated and the real shape can be read off working code.
  */
+/**
+ * A table the generator holds a configuration for. Mirrors tools.SysTables,
+ * naming the fields the list page reads; the edit page works with far more of
+ * it and still goes through GenTable.
+ */
+export interface SysTables {
+  tableId?: number
+  tableName?: string
+  tableComment?: string
+  className?: string
+  createdAt?: string
+}
+
+/**
+ * A table the database actually has, read from INFORMATION_SCHEMA -- which is
+ * why the timestamps are createTime and updateTime rather than createdAt.
+ */
+export interface DBTables {
+  tableName?: string
+  tableComment?: string
+  engine?: string
+  tableRows?: string
+  tableCollation?: string
+  createTime?: string
+  updateTime?: string
+}
+
+/** The generator's own record, whose shape depends on the template in play. */
 export type GenTable = Record<string, unknown>
+
+/** Filters the table list accepts. */
+export interface GenTableQuery {
+  tableName?: string
+  tableComment?: string
+}
 
 /**
  * What the detail endpoint answers with -- the table's own settings under
@@ -30,8 +64,8 @@ export interface GenTableDetail {
   list: Array<Record<string, unknown>>
 }
 
-export function listTable(query: Partial<PageQuery> & Record<string, unknown>) {
-  return request<ApiResponse<PageResult<GenTable>>>({
+export function listTable(query: GenTableQuery & Partial<PageQuery>) {
+  return request<ApiResponse<PageResult<SysTables>>>({
     url: '/api/v1/sys/tables/page',
     method: 'get',
     params: query
@@ -39,8 +73,8 @@ export function listTable(query: Partial<PageQuery> & Record<string, unknown>) {
 }
 
 /** Tables present in the database but not yet imported. */
-export function listDbTable(query: Partial<PageQuery> & Record<string, unknown>) {
-  return request<ApiResponse<PageResult<GenTable>>>({
+export function listDbTable(query: GenTableQuery & Partial<PageQuery>) {
+  return request<ApiResponse<PageResult<DBTables>>>({
     url: '/api/v1/db/tables/page',
     method: 'get',
     params: query
@@ -86,9 +120,14 @@ export function previewTable(tableId: number) {
   })
 }
 
-export function delTable(tableId: number) {
+/**
+ * Takes one id or several: the handler reads the path segment through
+ * IdsStrToIdsIntGroup, which splits on commas. Shaped as `Id[]` so useRemove
+ * can call it for a row and for a selection alike.
+ */
+export function delTable(ids: Id[]) {
   return request<ApiResponse<null>>({
-    url: '/api/v1/sys/tables/info/' + tableId,
+    url: '/api/v1/sys/tables/info/' + ids.map(Number).join(','),
     method: 'delete'
   })
 }
