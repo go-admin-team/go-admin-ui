@@ -50,8 +50,8 @@
       <el-table-column label="键名" prop="configKey" min-width="160" sortable="custom">
         <template #default="{ row }">
           <el-popover trigger="hover" placement="top" :width="280">
-            <p class="config-peek">键值：{{ row.configValue }}</p>
-            <p class="config-peek">
+            <p class="peek-line">键值：{{ row.configValue }}</p>
+            <p class="peek-line">
               UI 参数：
               <el-tag v-if="row.isFrontend === '1'" type="success" disable-transitions>是</el-tag>
               <el-tag v-else disable-transitions>否</el-tag>
@@ -198,12 +198,6 @@ const handleExport = () => exportExcel({
 </script>
 
 <style lang="scss" scoped>
-.config-peek {
-  margin: 4px 0;
-  font-size: 13px;
-  color: var(--ga-text-2);
-}
-
 .config-key {
   cursor: default;
 }

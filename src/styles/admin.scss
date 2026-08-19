@@ -18,6 +18,16 @@
 .mr20 { margin-right: 20px; }
 .mb20 { margin-bottom: 20px; }
 
+// ── Secondary detail inside a popover ────────────────────────────
+// One line per supplementary field in a list page's el-popover (location,
+// latency, config value...). Three pages had each copied the same three
+// declarations.
+.peek-line {
+  margin: 4px 0;
+  font-size: 13px;
+  color: var(--ga-text-2);
+}
+
 // ── 搜索栏 ─────────────────────────────────────────────────────
 // 业务页面统一使用 .search-form 包裹搜索区域
 .search-form {
