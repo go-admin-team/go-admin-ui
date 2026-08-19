@@ -244,7 +244,6 @@ export const deptRows = [
   {
     deptId: 1,
     parentId: 0,
-    p_id: 0,
     deptName: '研发部',
     sort: 1,
     leader: '张三',
@@ -256,7 +255,6 @@ export const deptRows = [
       {
         deptId: 3,
         parentId: 1,
-        p_id: 1,
         deptName: '前端组',
         sort: 1,
         leader: '李四',
@@ -271,7 +269,6 @@ export const deptRows = [
   {
     deptId: 2,
     parentId: 0,
-    p_id: 0,
     deptName: '测试部',
     sort: 2,
     leader: '王五',

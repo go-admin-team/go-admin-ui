@@ -260,8 +260,7 @@ export default {
         title: undefined,
         path: undefined,
         type: undefined,
-        action: undefined,
-        parentId: undefined
+        action: undefined
 
       },
       // 表单参数
@@ -271,8 +270,7 @@ export default {
       rules: {
         title: [{ required: true, message: '标题不能为空', trigger: 'blur' }],
         path: [{ required: true, message: '地址不能为空', trigger: 'blur' }],
-        action: [{ required: true, message: '类型不能为空', trigger: 'blur' }],
-        parentId: [{ required: true, message: '按钮id不能为空', trigger: 'blur' }]
+        action: [{ required: true, message: '类型不能为空', trigger: 'blur' }]
       }
     }
   },
@@ -310,13 +308,9 @@ export default {
         path: undefined,
         paths: undefined,
         action: undefined,
-        parentId: undefined,
         sort: undefined
       }
       this.resetForm('form')
-    },
-    parentIdFormat(row) {
-      return this.selectItemsLabel(this.parentIdOptions, row.parentId)
     },
     // 文件
     /** 搜索按钮操作 */

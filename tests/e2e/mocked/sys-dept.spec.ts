@@ -62,7 +62,10 @@ test.describe('sys-dept', () => {
     await page.goto('/#/admin/sys-dept')
     await page.waitForSelector('.el-table')
 
-    // p_id === 0 marks a root: it has no parent to fall back to
+    // parentId === 0 marks a root: it has no parent to fall back to. The page
+    // used to test `p_id`, a field no Go struct declares -- so the check read
+    // `undefined !== 0`, which is always true, and roots offered delete too.
+    // The fixture invented p_id as well, which is why the suite stayed green.
     const root = page.getByRole('row', { name: /研发部/ })
     await expect(root.getByRole('button', { name: '修改' })).toBeVisible()
     await expect(root.getByRole('button', { name: '删除' })).toHaveCount(0)

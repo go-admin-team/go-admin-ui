@@ -62,7 +62,7 @@
         >新增</el-button>
         <!-- A root has no parent to fall back to, so it cannot be removed here -->
         <el-button
-          v-if="row.p_id !== 0"
+          v-if="row.parentId !== 0"
           v-permisaction="['admin:sysDept:remove']"
           link
           type="danger"
