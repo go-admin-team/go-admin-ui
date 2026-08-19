@@ -16,7 +16,8 @@
     "e2e": "playwright test --project=mocked",
     "e2e:live": "playwright test --project=live",
     "e2e:shots": "playwright test --project=shots",
-    "test:ci": "pnpm lint && pnpm type-check && pnpm test:unit",
+    "test:ci": "pnpm lint && pnpm type-check && pnpm test:unit && pnpm check:api",
+    "check:api": "node scripts/check-api-contract.mjs",
     "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.config.mjs",
     "new": "plop",
     "prepare": "husky || true"
