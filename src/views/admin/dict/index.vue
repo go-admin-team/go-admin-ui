@@ -1,322 +1,154 @@
 <template>
-  <BasicLayout>
-    <template #wrapper>
-      <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" class="search-form">
-          <el-form-item label="字典名称" prop="dictName">
-            <el-input
-              v-model="queryParams.dictName"
-              placeholder="请输入字典名称"
-              clearable
-              size="small"
-              @keyup.enter="handleQuery"
+  <PageContainer>
+    <ProTable :table="table" selection row-key="id" :actions-width="120">
+      <template #search>
+        <el-form-item label="字典名称">
+          <el-input v-model="table.query.dictName" placeholder="请输入字典名称" clearable style="width: 160px" />
+        </el-form-item>
+        <el-form-item label="字典类型">
+          <el-input v-model="table.query.dictType" placeholder="请输入字典类型" clearable style="width: 160px" />
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-select v-model="table.query.status" placeholder="字典状态" clearable style="width: 130px">
+            <el-option
+              v-for="item in sys_normal_disable"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
             />
-          </el-form-item>
-          <el-form-item label="字典类型" prop="dictType">
-            <el-input
-              v-model="queryParams.dictType"
-              placeholder="请输入字典类型"
-              clearable
-              size="small"
-              @keyup.enter="handleQuery"
-            />
-          </el-form-item>
-          <el-form-item label="状态" prop="status">
-            <el-select
-              v-model="queryParams.status"
-              placeholder="字典状态"
-              clearable
-              size="small"
-            >
-              <el-option
-                v-for="dict in statusOptions"
-                :key="dict.value"
-                :label="dict.label"
-                :value="dict.value"
-              />
-            </el-select>
-          </el-form-item>
+          </el-select>
+        </el-form-item>
+      </template>
 
-          <el-form-item>
-            <el-button type="primary" size="small" :icon="Search" @click="handleQuery">搜索</el-button>
-            <el-button size="small" :icon="Refresh" @click="resetQuery">重置</el-button>
-          </el-form-item>
-        </el-form>
+      <template #toolbar>
+        <el-button v-permisaction="['admin:sysDictType:add']" type="primary" @click="form.openCreate()">新增</el-button>
+        <el-button
+          v-permisaction="['admin:sysDictType:remove']"
+          type="danger"
+          plain
+          :disabled="table.multiple"
+          @click="remove(table.selectedIds)"
+        >删除</el-button>
+        <el-button v-permisaction="['admin:sysDictType:export']" :loading="exporting" @click="handleExport">导出</el-button>
+      </template>
 
-        <div class="toolbar mb8">
-          <el-button v-permisaction="['admin:sysDictType:add']" type="primary" size="small" :icon="Plus" @click="handleAdd">新增</el-button>
-          <el-button v-permisaction="['admin:sysDictType:edit']" type="primary" size="small" :icon="Edit" :disabled="single" @click="handleUpdate">修改</el-button>
-          <el-button v-permisaction="['admin:sysDictType:remove']" type="danger" size="small" :icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
-          <el-button v-permisaction="['admin:sysDictType:export']" size="small" :icon="Download" @click="handleExport">导出</el-button>
-        </div>
+      <el-table-column label="编号" prop="id" width="80" />
+      <el-table-column label="字典名称" prop="dictName" min-width="140" show-overflow-tooltip />
+      <el-table-column label="字典类型" prop="dictType" min-width="160" show-overflow-tooltip>
+        <template #default="{ row }">
+          <!-- The entries live on their own page, keyed by this record's id -->
+          <router-link :to="{ name: 'SysDictDataManage', params: { dictId: row.id }}" class="link-type">
+            {{ row.dictType }}
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column label="状态" prop="status" width="90">
+        <template #default="{ row }">
+          <el-tag :type="Number(row.status) === 2 ? 'success' : 'danger'" disable-transitions>
+            {{ dictLabel(sys_normal_disable, row.status) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="备注" prop="remark" min-width="160" show-overflow-tooltip />
+      <!--
+        Not sortable: SysDictTypeOrder binds dictIdOrder and nothing else, so a
+        header on this column would send createdAtOrder, which gin drops.
+      -->
+      <el-table-column label="创建时间" prop="createdAt" min-width="110">
+        <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
+      </el-table-column>
 
-        <el-table v-loading="loading" :data="typeList" border stripe @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" />
-          <el-table-column label="字典编号" width="80" align="center" prop="id" />
-          <el-table-column label="字典名称" align="center" prop="dictName" :show-overflow-tooltip="true" />
-          <el-table-column label="字典类型" align="center" :show-overflow-tooltip="true">
-            <template #default="scope">
-              <router-link :to="{name:'SysDictDataManage', params: {dictId:scope.row.id}}" class="link-type">
-                <span>{{ scope.row.dictType }}</span>
-              </router-link>
-            </template>
-          </el-table-column>
-          <el-table-column label="状态" align="center" prop="status">
-            <template #default="scope">
-              <el-tag :type="parseInt(scope.row.status) === 2 ? 'success' : 'danger'" size="small" disable-transitions>
-                {{ statusFormat(scope.row) }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true" />
-          <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
-            <template #default="scope">
-              <span>{{ parseTime(scope.row.createdAt) }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-            <template #default="scope">
-              <el-button v-permisaction="['admin:sysDictType:edit']" type="primary" link size="small" :icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
-              <el-divider direction="vertical" />
-              <el-button v-permisaction="['admin:sysDictType:remove']" type="danger" link size="small" :icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+      <template #actions="{ row }">
+        <el-button v-permisaction="['admin:sysDictType:edit']" link type="primary" @click="form.openEdit(row)">
+          修改
+        </el-button>
+        <el-button v-permisaction="['admin:sysDictType:remove']" link type="danger" @click="remove(row.id)">
+          删除
+        </el-button>
+      </template>
+    </ProTable>
 
-        <pagination
-          v-show="total>0"
-          v-model:current-page="queryParams.pageIndex"
-          v-model:page-size="queryParams.pageSize"
-          :total="total"
-          @pagination="getList"
-        />
-
-        <!-- 添加或修改参数配置对话框 -->
-        <el-dialog v-model="open" :title="title" width="500px" :close-on-click-modal="false">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-            <el-form-item label="字典名称" prop="dictName">
-              <el-input v-model="form.dictName" placeholder="请输入字典名称" :disabled="isEdit" />
-            </el-form-item>
-            <el-form-item label="字典类型" prop="dictType">
-              <el-input v-model="form.dictType" placeholder="请输入字典类型" :disabled="isEdit" />
-            </el-form-item>
-            <el-form-item label="状态" prop="status">
-              <el-radio-group v-model="form.status">
-                <el-radio
-                  v-for="dict in statusOptions"
-                  :key="dict.value"
-                  :label="dict.value"
-                >{{ dict.label }}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-            <el-form-item label="备注" prop="remark">
-              <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
-            </el-form-item>
-          </el-form>
-          <template #footer><div class="dialog-footer">
-            <el-button type="primary" @click="submitForm">确 定</el-button>
-            <el-button @click="cancel">取 消</el-button>
-          </div></template>
-        </el-dialog>
-      </el-card>
-    </template>
-  </BasicLayout>
+    <el-dialog v-model="form.visible" :title="form.title" width="500px" :close-on-click-modal="false">
+      <el-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" label-width="90px">
+        <el-form-item label="字典名称" prop="dictName">
+          <el-input v-model="form.model.dictName" placeholder="请输入字典名称" :disabled="form.isEdit" />
+        </el-form-item>
+        <el-form-item label="字典类型" prop="dictType">
+          <el-input v-model="form.model.dictType" placeholder="请输入字典类型" :disabled="form.isEdit" />
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-radio-group v-model="form.model.status">
+            <el-radio v-for="item in sys_normal_disable" :key="item.value" :value="item.value">
+              {{ item.label }}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="form.model.remark" type="textarea" placeholder="请输入内容" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="form.close()">取 消</el-button>
+        <el-button type="primary" :loading="form.submitting" @click="form.submit()">确 定</el-button>
+      </template>
+    </el-dialog>
+  </PageContainer>
 </template>
 
-<script>
-import { listType, getType, delType, addType, updateType } from '@/api/admin/dict/type'
-import { formatJson } from '@/utils'
-import { Search, Refresh, Plus, Edit, Delete, Download } from '@element-plus/icons-vue'
+<script setup lang="ts">
+import type { FormRules } from 'element-plus'
 
-export default {
-  name: 'Dict',
-  setup() {
-    return { Search, Refresh, Plus, Edit, Delete, Download }
-  },
-  data() {
-    return {
-      // 遮罩层
-      loading: true,
-      // 选中数组
-      ids: [],
-      // 非单个禁用
-      single: true,
-      // 非多个禁用
-      multiple: true,
-      // 总条数
-      total: 0,
-      // 字典表格数据
-      typeList: [],
-      // 弹出层标题
-      title: '',
-      isEdit: false,
-      // 是否显示弹出层
-      open: false,
-      // 状态数据字典
-      statusOptions: [],
-      // 日期范围
-      dateRange: [],
-      // 查询参数
-      queryParams: {
-        pageIndex: 1,
-        pageSize: 10,
-        dictName: undefined,
-        dictType: undefined,
-        status: undefined
-      },
-      // 表单参数
-      form: {},
-      // 表单校验
-      rules: {
-        dictName: [
-          { required: true, message: '字典名称不能为空', trigger: 'blur' }
-        ],
-        dictType: [
-          { required: true, message: '字典类型不能为空', trigger: 'blur' }
-        ]
-      }
-    }
-  },
-  created() {
-    this.getList()
-    this.getDicts('sys_normal_disable').then(response => {
-      this.statusOptions = response.data
-    })
-  },
-  methods: {
-    /** 查询字典类型列表 */
-    getList() {
-      this.loading = true
-      listType(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        this.typeList = response.data.list
-        this.total = response.data.count
-        this.loading = false
-      })
-    },
-    // 字典状态字典翻译
-    statusFormat(row, column) {
-      return this.selectDictLabel(this.statusOptions, parseInt(row.status))
-    },
-    // 取消按钮
-    cancel() {
-      this.open = false
-      this.reset()
-    },
-    // 表单重置
-    reset() {
-      this.form = {
-        id: undefined,
-        dictName: undefined,
-        dictType: undefined,
-        status: '2',
-        remark: undefined
-      }
-      this.resetForm('form')
-    },
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.queryParams.pageIndex = 1
-      this.getList()
-    },
-    /** 重置按钮操作 */
-    resetQuery() {
-      this.dateRange = []
-      this.resetForm('queryForm')
-      this.handleQuery()
-    },
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.reset()
-      this.open = true
-      this.title = '添加字典类型'
-      this.isEdit = false
-    },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.id)
-      this.single = selection.length !== 1
-      this.multiple = !selection.length
-    },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset()
-      const dictId = row.id || this.ids
-      getType(dictId).then(response => {
-        this.form = response.data
-        this.form.status = String(this.form.status)
-        this.open = true
-        this.title = '修改字典类型'
-        this.isEdit = true
-      })
-    },
-    /** 提交按钮 */
-    submitForm: function() {
-      this.$refs['form'].validate(valid => {
-        if (valid) {
-          this.form.status = parseInt(this.form.status)
-          if (this.form.id !== undefined) {
-            updateType(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess(response.msg)
-                this.open = false
-                this.getList()
-              } else {
-                this.msgError(response.msg)
-              }
-            })
-          } else {
-            addType(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess(response.msg)
-                this.open = false
-                this.getList()
-              } else {
-                this.msgError(response.msg)
-              }
-            })
-          }
-        }
-      })
-    },
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      const dictIds = (row.id && [row.id]) || this.ids
-      this.$confirm('是否确认删除字典编号为"' + dictIds + '"的数据项?', '警告', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(function() {
-        return delType({ 'ids': dictIds })
-      }).then(() => {
-        this.getList()
-        this.msgSuccess('删除成功')
-      }).catch(function() {})
-    },
-    /** 导出按钮操作 */
-    handleExport() {
-      // const queryParams = this.queryParams
-      this.$confirm('是否确认导出所有类型数据项?', '警告', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.downloadLoading = true
-        import('@/vendor/Export2Excel').then(excel => {
-          const tHeader = ['字典编号', '字典名称', '字典类型', '状态', '备注']
-          const filterVal = ['id', 'dictName', 'dictType', 'status', 'remark']
-          const list = this.typeList
-          const data = formatJson(filterVal, list)
-          excel.export_json_to_excel({
-            header: tHeader,
-            data,
-            filename: '字典管理',
-            autoWidth: true, // Optional
-            bookType: 'xlsx' // Optional
-          })
-          this.downloadLoading = false
-        })
-      })
-    }
-  }
+import PageContainer from '@/components/PageContainer/index.vue'
+import ProTable from '@/components/ProTable/index.vue'
+import DateCell from '@/components/DateCell/index.vue'
+import { useTable, useForm, useRemove, useDict, useExport, dictLabel } from '@/composables'
+
+import { listType, getTypeForForm, addType, updateType, delType } from '@/api/admin/dict/type'
+import type { SysDictType, SysDictTypeQuery } from '@/types/admin'
+
+// Must match the menu_name the backend serves, or keep-alive silently misses
+defineOptions({ name: 'Dict' })
+
+const { sys_normal_disable } = useDict('sys_normal_disable')
+
+const table = useTable<SysDictType, SysDictTypeQuery>({
+  api: listType,
+  idKey: 'id',
+  defaultQuery: () => ({ dictName: undefined, dictType: undefined, status: undefined })
+})
+
+const rules: FormRules = {
+  dictName: [{ required: true, message: '字典名称不能为空', trigger: 'blur' }],
+  dictType: [{ required: true, message: '字典类型不能为空', trigger: 'blur' }]
 }
+
+const form = useForm<SysDictType, number>({
+  defaultModel: () => ({
+    id: undefined,
+    dictName: undefined,
+    dictType: undefined,
+    status: '2',
+    remark: undefined
+  }),
+  idKey: 'id',
+  rules,
+  title: { create: '添加字典类型', edit: '修改字典类型' },
+  api: { get: getTypeForForm, add: addType, update: updateType },
+  onSuccess: () => table.getList()
+})
+
+const { remove } = useRemove({
+  api: delType,
+  confirmText: count => `确认删除选中的 ${count} 个字典类型？`,
+  onSuccess: () => table.getList()
+})
+
+const { exportExcel, exporting } = useExport()
+
+const handleExport = () => exportExcel({
+  header: ['编号', '字典名称', '字典类型', '状态', '备注'],
+  fields: ['id', 'dictName', 'dictType', 'status', 'remark'],
+  rows: table.rows as Array<Record<string, unknown>>,
+  filename: '字典类型'
+})
 </script>
