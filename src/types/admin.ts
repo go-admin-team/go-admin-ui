@@ -45,9 +45,8 @@ export interface SysUserQuery {
  */
 export interface SysDept {
   deptId?: number
+  /** `parentId === 0` marks a root, which cannot be deleted. */
   parentId?: number
-  /** Materialised path of ancestors. `p_id === 0` marks a root, which cannot be deleted. */
-  p_id?: number
   deptName?: string
   sort?: number | string
   leader?: string
@@ -239,22 +238,40 @@ export interface SysJobQuery {
   status?: string
 }
 
+/** Filters the login audit accepts. */
+export interface SysLoginLogQuery {
+  username?: string
+  status?: string
+  ipaddr?: string
+}
+
+/** Filters the operation audit accepts. */
+export interface SysOperaLogQuery {
+  operUrl?: string
+  status?: string
+  beginTime?: string
+  endTime?: string
+}
+
 /** An audit row: one login attempt. */
 export interface SysLoginLog {
-  infoId?: number
+  /** models.Model serialises the primary key as `id` -- there is no infoId. */
+  id?: number
   username?: string
   ipaddr?: string
   loginLocation?: string
   browser?: string
   os?: string
+  platform?: string
   status?: string
   msg?: string
   loginTime?: string
+  createdAt?: string
 }
 
 /** An audit row: one write operation. */
 export interface SysOperaLog {
-  operId?: number
+  id?: number
   title?: string
   businessType?: string
   method?: string
@@ -264,5 +281,9 @@ export interface SysOperaLog {
   operName?: string
   status?: string
   operTime?: string
+  operLocation?: string
+  operParam?: string
+  jsonResult?: string
+  latencyTime?: string
   createdAt?: string
 }

@@ -1,10 +1,10 @@
 import request from '@/utils/request'
 import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
-import type { SysLoginLog } from '@/types/admin'
+import type { SysLoginLog, SysLoginLogQuery } from '@/types/admin'
 
 /** Login audit endpoints. Read and delete only -- nothing writes these. */
 
-export function listSysLoginlog(query: Partial<PageQuery> & Record<string, unknown>) {
+export function listSysLoginlog(query: SysLoginLogQuery & Partial<PageQuery>) {
   return request<ApiResponse<PageResult<SysLoginLog>>>({
     url: '/api/v1/sys-login-log',
     method: 'get',

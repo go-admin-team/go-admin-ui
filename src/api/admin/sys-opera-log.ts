@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
-import type { SysOperaLog } from '@/types/admin'
+import type { SysOperaLog, SysOperaLogQuery } from '@/types/admin'
 
 /** Operation audit endpoints. Read and delete only. */
 
@@ -12,7 +12,7 @@ export function cleanOperlog() {
   })
 }
 
-export function listSysOperlog(query: Partial<PageQuery> & Record<string, unknown>) {
+export function listSysOperlog(query: SysOperaLogQuery & Partial<PageQuery>) {
   return request<ApiResponse<PageResult<SysOperaLog>>>({
     url: '/api/v1/sys-opera-log',
     method: 'get',
