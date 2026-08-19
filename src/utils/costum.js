@@ -50,32 +50,6 @@ export function resetForm(refName) {
   }
 }
 
-// 添加日期范围
-/**
- * DEPRECATED -- do not use in new code, and drop the call when migrating a page.
- *
- * It reads `this.dateRange` rather than its own `dateRange` argument, so it only
- * works when invoked as a component method (`this.addDateRange(...)`) on a
- * component that happens to have a `dateRange` field. Imported into a
- * `<script setup>` page it throws, because there is no `this`.
- *
- * Three Options-API pages still call it: dict, schedule and dev-tools/gen. None
- * of them has a date picker, so all it contributes there is an empty beginTime
- * and endTime on every request. The migrated log page binds its picker to a ref
- * and writes the two keys into the query directly -- see
- * views/admin/sys-oper-log.
- */
-export function addDateRange(params, dateRange) {
-  var search = params
-  search.beginTime = ''
-  search.endTime = ''
-  if (dateRange != null && dateRange !== '') {
-    search.beginTime = this.dateRange[0]
-    search.endTime = this.dateRange[1]
-  }
-  return search
-}
-
 // 回显数据字典
 export function selectDictLabel(datas, value) {
   var actions = []

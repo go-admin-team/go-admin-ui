@@ -96,10 +96,10 @@ const { sys_common_status } = useDict('sys_common_status')
  * An audit trail: read and delete, nothing writes it. No useForm here, which is
  * why this page is a third of the size of the ones that edit records.
  *
- * The previous version passed its query through addDateRange, a helper that
- * reads `this.dateRange` rather than its own argument. It worked only because
- * it was called as a component method, and this page has no date picker at all
- * -- so all it contributed was an empty beginTime and endTime on every request.
+ * The previous version passed its query through a global addDateRange helper
+ * that read `this.dateRange` rather than its own argument. This page has no date
+ * picker at all, so all it contributed was an empty beginTime and endTime on
+ * every request. The helper is gone now.
  */
 const table = useTable<SysLoginLog, SysLoginLogQuery>({
   api: listSysLoginlog,

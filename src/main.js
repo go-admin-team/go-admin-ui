@@ -31,7 +31,7 @@ import permission from './directive/permission'
 import { getDicts } from '@/api/admin/dict/data'
 import { getItems, setItems } from '@/api/table'
 import { getConfigKey } from '@/api/admin/sys-config'
-import { parseTime, resetForm, addDateRange, selectDictLabel, /* download,*/ selectItemsLabel } from '@/utils/costum'
+import { parseTime, resetForm, selectDictLabel, /* download,*/ selectItemsLabel } from '@/utils/costum'
 import { msgSuccess, msgError, msgInfo } from '@/utils/message'
 import { dialogDrag } from '@/utils/dialog' // dialog directive
 import { setupErrorHandler } from '@/utils/error-log' // error log
@@ -70,7 +70,7 @@ const app = createApp(App)
 // New code should import them directly instead.
 const globalMethods = {
   getDicts, getItems, setItems, getConfigKey,
-  parseTime, resetForm, addDateRange, selectDictLabel, selectItemsLabel,
+  parseTime, resetForm, selectDictLabel, selectItemsLabel,
   msgSuccess, msgError, msgInfo
 }
 

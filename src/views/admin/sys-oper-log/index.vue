@@ -147,11 +147,10 @@ const table = useTable<SysOperaLog, SysOperaLogQuery>({
  * The date picker's own state, mirrored into the query as the two keys the
  * endpoint reads.
  *
- * The previous version routed this through addDateRange, a helper that reads
- * `this.dateRange` rather than the argument it is handed -- it worked only
- * because it was invoked as a component method, and would throw the moment it
- * was imported into a page without `this`. Four of its five callers had no date
- * picker at all, so all it did there was attach two empty strings.
+ * The previous version routed this through a global addDateRange helper that
+ * read `this.dateRange` rather than the argument it was handed. It worked only
+ * as a component method, and four of its five callers had no date picker at
+ * all, so all it did there was attach two empty strings. It is gone now.
  */
 const operatedBetween = computed<[string, string] | null>({
   get: () => {

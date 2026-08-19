@@ -8,7 +8,7 @@ import 'vue'
  * existing code uses both forms. Roughly 155 call sites depend on these:
  *
  *   msgSuccess 52 · msgError 46 · resetForm 25 · getDicts 14
- *   selectDictLabel 10 · addDateRange 8
+ *   selectDictLabel 10
  *
  * WARNING: none of these are available inside `<script setup>` (no `this`).
  * Replacements when migrating a component:
@@ -29,7 +29,6 @@ type DictFn = (dictType: string) => Promise<unknown>
 type ConfigFn = (configKey: string) => Promise<unknown>
 type ParseTimeFn = (time: unknown, pattern?: string) => string | null
 type ResetFormFn = (refName: string) => void
-type AddDateRangeFn = <T>(params: T, dateRange: unknown[]) => T
 type SelectLabelFn = (datas: unknown[], value: unknown) => string
 type GetItemsFn = (f: unknown, query: unknown) => unknown
 type SetItemsFn = (response: unknown, k: unknown, v: unknown) => unknown
@@ -44,7 +43,6 @@ interface GoAdminGlobalMethods {
   setItems: SetItemsFn
   parseTime: ParseTimeFn
   resetForm: ResetFormFn
-  addDateRange: AddDateRangeFn
   selectDictLabel: SelectLabelFn
   selectItemsLabel: SelectLabelFn
 }
