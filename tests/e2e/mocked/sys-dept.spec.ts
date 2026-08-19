@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
-import { authenticate, installApiMocks } from './fixtures'
-import { captureBodies } from './support/crud'
+import { authenticate, installApiMocks, deptRows } from './fixtures'
+import { captureBodies, json } from './support/crud'
 
 /**
  * The department page: the first tree table on the composable layer, and the
@@ -73,6 +73,42 @@ test.describe('sys-dept', () => {
 
     const child = page.getByRole('row', { name: /前端组/ })
     await expect(child.getByRole('button', { name: '删除' })).toBeVisible()
+  })
+
+  // Same defect the menu page had: the picker read table.rows, which holds the
+  // search results, so adding under a filtered list could only offer the
+  // branches that survived the filter as parents.
+  test('the parent picker keeps the whole tree after a search', async({ page }) => {
+    await installApiMocks(page)
+
+    // Registered after installApiMocks so it wins; a filtered list answers
+    // with the matching leaf alone.
+    await page.route(/\/api\/v1\/dept(\?|$)/, async route => {
+      const url = new URL(route.request().url())
+      if (route.request().method() !== 'GET' || !url.searchParams.get('deptName')) {
+        await route.fallback()
+        return
+      }
+      await route.fulfill(json({
+        code: 200,
+        msg: 'ok',
+        data: [{ ...deptRows[0].children[0], children: [] }]
+      }))
+    })
+
+    await page.goto('/#/admin/sys-dept')
+    await page.waitForSelector('.el-table')
+
+    await page.getByPlaceholder('请输入部门名称').fill('前端')
+    await page.getByPlaceholder('请输入部门名称').press('Enter')
+    await expect(page.getByRole('cell', { name: '研发部' })).toHaveCount(0)
+
+    await page.getByRole('row', { name: /前端组/ }).getByRole('button', { name: '修改' }).click()
+
+    // Its parent was filtered out of the list, but the picker still resolves it
+    const dialog = page.getByRole('dialog').filter({ hasText: '修改部门' })
+    await expect(dialog.locator('.el-form-item').filter({ hasText: '上级部门' })
+      .locator('.el-select__wrapper')).toHaveText('研发部')
   })
 
   test('editing loads the record and locks the parent', async({ page }) => {

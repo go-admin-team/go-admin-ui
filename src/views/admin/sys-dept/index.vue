@@ -92,7 +92,7 @@
                    not something this endpoint supports. -->
               <el-tree-select
                 v-model="form.model.parentId"
-                :data="parentOptions"
+                :data="parent.options"
                 :props="{ label: 'deptName', children: 'children' }"
                 node-key="deptId"
                 placeholder="选择上级部门"
@@ -150,13 +150,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { FormRules } from 'element-plus'
 
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
-import { useTable, useForm, useRemove, useDict, dictLabel } from '@/composables'
+import { useTable, useForm, useRemove, useDict, useTreePicker, dictLabel } from '@/composables'
 
 import { getDeptList, getDept, addDept, updateDept, delDept, deptToForm } from '@/api/admin/sys-dept'
 import type { SysDept, SysDeptQuery } from '@/types/admin'
@@ -173,18 +172,16 @@ const table = useTable<SysDept, SysDeptQuery>({
   defaultQuery: () => ({ deptName: undefined, status: undefined })
 })
 
-/**
- * Parent picker options: the live tree under a synthetic root, so a top-level
- * department can be created by choosing 主类目.
- *
- * Derived from the table's own rows rather than fetched again -- the previous
- * version called /api/v1/dept a second time every time the dialog opened, for
- * data it already had on screen.
- */
 const ROOT_ID = 0
-const parentOptions = computed<SysDept[]>(() => [
-  { deptId: ROOT_ID, deptName: '主类目', children: table.rows }
-])
+
+/** The unfiltered tree; see useTreePicker for why it is not `table.rows`. */
+const parent = useTreePicker<SysDept>({
+  api: () => getDeptList(),
+  idKey: 'deptId',
+  labelKey: 'deptName',
+  rootLabel: '主类目',
+  rootId: ROOT_ID
+})
 
 const rules: FormRules = {
   parentId: [{ required: true, message: '上级部门不能为空', trigger: 'change' }],
@@ -217,19 +214,30 @@ const form = useForm<SysDept, number>({
     add: addDept,
     update: model => updateDept(model, model.deptId as number)
   },
-  onSuccess: () => table.getList()
+  onSuccess: () => {
+    parent.invalidate()
+    return table.getList()
+  }
 })
 
 /** Adding under a row pre-selects it as the parent. */
-const handleAdd = (row?: SysDept) =>
+const handleAdd = (row?: SysDept) => {
+  void parent.ensure()
   form.openCreate(row ? { parentId: row.deptId } : { parentId: ROOT_ID })
+}
 
-const handleUpdate = (row: SysDept) => form.openEdit(row)
+const handleUpdate = (row: SysDept) => {
+  void parent.ensure()
+  return form.openEdit(row)
+}
 
 const { remove } = useRemove({
   api: delDept,
   confirmText: () => '确认删除该部门？其下级部门也会一并删除。',
-  onSuccess: () => table.getList()
+  onSuccess: () => {
+    parent.invalidate()
+    return table.getList()
+  }
 })
 
 const handleDelete = (row: SysDept) => remove(row.deptId)
