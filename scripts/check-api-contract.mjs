@@ -24,8 +24,20 @@ import { fileURLToPath } from 'node:url'
 const UI = join(dirname(fileURLToPath(import.meta.url)), '..')
 const GO = process.env.GO_ADMIN_PATH ?? join(UI, '..', 'go-admin')
 
+/**
+ * Skipping keeps a UI-only checkout building; --require-models turns the skip
+ * into a failure, which is what CI passes. Without it a broken checkout step
+ * would leave this job green while it checked nothing at all.
+ */
+const required = process.argv.includes('--require-models')
+
 if (!existsSync(join(GO, 'app/admin/models'))) {
-  console.log(`skipped: no Go repository at ${GO} (set GO_ADMIN_PATH to point at one)`)
+  const where = `no Go repository at ${GO} (set GO_ADMIN_PATH to point at one)`
+  if (required) {
+    console.error(`cannot check the api contract: ${where}`)
+    process.exit(1)
+  }
+  console.log(`skipped: ${where}`)
   process.exit(0)
 }
 
