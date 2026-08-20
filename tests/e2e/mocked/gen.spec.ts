@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { authenticate, installApiMocks } from './fixtures'
+import { captureBodies } from './support/crud'
 
 /**
  * The code generator's table list. Six row actions and a preview dialog that
@@ -239,19 +240,7 @@ test.describe('dev-tools editTable', () => {
   // never listened for; it read the values back out of el-form's model prop.
   test('an edit in the basic tab reaches the saved payload', async({ page }) => {
     await installApiMocks(page)
-    const bodies: string[] = []
-    await page.route('**/api/v1/sys/tables/info', async route => {
-      if (route.request().method() === 'PUT') {
-        bodies.push(route.request().postData() ?? '')
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({ code: 200, msg: '保存成功', data: null })
-        })
-        return
-      }
-      await route.fallback()
-    })
+    const bodies = await captureBodies(page, '**/api/v1/sys/tables/info', 'PUT')
 
     await page.goto('/#/dev-tools/editTable?tableId=1')
     await page.waitForSelector('.el-table')

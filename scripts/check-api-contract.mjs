@@ -180,6 +180,26 @@ const FIXTURES = {
  */
 const ALLOWED = new Set(['children', 'pageIndex', 'pageSize'])
 
+/**
+ * Fields a type may declare that its Go struct does not, with the reason.
+ *
+ * Keep this short. Every entry is a place the front end and the server disagree
+ * on purpose, and an entry added to silence the check rather than to record a
+ * decision is how the check stops being worth running.
+ */
+const TYPE_EXCEPTIONS = {
+  // The list endpoint answers with the tree nested under each node
+  '*': ['children'],
+  // Tagged `json:"-"` on the model: the create form sends it, nothing reads it
+  // back, and this check only compares against what Go serialises out
+  // Tagged `json:"-"` on the model: the create form sends it, nothing reads it
+  // back, and this check only compares against what Go serialises out
+  SysUser: ['password', 'postIds', 'roleIds'],
+  // Assembled by the page from two endpoints, never sent by either
+  SysMenu: ['apis', 'sysApi'],
+  SysRole: ['menuIds', 'deptIds']
+}
+
 // ── The three comparisons ─────────────────────────────────────────
 
 const problems = []
@@ -262,6 +282,32 @@ for (const [page, models] of Object.entries(OPTIONS_PAGES)) {
     [...rowFieldsIn(readFileSync(path, 'utf8'))].filter(k => !(k in known) && !ALLOWED.has(k)))
 }
 
+/**
+ * The third direction: what src/types/admin.ts claims, against what Go sends.
+ *
+ * The page and fixture checks are usage heuristics -- they see a field only if
+ * some page happens to read it through a name the regex recognises. Two field
+ * names this round (DictType.dictId, SysJob.entryId) lived in the declarations
+ * and were read as `item.dictId` in a v-for, which no heuristic here would have
+ * caught. Comparing the declarations directly is complete rather than lucky.
+ *
+ * Only interfaces whose name matches a Go struct are checked; the rest are
+ * front-end shapes with no counterpart, and saying so is not this file's job.
+ */
+const declaredTypes = readFileSync(join(UI, 'src/types/admin.ts'), 'utf8')
+
+for (const block of declaredTypes.matchAll(/export interface (\w+) \{([^}]*)\}/g)) {
+  const [, name, body] = block
+  const fields = fieldsOf(name)
+  if (!Object.keys(fields).length) continue // no Go struct by that name
+
+  const declared = [...body.matchAll(/^\s{2}(\w+)\??:/gm)].map(m => m[1])
+  const allowed = new Set([...(TYPE_EXCEPTIONS['*'] ?? []), ...(TYPE_EXCEPTIONS[name] ?? [])])
+
+  note(`src/types/admin.ts ${name}`, 'declared but not on the model',
+    declared.filter(f => !(f in fields) && !allowed.has(f) && !ALLOWED.has(f)))
+}
+
 if (problems.length) {
   console.error(`API contract mismatch (${problems.length}):\n`)
   for (const p of problems) console.error(`  ${p}\n`)
@@ -270,5 +316,6 @@ if (problems.length) {
 }
 console.log(
   `API contract ok: ${Object.keys(FIXTURES).length} fixtures, ` +
-  `${Object.keys(PAGES).length} migrated pages, ${Object.keys(OPTIONS_PAGES).length} Options-API pages`
+  `${Object.keys(PAGES).length} migrated pages, ${Object.keys(OPTIONS_PAGES).length} Options-API pages, ` +
+  'and the declarations in types/admin.ts'
 )

@@ -163,7 +163,6 @@ export interface SysApiQuery {
 
 /** A configuration entry. `configKey` is what getConfigKey looks up. */
 export interface SysConfig {
-  configId?: number
   configName?: string
   configKey?: string
   configValue?: string
