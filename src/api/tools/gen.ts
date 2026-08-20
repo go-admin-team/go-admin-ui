@@ -1,22 +1,8 @@
 import request from '@/utils/request'
 import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
 
-/**
- * Code generator endpoints.
- *
- * The generator's own shapes are wide and change with its templates, so the
- * table and column records stay loose rather than pretending to a precision the
- * backend does not hold to.
- */
+/** Code generator endpoints. */
 
-/**
- * A generator table row, as the list endpoints send it.
- *
- * Left open rather than enumerated: the generator's shapes track its templates
- * and both consuming pages are still Options API with no type checking, so named
- * fields here would be guesses nothing verifies. Narrow this when those pages
- * are migrated and the real shape can be read off working code.
- */
 /**
  * A table the generator holds a configuration for. Mirrors tools.SysTables,
  * naming the fields the list page reads; the edit page works with far more of
@@ -44,7 +30,12 @@ export interface DBTables {
   updateTime?: string
 }
 
-/** The generator's own record, whose shape depends on the template in play. */
+/**
+ * The record the edit page works with: the whole of tools.SysTables plus its
+ * nested Params, whose shape tracks the templates in play. Left open on purpose
+ * -- unlike SysTables above, which names only the handful of fields the list
+ * page reads and which the contract checker verifies against the Go struct.
+ */
 export type GenTable = Record<string, unknown>
 
 /** Filters the table list accepts. */
