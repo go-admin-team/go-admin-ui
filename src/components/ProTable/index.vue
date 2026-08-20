@@ -183,11 +183,16 @@ const handleReset = async() => {
 }
 
 /**
- * The inner el-table, for the few things only it can do -- toggling a row's
- * checkbox from a row click, for instance. Everything routine is on `table`;
- * reach for this only when el-table's own instance API is the answer.
+ * Ticking a row from a click on the row: the one thing el-table's own instance
+ * does that `table` cannot. Exposed by name rather than by handing out the
+ * instance, so the rest of its imperative API does not become an ambient escape
+ * hatch -- the same reason the generator's forms expose `validate` and not their
+ * FormInstance.
  */
-defineExpose({ tableRef })
+defineExpose({
+  toggleRowSelection: (row: TRow, selected?: boolean) =>
+    tableRef.value?.toggleRowSelection(row, selected)
+})
 </script>
 
 <style lang="scss" scoped>

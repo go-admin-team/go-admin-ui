@@ -52,10 +52,10 @@ defineOptions({ name: 'ImportTable' })
 const visible = defineModel<boolean>({ required: true })
 const emit = defineEmits<{ imported: [] }>()
 
-const proTable = ref<{ tableRef?: { toggleRowSelection: (row: DBTables, selected?: boolean) => void }}>()
+const proTable = ref<{ toggleRowSelection: (row: DBTables, selected?: boolean) => void }>()
 
 // Clicking anywhere on a row ticks it, which is how the previous dialog behaved
-const toggleRow = (row: DBTables) => proTable.value?.tableRef?.toggleRowSelection(row, undefined)
+const toggleRow = (row: DBTables) => proTable.value?.toggleRowSelection(row)
 
 /**
  * The database's own tables, not the generator's -- so nothing is fetched until
