@@ -285,7 +285,10 @@ const submit = async() => {
       sys_app_name: form.value.sys_app_name,
       sys_app_logo: form.value.sys_app_logo
     })
-    await load()
+    // No refetch: the interceptor already rejected anything but a 200, and the
+    // endpoint answers with an ack rather than the stored record, so a GET here
+    // would return the values just sent
+    formRef.value?.clearValidate()
   } catch {
     // Reported by the interceptor
   } finally {

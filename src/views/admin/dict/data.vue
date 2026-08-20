@@ -125,36 +125,40 @@ const { sys_normal_disable } = useDict('sys_normal_disable')
  * before a list request means anything. `immediate: false` is exactly this: no
  * request until the page says so.
  */
-// Declared before useTable: defaultQuery runs during that call, and holding the
-// type outside the query is what lets resetQuery rebuild back to this
-// dictionary rather than to an empty type, which the endpoint reads as
-// "every entry in the system".
-const currentType = ref<string>('')
+// Declared before useTable: defaultQuery runs during that call. Held outside the
+// query because the search bar's own dictType select is editable, while this is
+// the dictionary the page was opened for -- what resetQuery rebuilds back to,
+// rather than an empty type, which the endpoint reads as "every entry in the
+// system". Not a ref: nothing renders it, every read is inside a function body.
+let currentType = ''
 
 const table = useTable<SysDictData, SysDictDataQuery>({
   api: listData,
   idKey: 'dictCode',
   immediate: false,
-  defaultQuery: () => ({ dictType: currentType.value, dictLabel: undefined, status: undefined })
+  defaultQuery: () => ({ dictType: currentType, dictLabel: undefined, status: undefined })
 })
 
 const typeOptions = ref<SysDictType[]>([])
 
 onMounted(async() => {
+  // The picker's options are fetched alongside but not waited on: only the
+  // type gates the list, so the rows do not wait on the slower of the two
+  const options = listType({ pageSize: 1000 })
+    .then(response => { typeOptions.value = response.data?.list ?? [] })
+    .catch(() => { /* Reported by the interceptor; the picker stays empty */ })
+
   try {
-    const [type, types] = await Promise.all([
-      getType(Number(route.params.dictId)),
-      listType({ pageSize: 1000 })
-    ])
-    currentType.value = type.data?.dictType ?? ''
-    table.query.dictType = currentType.value
-    typeOptions.value = types.data?.list ?? []
+    const type = await getType(Number(route.params.dictId))
+    currentType = type.data?.dictType ?? ''
+    table.query.dictType = currentType
   } catch {
     // Reported by the interceptor. Without the catch this rejects inside the
     // mounted hook with nobody attached, and the page sits empty with no clue.
     return
   }
   await table.getList()
+  await options
 })
 
 const rules: FormRules = {
@@ -166,7 +170,7 @@ const rules: FormRules = {
 const form = useForm<SysDictData, number>({
   defaultModel: () => ({
     dictCode: undefined,
-    dictType: currentType.value,
+    dictType: currentType,
     dictLabel: undefined,
     dictValue: undefined,
     dictSort: 0,
@@ -181,7 +185,7 @@ const form = useForm<SysDictData, number>({
 })
 
 // The dictionary this page belongs to is not a choice; the form shows it locked
-const handleAdd = () => form.openCreate({ dictType: currentType.value })
+const handleAdd = () => form.openCreate({ dictType: currentType })
 
 const { remove } = useRemove({
   api: delData,
