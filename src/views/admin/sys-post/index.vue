@@ -120,7 +120,8 @@ import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
 import { useTable, useForm, useRemove, useDict, useExport, dictLabel } from '@/composables'
 
-import { listPost, getPost, addPost, updatePost, delPost, postToForm } from '@/api/admin/sys-post'
+import { listPost, getPostForForm, addPost, updatePost, delPost } from '@/api/admin/sys-post'
+import { STATUS_NORMAL } from '@/api/status'
 import type { SysPost, SysPostQuery } from '@/types/admin'
 
 // Must match the menu_name the backend serves, or keep-alive silently misses
@@ -146,17 +147,14 @@ const form = useForm<SysPost, number>({
     postCode: undefined,
     postName: undefined,
     sort: 0,
-    status: '1',
+    status: STATUS_NORMAL,
     remark: undefined
   }),
   idKey: 'postId',
   rules,
   title: { create: '添加岗位', edit: '修改岗位' },
   api: {
-    get: async(id: number) => {
-      const response = await getPost(id)
-      return { ...response, data: postToForm(response.data) }
-    },
+    get: getPostForForm,
     add: addPost,
     update: model => updatePost(model, model.postId as number)
   },
