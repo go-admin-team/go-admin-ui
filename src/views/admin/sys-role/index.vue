@@ -184,6 +184,7 @@ import type { FormRules } from 'element-plus'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
+import { STATUS_NORMAL } from '@/api/status'
 import { useTable, useForm, useRemove, useDict, useExport } from '@/composables'
 import { msgSuccess } from '@/utils/message'
 
@@ -239,7 +240,7 @@ const roleForm = useForm<SysRole, number>({
     roleName: undefined,
     roleKey: undefined,
     roleSort: 0,
-    status: '2',
+    status: STATUS_NORMAL,
     menuIds: [],
     remark: undefined
   }),

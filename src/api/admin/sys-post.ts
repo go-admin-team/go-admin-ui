@@ -1,6 +1,7 @@
 import request from '@/utils/request'
 import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
 import type { SysPost } from '@/types/admin'
+import { statusToWire, statusToForm } from '@/api/status'
 
 /** Post (job title) endpoints. */
 
@@ -19,14 +20,19 @@ export function getPost(postId: number) {
   })
 }
 
-/** Numbers on the wire, strings in the form -- see the note in sys-dept. */
-const toWire = (data: SysPost): SysPost => ({ ...data, status: Number(data.status) as never })
+/** Numbers on the wire, strings in the form -- see the note in api/status. */
+const toWire = (data: SysPost): SysPost => ({ ...data, status: statusToWire(data.status) as never })
 
-/** The mirror of toWire, for the record a form is about to edit. */
-export const postToForm = (data: SysPost): SysPost => ({
+const toForm = (data: SysPost): SysPost => ({
   ...data,
-  status: String(data.status ?? '1')
+  status: statusToForm(data.status)
 })
+
+/** getPost with the record already shaped for a form. */
+export const getPostForForm = async(postId: number) => {
+  const response = await getPost(postId)
+  return { ...response, data: toForm(response.data) }
+}
 
 export function addPost(data: SysPost) {
   return request<ApiResponse<SysPost>>({

@@ -1,6 +1,7 @@
 import request from '@/utils/request'
 import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
 import type { SysJob, SysJobQuery } from '@/types/admin'
+import { statusToWire, statusToForm } from '@/api/status'
 
 /** Scheduled job endpoints. */
 
@@ -26,15 +27,20 @@ export function getSysJob(jobId: number) {
  * keys on strings. The radio groups already work in numbers, so status is the
  * only field that needs the round trip.
  */
-const toWire = (data: SysJob): Omit<SysJob, 'status'> & { status: number } => ({
+const toWire = (data: SysJob): SysJob => ({
   ...data,
-  status: Number(data.status)
+  status: statusToWire(data.status)
+})
+
+const toForm = (data: SysJob): SysJob => ({
+  ...data,
+  status: statusToForm(data.status)
 })
 
 /** getSysJob with the record already shaped for a form. */
 export const getSysJobForForm = async(jobId: number) => {
   const response = await getSysJob(jobId)
-  return { ...response, data: { ...response.data, status: String(response.data?.status ?? '2') }}
+  return { ...response, data: toForm(response.data) }
 }
 
 export function addSysJob(data: SysJob) {

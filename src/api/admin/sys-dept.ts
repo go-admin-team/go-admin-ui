@@ -1,6 +1,7 @@
 import request from '@/utils/request'
 import type { ApiResponse, Id } from '@/types/api'
 import type { DeptTreeNode, SysDept, SysDeptQuery } from '@/types/admin'
+import { statusToWire, statusToForm } from '@/api/status'
 
 /**
  * Department endpoints.
@@ -53,13 +54,13 @@ export function roleDeptTreeselect(roleId: number) {
  */
 const toWire = (data: SysDept): SysDept => ({
   ...data,
-  status: Number(data.status),
+  status: statusToWire(data.status),
   sort: Number(data.sort)
 })
 
 const toForm = (data: SysDept): SysDept => ({
   ...data,
-  status: String(data.status ?? '2'),
+  status: statusToForm(data.status),
   sort: String(data.sort ?? 0)
 })
 

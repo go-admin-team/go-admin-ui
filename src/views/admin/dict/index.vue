@@ -101,6 +101,7 @@ import type { FormRules } from 'element-plus'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
+import { STATUS_NORMAL } from '@/api/status'
 import { useTable, useForm, useRemove, useDict, useExport, dictLabel } from '@/composables'
 
 import { listType, getTypeForForm, addType, updateType, delType } from '@/api/admin/dict/type'
@@ -127,7 +128,7 @@ const form = useForm<SysDictType, number>({
     id: undefined,
     dictName: undefined,
     dictType: undefined,
-    status: '2',
+    status: STATUS_NORMAL,
     remark: undefined
   }),
   idKey: 'id',

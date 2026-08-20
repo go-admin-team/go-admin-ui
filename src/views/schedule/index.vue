@@ -184,6 +184,7 @@ import type { FormRules } from 'element-plus'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import FieldLabel from '@/components/FieldLabel/index.vue'
+import { STATUS_NORMAL } from '@/api/status'
 import { useTable, useForm, useRemove, useDict, dictLabel } from '@/composables'
 import { msgSuccess } from '@/utils/message'
 
@@ -225,7 +226,7 @@ const form = useForm<SysJob, number>({
     args: undefined,
     misfirePolicy: 1,
     concurrent: 0,
-    status: '2'
+    status: STATUS_NORMAL
   }),
   idKey: 'jobId',
   rules,

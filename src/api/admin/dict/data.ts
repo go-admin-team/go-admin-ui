@@ -1,6 +1,7 @@
 import request from '@/utils/request'
 import type { ApiResponse, DictOption, PageQuery, PageResult, Id } from '@/types/api'
 import type { SysDictData, SysDictDataQuery } from '@/types/admin'
+import { statusToWire, statusToForm } from '@/api/status'
 
 /** Dictionary entry endpoints. */
 
@@ -39,12 +40,12 @@ export function getDicts(dictType: string) {
  */
 const toWire = (data: SysDictData): Omit<SysDictData, 'status'> & { status: number } => ({
   ...data,
-  status: Number(data.status)
+  status: statusToWire(data.status)
 })
 
 const toForm = (data: SysDictData): SysDictData => ({
   ...data,
-  status: String(data.status ?? '2')
+  status: statusToForm(data.status)
 })
 
 /** getData with the record already shaped for a form. */

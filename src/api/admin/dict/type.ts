@@ -1,6 +1,7 @@
 import request from '@/utils/request'
 import type { ApiResponse, DictOption, PageQuery, PageResult, Id } from '@/types/api'
 import type { SysDictType, SysDictTypeQuery } from '@/types/admin'
+import { statusToWire, statusToForm } from '@/api/status'
 
 /** Dictionary type endpoints. */
 
@@ -29,12 +30,12 @@ export function getType(dictId: number) {
  */
 const toWire = (data: SysDictType): Omit<SysDictType, 'status'> & { status: number } => ({
   ...data,
-  status: Number(data.status)
+  status: statusToWire(data.status)
 })
 
 const toForm = (data: SysDictType): SysDictType => ({
   ...data,
-  status: String(data.status ?? '2')
+  status: statusToForm(data.status)
 })
 
 /** getType with the record already shaped for a form. */

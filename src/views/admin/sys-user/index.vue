@@ -305,6 +305,7 @@ import type { FormRules } from 'element-plus'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
+import { STATUS_NORMAL } from '@/api/status'
 import { useTable, useForm, useDict, useRemove } from '@/composables'
 import { msgSuccess } from '@/utils/message'
 
@@ -405,7 +406,7 @@ const userForm = useForm<SysUser, number>({
     phone: undefined,
     email: undefined,
     sex: undefined,
-    status: '2',
+    status: STATUS_NORMAL,
     remark: undefined,
     postId: undefined,
     roleId: undefined

@@ -155,6 +155,7 @@ import type { FormRules } from 'element-plus'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
+import { STATUS_NORMAL } from '@/api/status'
 import { useTable, useForm, useRemove, useDict, useTreePicker, dictLabel } from '@/composables'
 
 import { getDeptList, getDeptForForm, addDept, updateDept, delDept } from '@/api/admin/sys-dept'
@@ -201,7 +202,7 @@ const form = useForm<SysDept, number>({
     leader: undefined,
     phone: undefined,
     email: undefined,
-    status: '2'
+    status: STATUS_NORMAL
   }),
   idKey: 'deptId',
   rules,
