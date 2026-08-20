@@ -71,14 +71,32 @@ const streamUrl = () => {
   return url.toString()
 }
 
+/**
+ * How many lines the viewport keeps.
+ *
+ * A busy job can push thousands, and every one of them is a live DOM node with
+ * its own layout state -- which then makes each scrollHeight read more
+ * expensive than the last. A console keeps a window, not a transcript.
+ */
+const MAX_LINES = 2000
+
+let scrollQueued = false
+
 const append = (text: string) => {
   lines.value.push({
     id: seq++,
     at: new Date().toLocaleTimeString('zh-CN', { hour12: false }),
     text
   })
-  // Follow the tail, the way `tail -f` does
+  if (lines.value.length > MAX_LINES) lines.value.splice(0, lines.value.length - MAX_LINES)
+
+  // Follow the tail, the way `tail -f` does. One scroll per burst: a flush of a
+  // thousand messages would otherwise queue a thousand callbacks that each
+  // force a layout to land on the same final position.
+  if (scrollQueued) return
+  scrollQueued = true
   void nextTick(() => {
+    scrollQueued = false
     if (viewport.value) viewport.value.scrollTop = viewport.value.scrollHeight
   })
 }
