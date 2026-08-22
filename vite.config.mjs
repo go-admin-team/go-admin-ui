@@ -83,6 +83,13 @@ export default defineConfig(({ mode }) => {
           // 对应 Vue CLI 的 splitChunks：element-plus 与其余三方库分开打包
           manualChunks(id) {
             if (!id.includes('node_modules')) return
+            // The xlsx writer is reached only from the export button, behind a
+            // dynamic import. Naming it here would assign it to a chunk the
+            // entry already loads, which is what silently defeated that import
+            // for the writer this replaced: every visitor paid for it on first
+            // paint. Returning nothing leaves it to rollup, which puts a
+            // module reachable only asynchronously in an async chunk.
+            if (/[\\/](write-excel-file|fflate)[\\/]/.test(id)) return
             if (/[\\/]element-plus[\\/]/.test(id)) return 'chunk-elementPlus'
             return 'chunk-libs'
           },
