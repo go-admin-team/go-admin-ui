@@ -19,6 +19,32 @@ test.describe('app shell', () => {
     await expect(page).toHaveURL(/#\/login/)
   })
 
+  /**
+   * The sprite vite-plugin-svg-icons injects, not the <use> that points at it.
+   *
+   * Those two fail apart: a missing sprite leaves every `<use href="#icon-x">`
+   * in the DOM and every test green while the sidebar renders blank squares.
+   * The plugin's sprite builder, svg-baker, is unmaintained and pulls old
+   * transitive dependencies, so anything that forces those forward has to be
+   * checked here rather than at the build's exit code.
+   */
+  test('the svg sprite is injected and carries its symbols', async({ page, context }) => {
+    await authenticate(context)
+    await installApiMocks(page)
+
+    await page.goto('/#/demo/product')
+    await page.waitForSelector('.el-menu')
+
+    const sprite = page.locator('body > svg[id*="svg"], body > div[id*="svg"] svg').first()
+    await expect(sprite).toBeAttached()
+
+    const symbols = await page.locator('symbol[id^="icon-"]').count()
+    expect(symbols).toBeGreaterThan(50)
+
+    // And one the sidebar actually asks for
+    await expect(page.locator('symbol#icon-star')).toBeAttached()
+  })
+
   test('builds the sidebar from the backend menu', async({ page, context }) => {
     await authenticate(context)
     const { calls } = await installApiMocks(page)
