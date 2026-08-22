@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { authenticate, installApiMocks } from './fixtures'
 import { captureBodies } from './support/crud'
+import { readWorkbook, values } from './support/workbook'
 
 /**
  * The post page: a standard paginated list, migrated from the Options API.
@@ -133,5 +134,44 @@ test.describe('sys-post', () => {
     await expect(confirm).toContainText('当前列表')
     await confirm.getByRole('button', { name: '取消' }).click()
     await expect(confirm).toBeHidden()
+  })
+
+  /**
+   * The only test that reaches the writer itself.
+   *
+   * Everything up to here stops at the confirm, so the export button could go on
+   * downloading a corrupt workbook through a green suite -- which is the exact
+   * shape a writer swap fails in: same button, same dialog, same file name, and
+   * a file Excel refuses to open. The assertions are on the package and its
+   * cells, and deliberately not on how a particular writer spells them.
+   */
+  test('confirming the export downloads a readable workbook', async({ page }) => {
+    await installApiMocks(page)
+
+    await page.goto('/#/admin/sys-post')
+    await page.waitForSelector('.el-table')
+
+    await page.locator('.pro-table__toolbar').getByRole('button', { name: '导出' }).click()
+    const downloaded = page.waitForEvent('download')
+    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+
+    const download = await downloaded
+    expect(download.suggestedFilename()).toBe('岗位管理.xlsx')
+
+    const workbook = await readWorkbook(download)
+    expect(workbook.parts).toContain('[Content_Types].xml')
+    expect(workbook.parts).toContain('xl/workbook.xml')
+
+    // The heading row the page declares, then one row per row on screen
+    expect(values(workbook)).toEqual([
+      ['岗位编号', '岗位编码', '岗位名称', '排序', '创建时间'],
+      ['1', 'ceo', '董事长', '1', '2026-08-01T10:00:00Z'],
+      ['2', 'dev', '开发工程师', '2', '2026-08-02T10:00:00Z']
+    ])
+
+    // postId and sort are numbers in the fixture and have to stay numbers in the
+    // sheet, or Excel sorts 10 before 2 and the totals row a user adds is empty.
+    const [, first] = workbook.rows
+    expect(first.map(cell => cell.numeric)).toEqual([true, false, false, true, false])
   })
 })
