@@ -34,6 +34,12 @@ export default {
     }
   },
   emits: ['update:modelValue'],
+  data() {
+    return {
+      /** Timer handle for the pending listener registration; see addEventClick. */
+      pendingRegistration: 0
+    }
+  },
   computed: {
     ...mapState(useSettingsStore, ['theme']),
     show: {
@@ -61,6 +67,16 @@ export default {
     this.insertToBody()
   },
   beforeUnmount() {
+    // The listener is taken off by a click that lands outside the panel -- and
+    // closing with the ✕ is a click inside it, so that path deliberately leaves
+    // it registered. The drawer sits behind `v-if="showSettings"`, so the
+    // component can go away while it is still attached: without this it stays
+    // on window for the rest of the session, firing on every click and holding
+    // an unmounted instance. Clearing the timer matters too, or a registration
+    // already in flight lands after the cleanup has run.
+    clearTimeout(this.pendingRegistration)
+    window.removeEventListener('click', this.closeSidebar)
+
     const elx = this.$refs.rightPanel
     elx.remove()
   },
@@ -70,7 +86,13 @@ export default {
       // that same click reaches this listener, closest('.rightPanel') does not
       // match the trigger outside the drawer, and it closes in the tick it
       // opened.
-      setTimeout(() => window.addEventListener('click', this.closeSidebar), 0)
+      //
+      // Reopening schedules another of these, but every one passes the same
+      // bound method and the DOM keeps one registration per (type, callback)
+      // pair -- so they do not stack up. The handle is kept for beforeUnmount.
+      this.pendingRegistration = setTimeout(
+        () => window.addEventListener('click', this.closeSidebar), 0
+      )
     },
     closeSidebar(evt) {
       const parent = evt.target.closest('.rightPanel')
