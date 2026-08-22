@@ -19,6 +19,9 @@
 </template>
 
 <script>
+import { mapState } from 'pinia'
+import { useTagsViewStore } from '@/stores/tagsView'
+
 export default {
   name: 'RouterViewKeepAlive',
   props: {
@@ -29,9 +32,7 @@ export default {
     }
   },
   computed: {
-    cachedViews() {
-      return this.$store.state.tagsView.cachedViews
-    }
+    ...mapState(useTagsViewStore, ['cachedViews'])
   }
 }
 </script>

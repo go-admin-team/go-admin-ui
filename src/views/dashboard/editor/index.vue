@@ -18,7 +18,8 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'pinia'
+import { useUserStore } from '@/stores/user'
 import PanThumb from '@/components/PanThumb'
 import GithubCorner from '@/components/GithubCorner'
 
@@ -31,7 +32,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters([
+    ...mapState(useUserStore, [
       'name',
       'avatar',
       'roles'

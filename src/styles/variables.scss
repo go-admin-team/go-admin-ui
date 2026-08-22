@@ -1,43 +1,33 @@
-// base color
-$blue:#324157;
-$light-blue:#3A71A8;
-$red:#C03639;
-$pink: #E65D6E;
-$green: #30B08F;
-$tiffany: #4AB7BD;
-$yellow:#FEC171;
-$panGreen: #30B08F;
+// ══════════════════════════════════════════════════════════════════
+//  SCSS variables for the sidebar.
+//
+//  These are thin aliases over the design tokens in styles/tokens.css rather
+//  than literal colours, so the sidebar follows the light/dark switch like
+//  everything else. `background-color: $menuBg` compiles to
+//  `background-color: var(--ga-sidebar-bg)`.
+//
+//  They stay SCSS variables because variables.module.scss re-exports them for
+//  components that build inline styles in JavaScript; a `var(...)` string works
+//  perfectly well there, the browser resolves it at paint time.
+//
+//  Add new colours to tokens.css, not here.
+// ══════════════════════════════════════════════════════════════════
 
-// sidebar — Ant Design Pro 经典深蓝配色
-$menuActiveText:#1677ff;
-$subMenuActiveText:#69b1ff;
+// Dark sidebar (the default themeStyle)
+$menuBg: var(--ga-sidebar-bg);
+$menuHover: var(--ga-sidebar-hover);
+$subMenuBg: var(--ga-sidebar-bg-sub);
+$subMenuHover: var(--ga-sidebar-hover);
+$sidebarTitle: var(--ga-sidebar-title);
 
-$menuBg:#001529;
-$menuHover:#000c17;
-$sidebarTitle: #ffffff;
+// Light sidebar
+$menuLightBg: var(--ga-sidebar-light-bg);
+$menuLightHover: var(--ga-sidebar-light-hover);
+$sidebarLightTitle: var(--ga-sidebar-light-title);
 
-$menuLightBg:#ffffff;
-$menuLightHover:#e6f4ff;
-$sidebarLightTitle: #001d66;
+// Active states, shared by both
+$menuActiveText: var(--ga-brand);
+$subMenuActiveText: var(--el-color-primary-light-3);
 
-$subMenuBg:#000c17;
-$subMenuHover:#001528;
-
+// Layout metric, not a colour -- a real value, since it is used in calc()
 $sideBarWidth: 210px;
-
-// the :export directive is the magic sauce for webpack
-// https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass
-:export {
-  // menuText: $menuText;
-  menuActiveText: $menuActiveText;
-  subMenuActiveText: $subMenuActiveText;
-  menuBg: $menuBg;
-  menuHover: $menuHover;
-  menuLightBg: $menuLightBg;
-  menuLightHover: $menuLightHover;
-  subMenuBg: $subMenuBg;
-  subMenuHover: $subMenuHover;
-  sideBarWidth: $sideBarWidth;
-  sidebarTitle: $sidebarTitle;
-  sidebarLightTitle: $sidebarLightTitle
-}

@@ -5,15 +5,18 @@
 </template>
 
 <script>
+import { mapState } from 'pinia'
 import RouterViewKeepAlive from './RouterViewKeepAlive'
+import { useSettingsStore } from '@/stores/settings'
 
 export default {
   name: 'AppMain',
   components: { RouterViewKeepAlive },
   computed: {
+    ...mapState(useSettingsStore, ['fixedHeader', 'tagsView']),
     appMainStyle() {
-      if (!this.$store.state.settings.fixedHeader) return {}
-      const headerHeight = 50 + (this.$store.state.settings.tagsView ? 40 : 0)
+      if (!this.fixedHeader) return {}
+      const headerHeight = 50 + (this.tagsView ? 40 : 0)
       return { paddingTop: headerHeight + 'px' }
     }
   }
@@ -26,7 +29,7 @@ export default {
   width: 100%;
   position: relative;
   overflow: hidden;
-  background-color: #f0f2f5;
+  background-color: var(--ga-bg-body);
 }
 </style>
 

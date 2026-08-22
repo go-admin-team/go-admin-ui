@@ -1,9 +1,9 @@
-import store from '@/store'
+import { useUserStore } from '@/stores/user'
 
 export default {
   mounted(el, binding, vnode) {
     const { value } = binding
-    const roles = store.getters && store.getters.roles
+    const roles = useUserStore().roles
 
     if (value && value instanceof Array && value.length > 0) {
       const permissionRoles = value

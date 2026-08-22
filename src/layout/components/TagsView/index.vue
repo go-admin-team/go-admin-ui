@@ -41,7 +41,11 @@
 </template>
 
 <script>
+import { mapState } from 'pinia'
 import path from 'path'
+import { useSettingsStore } from '@/stores/settings'
+import { useTagsViewStore } from '@/stores/tagsView'
+import { usePermissionStore } from '@/stores/permission'
 
 export default {
   data() {
@@ -55,15 +59,9 @@ export default {
     }
   },
   computed: {
-    visitedViews() {
-      return this.$store.state.tagsView.visitedViews
-    },
-    routes() {
-      return this.$store.state.permission.routes
-    },
-    theme() {
-      return this.$store.state.settings.theme
-    }
+    ...mapState(useTagsViewStore, ['visitedViews']),
+    ...mapState(usePermissionStore, ['routes']),
+    ...mapState(useSettingsStore, ['theme'])
   },
   watch: {
     $route() {
@@ -105,20 +103,20 @@ export default {
       // 页面初始化加载判断缓存中是否有数据
       const oldViews = JSON.parse(sessionStorage.getItem('tabViews')) || []
       if (oldViews.length > 0) {
-        this.$store.state.tagsView.visitedViews = oldViews
+        useTagsViewStore().setVisitedViews(oldViews)
       }
     },
     handleTagsOver(index) {
       const tags = document.querySelectorAll('.tags-item')
       const item = tags[index - 1]
-      item.style.cssText = `color:${this.$store.state.settings.theme};background:${
-        this.$store.state.settings.theme.colorRgb()
+      item.style.cssText = `color:${this.theme};background:${
+        this.theme.colorRgb()
       }`
     },
     handleTagsLeave(index) {
       const tags = document.querySelectorAll('.tags-item')
       const item = tags[index - 1]
-      item.style.cssText = `color:#606266`
+      item.style.cssText = `color:var(--ga-text-2)`
     },
     isActive() {
       const index = this.visitedViews.findIndex(item => item.fullPath === this.$route.fullPath)
@@ -154,14 +152,14 @@ export default {
       for (const tag of affixTags) {
         // Must have tag name
         if (tag.name) {
-          this.$store.dispatch('tagsView/addVisitedView', tag)
+          useTagsViewStore().addVisitedView(tag)
         }
       }
     },
     addTags() {
       const { name } = this.$route
       if (name) {
-        this.$store.dispatch('tagsView/addView', this.$route)
+        useTagsViewStore().addView(this.$route)
         this.isActive()
       }
       return false
@@ -174,7 +172,7 @@ export default {
             // this.$refs.scrollPane.moveToTarget(tag)
             // when query is different then update
             if (tag.to.fullPath !== this.$route.fullPath) {
-              this.$store.dispatch('tagsView/updateVisitedView', this.$route)
+              useTagsViewStore().updateVisitedView(this.$route)
             }
             break
           }
@@ -182,12 +180,11 @@ export default {
       })
     },
     refreshSelectedTag(view) {
-      this.$store.dispatch('tagsView/delCachedView', view).then(() => {
-        const { fullPath } = view
-        this.$nextTick(() => {
-          this.$router.replace({
-            path: '/redirect' + fullPath
-          })
+      useTagsViewStore().delCachedView(view)
+      const { fullPath } = view
+      this.$nextTick(() => {
+        this.$router.replace({
+          path: '/redirect' + fullPath
         })
       })
     },
@@ -196,26 +193,23 @@ export default {
       const index = this.visitedViews.findIndex(item => item.fullPath === routerPath)
       if (index > -1) {
         const path = this.visitedViews[index]
-        this.$store.dispatch('tagsView/delView', path).then(({ visitedViews }) => {
-          if (this.editableTabsValue === path.fullPath) {
-            this.toLastView(visitedViews, path)
-          }
-        })
+        const { visitedViews } = useTagsViewStore().delView(path)
+        if (this.editableTabsValue === path.fullPath) {
+          this.toLastView(visitedViews, path)
+        }
       }
     },
     closeOthersTags() {
       this.$router.push(this.selectedTag.path).catch(e => e)
-      this.$store.dispatch('tagsView/delOthersViews', this.selectedTag).then(() => {
-        this.moveToCurrentTag()
-      })
+      useTagsViewStore().delOthersViews(this.selectedTag)
+      this.moveToCurrentTag()
     },
     closeAllTags(view) {
-      this.$store.dispatch('tagsView/delAllViews').then(({ visitedViews }) => {
-        if (this.affixTags.some(tag => tag.path === view.path)) {
-          return
-        }
-        this.toLastView(visitedViews, view)
-      })
+      const { visitedViews } = useTagsViewStore().delAllViews()
+      if (this.affixTags.some(tag => tag.path === view.path)) {
+        return
+      }
+      this.toLastView(visitedViews, view)
     },
     toLastView(visitedViews, view) {
       const latestView = visitedViews.slice(-1)[0]
@@ -282,9 +276,9 @@ String.prototype.colorRgb = function() {
 .tags-view-container {
   height: 40px;
   width: 100%;
-  background: #fff;
-  border-bottom: 1px solid #e8eaec;
-  box-shadow: 0 1px 4px 0 rgba(0, 21, 41, 0.08);
+  background: var(--ga-bg-container);
+  border-bottom: 1px solid var(--ga-border-light);
+  box-shadow: var(--ga-shadow-sm);
   padding: 0 8px;
   box-sizing: border-box;
   display: flex;
@@ -323,27 +317,27 @@ String.prototype.colorRgb = function() {
     height: 32px;
     line-height: 32px;
     font-size: 12px;
-    color: #606266;
-    border: 1px solid #e0e0e6 !important;
+    color: var(--ga-text-2);
+    border: 1px solid var(--ga-border) !important;
     border-radius: 3px 3px 0 0;
     margin-right: 3px;
     padding: 0 10px !important;
-    background: #f8f9fa;
+    background: var(--ga-bg-subtle);
     transition: color 0.2s, background 0.2s;
 
     &:first-child { margin-left: 4px; }
 
     &.is-active {
-      color: #1677ff;
-      background: #fff;
-      border-color: #91caff !important;
-      border-bottom-color: #fff !important;
+      color: var(--ga-brand);
+      background: var(--ga-bg-container);
+      border-color: var(--el-color-primary-light-5) !important;
+      border-bottom-color: var(--ga-bg-container) !important;
       font-weight: 500;
     }
 
     &:not(.is-active):hover {
-      color: #1677ff;
-      background: #e6f4ff;
+      color: var(--ga-brand);
+      background: var(--el-color-primary-light-9);
     }
 
     .is-icon-close {
@@ -353,7 +347,7 @@ String.prototype.colorRgb = function() {
       line-height: 14px;
       border-radius: 50%;
       &:hover {
-        background-color: #c0c4cc;
+        background-color: var(--ga-text-3);
         color: #fff;
       }
     }
@@ -362,16 +356,16 @@ String.prototype.colorRgb = function() {
   // 右键菜单
   .contextmenu {
     margin: 0;
-    background: #fff;
+    background: var(--ga-bg-container);
     z-index: 3000;
     position: fixed;
     list-style-type: none;
     padding: 4px 0;
     border-radius: 4px;
     font-size: 12px;
-    color: #333;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-    border: 1px solid #e4e7ed;
+    color: var(--ga-text-1);
+    box-shadow: var(--ga-shadow-lg);
+    border: 1px solid var(--ga-border);
     user-select: none;
 
     li {
@@ -380,12 +374,12 @@ String.prototype.colorRgb = function() {
       padding: 0 16px;
       margin: 0;
       font-size: 13px;
-      color: #606266;
+      color: var(--ga-text-2);
       cursor: pointer;
 
       &:hover {
-        background: #e6f4ff;
-        color: #1677ff;
+        background: var(--el-color-primary-light-9);
+        color: var(--ga-brand);
       }
     }
   }
@@ -410,7 +404,7 @@ String.prototype.colorRgb = function() {
         vertical-align: -3px;
       }
       &:hover {
-        background-color: #b4bccc;
+        background-color: var(--ga-text-3);
         color: #fff;
       }
     }

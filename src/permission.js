@@ -1,5 +1,6 @@
 import router from './router'
-import store from './store'
+import { useUserStore } from '@/stores/user'
+import { usePermissionStore } from '@/stores/permission'
 import { ElMessage } from 'element-plus'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
@@ -27,17 +28,18 @@ router.beforeEach(async(to, from, next) => {
       NProgress.done()
     } else {
       // determine whether the user has obtained his permission roles through getInfo
-      const hasRoles = store.getters.roles && store.getters.roles.length > 0
+      const hasRoles = useUserStore().roles.length > 0
       if (hasRoles) {
         next()
       } else {
         try {
-          // get user info
-          // note: roles must be a object array! such as: ['admin'] or ,['developer','editor']
-          const { roles } = await store.dispatch('user/getInfo')
+          // get user info; roles land on the store rather than being threaded
+          // through, since generateRoutes reads the menu the backend already
+          // filtered for this user
+          await useUserStore().getInfo()
 
           // generate accessible routes map based on roles
-          const accessRoutes = await store.dispatch('permission/generateRoutes', roles)
+          const accessRoutes = await usePermissionStore().generateRoutes()
 
           // dynamically add accessible routes
           accessRoutes.forEach(route => router.addRoute(route))
@@ -45,10 +47,20 @@ router.beforeEach(async(to, from, next) => {
           // hack method to ensure that addRoutes is complete
           // set the replace: true, so the navigation will not leave a history record
           next({ ...to, replace: true })
-        } catch (error) {
+        } catch(error) {
           // remove token and go to login page to re-login
           // await store.dispatch('user/resetToken')
-          ElMessage.error(error || 'Has Error')
+          // Only report what nobody has reported yet. An HTTP failure here has
+          // already produced a toast from the response interceptor; the one
+          // failure this catch knows about on its own is a client-side throw,
+          // such as getInfo's "roles must be a non-null array".
+          //
+          // The message is read off `.message` rather than passed as the error:
+          // ElMessage treats a non-string argument as its options bag, and an
+          // Error's `message` is non-enumerable, so the toast came out empty.
+          if (!error?.reported) {
+            ElMessage.error(error?.message || 'Has Error')
+          }
           next(`/login?redirect=${to.path}`)
           NProgress.done()
         }

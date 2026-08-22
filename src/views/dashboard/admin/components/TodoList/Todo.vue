@@ -25,7 +25,6 @@
 <script>
 export default {
   name: 'TodoItem',
-  emits: ['deleteTodo', 'editTodo', 'toggleTodo'],
   directives: {
     focus(el, { value }, { context }) {
       if (value) {
@@ -43,6 +42,7 @@ export default {
       }
     }
   },
+  emits: ['deleteTodo', 'editTodo', 'toggleTodo'],
   data() {
     return {
       editing: false

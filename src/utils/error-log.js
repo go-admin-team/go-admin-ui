@@ -1,5 +1,5 @@
 import { nextTick } from 'vue'
-import store from '@/store'
+import { useErrorLogStore } from '@/stores/errorLog'
 import { isString, isArray } from '@/utils/validate'
 import settings from '@/settings'
 
@@ -25,7 +25,9 @@ export function setupErrorHandler(app) {
       // Don't ask me why I use nextTick, it just a hack.
       // detail see https://forum.vuejs.org/t/dispatch-in-vue-config-errorhandler-has-some-problem/23500
       nextTick(() => {
-        store.dispatch('errorLog/addErrorLog', {
+        // Resolved lazily: setupErrorHandler runs before app.use(pinia), so the
+        // store cannot be obtained at module scope.
+        useErrorLogStore().addErrorLog({
           err,
           vm,
           info,

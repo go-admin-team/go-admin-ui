@@ -47,6 +47,9 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'pinia'
+import { useErrorLogStore } from '@/stores/errorLog'
+
 export default {
   name: 'ErrorLog',
   data() {
@@ -55,14 +58,15 @@ export default {
     }
   },
   computed: {
-    errorLogs() {
-      return this.$store.getters.errorLogs
-    }
+    // Pinia's mapState works in the Options API, so consuming a ported store
+    // does not force this component to move to <script setup> yet.
+    ...mapState(useErrorLogStore, { errorLogs: 'logs' })
   },
   methods: {
+    ...mapActions(useErrorLogStore, ['clearErrorLog']),
     clearAll() {
       this.dialogTableVisible = false
-      this.$store.dispatch('errorLog/clearErrorLog')
+      this.clearErrorLog()
     }
   }
 }

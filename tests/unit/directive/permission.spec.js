@@ -1,13 +1,15 @@
 import { mount } from '@vue/test-utils'
 import permission from '@/directive/permission/permission'
-
-jest.mock('@/store', () => ({
-  getters: {
-    roles: ['editor']
-  }
-}))
+import { setActivePinia, createPinia } from 'pinia'
+import { useUserStore } from '@/stores/user'
 
 // 指令通过 el.parentNode.removeChild(el) 移除元素，因此被测元素必须有父节点
+// The directive reads the real store, so seed it instead of mocking the module
+beforeEach(() => {
+  setActivePinia(createPinia())
+  useUserStore().roles = ['editor']
+})
+
 const factory = value =>
   mount(
     {
@@ -15,7 +17,7 @@ const factory = value =>
       data: () => ({ value })
     },
     {
-      global: { directives: { permission } }
+      global: { directives: { permission }}
     }
   )
 

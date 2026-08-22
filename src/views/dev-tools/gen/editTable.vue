@@ -2,7 +2,7 @@
   <el-card>
     <el-tabs v-model="activeName">
       <el-tab-pane label="基本信息" name="basic">
-        <basic-info-form ref="basicInfo" :info="info" />
+        <BasicInfoForm ref="basicForm" v-model="info" />
       </el-tab-pane>
       <el-tab-pane label="字段信息" name="cloum">
         <el-alert
@@ -10,7 +10,7 @@
           type="warning"
           show-icon
         />
-        <el-table :data="columns" :max-height="tableHeight" style="width: 100%">
+        <el-table :data="columns" max-height="calc(100vh - 300px)" style="width: 100%">
           <el-table-column fixed label="序号" type="index" width="50" />
           <el-table-column
             fixed
@@ -53,22 +53,26 @@
 
           <el-table-column label="编辑" width="50">
             <template #default="scope">
-              <el-checkbox v-model="scope.row.isInsert" true-label="1" false-label="0" />
+              <el-checkbox v-model="scope.row.isInsert" true-value="1" false-value="0" />
             </template>
           </el-table-column>
-          <!-- <el-table-column label="编辑" width="70" :render-header="renderHeadeUpdate" :cell-style="{'text-align':'center'}">
-            <template v-slot="scope">
-              <el-checkbox v-model="scope.row.isEdit" true-label="1" false-label="0" />
-            </template>
-          </el-table-column> -->
-          <el-table-column label="列表" width="70" :render-header="renderHeadeList" :cell-style="{'text-align':'center'}">
+          <!--
+            #header, not :render-header. The render functions this replaces were
+            Vue 2 syntax -- h('el-popover', { props }) with slot: 'reference' --
+            which throws under Vue 3, and one throwing header renderer takes the
+            whole header row with it: the table rendered with zero <th> and no
+            column labels at all.
+          -->
+          <el-table-column label="列表" width="80" align="center">
+            <template #header><FieldLabel label="列表" tip="是否在列表中展示，打勾表示展示" /></template>
             <template #default="scope">
-              <el-checkbox v-model="scope.row.isList" true-label="1" false-label="0" />
+              <el-checkbox v-model="scope.row.isList" true-value="1" false-value="0" />
             </template>
           </el-table-column>
-          <el-table-column label="查询" width="70" :render-header="renderHeadeSearch" :cell-style="{'text-align':'center'}">
+          <el-table-column label="查询" width="80" align="center">
+            <template #header><FieldLabel label="查询" tip="是否作为搜索条件，打勾表示作为条件" /></template>
             <template #default="scope">
-              <el-checkbox v-model="scope.row.isQuery" true-label="1" false-label="0" />
+              <el-checkbox v-model="scope.row.isQuery" true-value="1" false-value="0" />
             </template>
           </el-table-column>
           <el-table-column label="查询方式" width="120">
@@ -87,7 +91,7 @@
           </el-table-column>
           <el-table-column label="必填" width="50">
             <template #default="scope">
-              <el-checkbox v-model="scope.row.isRequired" true-label="1" />
+              <el-checkbox v-model="scope.row.isRequired" true-value="1" false-value="0" />
             </template>
           </el-table-column>
           <el-table-column label="显示类型" width="140">
@@ -121,7 +125,7 @@
           </el-table-column>
           <el-table-column label="关系表" width="160">
             <template #default="scope">
-              <el-select v-model="scope.row.fkTableName" clearable filterable placeholder="请选择" @change="handleChangeConfig(scope.row,scope.$index)">
+              <el-select v-model="scope.row.fkTableName" clearable filterable placeholder="请选择" @change="attachForeignColumns(scope.row)">
                 <el-option
                   v-for="table in tableTree"
                   :key="table.tableName"
@@ -167,182 +171,123 @@
         </el-table>
       </el-tab-pane>
       <el-tab-pane label="生成信息" name="genInfo">
-        <gen-info-form ref="genInfo" :info="info" />
+        <GenInfoForm ref="genForm" v-model="info" />
       </el-tab-pane>
     </el-tabs>
     <el-form label-width="100px">
       <el-form-item style="text-align: center;margin-left:-100px;margin-top:10px;">
-        <el-button type="primary" @click="submitForm()">提交</el-button>
         <el-button @click="close()">返回</el-button>
+        <el-button type="primary" :loading="saving" @click="submit()">提交</el-button>
       </el-form-item>
     </el-form>
   </el-card>
 </template>
-<script>
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
+import FieldLabel from '@/components/FieldLabel/index.vue'
+import BasicInfoForm from './basicInfoForm.vue'
+import GenInfoForm from './genInfoForm.vue'
+import { useTagsViewStore } from '@/stores/tagsView'
+import { msgSuccess, msgError } from '@/utils/message'
+
 import { getGenTable, updateGenTable, getTableTree } from '@/api/tools/gen'
-// import { listTable } from '@/api/tools/gen'
 import { optionselect as getDictOptionselect } from '@/api/admin/dict/type'
-import basicInfoForm from './basicInfoForm'
-import genInfoForm from './genInfoForm'
-export default {
-  name: 'EditTable',
-  components: {
-    basicInfoForm,
-    genInfoForm
-  },
-  data() {
-    return {
-      // 选中选项卡的 name
-      activeName: 'cloum',
-      // 表格的高度
-      tableHeight: document.documentElement.scrollHeight - 245 + 'px',
-      // 表列信息
-      columns: [],
-      tableTree: [],
-      // 字典信息
-      dictOptions: [],
-      // 表详细信息
-      info: {}
+import type { GenTable } from '@/api/tools/gen'
+import type { SysDictType } from '@/types/admin'
+
+// Must match the menu_name the backend serves, or keep-alive silently misses
+defineOptions({ name: 'EditTable' })
+
+const route = useRoute()
+const router = useRouter()
+
+const activeName = ref('cloum')
+const columns = ref<GenTable[]>([])
+const tableTree = ref<GenTable[]>([])
+const dictOptions = ref<SysDictType[]>([])
+const saving = ref(false)
+
+/**
+ * One record shared with both tabs through v-model, rather than a prop each of
+ * them copies. `info` starts as an empty object so the forms have something to
+ * bind before the request lands.
+ */
+const info = ref<GenTable>({})
+
+const basicForm = ref<{ validate: () => Promise<unknown> }>()
+const genForm = ref<{ validate: () => Promise<unknown> }>()
+
+/** The relation pickers offer the columns of whichever table a row points at. */
+const attachForeignColumns = (row: GenTable) => {
+  const target = tableTree.value.find(item => item.tableName === row.fkTableName)
+  row.fkCol = target?.columns ?? [{ columnId: 0, columnName: '请选择' }]
+}
+
+const load = async() => {
+  const tableId = Number(route.query.tableId)
+  if (!tableId) return
+  try {
+    const [tree, detail, dicts] = await Promise.all([
+      getTableTree(),
+      getGenTable(tableId),
+      getDictOptionselect()
+    ])
+    tableTree.value = [{ tableId: 0, className: '请选择' }, ...(tree.data ?? [])]
+    columns.value = detail.data?.list ?? []
+    // The three flags arrive as booleans and the radio groups work in strings
+    const loaded = (detail.data?.info ?? {}) as GenTable
+    info.value = {
+      ...loaded,
+      isDataScope: String(loaded.isDataScope ?? ''),
+      isActions: String(loaded.isActions ?? ''),
+      isAuth: String(loaded.isAuth ?? '')
     }
-  },
+    columns.value.forEach(attachForeignColumns)
+    dictOptions.value = (dicts.data ?? []) as unknown as SysDictType[]
+  } catch {
+    // Reported by the interceptor
+  }
+}
 
-  beforeCreate() {
-    getTableTree().then(response => {
-      this.tableTree = response.data
-      this.tableTree.unshift({ tableId: 0, className: '请选择' })
-    })
-    const { tableId } = this.$route.query
-    if (tableId) {
-      // 获取表详细信息
-      getGenTable(tableId).then(res => {
-        this.columns = res.data.list
-        this.info = res.data.info
+onMounted(load)
 
-        this.info.isDataScope = this.info.isDataScope.toString()
-        this.info.isActions = this.info.isActions.toString()
-        this.info.isAuth = this.info.isAuth.toString()
+const close = () => {
+  useTagsViewStore().delView(route)
+  return router.push({ path: '/dev-tools/gen', query: { t: String(Date.now()) }})
+}
 
-        this.columns.forEach(item => {
-          this.tableTree.filter(function(e) {
-            if (e.tableId === item.fkTableNameClass) {
-              item.fkCol = e.columns || [{ columnId: 0, columnName: '请选择' }]
-              // item.fkCol.unshift({ columnId: 0, columnName: '请选择' })
-            }
-          })
-        })
-      })
+const submit = async() => {
+  if (saving.value) return
+  const results = await Promise.all([basicForm.value?.validate(), genForm.value?.validate()])
+  if (!results.every(Boolean)) {
+    msgError('表单校验未通过，请重新检查提交内容')
+    return
+  }
 
-      /** 查询字典下拉列表 */
-      getDictOptionselect().then(response => {
-        this.dictOptions = response.data
-      })
+  saving.value = true
+  try {
+    const payload: GenTable = {
+      ...info.value,
+      columns: columns.value,
+      params: {
+        treeCode: info.value.treeCode,
+        treeName: info.value.treeName,
+        treeParentCode: info.value.treeParentCode
+      },
+      // Back to booleans for the wire
+      isDataScope: info.value.isDataScope === 'true',
+      isActions: info.value.isActions === 'true',
+      isAuth: info.value.isAuth === 'true'
     }
-  },
-  methods: {
-    renderHeadeUpdate(h, { column, $index }) {
-      // h 是一个渲染函数       column 是一个对象表示当前列      $index 第几列
-      return h('div', [
-        h('span', column.label + '  ', { align: 'center', marginTop: '0px' }),
-        h(
-          'el-popover',
-          { props: { placement: 'top-start', width: '270', trigger: 'hover' }},
-          [
-            h('p', '是否在表单编辑时能够编辑，打√表示需要', { class: 'text-align: center; margin: 0' }),
-            // 生成 i 标签 ，添加icon 设置 样式，slot 必填
-            h('i', { class: 'ri-question-line', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
-          ]
-        )
-      ])
-    },
-    renderHeadeList(h, { column, $index }) {
-      // h 是一个渲染函数       column 是一个对象表示当前列      $index 第几列
-      return h('div', [
-        h('span', column.label + '  ', { align: 'center', marginTop: '0px' }),
-        h(
-          'el-popover',
-          { props: { placement: 'top-start', width: '260', trigger: 'hover' }},
-          [
-            h('p', '是否在列表中展示，打√表示需要展示', { class: 'text-align: center; margin: 0' }),
-            h('i', { class: 'ri-question-line', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
-          ]
-        )
-      ])
-    },
-    renderHeadeSearch(h, { column, $index }) {
-      return h('div', [
-        h('span', column.label + '  ', { align: 'center', marginTop: '0px' }),
-        h(
-          'el-popover',
-          { props: { placement: 'top-start', width: '270', trigger: 'hover' }},
-          [
-            h('p', '是都当做搜索条件，打√表示做为搜索条件', { class: 'text-align: center; margin: 0' }),
-            h('i', { class: 'ri-question-line', style: 'color:#ccc,padding-top:5px', slot: 'reference' })
-          ]
-        )
-      ])
-    },
-    handleChangeConfig(row, index) {
-      this.tableTree.filter(function(item) {
-        if (item.tableName === row.fkTableName) {
-          row.fkCol = item.columns
-          // row.fkCol.unshift({ columnId: 0, columnName: '请选择' })
-        }
-      })
-    },
-    /** 提交按钮 */
-    submitForm() {
-      const basicForm = this.$refs.basicInfo.$refs.basicInfoForm
-      const genForm = this.$refs.genInfo.$refs.genInfoForm
-
-      Promise.all([basicForm, genForm].map(this.getFormPromise)).then(res => {
-        const validateResult = res.every(item => !!item)
-        if (validateResult) {
-          const genTable = Object.assign({}, basicForm.model, genForm.model)
-          genTable.columns = this.columns
-          genTable.params = {
-            treeCode: genTable.treeCode,
-            treeName: genTable.treeName,
-            treeParentCode: genTable.treeParentCode
-          }
-          genTable.isDataScope = JSON.parse(genTable.isDataScope)
-          genTable.isActions = JSON.parse(genTable.isActions)
-          genTable.isAuth = JSON.parse(genTable.isAuth)
-          updateGenTable(genTable).then(res => {
-            this.msgSuccess(res.msg)
-            if (res.code === 200) {
-              this.close()
-            }
-          })
-        } else {
-          this.msgError('表单校验未通过，请重新检查提交内容')
-        }
-      })
-    },
-    getTables() {
-      getTableTree().then(response => {
-        this.tableTree = response.data
-        this.tableTree.unshift({ tableId: 0, className: '请选择' })
-      })
-    },
-    getTablesCol(tableName) {
-      return this.tableTree.filter(function(item) {
-        if (item.tableName === tableName) {
-          return item.columns
-        }
-      })
-    },
-    getFormPromise(form) {
-      return new Promise(resolve => {
-        form.validate(res => {
-          resolve(res)
-        })
-      })
-    },
-    /** 关闭按钮 */
-    close() {
-      this.$store.dispatch('tagsView/delView', this.$route)
-      this.$router.push({ path: '/dev-tools/gen', query: { t: Date.now() }})
-    }
+    const response = await updateGenTable(payload)
+    msgSuccess(response.msg || '保存成功')
+    await close()
+  } catch {
+    // Reported by the interceptor
+  } finally {
+    saving.value = false
   }
 }
 </script>

@@ -2,8 +2,11 @@
   <div ref="rightPanel" :class="{show:show}" class="rightPanel-container">
     <div class="rightPanel-background" />
     <div class="rightPanel">
-      <div class="handle-button" :style="{'top':buttonTop+'px','background-color':theme}" @click="show=!show">
-        <i :class="show?'ri-close-line':'ri-settings-line'" />
+      <div class="rightPanel-head">
+        <span class="rightPanel-title">系统布局配置</span>
+        <button type="button" class="rightPanel-close" title="关闭" @click="show = false">
+          <i class="ri-close-line" />
+        </button>
       </div>
       <div class="rightPanel-items">
         <slot />
@@ -13,28 +16,39 @@
 </template>
 
 <script>
+import { mapState } from 'pinia'
 import { addClass, removeClass } from '@/utils'
+import { useSettingsStore } from '@/stores/settings'
 
 export default {
   name: 'RightPanel',
   props: {
-    clickNotClose: {
+    /** Drawer visibility. Owned by the layout, toggled from the navbar. */
+    modelValue: {
       default: false,
       type: Boolean
     },
-    buttonTop: {
-      default: 250,
-      type: Number
+    clickNotClose: {
+      default: false,
+      type: Boolean
     }
   },
+  emits: ['update:modelValue'],
   data() {
     return {
-      show: false
+      /** Timer handle for the pending listener registration; see addEventClick. */
+      pendingRegistration: 0
     }
   },
   computed: {
-    theme() {
-      return this.$store.state.settings.theme
+    ...mapState(useSettingsStore, ['theme']),
+    show: {
+      get() {
+        return this.modelValue
+      },
+      set(value) {
+        this.$emit('update:modelValue', value)
+      }
     }
   },
   watch: {
@@ -53,12 +67,32 @@ export default {
     this.insertToBody()
   },
   beforeUnmount() {
+    // The listener is taken off by a click that lands outside the panel -- and
+    // closing with the ✕ is a click inside it, so that path deliberately leaves
+    // it registered. The drawer sits behind `v-if="showSettings"`, so the
+    // component can go away while it is still attached: without this it stays
+    // on window for the rest of the session, firing on every click and holding
+    // an unmounted instance. Clearing the timer matters too, or a registration
+    // already in flight lands after the cleanup has run.
+    clearTimeout(this.pendingRegistration)
+    window.removeEventListener('click', this.closeSidebar)
+
     const elx = this.$refs.rightPanel
     elx.remove()
   },
   methods: {
     addEventClick() {
-      window.addEventListener('click', this.closeSidebar)
+      // Registered after the opening click has finished propagating. Otherwise
+      // that same click reaches this listener, closest('.rightPanel') does not
+      // match the trigger outside the drawer, and it closes in the tick it
+      // opened.
+      //
+      // Reopening schedules another of these, but every one passes the same
+      // bound method and the DOM keeps one registration per (type, callback)
+      // pair -- so they do not stack up. The handle is kept for beforeUnmount.
+      this.pendingRegistration = setTimeout(
+        () => window.addEventListener('click', this.closeSidebar), 0
+      )
     },
     closeSidebar(evt) {
       const parent = evt.target.closest('.rightPanel')
@@ -105,7 +139,7 @@ export default {
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, .05);
   transition: all .25s cubic-bezier(.7, .3, .1, 1);
   transform: translate(100%);
-  background: #fff;
+  background: var(--ga-bg-container);
   z-index: 40000;
 }
 
@@ -124,22 +158,38 @@ export default {
   }
 }
 
-.handle-button {
-  width: 48px;
-  height: 48px;
-  position: absolute;
-  left: -48px;
-  text-align: center;
-  font-size: 24px;
-  border-radius: 6px 0 0 6px !important;
-  z-index: 0;
-  pointer-events: auto;
+.rightPanel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ga-border-light);
+}
+
+.rightPanel-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ga-text-1);
+}
+
+.rightPanel-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--ga-radius-sm);
+  background: transparent;
+  color: var(--ga-text-2);
+  font-size: 18px;
   cursor: pointer;
-  color: #fff;
-  line-height: 48px;
-  i {
-    font-size: 24px;
-    line-height: 48px;
+
+  &:hover {
+    background: var(--ga-bg-subtle);
+    color: var(--ga-text-1);
   }
 }
 </style>

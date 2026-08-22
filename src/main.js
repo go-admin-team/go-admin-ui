@@ -1,5 +1,4 @@
 import { createApp } from 'vue'
-import { ElMessage } from 'element-plus'
 
 import Cookies from 'js-cookie'
 
@@ -8,22 +7,32 @@ import 'normalize.css/normalize.css' // a modern alternative to CSS resets
 import ElementPlus from 'element-plus'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import 'element-plus/dist/index.css'
+// Element Plus keys dark mode off a `dark` class on <html>; this file supplies
+// the variable overrides. src/styles/tokens.css then points those variables at
+// the design tokens, so both themes resolve from one source.
+import 'element-plus/theme-chalk/dark/css-vars.css'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
+// Loaded before the project's own styles so both can build on the tokens
+import '@/styles/tokens.css'
 import '@/styles/index.scss' // global css
 import '@/styles/admin.scss'
+// Loaded last so utility classes sit after the project's own styles.
+// See the file header for why preflight is excluded.
+import '@/styles/tailwind.css'
 
 import { Codemirror } from 'vue-codemirror'
 
 import App from './App'
-import store from './store'
+import pinia from './stores'
 import router from './router'
 import permission from './directive/permission'
 
 import { getDicts } from '@/api/admin/dict/data'
 import { getItems, setItems } from '@/api/table'
 import { getConfigKey } from '@/api/admin/sys-config'
-import { parseTime, resetForm, addDateRange, selectDictLabel, /* download,*/ selectItemsLabel } from '@/utils/costum'
+import { parseTime, resetForm, selectDictLabel, /* download,*/ selectItemsLabel } from '@/utils/costum'
+import { msgSuccess, msgError, msgInfo } from '@/utils/message'
 import { dialogDrag } from '@/utils/dialog' // dialog directive
 import { setupErrorHandler } from '@/utils/error-log' // error log
 
@@ -57,13 +66,11 @@ console.info(`欢迎使用go-admin，谢谢您对我们的支持，在使用过�
 const app = createApp(App)
 
 // 全局方法挂载（$前缀版本 + 无前缀版本同时注册，兼容历史代码）
-const msgSuccess = (msg) => ElMessage({ showClose: true, message: msg, type: 'success' })
-const msgError = (msg) => ElMessage({ showClose: true, message: msg, type: 'error' })
-const msgInfo = (msg) => ElMessage.info(msg)
-
+// Message helpers now live in @/utils/message; this only registers them.
+// New code should import them directly instead.
 const globalMethods = {
   getDicts, getItems, setItems, getConfigKey,
-  parseTime, resetForm, addDateRange, selectDictLabel, selectItemsLabel,
+  parseTime, resetForm, selectDictLabel, selectItemsLabel,
   msgSuccess, msgError, msgInfo
 }
 
@@ -89,7 +96,7 @@ for (const [name, comp] of Object.entries(ElementPlusIconsVue)) {
 }
 
 // 注册插件
-app.use(store)
+app.use(pinia)
 app.use(router)
 app.use(permission)
 app.use(Particles, {

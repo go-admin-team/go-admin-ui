@@ -1,0 +1,59 @@
+/*
+ * Tailwind CSS v4 entry point.
+ *
+ * Preflight is deliberately NOT imported. Tailwind's base reset restyles
+ * buttons, inputs, headings and table borders, which collides head-on with
+ * Element Plus (and with normalize.css, already loaded in main.js). Importing
+ * the layers individually and dropping the preflight line keeps the utility
+ * classes while leaving component styling untouched.
+ *
+ * Do not replace this with `@import "tailwindcss";` -- that pulls preflight back
+ * in and silently breaks Element Plus components across the whole app.
+ *
+ * Known limitation: utilities live in a cascade layer, and unlayered styles
+ * always win over layered ones, so an Element Plus rule beats a Tailwind
+ * utility for the same property. Layout utilities on plain elements are
+ * unaffected.
+ */
+
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/*
+ * Map Tailwind's theme onto the design tokens so `bg-brand` and an Element Plus
+ * primary button resolve to the same colour, and both follow the light/dark
+ * switch.
+ *
+ * `@theme inline` matters here: a plain @theme copies the values into :root,
+ * which would freeze them at their light-mode value and break dark mode. The
+ * inline form emits `var(--ga-*)` references instead.
+ */
+@theme inline {
+  --color-brand: var(--ga-brand);
+  --color-success: var(--ga-success);
+  --color-warning: var(--ga-warning);
+  --color-danger: var(--ga-danger);
+  --color-info: var(--ga-info);
+
+  --color-body: var(--ga-bg-body);
+  --color-container: var(--ga-bg-container);
+  --color-elevated: var(--ga-bg-elevated);
+  --color-subtle: var(--ga-bg-subtle);
+
+  --color-fg: var(--ga-text-1);
+  --color-fg-muted: var(--ga-text-2);
+  --color-fg-subtle: var(--ga-text-3);
+
+  --color-line: var(--ga-border);
+  --color-line-light: var(--ga-border-light);
+
+  --radius-sm: var(--ga-radius-sm);
+  --radius-DEFAULT: var(--ga-radius);
+  --radius-lg: var(--ga-radius-lg);
+
+  --shadow-sm: var(--ga-shadow-sm);
+  --shadow-DEFAULT: var(--ga-shadow);
+  --shadow-lg: var(--ga-shadow-lg);
+}

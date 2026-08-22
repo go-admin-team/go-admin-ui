@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import store from '@/store'
+import { useUserStore } from '@/stores/user'
 import { VueCropper } from 'vue-cropper'
 import { uploadAvatar } from '@/api/admin/sys-user'
 
@@ -69,7 +69,7 @@ export default {
       // 弹出层标题
       title: '修改头像',
       options: {
-        img: store.getters.avatar, // 裁剪图片的地址
+        img: useUserStore().avatar, // 裁剪图片的地址
         autoCrop: true, // 是否默认生成截图框
         autoCropWidth: 200, // 默认生成截图框宽度
         autoCropHeight: 200, // 默认生成截图框高度

@@ -1,30 +1,21 @@
-/**
-* Element Plus theme customization
-**/
+// ══════════════════════════════════════════════════════════════════
+//  Brand colour as a literal value, for the JavaScript that needs one.
+//
+//  Theming itself lives in styles/tokens.css and reaches Element Plus through
+//  CSS variables; this file no longer sets any. It exists only because a few
+//  places need a real colour string rather than a `var(...)` reference:
+//
+//    - the settings store seeds `theme` from it, which the settings drawer
+//      offers as the reset target
+//    - TagsView calls `theme.colorRgb()` to build a translucent hover fill,
+//      which needs actual hex digits to parse
+//
+//  KEEP IN SYNC with --ga-brand in styles/tokens.css. The duplication is
+//  deliberate and contained: everything else derives from the token.
+// ══════════════════════════════════════════════════════════════════
 
-/* theme color */
-$--el-color-primary: #1890ff !default;
-$--el-color-success: #13ce66 !default;
-$--el-color-warning: #FFBA00 !default;
-$--el-color-danger: #ff4949 !default;
+$--el-color-primary: #0d7d9e;
 
-$--el-button-font-weight: 400 !default;
-
-$--el-border-color-light: #dfe4ed !default;
-$--el-border-color-lighter: #e6ebf5 !default;
-
-$--el-table-border: 1px solid #dfe6ec !default;
-
-// Element Plus uses CSS variables for theming, so we can override them
-:root {
-  --el-color-primary: #{$--el-color-primary};
-  --el-color-success: #{$--el-color-success};
-  --el-color-warning: #{$--el-color-warning};
-  --el-color-danger: #{$--el-color-danger};
-}
-
-// the :export directive is the magic sauce for webpack
-// https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass
 :export {
   theme: $--el-color-primary;
 }

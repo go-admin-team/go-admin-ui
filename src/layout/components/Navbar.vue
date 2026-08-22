@@ -7,9 +7,16 @@
 
     <div class="right-menu">
       <template v-if="device!=='mobile'">
-        <search id="header-search" class="right-menu-item" />
+        <header-search id="header-search" class="right-menu-item" />
 
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
+
+        <settings-trigger
+          v-if="showSettings"
+          id="layout-settings"
+          class="right-menu-item hover-effect"
+          @click="$emit('open-settings')"
+        />
 
       </template>
 
@@ -34,12 +41,16 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'pinia'
+import { useSettingsStore } from '@/stores/settings'
+import { useAppStore } from '@/stores/app'
+import { useUserStore } from '@/stores/user'
 import Breadcrumb from '@/components/Breadcrumb'
 import TopNav from '@/components/TopNav'
 import Hamburger from '@/components/Hamburger'
 import Screenfull from '@/components/Screenfull'
-import Search from '@/components/HeaderSearch'
+import HeaderSearch from '@/components/HeaderSearch'
+import SettingsTrigger from '@/components/SettingsTrigger'
 
 export default {
   components: {
@@ -47,35 +58,27 @@ export default {
     TopNav,
     Hamburger,
     Screenfull,
-    Search
+    HeaderSearch,
+    SettingsTrigger
   },
+  // The layout owns the drawer's open state; the navbar only asks for it
+  emits: ['open-settings'],
   computed: {
-    ...mapGetters([
-      'sidebar',
-      'avatar',
-      'device'
-    ]),
+    ...mapState(useUserStore, ['avatar']),
+    ...mapState(useAppStore, ['sidebar', 'device']),
+    ...mapState(useSettingsStore, ['topNav', 'showSettings']),
     setting: {
       get() {
-        return this.$store.state.settings.showSettings
+        return useSettingsStore().showSettings
       },
       set(val) {
-        this.$store.dispatch('settings/changeSetting', {
-          key: 'showSettings',
-          value: val
-        })
-      }
-    },
-    topNav: {
-      get() {
-        return this.$store.state.settings.topNav
+        useSettingsStore().changeSetting({ key: 'showSettings', value: val })
       }
     }
-
   },
   methods: {
     toggleSideBar() {
-      this.$store.dispatch('app/toggleSideBar')
+      useAppStore().toggleSideBar()
     },
     async logout() {
       this.$confirm('确定注销并退出系统吗？', '提示', {
@@ -83,7 +86,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$store.dispatch('user/LogOut').then(() => {
+        useUserStore().LogOut().then(() => {
           location.reload()
         })
       })
@@ -97,9 +100,9 @@ export default {
   height: 50px;
   overflow: hidden;
   position: relative;
-  background: #fff;
-  border-bottom: 1px solid #eef0f6;
-  box-shadow: 0 1px 8px rgba(22, 119, 255, 0.06);
+  background: var(--ga-bg-container);
+  border-bottom: 1px solid var(--ga-border-light);
+  box-shadow: var(--ga-shadow-sm);
 
   &::after {
     content: '';
@@ -108,7 +111,7 @@ export default {
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(90deg, #1677ff 0%, #40a9ff 100%);
+    background: linear-gradient(90deg, var(--ga-brand) 0%, var(--el-color-primary-light-3) 100%);
     opacity: 0.7;
   }
 
@@ -119,10 +122,10 @@ export default {
     cursor: pointer;
     transition: background .3s;
     -webkit-tap-highlight-color: transparent;
-    color: #1677ff;
+    color: var(--ga-brand);
 
     &:hover {
-      background: rgba(22, 119, 255, .06)
+      background: var(--ga-bg-hover)
     }
   }
 
@@ -149,7 +152,7 @@ export default {
       padding: 0 10px;
       height: 100%;
       font-size: 18px;
-      color: #64748b;
+      color: var(--ga-text-2);
       vertical-align: text-bottom;
 
       &.hover-effect {
@@ -158,8 +161,8 @@ export default {
         border-radius: 4px;
 
         &:hover {
-          background: rgba(22, 119, 255, .06);
-          color: #1677ff;
+          background: var(--ga-bg-hover);
+          color: var(--ga-brand);
         }
       }
     }
@@ -179,8 +182,8 @@ export default {
           width: 32px;
           height: 32px;
           border-radius: 50%;
-          border: 2px solid rgba(22, 119, 255, 0.2);
-          box-shadow: 0 0 0 2px #fff;
+          border: 2px solid var(--el-color-primary-light-7);
+          box-shadow: 0 0 0 2px var(--ga-bg-container);
         }
 
         .ri-arrow-down-s-fill {
@@ -189,7 +192,7 @@ export default {
           right: -18px;
           top: 16px;
           font-size: 12px;
-          color: #94a3b8;
+          color: var(--ga-text-3);
         }
       }
     }

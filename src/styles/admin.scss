@@ -18,15 +18,34 @@
 .mr20 { margin-right: 20px; }
 .mb20 { margin-bottom: 20px; }
 
+// ── Secondary detail inside a popover ────────────────────────────
+// One line per supplementary field in a list page's el-popover (location,
+// latency, config value...). Three pages had each copied the same three
+// declarations.
+.peek-line {
+  margin: 4px 0;
+  font-size: 13px;
+  color: var(--ga-text-2);
+}
+
+// ── A row action rendered as an icon ─────────────────────────────
+// The third action in a pinned column, where the words would cost width the
+// scrolling columns need. Keeps the icon on the text baseline of the buttons
+// beside it.
+.row-icon-action {
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
 // ── 搜索栏 ─────────────────────────────────────────────────────
 // 业务页面统一使用 .search-form 包裹搜索区域
 .search-form {
   padding: 14px 16px 6px;
-  background: #fff;
+  background: var(--ga-bg-container);
   border-radius: 10px;
-  border: 1px solid #eef0f6;
+  border: 1px solid var(--ga-border-light);
   margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  box-shadow: var(--ga-shadow-sm);
 
   .el-form-item {
     margin-bottom: 10px;
@@ -34,7 +53,7 @@
 
   .el-input__wrapper,
   .el-select .el-input__wrapper {
-    background: #fafbff;
+    background: var(--ga-bg-subtle);
   }
 }
 
@@ -79,8 +98,8 @@
   gap: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: #1e293b;
-  border-bottom: 2px solid #e6f4ff;
+  color: var(--ga-text-1);
+  border-bottom: 2px solid var(--el-color-primary-light-9);
   margin: 8px 0 20px;
   padding-bottom: 10px;
 
@@ -89,7 +108,7 @@
     display: inline-block;
     width: 4px;
     height: 16px;
-    background: linear-gradient(135deg, #1677ff, #40a9ff);
+    background: linear-gradient(135deg, var(--ga-brand), var(--el-color-primary-light-3));
     border-radius: 2px;
     flex-shrink: 0;
   }
@@ -105,8 +124,8 @@
 // ── Tree ────────────────────────────────────────────────────
 .tree-border {
   margin-top: 5px;
-  border: 1px solid #eef0f6;
-  background: #fff;
+  border: 1px solid var(--ga-border-light);
+  background: var(--ga-bg-container);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -115,7 +134,7 @@
 .sortable-ghost {
   opacity: 0.8;
   color: #fff !important;
-  background: #1677ff !important;
+  background: var(--ga-brand) !important;
   border-radius: 6px;
 }
 
@@ -144,7 +163,7 @@
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  box-shadow: 0 0 8px rgba(0,0,0,0.15);
+  box-shadow: var(--ga-shadow-lg);
   overflow: hidden;
 }
 
@@ -155,12 +174,12 @@
 }
 
 // ── 文字色工具 ──────────────────────────────────────────────
-.text-primary   { color: #1677ff; }
-.text-success   { color: #10b981; }
-.text-warning   { color: #f59e0b; }
-.text-danger    { color: #f43f5e; }
-.text-info      { color: #3b82f6; }
-.text-muted     { color: #94a3b8; }
+.text-primary   { color: var(--ga-brand); }
+.text-success   { color: var(--ga-success); }
+.text-warning   { color: var(--ga-warning); }
+.text-danger    { color: var(--ga-danger); }
+.text-info      { color: var(--ga-info); }
+.text-muted     { color: var(--ga-text-3); }
 
 // ── pull-right ──────────────────────────────────────────────
 .pull-right { float: right !important; }
@@ -172,12 +191,12 @@
 }
 
 .list-group-item {
-  border-bottom: 1px solid #f1f5f9;
-  border-top: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--ga-border-light);
+  border-top: 1px solid var(--ga-border-light);
   margin-bottom: -1px;
   padding: 10px 0;
   font-size: 13px;
-  color: #374151;
+  color: var(--ga-text-2);
 }
 
 .list-group-striped > .list-group-item {

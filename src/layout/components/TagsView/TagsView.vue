@@ -19,7 +19,10 @@
 </template>
 
 <script>
+import { mapState } from 'pinia'
 import path from 'path'
+import { useTagsViewStore } from '@/stores/tagsView'
+import { usePermissionStore } from '@/stores/permission'
 
 export default {
   name: 'TagsView',
@@ -35,12 +38,8 @@ export default {
       },
       set() {}
     },
-    visitedViews() {
-      return this.$store.state.tagsView.visitedViews
-    },
-    routes() {
-      return this.$store.state.permission.routes
-    }
+    ...mapState(useTagsViewStore, ['visitedViews']),
+    ...mapState(usePermissionStore, ['routes'])
   },
   watch: {
     $route() {
@@ -80,14 +79,14 @@ export default {
       const affixTags = (this.affixTags = this.filterAffixTags(this.routes))
       for (const tag of affixTags) {
         if (tag.name) {
-          this.$store.dispatch('tagsView/addVisitedView', tag)
+          useTagsViewStore().addVisitedView(tag)
         }
       }
     },
     addTags() {
       const { name } = this.$route
       if (name) {
-        this.$store.dispatch('tagsView/addView', this.$route)
+        useTagsViewStore().addView(this.$route)
       }
     },
     handleTabClick(tab) {
@@ -100,16 +99,15 @@ export default {
       const view = this.visitedViews.find(v => v.path === targetPath)
       if (!view) return
 
-      this.$store.dispatch('tagsView/delView', view).then(({ visitedViews }) => {
-        if (targetPath === this.$route.path) {
-          const lastView = visitedViews[visitedViews.length - 1]
-          if (lastView) {
-            this.$router.push(lastView.fullPath || lastView.path)
-          } else {
-            this.$router.push('/')
-          }
+      const { visitedViews } = useTagsViewStore().delView(view)
+      if (targetPath === this.$route.path) {
+        const lastView = visitedViews[visitedViews.length - 1]
+        if (lastView) {
+          this.$router.push(lastView.fullPath || lastView.path)
+        } else {
+          this.$router.push('/')
         }
-      })
+      }
     }
   }
 }

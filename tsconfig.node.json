@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    // page.evaluate() callbacks run in the browser context and need DOM types
+    "lib": ["ESNext", "DOM"],
+
+    "strict": true,
+    // Many evaluate/locator callbacks in the e2e suite leave parameters
+    // unannotated, and annotating each one buys little. With implicit any off,
+    // real type errors (such as the ConsoleMessage 'warning' spelling) are
+    // still caught.
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+
+    "types": ["node"]
+  },
+  "include": [
+    "tests/e2e/**/*.ts",
+    "playwright.config.ts",
+    "*.config.mjs"
+  ]
+}

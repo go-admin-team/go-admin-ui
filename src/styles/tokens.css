@@ -1,0 +1,235 @@
+/*
+ * Design tokens -- the single source of truth for colour, radius and elevation.
+ *
+ * Everything downstream reads from here: Element Plus through its own CSS
+ * variables (bridged at the bottom of this file), Tailwind through @theme in
+ * tailwind.css, and application styles directly.
+ *
+ * Two rules keep this maintainable:
+ *
+ * 1. Only the base colours are literal values. Every tint and shade is derived
+ *    with color-mix, so changing --ga-brand recolours the entire application --
+ *    buttons, links, focus rings, active menu items, the lot.
+ *
+ * 2. Light and dark differ only in the token values at the top. The derivation
+ *    rules are written once and pick up the right values automatically, because
+ *    --ga-mix-toward flips from white to black under .dark.
+ *
+ * Requires color-mix(), which needs Chrome 111+ / Safari 16.4+. Tailwind v4
+ * already sets that floor, so this adds no new constraint.
+ */
+
+:root {
+  /* ── Brand ────────────────────────────────────────────────────────
+   * Change this one value to retheme the application.
+   * A cyan-leaning blue: distinct from the Ant Design blue that most admin
+   * templates ship with, and a nod to Go's own palette, while staying calm
+   * enough for large surfaces.
+   */
+  --ga-brand: #0d7d9e;
+
+  /* Direction tints are mixed toward. Flipped under .dark so the single set of
+   * derivation rules below works for both themes. */
+  --ga-mix-toward: #ffffff;
+
+  /* ── Semantic colours ─────────────────────────────────────────── */
+  --ga-success: #16a34a;
+  --ga-warning: #d97706;
+  --ga-danger:  #dc2626;
+  --ga-info:    #64748b;
+
+  /* ── Neutrals ──────────────────────────────────────────────────
+   * Biased slightly toward the brand hue rather than pure grey, so surfaces
+   * read as chosen instead of defaulted.
+   */
+  --ga-bg-body:      #eef1f4;
+  --ga-bg-container: #ffffff;
+  --ga-bg-elevated:  #ffffff;
+  --ga-bg-subtle:    #f5f7f9;
+  --ga-bg-hover:     rgba(13, 125, 158, 0.06);
+
+  --ga-text-1:        rgba(15, 27, 33, 0.88);
+  --ga-text-2:        rgba(15, 27, 33, 0.65);
+  --ga-text-3:        rgba(15, 27, 33, 0.45);
+  --ga-text-disabled: rgba(15, 27, 33, 0.28);
+  --ga-text-inverse:  #ffffff;
+
+  --ga-border:       #d6dee2;
+  --ga-border-light: #e8edf0;
+
+  /* ── Sidebar ───────────────────────────────────────────────────
+   * Its own scale: in light mode this is a dark surface, so it cannot inherit
+   * the neutral ramp above. Tinted with the brand hue instead of the flat navy
+   * the template shipped with.
+   */
+  --ga-sidebar-bg:        #0f2b35;
+  --ga-sidebar-bg-sub:    #0b222a;
+  --ga-sidebar-hover:     #143b48;
+  --ga-sidebar-text:      rgba(255, 255, 255, 0.72);
+  --ga-sidebar-text-active: #ffffff;
+  --ga-sidebar-title:     #ffffff;
+
+  /* Light-themed sidebar, selected via the themeStyle setting */
+  --ga-sidebar-light-bg:    #ffffff;
+  --ga-sidebar-light-hover: #eef5f8;
+  --ga-sidebar-light-title: #0f2b35;
+
+  /* ── Shape ─────────────────────────────────────────────────────── */
+  --ga-radius-sm: 4px;
+  --ga-radius:    6px;
+  --ga-radius-lg: 8px;
+
+  /* ── Elevation ─────────────────────────────────────────────────
+   * Deliberately shallow. Admin surfaces are dense; heavy shadows on every
+   * card turn a table page into a relief map.
+   */
+  --ga-shadow-sm: 0 1px 2px rgba(15, 27, 33, 0.04);
+  --ga-shadow:    0 1px 2px rgba(15, 27, 33, 0.04), 0 2px 8px rgba(15, 27, 33, 0.04);
+  --ga-shadow-lg: 0 4px 16px rgba(15, 27, 33, 0.10);
+}
+
+.dark {
+  --ga-brand: #3aa5c7;
+  --ga-mix-toward: #000000;
+
+  --ga-success: #22c55e;
+  --ga-warning: #f59e0b;
+  --ga-danger:  #ef4444;
+  --ga-info:    #94a3b8;
+
+  /* Light mode separates the sidebar by inverting it; dark mode cannot, so the
+   * separation has to come from value. These five surfaces climb monotonically
+   * in relative luminance, and the sidebar sits BELOW the page rather than above
+   * it: it is chrome, so it recedes and leaves the content card the brightest
+   * plane. Keep any new surface on the ladder. */
+  --ga-bg-body:      #0d1417;
+  --ga-bg-container: #151e22;
+  --ga-bg-elevated:  #212d33;
+  /* Lighter than the container here, darker than it in light mode: both mean
+   * "one step off the surface". Also feeds el-fill-color, where a hover in dark
+   * has to lift rather than sink. */
+  --ga-bg-subtle:    #1c262b;
+  --ga-bg-hover:     rgba(58, 165, 199, 0.10);
+
+  --ga-text-1:        rgba(232, 240, 243, 0.90);
+  --ga-text-2:        rgba(232, 240, 243, 0.66);
+  --ga-text-3:        rgba(232, 240, 243, 0.45);
+  --ga-text-disabled: rgba(232, 240, 243, 0.28);
+  --ga-text-inverse:  #0d1417;
+
+  --ga-border:       #2a383e;
+  --ga-border-light: #202c31;
+
+  --ga-sidebar-bg:        #070d10;
+  --ga-sidebar-bg-sub:    #05090b;
+  --ga-sidebar-hover:     #16262c;
+  --ga-sidebar-text:      rgba(232, 240, 243, 0.68);
+  --ga-sidebar-text-active: #ffffff;
+  --ga-sidebar-title:     #ffffff;
+
+  --ga-sidebar-light-bg:    #151e22;
+  --ga-sidebar-light-hover: #1b262b;
+  --ga-sidebar-light-title: #e8f0f3;
+
+  --ga-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.32);
+  --ga-shadow:    0 1px 2px rgba(0, 0, 0, 0.32), 0 2px 8px rgba(0, 0, 0, 0.28);
+  --ga-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.48);
+}
+
+/*
+ * ── Element Plus bridge ────────────────────────────────────────────
+ *
+ * Element Plus is themed entirely through CSS variables, so pointing its
+ * variables at the tokens above replaces what used to be 105 `!important`
+ * overrides of its internal class names.
+ *
+ * The tint scale mirrors Element Plus's own generation rules (mix the base
+ * colour with the background at 30/50/70/80/90%), which is why both themes can
+ * share one set of rules: --ga-mix-toward supplies the right direction.
+ *
+ * The selector is `:root, :root.dark` rather than plain `:root` on purpose:
+ * element-plus/theme-chalk/dark/css-vars.css scopes its overrides to `html.dark`
+ * (specificity 0,1,1), which would outrank a bare `:root` (0,1,0). `:root.dark`
+ * scores 0,2,0 and wins, so the tokens stay authoritative in both themes.
+ */
+:root,
+:root.dark {
+  --el-color-primary:         var(--ga-brand);
+  --el-color-primary-light-3: color-mix(in oklab, var(--ga-brand), var(--ga-mix-toward) 30%);
+  --el-color-primary-light-5: color-mix(in oklab, var(--ga-brand), var(--ga-mix-toward) 50%);
+  --el-color-primary-light-7: color-mix(in oklab, var(--ga-brand), var(--ga-mix-toward) 70%);
+  --el-color-primary-light-8: color-mix(in oklab, var(--ga-brand), var(--ga-mix-toward) 80%);
+  --el-color-primary-light-9: color-mix(in oklab, var(--ga-brand), var(--ga-mix-toward) 90%);
+  --el-color-primary-dark-2:  color-mix(in oklab, var(--ga-brand), #000 20%);
+
+  --el-color-success:         var(--ga-success);
+  --el-color-success-light-3: color-mix(in oklab, var(--ga-success), var(--ga-mix-toward) 30%);
+  --el-color-success-light-5: color-mix(in oklab, var(--ga-success), var(--ga-mix-toward) 50%);
+  --el-color-success-light-7: color-mix(in oklab, var(--ga-success), var(--ga-mix-toward) 70%);
+  --el-color-success-light-8: color-mix(in oklab, var(--ga-success), var(--ga-mix-toward) 80%);
+  --el-color-success-light-9: color-mix(in oklab, var(--ga-success), var(--ga-mix-toward) 90%);
+  --el-color-success-dark-2:  color-mix(in oklab, var(--ga-success), #000 20%);
+
+  --el-color-warning:         var(--ga-warning);
+  --el-color-warning-light-3: color-mix(in oklab, var(--ga-warning), var(--ga-mix-toward) 30%);
+  --el-color-warning-light-5: color-mix(in oklab, var(--ga-warning), var(--ga-mix-toward) 50%);
+  --el-color-warning-light-7: color-mix(in oklab, var(--ga-warning), var(--ga-mix-toward) 70%);
+  --el-color-warning-light-8: color-mix(in oklab, var(--ga-warning), var(--ga-mix-toward) 80%);
+  --el-color-warning-light-9: color-mix(in oklab, var(--ga-warning), var(--ga-mix-toward) 90%);
+  --el-color-warning-dark-2:  color-mix(in oklab, var(--ga-warning), #000 20%);
+
+  --el-color-danger:          var(--ga-danger);
+  --el-color-danger-light-3:  color-mix(in oklab, var(--ga-danger), var(--ga-mix-toward) 30%);
+  --el-color-danger-light-5:  color-mix(in oklab, var(--ga-danger), var(--ga-mix-toward) 50%);
+  --el-color-danger-light-7:  color-mix(in oklab, var(--ga-danger), var(--ga-mix-toward) 70%);
+  --el-color-danger-light-8:  color-mix(in oklab, var(--ga-danger), var(--ga-mix-toward) 80%);
+  --el-color-danger-light-9:  color-mix(in oklab, var(--ga-danger), var(--ga-mix-toward) 90%);
+  --el-color-danger-dark-2:   color-mix(in oklab, var(--ga-danger), #000 20%);
+
+  --el-color-error:           var(--ga-danger);
+  --el-color-error-light-3:   var(--el-color-danger-light-3);
+  --el-color-error-light-5:   var(--el-color-danger-light-5);
+  --el-color-error-light-7:   var(--el-color-danger-light-7);
+  --el-color-error-light-8:   var(--el-color-danger-light-8);
+  --el-color-error-light-9:   var(--el-color-danger-light-9);
+
+  --el-color-info:            var(--ga-info);
+  --el-color-info-light-3:    color-mix(in oklab, var(--ga-info), var(--ga-mix-toward) 30%);
+  --el-color-info-light-5:    color-mix(in oklab, var(--ga-info), var(--ga-mix-toward) 50%);
+  --el-color-info-light-7:    color-mix(in oklab, var(--ga-info), var(--ga-mix-toward) 70%);
+  --el-color-info-light-8:    color-mix(in oklab, var(--ga-info), var(--ga-mix-toward) 80%);
+  --el-color-info-light-9:    color-mix(in oklab, var(--ga-info), var(--ga-mix-toward) 90%);
+  --el-color-info-dark-2:     color-mix(in oklab, var(--ga-info), #000 20%);
+
+  /* Surfaces */
+  --el-bg-color:              var(--ga-bg-container);
+  --el-bg-color-page:         var(--ga-bg-body);
+  --el-bg-color-overlay:      var(--ga-bg-elevated);
+  --el-fill-color:            var(--ga-bg-subtle);
+  --el-fill-color-light:      var(--ga-bg-subtle);
+  --el-fill-color-lighter:    var(--ga-bg-subtle);
+  --el-fill-color-blank:      var(--ga-bg-container);
+
+  /* Text */
+  --el-text-color-primary:     var(--ga-text-1);
+  --el-text-color-regular:     var(--ga-text-2);
+  --el-text-color-secondary:   var(--ga-text-3);
+  --el-text-color-placeholder: var(--ga-text-3);
+  --el-text-color-disabled:    var(--ga-text-disabled);
+
+  /* Borders */
+  --el-border-color:         var(--ga-border);
+  --el-border-color-light:   var(--ga-border-light);
+  --el-border-color-lighter: var(--ga-border-light);
+  --el-border-color-extra-light: var(--ga-border-light);
+
+  /* Shape */
+  --el-border-radius-base:  var(--ga-radius);
+  --el-border-radius-small: var(--ga-radius-sm);
+
+  /* Elevation */
+  --el-box-shadow:       var(--ga-shadow);
+  --el-box-shadow-light: var(--ga-shadow-sm);
+  --el-box-shadow-lighter: var(--ga-shadow-sm);
+  --el-box-shadow-dark:  var(--ga-shadow-lg);
+}

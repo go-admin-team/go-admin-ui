@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar-logo-container" :class="{'collapse':collapse}" :style="{ backgroundColor: $store.state.settings.themeStyle === 'dark' ? variables.menuBg : variables.menuLightBg }">
+  <div class="sidebar-logo-container" :class="{'collapse':collapse}" :style="{ backgroundColor: themeStyle === 'dark' ? variables.menuBg : variables.menuLightBg }">
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
         <img v-if="showLogo" :src="appInfo.sys_app_logo" class="sidebar-logo" @error="showLogo = false">
@@ -17,7 +17,9 @@
 <script>
 
 import variables from '@/styles/variables.module.scss'
-import { mapGetters } from 'vuex'
+import { mapState } from 'pinia'
+import { useSystemStore } from '@/stores/system'
+import { useSettingsStore } from '@/stores/settings'
 
 export default {
   name: 'SidebarLogo',
@@ -31,9 +33,8 @@ export default {
     return { showLogo: false }
   },
   computed: {
-    ...mapGetters([
-      'appInfo'
-    ]),
+    ...mapState(useSystemStore, { appInfo: 'info' }),
+    ...mapState(useSettingsStore, ['themeStyle']),
     variables() {
       return variables
     },
@@ -41,7 +42,7 @@ export default {
       return (this.appInfo && this.appInfo.sys_app_name) || 'Go Admin'
     },
     titleColor() {
-      return this.$store.state.settings.themeStyle === 'dark'
+      return this.themeStyle === 'dark'
         ? variables.sidebarTitle
         : variables.sidebarLightTitle
     },
@@ -76,7 +77,10 @@ export default {
   width: 100%;
   height: 64px;
   line-height: 64px;
-  background: linear-gradient(135deg, #002c8c 0%, #1677ff 60%, #40a9ff 100%);
+  background: linear-gradient(135deg,
+    color-mix(in oklab, var(--ga-brand), #000 45%) 0%,
+    var(--ga-brand) 60%,
+    var(--el-color-primary-light-3) 100%);
   text-align: center;
   overflow: hidden;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);

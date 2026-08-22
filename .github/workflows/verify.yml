@@ -1,0 +1,93 @@
+# Everything that decides whether a change is correct, as opposed to whether it
+# compiles. build.yml and nodejs.yml only run `pnpm build:prod`, which a page
+# reading a field the server never sends passes without complaint -- several
+# did, for years.
+name: Verify
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  static:
+    name: lint · types · unit
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The api contract check reads the Go structs directly rather than keeping
+      # a second copy of the field names, so it needs the server repository
+      # beside this one. Without it the script skips with a notice, which would
+      # make this job green while checking nothing.
+      - name: checkout go-admin
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: go-admin-team/go-admin
+          path: go-admin
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - name: Use Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.x
+          cache: 'pnpm'
+
+      - name: install
+        run: pnpm install --frozen-lockfile
+
+      - name: lint
+        run: pnpm lint
+
+      - name: type-check
+        run: pnpm type-check
+
+      - name: unit
+        run: pnpm test:unit
+
+      # --require-models: without it a missing checkout makes the script skip and
+      # exit 0, so this step would stay green while checking nothing.
+      - name: api contract
+        run: pnpm check:api -- --require-models
+        env:
+          GO_ADMIN_PATH: ${{ github.workspace }}/go-admin
+
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - name: Use Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.x
+          cache: 'pnpm'
+
+      - name: install
+        run: pnpm install --frozen-lockfile
+
+      # Chromium only: the mocked project runs one browser, and installing the
+      # other two costs more than it checks.
+      - name: install browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      # Playwright starts the dev server itself; see webServer in
+      # playwright.config.ts, which does not reuse one when CI is set.
+      - name: e2e
+        run: pnpm e2e
+        env:
+          CI: true
+
+      # No artifact upload: the reporter is `list`, so failures print to the job
+      # log and there is no playwright-report/ to collect. Adding one means
+      # pinning another action to a commit sha, which is this repository's
+      # convention -- worth doing if the run log ever proves too thin.

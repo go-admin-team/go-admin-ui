@@ -20,6 +20,8 @@
 <script>
 // fuse is a lightweight fuzzy-search module
 // make search results more in line with expectations
+import { mapState } from 'pinia'
+import { usePermissionStore } from '@/stores/permission'
 import Fuse from 'fuse.js'
 import path from 'path'
 
@@ -35,9 +37,7 @@ export default {
     }
   },
   computed: {
-    routes() {
-      return this.$store.getters.permission_routes
-    }
+    ...mapState(usePermissionStore, { routes: 'routes' })
   },
   watch: {
     routes() {
