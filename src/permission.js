@@ -6,6 +6,7 @@ import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from '@/utils/auth' // get token from cookie
 import getPageTitle from '@/utils/get-page-title'
+import { trackPageView } from '@/utils/analytics'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
@@ -80,7 +81,23 @@ router.beforeEach(async(to, from, next) => {
   }
 })
 
-router.afterEach(() => {
+router.afterEach((to, from, failure) => {
   // finish progress bar
   NProgress.done()
+
+  // Report the page view here rather than from the tag, which cannot see a
+  // route change. afterEach runs for every navigation the guard above lets
+  // through, the login page included, and runs after the guard has set
+  // document.title -- so the title reported is the one the user is looking at.
+  //
+  // A failed navigation is not a page view. The case that reaches this is
+  // clicking the sidebar entry for the page you are already on: vue-router
+  // answers that with a duplicated-navigation failure, nothing on screen
+  // changes, and counting it would put whichever page a user sits on at the top
+  // of every report. (A redirect from the guard above does not reach here at
+  // all -- vue-router runs afterEach for the navigation that wins, not for the
+  // one it replaced.)
+  if (!failure) {
+    trackPageView(to.fullPath)
+  }
 })

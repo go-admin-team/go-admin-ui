@@ -265,6 +265,10 @@ export function listUser(query: SysUserQuery & PageQuery) {
 ## 红线
 
 - 不引入需要从外部 CDN 加载的资源 —— 内网与离线部署是常见场景
+  - 唯一例外是 Google Analytics 标签，且**受 `VUE_APP_GA_ID` 开关控制**：
+    仓库里所有 `.env` 都留空，构建产物中不会出现任何 googletagmanager 引用，
+    只有演示站部署（`build.yml`）才注入。`tests/unit/build/google-analytics.spec.ts`
+    守着这个开关。要再加例外，先想清楚离线部署怎么办
 - 不在业务代码里写死后端地址，一律通过 `VUE_APP_BASE_API`
 - 删除组件前先确认零引用（`grep` 文件路径、标签名、全局注册三处）
 - 提交前跑 `pnpm run lint` 与 `pnpm run test:unit`

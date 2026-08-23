@@ -7,6 +7,55 @@ import path from 'path'
 
 const resolve = dir => path.resolve(import.meta.dirname, dir)
 
+/**
+ * Puts the Google Analytics tag at the top of <head>, and only when there is a
+ * measurement id to put there.
+ *
+ * The id gates the whole thing because googletagmanager.com is an external host
+ * and this project is deployed to intranets and offline networks, where a build
+ * must not reach for one. With VUE_APP_GA_ID unset -- which is how every .env
+ * in the repository ships -- nothing below runs and the built index.html has no
+ * trace of analytics in it. The demo deployment sets the id in build.yml.
+ *
+ * Injected here rather than from application code so that it loads alongside
+ * the bundle instead of after it. The bundle is some 600KB gzipped; a tag that
+ * waited for it would miss everyone who left before it finished.
+ *
+ * `send_page_view: false` is the one departure from the snippet Google hands
+ * out, and src/utils/analytics.ts explains it: the automatic page view reports
+ * a hash-routed application as a single page.
+ */
+const googleAnalytics = measurementId => ({
+  name: 'google-analytics',
+  transformIndexHtml: {
+    order: 'pre',
+    handler(html) {
+      if (!measurementId) return html
+
+      return {
+        html,
+        tags: [
+          {
+            tag: 'script',
+            attrs: { async: true, src: `https://www.googletagmanager.com/gtag/js?id=${measurementId}` },
+            injectTo: 'head-prepend'
+          },
+          {
+            tag: 'script',
+            children: [
+              'window.dataLayer = window.dataLayer || [];',
+              'function gtag(){dataLayer.push(arguments);}',
+              "gtag('js', new Date());",
+              `gtag('config', '${measurementId}', { send_page_view: false });`
+            ].join('\n'),
+            injectTo: 'head-prepend'
+          }
+        ]
+      }
+    }
+  }
+})
+
 export default defineConfig(({ mode }) => {
   // 同时加载 VITE_ 与 VUE_APP_ 前缀，保持与 Vue CLI 时期的 .env 文件兼容
   const env = loadEnv(mode, process.cwd(), ['VITE_', 'VUE_APP_', 'NODE_'])
@@ -16,6 +65,7 @@ export default defineConfig(({ mode }) => {
     envPrefix: ['VITE_', 'VUE_APP_'],
 
     plugins: [
+      googleAnalytics(env.VUE_APP_GA_ID),
       vue(),
       // Tailwind v4 needs no config file; source scanning is automatic.
       // Layer setup lives in src/styles/tailwind.css.
