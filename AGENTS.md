@@ -119,7 +119,9 @@ const handleExport = () => exportExcel({
 })
 ```
 
-**不要自己写** `import('@/vendor/Export2Excel')` 那一套 —— 之前 5 个页面各抄了一份。
+**不要自己 import 写出器** —— 之前 5 个页面各抄了一份手工拼工作簿的代码。
+写出器由 `useExport` 动态载入，只有真的点了导出才会下载它；表格与列宽的构造在
+`src/utils/workbook.ts`，有单元测试。
 导出的是**传进去的行**，也就是当前这一页，不是整个集合；默认确认文案已经这么说了。
 
 比 mixin 好在哪：**一个页面可以调多次**。mixin 把名字合并进组件，一页只能用一次，
@@ -131,7 +133,7 @@ const handleExport = () => exportExcel({
 - **提交有防重**。`submit()` 在飞行中会直接返回 `false`，不会发第二次请求。
   `useRemove` 同理。**别自己写 `ElMessageBox.confirm` + 删除的那一套** ——
   手写版本区分不了"用户点了取消"和"服务端报错"，这正是旧 mixin 的老问题。
-- **拦截器已经报过错**。`utils/request.js` 对非 200 直接 reject 并弹了消息，
+- **拦截器已经报过错**。`utils/request.ts` 对非 200 直接 reject 并弹了消息，
   所以 `.then(res => res.code === 200 ? ... : ...)` 的 else 分支是死代码。
   `onError` 只用来做额外处理，**不要再弹一次**。
 - **`resetQuery()` 用工厂重建**，不是 `resetFields()`。后者只还原带 `prop` 的字段，
@@ -183,7 +185,8 @@ export function listUser(query: SysUserQuery & PageQuery) {
 }
 ```
 
-类型参数描述的是**信封**而不是 payload，原因见 `src/utils/request.d.ts`。
+类型参数描述的是**信封**而不是 payload —— 拦截器把 `{ code, data, msg }` 直接返回给调用方，
+而不是 axios 包着它的那层；原因写在 `src/utils/request.ts` 做这件事的那几行旁边。
 调用尚未转 TS 的模块时用 `asApi<T>()` 在调用点断言（`src/types/api.ts`），
 每一处都是后续要删掉的临时措施。
 
@@ -201,7 +204,7 @@ export function listUser(query: SysUserQuery & PageQuery) {
 
 ## 路由
 
-页面路由由后端菜单动态生成（`store/modules/permission.js`），前端只维护
+页面路由由后端菜单动态生成（`src/stores/permission.ts`），前端只维护
 `router/index.js` 中的固定路由（登录、首页、错误页等）。
 
 `meta` 字段：`title` `icon` `noCache` `affix` `hidden` `breadcrumb`。

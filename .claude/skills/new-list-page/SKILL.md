@@ -89,7 +89,7 @@ const { remove } = useRemove({ api: delProduct, onSuccess: () => table.getList()
 
 ### 5. 错误处理：不要重复提示
 
-`utils/request.js` 的拦截器已经对非 200 响应直接 reject 并弹了错误消息，所以业务代码
+`utils/request.ts` 的拦截器已经对非 200 响应直接 reject 并弹了错误消息，所以业务代码
 拿到的 resolve 一定是成功的——`.then(res => res.code === 200 ? ... : ...)` 的 else
 分支是死代码，不要写。`onError`（如果用到）只做额外处理（恢复 loading/submitting 状态），
 **不要再弹一次消息**。
