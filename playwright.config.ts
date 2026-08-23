@@ -23,7 +23,33 @@ process.env.no_proxy = process.env.NO_PROXY;
 export default defineConfig({
   testDir: './tests/e2e',
   timeout: 30_000,
-  retries: 0,
+
+  /**
+   * Retries in CI, none locally.
+   *
+   * The suite fails in one shape that has nothing to do with the code under
+   * test: a single `page.goto` stalls until it eats the whole 30s test timeout,
+   * on a different test each time, only on the runner. Everything before and
+   * after it finishes in three or four seconds. Observed twice in three runs,
+   * once in app-shell and once in sys-user; the same commits pass locally and
+   * pass on a rerun.
+   *
+   * It was not diagnosed. What was ruled out: the dev server logs no
+   * re-optimisation, no reload and no transform error across a full local run;
+   * the suite takes 8-9 minutes whether it goes red or green, so it is not
+   * running out of some overall budget.
+   *
+   * With `retries: 0` one such stall turns the whole gate red, and a gate that
+   * goes red for reasons nobody can explain is one people learn to re-run
+   * without reading. Retrying does not hide it: Playwright reports a test that
+   * needed a retry as `flaky`, so the rate stays visible in the run output. If
+   * that rate climbs, something real is behind it and this comment is the
+   * starting point.
+   *
+   * Locally the number stays 0, so a test that fails on a developer's machine
+   * fails immediately rather than after three tries.
+   */
+  retries: process.env.CI ? 2 : 0,
 
   /**
    * One worker. Every spec drives the same Vite dev server, so the runs compete
