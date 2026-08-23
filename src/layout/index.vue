@@ -1,7 +1,9 @@
 <template>
   <div :class="classObj" class="app-wrapper" :style="{'--current-color': theme}">
     <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside" />
-    <sidebar class="sidebar-container" :style="{ backgroundColor: themeStyle === 'dark' ? variables.menuBg : variables.menuLightBg }" />
+    <!-- The rail class resolves one set of --rail-* variables for everything
+         inside it; see the sidebar rail block in styles/tokens.css. -->
+    <sidebar class="sidebar-container" :class="`rail-${themeStyle}`" />
     <div :class="{hasTagsView:needTagsView}" class="main-container">
       <div :class="{'fixed-header':fixedHeader}">
         <navbar @open-settings="settingsOpen = true" />

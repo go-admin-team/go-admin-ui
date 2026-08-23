@@ -150,6 +150,50 @@
 }
 
 /*
+ * ── Sidebar rail ───────────────────────────────────────────────────
+ *
+ * The rail comes in two surfaces, chosen by the themeStyle setting, and both
+ * exist in either colour scheme -- a light rail under the dark scheme is a dark
+ * grey plane, not a white one. Rather than have every rule in styles/sidebar.scss
+ * ask which is active, the layout puts `rail-light` or `rail-dark` on the
+ * container and those rules read these variables.
+ *
+ * That indirection is the point. sidebar.scss used to name --ga-sidebar-* (the
+ * dark set) directly, with !important, so switching themeStyle turned the
+ * container white and left the menu inside it dark -- white text on a white
+ * rail. One name per role, resolved here, is what makes both settings render.
+ */
+.rail-dark {
+  --rail-bg:          var(--ga-sidebar-bg);
+  --rail-bg-sub:      var(--ga-sidebar-bg-sub);
+  --rail-hover:       var(--ga-sidebar-hover);
+  --rail-text:        var(--ga-sidebar-text);
+  --rail-text-active: var(--ga-sidebar-text-active);
+  --rail-title:       var(--ga-sidebar-title);
+  --rail-active-bg:   var(--ga-brand);
+  --rail-active-text: #ffffff;
+  --rail-border:      transparent;
+  --rail-shadow:      2px 0 6px rgba(0, 21, 41, 0.35);
+}
+
+.rail-light {
+  --rail-bg:          var(--ga-sidebar-light-bg);
+  --rail-bg-sub:      var(--ga-sidebar-light-bg);
+  --rail-hover:       var(--ga-sidebar-light-hover);
+  --rail-text:        var(--ga-text-2);
+  --rail-text-active: var(--ga-text-1);
+  --rail-title:       var(--ga-sidebar-light-title);
+  /* Ant Design's controlItemBgActive: the selected row is a tint of the accent,
+   * not a fill of it, so the label stays readable and the rail stays quiet. */
+  --rail-active-bg:   color-mix(in oklab, var(--ga-brand), var(--ga-bg-container) 90%);
+  --rail-active-text: var(--ga-brand);
+  --rail-border:      var(--ga-border-light);
+  /* A hairline does the separating; a drop shadow under a white rail on a
+   * near-white page is a smudge, not an edge. */
+  --rail-shadow:      none;
+}
+
+/*
  * ── Element Plus bridge ────────────────────────────────────────────
  *
  * Element Plus is themed entirely through CSS variables, so pointing its

@@ -13,7 +13,8 @@
     -webkit-transition: width .28s;
     transition: width 0.28s;
     width: $sideBarWidth !important;
-    background-color: $menuBg;
+    background-color: var(--rail-bg);
+    border-right: 1px solid var(--rail-border);
     height: 100%;
     position: fixed;
     font-size: 0px;
@@ -22,8 +23,7 @@
     left: 0;
     z-index: 1001;
     overflow: hidden;
-    -webkit-box-shadow: 2px 0 6px rgba(0, 21, 41, .35);
-    box-shadow: 2px 0 6px rgba(0, 21, 41, .35);
+    box-shadow: var(--rail-shadow);
 
     .horizontal-collapse-transition {
       transition: 0s width ease-in-out, 0s padding-left ease-in-out, 0s padding-right ease-in-out;
@@ -72,19 +72,21 @@
       border: none;
       height: 100%;
       width: 100% !important;
-      --el-menu-bg-color: #{$menuBg};
-      background-color: $menuBg !important;
+      --el-menu-bg-color: var(--rail-bg);
+      background-color: var(--rail-bg) !important;
       border-right: none !important;
     }
 
-    // 外链菜单项由 a 标签承载（不参与路由），该层不应影响菜单布局与配色
+    // External-link rows are carried by an <a> that takes no part in routing;
+    // this layer must not affect the menu's own layout or colour.
     .sidebar-external-link {
       display: block;
       text-decoration: none;
       color: inherit;
     }
 
-    // 统一菜单项高度（Element Plus 2.x 默认 56px 偏大，收紧至 50px）
+    // One row height throughout: Element Plus 2.x defaults to 56px, which is
+    // tall for a dense admin menu.
     .el-menu-item,
     .el-sub-menu__title,
     .el-submenu__title {
@@ -93,63 +95,65 @@
       overflow: hidden !important;
       text-overflow: ellipsis !important;
       white-space: nowrap !important;
-      color: #fff !important;
+      color: var(--rail-text) !important;
     }
 
-    // 顶级 el-menu-item（如"首页"）必须设置深色背景，否则白字不可见
+    // Top-level rows paint the rail behind themselves: Element Plus leaves
+    // them transparent, which shows the scrollbar track through.
     .el-menu-item {
-      background-color: $menuBg !important;
+      background-color: var(--rail-bg) !important;
 
       &:hover {
-        background-color: $menuHover !important;
+        background-color: var(--rail-hover) !important;
       }
 
       &.is-active {
-        background-color: $subMenuBg !important;
-        color: $menuActiveText !important;
+        background-color: var(--rail-active-bg) !important;
+        color: var(--rail-active-text) !important;
       }
     }
 
-    // 展开的子菜单 el-menu-item 强制暗色背景 + 白色文字
+    // Rows inside an expanded submenu sit on the recessed surface.
     .el-sub-menu .el-menu-item,
     .el-submenu .el-menu-item {
-      background-color: $subMenuBg !important;
-      color: #fff !important;
+      background-color: var(--rail-bg-sub) !important;
+      color: var(--rail-text) !important;
       min-width: $sideBarWidth !important;
 
       &:hover {
-        background-color: $subMenuHover !important;
+        background-color: var(--rail-hover) !important;
       }
 
       &.is-active {
-        color: $menuActiveText !important;
+        background-color: var(--rail-active-bg) !important;
+        color: var(--rail-active-text) !important;
       }
     }
 
-    // 嵌套子菜单标题
+    // Nested submenu titles.
     .nest-menu .el-sub-menu > .el-sub-menu__title,
     .nest-menu .el-submenu > .el-submenu__title {
-      background-color: $subMenuBg !important;
-      color: #fff !important;
+      background-color: var(--rail-bg-sub) !important;
+      color: var(--rail-text) !important;
       min-width: $sideBarWidth !important;
 
       &:hover {
-        background-color: $subMenuHover !important;
+        background-color: var(--rail-hover) !important;
       }
     }
 
-    // 父级菜单标题 hover 效果
+    // Hover on a row that opens a submenu.
     .submenu-title-noDropdown,
     .el-sub-menu__title,
     .el-submenu__title {
       &:hover {
-        background-color: $menuHover !important;
+        background-color: var(--rail-hover) !important;
       }
     }
 
     .is-active > .el-sub-menu__title,
     .is-active > .el-submenu__title {
-      color: $subMenuActiveText !important;
+      color: var(--rail-active-text) !important;
     }
   }
 

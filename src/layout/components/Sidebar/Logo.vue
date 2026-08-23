@@ -70,8 +70,8 @@ export default {
   // gradient, which put the most saturated block in the interface against the
   // darkest one and read as a patch rather than a header -- and on a light rail
   // it would have been the only saturated thing on screen.
-  background: var(--ga-sidebar-bg);
-  border-bottom: 1px solid transparent;
+  background: var(--rail-bg);
+  border-bottom: 1px solid var(--rail-border);
   text-align: center;
   overflow: hidden;
 
@@ -96,14 +96,14 @@ export default {
       vertical-align: middle;
       margin-right: 10px;
       border-radius: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      border: 1px solid var(--rail-border);
       flex-shrink: 0;
     }
 
     & .sidebar-title {
       display: inline-block;
       margin: 0;
-      color: var(--ga-sidebar-title);
+      color: var(--rail-title);
       font-weight: 600;
       font-size: 15px;
       font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
