@@ -51,11 +51,18 @@
       display: none;
     }
 
-    a {
-      display: inline-block;
-      width: 100%;
-      overflow: hidden;
-    }
+    // A bare `a` rule used to sit here, from the template this sidebar started
+    // as, where every menu row was wrapped in a link. Element Plus renders rows
+    // as <li>, so the only anchor left in the sidebar is the logo link -- and
+    // because this whole file is nested under #app, `display: inline-block` beat
+    // the scoped `display: flex` the logo is laid out with (an id outranks any
+    // number of classes). The logo link is absolutely positioned, which
+    // blockifies inline-block, so it computed to `block`, `align-items` and
+    // `justify-content` went inert, and the 28px image was dropped onto the
+    // baseline of a 64px line box and clipped in half by the header's
+    // overflow: hidden. What the rule was there for is covered elsewhere:
+    // external links carry .sidebar-external-link with its own display: block,
+    // and .el-menu-item sets overflow: hidden !important below.
 
     .svg-icon {
       margin-right: 16px;

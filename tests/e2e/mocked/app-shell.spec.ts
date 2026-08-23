@@ -45,6 +45,48 @@ test.describe('app shell', () => {
     await expect(page.locator('symbol#icon-star')).toBeAttached()
   })
 
+  /**
+   * The logo stays inside the block it is drawn on.
+   *
+   * Both halves of this only appear once the deployment has a logo image and an
+   * application name long enough to fill the sidebar -- which the demo has and
+   * the fixture did not, so the layout could break in production while every
+   * test stayed green. Branding is fetched on the login page and cached, so a
+   * session that resumes straight into an inner page reads it from storage,
+   * which is what this seeds.
+   */
+  test('the sidebar logo is not pushed out of its header', async({ page, context }) => {
+    await authenticate(context)
+    await installApiMocks(page)
+
+    const logo = 'data:image/svg+xml;base64,' + Buffer.from(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="#22c55e"/></svg>'
+    ).toString('base64')
+
+    await page.addInitScript(([name, src]) => {
+      localStorage.setItem('app_info', JSON.stringify({ sys_app_name: name, sys_app_logo: src }))
+    }, ['go-admin管理系统', logo])
+
+    await page.goto('/#/demo/product')
+    await page.waitForSelector('.el-menu')
+
+    const header = await page.locator('.sidebar-logo-container').boundingBox()
+    const image = await page.locator('.sidebar-logo').boundingBox()
+    expect(header, 'the logo header is rendered').toBeTruthy()
+    expect(image, 'the logo image is rendered').toBeTruthy()
+
+    // The header clips its overflow, so anything outside it is not merely
+    // misplaced -- it is cut in half, which is how this last shipped.
+    expect(image!.y).toBeGreaterThanOrEqual(header!.y)
+    expect(image!.y + image!.height).toBeLessThanOrEqual(header!.y + header!.height)
+    expect(image!.x).toBeGreaterThanOrEqual(header!.x)
+
+    // Centred, not merely contained: off by more than a pixel means the row is
+    // laid out by something other than the rule that was written for it.
+    const offset = (image!.y - header!.y) - (header!.height - image!.height) / 2
+    expect(Math.abs(offset)).toBeLessThanOrEqual(1)
+  })
+
   test('builds the sidebar from the backend menu', async({ page, context }) => {
     await authenticate(context)
     const { calls } = await installApiMocks(page)
