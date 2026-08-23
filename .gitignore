@@ -30,4 +30,7 @@ yarn.lock
 
 # Claude Code
 CLAUDE.md
-.claude/
+.claude/*
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/new-list-page/
