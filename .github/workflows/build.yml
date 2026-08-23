@@ -26,8 +26,18 @@ jobs:
       - name: install
         run: pnpm install --frozen-lockfile
 
+      # The measurement id lives here rather than in .env.production so that it
+      # reaches the demo site and nothing else. Committed to the env file it
+      # would end up in every self-hosted build, pointing other people's users
+      # at this property -- their traffic reported here, and a request to
+      # googletagmanager.com from deployments that may have no route to it.
+      #
+      # Not a secret: it is readable in the demo site's page source, and keeping
+      # it in the open is what makes the previous paragraph checkable.
       - name: Build
         run: pnpm build:prod
+        env:
+          VUE_APP_GA_ID: G-VB7EMGYWH0
 
       # 以下部署步骤仅在 master 收到 push 时执行。
       # pull_request 事件同样会触发本工作流，若不加限制，任何指向 master 的
