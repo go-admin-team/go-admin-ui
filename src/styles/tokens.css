@@ -22,57 +22,68 @@
 :root {
   /* ── Brand ────────────────────────────────────────────────────────
    * Change this one value to retheme the application.
-   * A cyan-leaning blue: distinct from the Ant Design blue that most admin
-   * templates ship with, and a nod to Go's own palette, while staying calm
-   * enough for large surfaces.
+   *
+   * Ant Design 5's colorPrimary. The palette below follows the rest of that
+   * system too, because this is a framework other people build admin panels on
+   * and the least surprising thing it can look like is the one every Chinese
+   * admin panel already looks like. It is also what index.html's first-paint
+   * loader has always used, so the two finally agree.
    */
-  --ga-brand: #0d7d9e;
+  --ga-brand: #1677ff;
 
   /* Direction tints are mixed toward. Flipped under .dark so the single set of
    * derivation rules below works for both themes. */
   --ga-mix-toward: #ffffff;
 
-  /* ── Semantic colours ─────────────────────────────────────────── */
-  --ga-success: #16a34a;
-  --ga-warning: #d97706;
-  --ga-danger:  #dc2626;
-  --ga-info:    #64748b;
+  /* ── Semantic colours ─────────────────────────────────────────
+   * Ant Design 5's success / warning / error. Brighter than the Tailwind ramp
+   * they replace, which is the point: a status column is read at a glance and
+   * these separate at small sizes. */
+  --ga-success: #52c41a;
+  --ga-warning: #faad14;
+  --ga-danger:  #ff4d4f;
+  --ga-info:    #8c8c8c;
 
   /* ── Neutrals ──────────────────────────────────────────────────
-   * Biased slightly toward the brand hue rather than pure grey, so surfaces
-   * read as chosen instead of defaulted.
+   * Ant Design 5's neutral ramp, which is achromatic: text is black at four
+   * opacities, surfaces are true greys. These used to carry a slight brand tint
+   * so they would "read as chosen"; next to a blue accent that tint is what
+   * made the greys look faintly green instead.
    */
-  --ga-bg-body:      #eef1f4;
-  --ga-bg-container: #ffffff;
-  --ga-bg-elevated:  #ffffff;
-  --ga-bg-subtle:    #f5f7f9;
-  --ga-bg-hover:     rgba(13, 125, 158, 0.06);
+  --ga-bg-body:      #f5f5f5;  /* colorBgLayout */
+  --ga-bg-container: #ffffff;  /* colorBgContainer */
+  --ga-bg-elevated:  #ffffff;  /* colorBgElevated */
+  --ga-bg-subtle:    #fafafa;  /* table headers, striped rows */
+  --ga-bg-hover:     rgba(0, 0, 0, 0.04);  /* colorFillTertiary */
 
-  --ga-text-1:        rgba(15, 27, 33, 0.88);
-  --ga-text-2:        rgba(15, 27, 33, 0.65);
-  --ga-text-3:        rgba(15, 27, 33, 0.45);
-  --ga-text-disabled: rgba(15, 27, 33, 0.28);
+  --ga-text-1:        rgba(0, 0, 0, 0.88);
+  --ga-text-2:        rgba(0, 0, 0, 0.65);
+  --ga-text-3:        rgba(0, 0, 0, 0.45);
+  --ga-text-disabled: rgba(0, 0, 0, 0.25);
   --ga-text-inverse:  #ffffff;
 
-  --ga-border:       #d6dee2;
-  --ga-border-light: #e8edf0;
+  --ga-border:       #d9d9d9;  /* colorBorder */
+  --ga-border-light: #f0f0f0;  /* colorBorderSecondary */
 
   /* ── Sidebar ───────────────────────────────────────────────────
-   * Its own scale: in light mode this is a dark surface, so it cannot inherit
-   * the neutral ramp above. Tinted with the brand hue instead of the flat navy
-   * the template shipped with.
+   * Two sets, chosen by the themeStyle setting. The light one is the default
+   * (src/settings.js) and is what Ant Design Pro does: the navigation is a
+   * white plane like the content, separated by a hairline rather than by
+   * inversion, so the page reads as one surface instead of two.
+   *
+   * The dark set stays for deployments that prefer it, and is now navy rather
+   * than the teal it was -- it has to sit under the same blue accent.
    */
-  --ga-sidebar-bg:        #0f2b35;
-  --ga-sidebar-bg-sub:    #0b222a;
-  --ga-sidebar-hover:     #143b48;
-  --ga-sidebar-text:      rgba(255, 255, 255, 0.72);
+  --ga-sidebar-bg:        #001529;
+  --ga-sidebar-bg-sub:    #000c17;
+  --ga-sidebar-hover:     #0a2540;
+  --ga-sidebar-text:      rgba(255, 255, 255, 0.65);
   --ga-sidebar-text-active: #ffffff;
   --ga-sidebar-title:     #ffffff;
 
-  /* Light-themed sidebar, selected via the themeStyle setting */
   --ga-sidebar-light-bg:    #ffffff;
-  --ga-sidebar-light-hover: #eef5f8;
-  --ga-sidebar-light-title: #0f2b35;
+  --ga-sidebar-light-hover: rgba(0, 0, 0, 0.04);
+  --ga-sidebar-light-title: rgba(0, 0, 0, 0.88);
 
   /* ── Shape ─────────────────────────────────────────────────────── */
   --ga-radius-sm: 4px;
@@ -83,53 +94,55 @@
    * Deliberately shallow. Admin surfaces are dense; heavy shadows on every
    * card turn a table page into a relief map.
    */
-  --ga-shadow-sm: 0 1px 2px rgba(15, 27, 33, 0.04);
-  --ga-shadow:    0 1px 2px rgba(15, 27, 33, 0.04), 0 2px 8px rgba(15, 27, 33, 0.04);
-  --ga-shadow-lg: 0 4px 16px rgba(15, 27, 33, 0.10);
+  --ga-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --ga-shadow:    0 1px 2px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --ga-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .dark {
-  --ga-brand: #3aa5c7;
+  /* Ant Design 5's dark algorithm: the same hues, pulled down so they do not
+   * glare on a black ground. */
+  --ga-brand: #1668dc;
   --ga-mix-toward: #000000;
 
-  --ga-success: #22c55e;
-  --ga-warning: #f59e0b;
-  --ga-danger:  #ef4444;
-  --ga-info:    #94a3b8;
+  --ga-success: #49aa19;
+  --ga-warning: #d89614;
+  --ga-danger:  #dc4446;
+  --ga-info:    #8c8c8c;
 
   /* Light mode separates the sidebar by inverting it; dark mode cannot, so the
    * separation has to come from value. These five surfaces climb monotonically
    * in relative luminance, and the sidebar sits BELOW the page rather than above
    * it: it is chrome, so it recedes and leaves the content card the brightest
    * plane. Keep any new surface on the ladder. */
-  --ga-bg-body:      #0d1417;
-  --ga-bg-container: #151e22;
-  --ga-bg-elevated:  #212d33;
+  --ga-bg-body:      #0a0a0a;
+  --ga-bg-container: #141414;  /* colorBgContainer */
+  --ga-bg-elevated:  #1f1f1f;  /* colorBgElevated */
   /* Lighter than the container here, darker than it in light mode: both mean
    * "one step off the surface". Also feeds el-fill-color, where a hover in dark
    * has to lift rather than sink. */
-  --ga-bg-subtle:    #1c262b;
-  --ga-bg-hover:     rgba(58, 165, 199, 0.10);
+  --ga-bg-subtle:    #1a1a1a;
+  --ga-bg-hover:     rgba(255, 255, 255, 0.08);
 
-  --ga-text-1:        rgba(232, 240, 243, 0.90);
-  --ga-text-2:        rgba(232, 240, 243, 0.66);
-  --ga-text-3:        rgba(232, 240, 243, 0.45);
-  --ga-text-disabled: rgba(232, 240, 243, 0.28);
-  --ga-text-inverse:  #0d1417;
+  --ga-text-1:        rgba(255, 255, 255, 0.85);
+  --ga-text-2:        rgba(255, 255, 255, 0.65);
+  --ga-text-3:        rgba(255, 255, 255, 0.45);
+  --ga-text-disabled: rgba(255, 255, 255, 0.25);
+  --ga-text-inverse:  #0a0a0a;
 
-  --ga-border:       #2a383e;
-  --ga-border-light: #202c31;
+  --ga-border:       #424242;  /* colorBorder */
+  --ga-border-light: #303030;  /* colorBorderSecondary */
 
-  --ga-sidebar-bg:        #070d10;
-  --ga-sidebar-bg-sub:    #05090b;
-  --ga-sidebar-hover:     #16262c;
-  --ga-sidebar-text:      rgba(232, 240, 243, 0.68);
+  --ga-sidebar-bg:        #000c17;
+  --ga-sidebar-bg-sub:    #000710;
+  --ga-sidebar-hover:     #0a2540;
+  --ga-sidebar-text:      rgba(255, 255, 255, 0.65);
   --ga-sidebar-text-active: #ffffff;
   --ga-sidebar-title:     #ffffff;
 
-  --ga-sidebar-light-bg:    #151e22;
-  --ga-sidebar-light-hover: #1b262b;
-  --ga-sidebar-light-title: #e8f0f3;
+  --ga-sidebar-light-bg:    #141414;
+  --ga-sidebar-light-hover: rgba(255, 255, 255, 0.08);
+  --ga-sidebar-light-title: rgba(255, 255, 255, 0.85);
 
   --ga-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.32);
   --ga-shadow:    0 1px 2px rgba(0, 0, 0, 0.32), 0 2px 8px rgba(0, 0, 0, 0.28);
