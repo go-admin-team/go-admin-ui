@@ -23,8 +23,10 @@
   /* ── Brand ────────────────────────────────────────────────────────
    * Change this one value to retheme the application.
    *
-   * Ant Design 5's colorPrimary. The palette below follows the rest of that
-   * system too, because this is a framework other people build admin panels on
+   * Ant Design's colorPrimary, verified against antd 6.6.1's computed design
+   * tokens rather than copied from a blog post. The palette below follows the
+   * rest of that system too, because this is a framework people build admin
+   * panels on
    * and the least surprising thing it can look like is the one every Chinese
    * admin panel already looks like. It is also what index.html's first-paint
    * loader has always used, so the two finally agree.
@@ -36,7 +38,7 @@
   --ga-mix-toward: #ffffff;
 
   /* ── Semantic colours ─────────────────────────────────────────
-   * Ant Design 5's success / warning / error. Brighter than the Tailwind ramp
+   * antd 6's success / warning / error seed tokens. Brighter than the Tailwind ramp
    * they replace, which is the point: a status column is read at a glance and
    * these separate at small sizes. */
   --ga-success: #52c41a;
@@ -45,7 +47,7 @@
   --ga-info:    #8c8c8c;
 
   /* ── Neutrals ──────────────────────────────────────────────────
-   * Ant Design 5's neutral ramp, which is achromatic: text is black at four
+   * antd 6's neutral ramp, which is achromatic: text is black at four
    * opacities, surfaces are true greys. These used to carry a slight brand tint
    * so they would "read as chosen"; next to a blue accent that tint is what
    * made the greys look faintly green instead.
@@ -100,7 +102,7 @@
 }
 
 .dark {
-  /* Ant Design 5's dark algorithm: the same hues, pulled down so they do not
+  /* antd 6's darkAlgorithm output: the same hues, pulled down so they do not
    * glare on a black ground. */
   --ga-brand: #1668dc;
   --ga-mix-toward: #000000;
@@ -115,6 +117,9 @@
    * in relative luminance, and the sidebar sits BELOW the page rather than above
    * it: it is chrome, so it recedes and leaves the content card the brightest
    * plane. Keep any new surface on the ladder. */
+  /* antd's colorBgLayout is #000000 here. The ladder above needs room *below*
+   * the page for the rail, and pure black leaves none, so this stops one step
+   * short. The only value on this list that is deliberately not antd's. */
   --ga-bg-body:      #0a0a0a;
   --ga-bg-container: #141414;  /* colorBgContainer */
   --ga-bg-elevated:  #1f1f1f;  /* colorBgElevated */
