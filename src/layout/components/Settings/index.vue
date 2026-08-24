@@ -35,6 +35,17 @@
           <span>主题颜色</span>
           <theme-picker style="float: right;height: 26px;margin: -3px 8px 0 0;" @change="themeChange" />
         </div>
+
+        <!-- 明暗配色。与上面的「侧栏风格」是两个维度：这里决定整个界面，
+             那里只决定侧栏那一条。跟随系统是默认值，也是唯一会随系统变的选项。 -->
+        <div class="drawer-item">
+          <span>明暗配色</span>
+          <el-radio-group v-model="colorScheme" size="small" class="drawer-color-scheme">
+            <el-radio-button value="system">跟随系统</el-radio-button>
+            <el-radio-button value="light">浅色</el-radio-button>
+            <el-radio-button value="dark">深色</el-radio-button>
+          </el-radio-group>
+        </div>
       </div>
       <el-divider />
       <div class="setting-drawer-content">
@@ -97,6 +108,7 @@ export default {
     fixedHeader: settingModel('fixedHeader'),
     tagsView: settingModel('tagsView'),
     sidebarLogo: settingModel('sidebarLogo'),
+    colorScheme: settingModel('colorScheme'),
     topNav: {
       get() {
         return useSettingsStore().topNav
@@ -131,13 +143,13 @@ export default {
 
   .drawer-title {
     margin-bottom: 12px;
-    color: rgba(0, 0, 0, .85);
+    color: var(--ga-text-1);
     font-size: 14px;
     line-height: 22px;
   }
 
   .drawer-item {
-    color: rgba(0, 0, 0, .65);
+    color: var(--ga-text-2);
     font-size: 14px;
     padding: 12px 0;
   }
@@ -145,11 +157,18 @@ export default {
   .drawer-switch {
     float: right
   }
+
+  // The three-way control is wider than a switch, so it goes on its own line
+  // rather than being crushed against the label at 300px of drawer.
+  .drawer-color-scheme {
+    display: flex;
+    margin-top: 8px;
+  }
 }
 .setting-drawer-content{
   .setting-drawer-title{
     margin-bottom: 12px;
-    color: rgba(0,0,0,.85);
+    color: var(--ga-text-1);
     font-size: 14px;
     line-height: 22px;
     font-weight: bold;
@@ -175,7 +194,7 @@ export default {
             height: 100%;
             padding-top: 15px;
             padding-left: 24px;
-            color: #1890ff;
+            color: var(--ga-brand);
             font-weight: 700;
             font-size: 14px;
         }
