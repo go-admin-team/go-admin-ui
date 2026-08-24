@@ -36,7 +36,7 @@ export default {
   .title {
     font-size: 14px;
     font-weight: 600;
-    color: rgba(0, 0, 0, 0.85);
+    color: var(--ga-text-1);
     margin-bottom: 0;
   }
 
@@ -63,10 +63,11 @@ export default {
     font-size: 12px;
     font-weight: 600;
     margin-right: 16px;
-    background: #f0f0f0;
-    color: #8c8c8c;
+    background: var(--ga-bg-hover);
+    color: var(--ga-text-2);
 
     &.rank-gold {
+      // Gold, silver and bronze stay literal: they encode rank, not theme.
       background: linear-gradient(135deg, #ffe58f, #faad14);
       color: #fff;
     }
@@ -84,7 +85,7 @@ export default {
 
   .rank-name {
     flex: 1;
-    color: rgba(0, 0, 0, .65);
+    color: var(--ga-text-2);
     font-size: 14px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -93,7 +94,7 @@ export default {
 
   .rank-total {
     flex-shrink: 0;
-    color: rgba(0, 0, 0, .85);
+    color: var(--ga-text-1);
     font-size: 14px;
     font-weight: 500;
     margin-left: 8px;
