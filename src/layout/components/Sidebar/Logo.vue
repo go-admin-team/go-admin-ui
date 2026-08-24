@@ -1,14 +1,14 @@
 <template>
-  <div class="sidebar-logo-container" :class="{'collapse':collapse}" :style="{ backgroundColor: themeStyle === 'dark' ? variables.menuBg : variables.menuLightBg }">
+  <div class="sidebar-logo-container" :class="{'collapse':collapse}">
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
         <img v-if="showLogo" :src="appInfo.sys_app_logo" class="sidebar-logo" @error="showLogo = false">
         <!-- 折叠后仅 54px，完整应用名会被裁成半截文字，改用首字母作标记 -->
-        <h1 v-else class="sidebar-title sidebar-title--mark" :title="appName" :style="{ color: titleColor }">{{ monogram }}</h1>
+        <h1 v-else class="sidebar-title sidebar-title--mark" :title="appName">{{ monogram }}</h1>
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
         <img v-if="showLogo" :src="appInfo.sys_app_logo" class="sidebar-logo" @error="showLogo = false">
-        <h1 class="sidebar-title" :style="{ color: titleColor }">{{ appName }}</h1>
+        <h1 class="sidebar-title">{{ appName }}</h1>
       </router-link>
     </transition>
   </div>
@@ -16,10 +16,8 @@
 
 <script>
 
-import variables from '@/styles/variables.module.scss'
 import { mapState } from 'pinia'
 import { useSystemStore } from '@/stores/system'
-import { useSettingsStore } from '@/stores/settings'
 
 export default {
   name: 'SidebarLogo',
@@ -34,17 +32,8 @@ export default {
   },
   computed: {
     ...mapState(useSystemStore, { appInfo: 'info' }),
-    ...mapState(useSettingsStore, ['themeStyle']),
-    variables() {
-      return variables
-    },
     appName() {
       return (this.appInfo && this.appInfo.sys_app_name) || 'Go Admin'
-    },
-    titleColor() {
-      return this.themeStyle === 'dark'
-        ? variables.sidebarTitle
-        : variables.sidebarLightTitle
     },
     monogram() {
       return this.appName.trim().charAt(0).toUpperCase()
@@ -77,13 +66,14 @@ export default {
   width: 100%;
   height: 64px;
   line-height: 64px;
-  background: linear-gradient(135deg,
-    color-mix(in oklab, var(--ga-brand), #000 45%) 0%,
-    var(--ga-brand) 60%,
-    var(--el-color-primary-light-3) 100%);
+  // Part of the rail, not a plaque laid on top of it. This was a brand-colour
+  // gradient, which put the most saturated block in the interface against the
+  // darkest one and read as a patch rather than a header -- and on a light rail
+  // it would have been the only saturated thing on screen.
+  background: var(--rail-bg);
+  border-bottom: 1px solid var(--rail-border);
   text-align: center;
   overflow: hidden;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
 
   & .sidebar-logo-link {
     // 绝对定位使折叠/展开两个链接在过渡期重叠而非互相挤压，
@@ -106,15 +96,15 @@ export default {
       vertical-align: middle;
       margin-right: 10px;
       border-radius: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      border: 1px solid var(--rail-border);
       flex-shrink: 0;
     }
 
     & .sidebar-title {
       display: inline-block;
       margin: 0;
-      color: #fff;
-      font-weight: 700;
+      color: var(--rail-title);
+      font-weight: 600;
       font-size: 15px;
       font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
       letter-spacing: 0.5px;

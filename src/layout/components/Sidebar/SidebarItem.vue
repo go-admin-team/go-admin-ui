@@ -24,7 +24,11 @@
       </el-menu-item>
     </template>
 
-    <el-sub-menu v-else ref="subMenu" :index="resolvePath(item.path)" :style="{ backgroundColor: '#000c17' }">
+    <!-- No inline background here. It used to carry a hard-coded #000c17, which
+         no setting could reach: the light rail turned everything around it white
+         and left this wrapper dark. The rail's own surface shows through, and
+         the rows on it are coloured in styles/sidebar.scss. -->
+    <el-sub-menu v-else ref="subMenu" :index="resolvePath(item.path)">
       <template #title>
         <!-- 官方折叠样式选择器为 .el-menu--collapse > .el-sub-menu > .el-sub-menu__title > span，
              span 必须是直接子元素，中间不能再包一层容器 -->

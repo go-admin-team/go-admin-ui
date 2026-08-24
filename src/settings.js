@@ -39,5 +39,15 @@ export default {
    */
   errorLog: 'production',
 
-  themeStyle: 'dark'
+  /**
+   * Sidebar surface: 'light' or 'dark', switched from the settings drawer.
+   *
+   * Light is the default because it is what the systems this gets compared
+   * against do, Ant Design Pro among them: navigation and content share one
+   * plane separated by a hairline, and the accent is spent on the few things
+   * that are actually interactive rather than on the largest block of screen
+   * nobody looks at. The dark rail is one switch away for deployments that
+   * prefer it, and both are covered by tests/e2e/mocked/sidebar-rail.spec.ts.
+   */
+  themeStyle: 'light'
 }
