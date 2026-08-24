@@ -51,6 +51,26 @@ const railColours = (page: Page): Promise<RailColours> => page.evaluate(() => {
   }
 })
 
+/**
+ * Waits for the rail's colours to stop moving.
+ *
+ * Element Plus transitions a menu row's background and text over 300ms, and
+ * getComputedStyle during a transition returns the interpolated value -- so
+ * measuring straight after the click reads a colour that is on screen for a
+ * moment and belongs to neither rail. That is what this used to do: it passed
+ * locally on timing luck and failed on CI three runs out of three, reporting
+ * `rgba(88, 88, 88, 0.65) on rgb(167, 174, 181)`, which is no token in the file.
+ */
+const settled = async(page: Page): Promise<void> => {
+  let previous = ''
+  await expect.poll(async() => {
+    const current = JSON.stringify(await railColours(page))
+    const stable = current === previous
+    previous = current
+    return stable
+  }, { message: 'rail colours stop changing', timeout: 5000 }).toBe(true)
+}
+
 const open = async(page: Page) => {
   // The name comes from the login page and is cached; seeding it means the
   // header has something to render.
@@ -59,6 +79,7 @@ const open = async(page: Page) => {
   })
   await page.goto('/#/demo/product')
   await page.waitForSelector('.el-menu')
+  await settled(page)
 }
 
 /** Flips the rail through the settings drawer, the way a user would. */
@@ -67,6 +88,7 @@ const switchRail = async(page: Page, to: 'light' | 'dark') => {
   await expect(page.locator('.rightPanel-container')).toHaveClass(/show/)
   await page.locator(`.setting-drawer-block-checbox-item:has(img[alt="${to}"])`).click()
   await page.locator('.rightPanel-close').click()
+  await settled(page)
 }
 
 test.describe('sidebar rail', () => {

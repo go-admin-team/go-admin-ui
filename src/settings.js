@@ -50,4 +50,14 @@ export default {
    * prefer it, and both are covered by tests/e2e/mocked/sidebar-rail.spec.ts.
    */
   themeStyle: 'light'
+
+  /**
+   * Light and dark are NOT set here.
+   *
+   * The colour scheme is seeded from localStorage by the store, because a
+   * snippet in index.html has already painted the page from that same value
+   * before any of this module loads -- a default here would only be able to
+   * disagree with what is on screen. src/utils/color-scheme.ts owns it, and
+   * its own default is 'system'.
+   */
 }

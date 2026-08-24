@@ -40,7 +40,9 @@ export default {
     title: { type: String, default: '' },
     total: { type: [Function, Number, String], required: false, default: null },
     loading: { type: Boolean, default: false },
-    color: { type: String, default: '#1677ff' }
+    // Falls back to the brand token rather than a copy of its value, so a
+    // rebrand does not leave this one card behind.
+    color: { type: String, default: 'var(--ga-brand)' }
   }
 }
 </script>
@@ -58,7 +60,7 @@ export default {
     top: 0;
     bottom: 0;
     width: 4px;
-    background-color: var(--kpi-color, #1677ff);
+    background-color: var(--kpi-color, var(--ga-brand));
     z-index: 1;
     border-radius: 4px 0 0 4px;
   }
@@ -75,7 +77,7 @@ export default {
   right: 16px;
   font-size: 56px;
   opacity: 0.1;
-  color: var(--kpi-color, #1677ff);
+  color: var(--kpi-color, var(--ga-brand));
   line-height: 1;
   pointer-events: none;
   z-index: 0;
@@ -90,7 +92,7 @@ export default {
     position: relative;
     overflow: hidden;
     width: 100%;
-    color: rgba(0, 0, 0, .45);
+    color: var(--ga-text-3);
     font-size: 14px;
     line-height: 22px;
   }
@@ -115,7 +117,7 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     margin: 0;
-    color: rgba(0, 0, 0, .65);
+    color: var(--ga-text-2);
     font-size: 14px;
   }
 }
@@ -139,7 +141,7 @@ export default {
   text-overflow: ellipsis;
   word-break: break-all;
   white-space: nowrap;
-  color: rgba(0, 0, 0, 0.85);
+  color: var(--ga-text-1);
   margin-top: 4px;
   margin-bottom: 0;
   font-size: 28px;
