@@ -283,8 +283,16 @@ String.prototype.colorRgb = function() {
   box-sizing: border-box;
   display: flex;
   align-items: flex-end;
-  // el-tabs__header 固定 40px，而容器含 1px 下边框后内容区仅 39px，
-  // 底部对齐会使其向上溢出 1px 并压在 navbar 边框上，形成一条贯穿的横线
+  // A tab is 32px plus a 1px border top and bottom, so it needs 34px of room.
+  // The strip is 40px including its own bottom border, which leaves 39px --
+  // enough, provided nothing above the tabs eats into it. It used to: the row
+  // was sized by `height: 100%` against a flex line that had already been
+  // shortened, so the tabs sat one pixel proud of it and this overflow rule
+  // cut their top border off. Tabs are cards; without the top edge they read
+  // as open-topped boxes.
+  //
+  // The clip stays -- a tab must not climb into the navbar's border either --
+  // but the row below now reserves the height rather than relying on it.
   overflow: hidden;
 
   // el-tabs 整体铺满容器
@@ -297,9 +305,11 @@ String.prototype.colorRgb = function() {
   .el-tabs__header {
     margin: 0;
     border-bottom: none !important;
-    // 默认固定 40px，会超出容器内容区（40px 减去 1px 下边框）并向上压住
-    // navbar 的边框；改为自适应高度并让页签底部对齐
-    height: 100%;
+    // Sized to the tab it holds -- 32px of content plus its two 1px borders --
+    // rather than to the strip. `height: 100%` measured against a flex line
+    // that had already lost a pixel to the strip's own border, so the row came
+    // out at 31px and the 34px tab overflowed it upward into the clip.
+    height: 34px;
     display: flex;
     align-items: flex-end;
   }
