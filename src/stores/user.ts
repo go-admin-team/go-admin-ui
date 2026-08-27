@@ -102,8 +102,23 @@ export const useUserStore = defineStore('user', {
       storage.clear()
     },
 
+    /**
+     * Ends the session locally, without telling the server.
+     *
+     * Used where the session cannot be continued but there is nobody to log out
+     * from -- the router guard calls it when the profile lookup fails, which is
+     * exactly when a request to /logout would fail too.
+     *
+     * It clears the profile as well as the token. A caller reaching this has a
+     * session it could not finish building, and leaving half of one behind means
+     * the next guard pass reads `roles.length > 0` and lets the user through to
+     * a page with no permissions loaded.
+     */
     resetToken() {
       this.token = ''
+      this.roles = []
+      this.permisaction = []
+      this.name = ''
       removeToken()
     }
   }

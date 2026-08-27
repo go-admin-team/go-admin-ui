@@ -49,8 +49,19 @@ router.beforeEach(async(to, from, next) => {
           // set the replace: true, so the navigation will not leave a history record
           next({ ...to, replace: true })
         } catch(error) {
-          // remove token and go to login page to re-login
-          // await store.dispatch('user/resetToken')
+          // Drop the token before redirecting, or this loops.
+          //
+          // The guard reads a token as "signed in", so leaving it in place after
+          // the lookup failed sends /login straight back to / (see the branch
+          // above), which arrives with no roles, which calls getInfo again. On a
+          // backend returning 502 that is an unbounded stream of requests at
+          // whatever speed the server can refuse them -- and unlike a 401, a 502
+          // carries nothing that would end the session on its own.
+          //
+          // The line was here as a commented-out Vuex dispatch, left behind when
+          // the store was ported.
+          useUserStore().resetToken()
+
           // Only report what nobody has reported yet. An HTTP failure here has
           // already produced a toast from the response interceptor; the one
           // failure this catch knows about on its own is a client-side throw,
