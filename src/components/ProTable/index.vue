@@ -1,5 +1,11 @@
 <template>
   <div class="pro-table">
+    <!--
+      Two panels, not one. The search form changes *which* rows are on screen;
+      the toolbar, table and pager act on the rows that already are. Sharing one
+      surface read as a single block of controls, so the eye had to work out
+      which button changed the query and which changed the data.
+    -->
     <el-form
       v-if="$slots.search"
       :model="table.query"
@@ -24,78 +30,78 @@
       </el-form-item>
     </el-form>
 
-    <div v-if="$slots.toolbar" class="pro-table__toolbar">
-      <div class="pro-table__toolbar-actions">
+    <div class="pro-table__data">
+      <div v-if="$slots.toolbar" class="pro-table__toolbar">
         <slot name="toolbar" />
+        <el-button
+          class="pro-table__refresh"
+          :loading="table.loading"
+          circle
+          title="刷新"
+          @click="table.getList"
+        >
+          <el-icon><Refresh /></el-icon>
+        </el-button>
       </div>
-      <el-button
-        class="pro-table__refresh"
-        :loading="table.loading"
-        circle
-        title="刷新"
-        @click="table.getList"
-      >
-        <el-icon><Refresh /></el-icon>
-      </el-button>
-    </div>
 
-    <el-table
-      ref="tableRef"
-      v-loading="table.loading"
-      :data="table.rows"
-      :row-key="rowKey"
-      v-bind="$attrs"
-      @selection-change="table.handleSelectionChange"
-      @sort-change="table.handleSortChange"
-    >
-      <!--
-        No reserve-selection: it makes el-table keep rows selected across a data
-        change and, crucially, skip the selection-change event. After a bulk
-        delete the deleted ids stayed in the selection, the bulk button stayed
-        enabled, and a second click deleted ids that no longer existed.
-      -->
-      <el-table-column v-if="selection" type="selection" width="45" />
-      <slot />
-      <!--
-        The pinned action column is rendered here rather than by each page, so the
-        class the nowrap rule needs cannot be misspelled or forgotten. Pages that
-        wrote it themselves used at least two different class conventions, none of
-        them documented, and getting it wrong wraps the cell -- which changes the
-        row height of the pinned column only, so the pinned rows stop lining up
-        with the scrolling ones.
-      -->
-      <el-table-column
-        v-if="$slots.actions"
-        label="操作"
-        fixed="right"
-        :width="actionsWidth"
-        class-name="pro-table__actions"
+      <el-table
+        ref="tableRef"
+        v-loading="table.loading"
+        :data="table.rows"
+        :row-key="rowKey"
+        v-bind="$attrs"
+        @selection-change="table.handleSelectionChange"
+        @sort-change="table.handleSortChange"
       >
-        <template #default="scope">
-          <slot name="actions" v-bind="scope" />
+        <!--
+          No reserve-selection: it makes el-table keep rows selected across a data
+          change and, crucially, skip the selection-change event. After a bulk
+          delete the deleted ids stayed in the selection, the bulk button stayed
+          enabled, and a second click deleted ids that no longer existed.
+        -->
+        <el-table-column v-if="selection" type="selection" width="45" />
+        <slot />
+        <!--
+          The pinned action column is rendered here rather than by each page, so the
+          class the nowrap rule needs cannot be misspelled or forgotten. Pages that
+          wrote it themselves used at least two different class conventions, none of
+          them documented, and getting it wrong wraps the cell -- which changes the
+          row height of the pinned column only, so the pinned rows stop lining up
+          with the scrolling ones.
+        -->
+        <el-table-column
+          v-if="$slots.actions"
+          label="操作"
+          fixed="right"
+          :width="actionsWidth"
+          class-name="pro-table__actions"
+        >
+          <template #default="scope">
+            <slot name="actions" v-bind="scope" />
+          </template>
+        </el-table-column>
+        <template #empty>
+          <slot name="empty">
+            <el-empty :image-size="80" description="暂无数据" />
+          </slot>
         </template>
-      </el-table-column>
-      <template #empty>
-        <slot name="empty">
-          <el-empty :image-size="80" description="暂无数据" />
-        </slot>
-      </template>
-    </el-table>
+      </el-table>
 
-    <!--
-      `pagination` carries both the page and the size, and handlePagination
-      writes both back into the query -- which flows straight back down as
-      :page and :limit. Handling update:page and update:limit as well would
-      only set the same values a moment earlier.
-    -->
-    <Pagination
-      v-if="paginated"
-      v-show="table.total > 0"
-      :total="table.total"
-      :page="table.query.pageIndex"
-      :limit="table.query.pageSize"
-      @pagination="table.handlePagination"
-    />
+      <!--
+        `pagination` carries both the page and the size, and handlePagination
+        writes both back into the query -- which flows straight back down as
+        :page and :limit. Handling update:page and update:limit as well would
+        only set the same values a moment earlier.
+      -->
+      <Pagination
+        v-if="paginated"
+        v-show="table.total > 0"
+        :total="table.total"
+        :page="table.query.pageIndex"
+        :limit="table.query.pageSize"
+        @pagination="table.handlePagination"
+      />
+    </div>
   </div>
 </template>
 
@@ -196,27 +202,78 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
+/*
+ * Two surfaces: the query above, the data below.
+ *
+ * PageContainer supplies the card these sit in, so the panels are drawn here
+ * rather than by each page -- 27 pages would otherwise each decide where the
+ * seam goes. The search panel keeps the card's own background and is separated
+ * by a rule instead of a gap: two floating cards on a grey page put a stripe of
+ * page colour between them, which reads as a bigger break than "these filter
+ * the thing below".
+ */
 .pro-table__search {
-  margin-bottom: 4px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--ga-border-light);
 }
 
+/*
+ * The toolbar sits on the right, over the table's right edge, where the row
+ * actions and the pager also are. Left-aligned it started a second column of
+ * interaction on a page that already has one, and the refresh button was
+ * stranded on the far side of it.
+ */
 .pro-table__toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  /*
+   * row-reverse rather than reordering the markup. Pages declare their toolbar
+   * most-important-first -- add, then edit, then delete -- which is the order
+   * Tab and a screen reader should follow, and the order 27 pages already
+   * write. Visually the run reads toward the right edge, so the primary action
+   * belongs at that end; reversing here puts it there without moving it in the
+   * DOM or asking every page to rewrite its slot backwards.
+   *
+   * justify-content: flex-start with the row reversed packs the row against
+   * the right -- the main axis now runs right to left.
+   */
+  flex-direction: row-reverse;
+  justify-content: flex-start;
   gap: 8px;
+  flex-wrap: wrap;
   margin-bottom: 12px;
 }
 
-.pro-table__toolbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+/*
+ * One step down from the page's default button. These are secondary to the
+ * table -- the row is chrome above the data, not the point of the screen --
+ * and at the default 32px with 14px text they carried more weight than the
+ * rows they act on.
+ */
+.pro-table__toolbar :deep(.el-button) {
+  height: 28px;
+  padding: 0 12px;
+  font-size: 13px;
 }
 
 .pro-table__refresh {
   flex-shrink: 0;
+  /*
+   * Last in the markup, which the reversed row would otherwise put at the far
+   * left -- adrift from the buttons it belongs beside. A negative order pulls
+   * it back to the start of the reversed line, i.e. the right-hand end of the
+   * run, leaving the primary action against the table's edge and refresh just
+   * inside it.
+   */
+  order: -1;
+  /* It re-reads what is on screen rather than changing it, so it sits slightly
+     apart from the actions instead of in the same run. */
+  margin-left: 4px;
+  /* Square: overrides the toolbar's button padding, which would stretch a
+     circular icon button into a lozenge. */
+  width: 28px;
+  padding: 0;
 }
 
 /* el-table renders the cell, so this needs :deep to reach it. Lives with the
