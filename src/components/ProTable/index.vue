@@ -44,7 +44,29 @@
         </el-button>
       </div>
 
+      <!--
+        Below the breakpoint the table is replaced rather than restyled. A
+        table squeezed into 375px still has to be dragged sideways to read;
+        62% of a typical list here sits outside the viewport. The default slot
+        is still read for its column definitions -- it is simply not rendered.
+      -->
+      <MobileCards
+        v-if="asCards"
+        :rows="table.rows as unknown as Record<string, unknown>[]"
+        :columns="cardColumns()"
+        :row-key="rowKey"
+        :selection="selection"
+        :actions="!!$slots.actions"
+        :selected="selectedKeys"
+        @toggle="row => toggleCardRow(row as unknown as TRow)"
+      >
+        <template v-if="$slots.actions" #actions="scope">
+          <slot name="actions" v-bind="scope" />
+        </template>
+      </MobileCards>
+
       <el-table
+        v-else
         ref="tableRef"
         v-loading="table.loading"
         :data="table.rows"
@@ -106,9 +128,11 @@
 </template>
 
 <script setup lang="ts" generic="TRow extends object, TQuery extends object">
-import { ref } from 'vue'
+import { ref, computed, watch, useSlots, onMounted, onBeforeUnmount, type Ref } from 'vue'
 import { Refresh } from '@element-plus/icons-vue'
 import Pagination from '@/components/Pagination/index.vue'
+import MobileCards from './MobileCards.vue'
+import { readCardColumns } from './columns'
 import type { UseTableReturn } from '@/composables/useTable'
 
 /**
@@ -160,7 +184,17 @@ const props = withDefaults(defineProps<{
    * it takes is taken from the columns that have to scroll past it.
    */
   actionsWidth?: number | string
+  /**
+   * Swap the table for a card list below `cardBreakpoint`. Turn off for tables
+   * whose value is the side-by-side comparison itself -- the generator's field
+   * editor is the one such page here.
+   */
+  card?: boolean
+  /** Viewport width, in px, below which cards take over. */
+  cardBreakpoint?: number
 }>(), {
+  card: true,
+  cardBreakpoint: 768,
   selection: false,
   rowKey: '',
   paginated: true,
@@ -187,6 +221,72 @@ const handleReset = async() => {
   tableRef.value?.clearSelection()
   await props.table.resetQuery()
 }
+
+/**
+ * Cards below the breakpoint.
+ *
+ * matchMedia rather than a resize listener: it fires only when the answer
+ * changes, so a drag across the desktop range costs nothing. Registered on
+ * mount because the initial paint is server-agnostic here -- there is no SSR
+ * pass whose markup this would have to match.
+ */
+const slots = useSlots()
+const narrow = ref(false)
+let query: MediaQueryList | undefined
+const onQueryChange = (event: MediaQueryListEvent) => { narrow.value = event.matches }
+
+onMounted(() => {
+  query = window.matchMedia(`(max-width: ${props.cardBreakpoint - 1}px)`)
+  narrow.value = query.matches
+  query.addEventListener('change', onQueryChange)
+})
+onBeforeUnmount(() => query?.removeEventListener('change', onQueryChange))
+
+const asCards = computed(() => props.card && narrow.value)
+
+/**
+ * Read on every render rather than memoised: a page may add or drop a column
+ * with v-if, and a cached list would keep showing the old one. Reading is a
+ * walk over a handful of vnodes, which is cheaper than being wrong.
+ */
+const cardColumns = () => readCardColumns(slots.default)
+
+/**
+ * el-table owns selection in table mode; in card mode nothing does, so this
+ * holds it and reports through the same handler useTable already listens to.
+ */
+// `ref([]) as Ref<TRow[]>`, not `ref<TRow[]>([])`: UnwrapRefSimple rewrites
+// the generic and the result stops matching TRow. useTable does the same.
+const cardSelection = ref([]) as Ref<TRow[]>
+const selectedKeys = computed(() => new Set(
+  cardSelection.value.map(row => keyOf(row))
+))
+
+const keyOf = (row: TRow) => {
+  if (!props.rowKey) return row
+  return props.rowKey.split('.').reduce<unknown>(
+    (value, key) => (value == null ? undefined : (value as Record<string, unknown>)[key]),
+    row as unknown
+  )
+}
+
+const toggleCardRow = (row: TRow) => {
+  const key = keyOf(row)
+  const next = cardSelection.value.filter(picked => keyOf(picked) !== key)
+  if (next.length === cardSelection.value.length) next.push(row)
+  cardSelection.value = next
+  props.table.handleSelectionChange(next)
+}
+
+// Leaving the card view hands selection back to el-table, which starts empty;
+// carrying stale rows across would leave the bulk buttons enabled for rows
+// nothing is showing as ticked.
+watch(asCards, () => {
+  if (cardSelection.value.length) {
+    cardSelection.value = []
+    props.table.handleSelectionChange([])
+  }
+})
 
 /**
  * Ticking a row from a click on the row: the one thing el-table's own instance
