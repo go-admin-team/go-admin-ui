@@ -20,7 +20,8 @@
     "check:api": "node scripts/check-api-contract.mjs",
     "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.config.mjs",
     "new": "plop",
-    "prepare": "husky || true"
+    "prepare": "husky || true",
+    "check:size": "node scripts/check-first-paint.mjs"
   },
   "lint-staged": {
     "src/**/*.{js,ts,vue}": [
@@ -47,12 +48,9 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
-    "@tsparticles/slim": "^3.9.1",
-    "@tsparticles/vue3": "^3.0.1",
     "axios": "^1.19.0",
     "codemirror": "^6.0.2",
     "core-js": "^3.50.0",
-    "dropzone": "5.9.3",
     "echarts": "^6.1.0",
     "element-plus": "^2.14.4",
     "fuse.js": "6.6.2",
@@ -69,7 +67,6 @@
     "vue-count-to": "1.0.13",
     "vue-cropper": "^1.1.4",
     "vue-router": "^4.6.4",
-    "vue3-dnd": "^2.1.0",
     "write-excel-file": "^4.1.1"
   },
   "devDependencies": {

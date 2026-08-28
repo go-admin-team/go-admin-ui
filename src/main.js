@@ -21,8 +21,6 @@ import '@/styles/admin.scss'
 // See the file header for why preflight is excluded.
 import '@/styles/tailwind.css'
 
-import { Codemirror } from 'vue-codemirror'
-
 import App from './App'
 import pinia from './stores'
 import router from './router'
@@ -47,13 +45,7 @@ import * as filters from './filters' // global filters
 import Pagination from '@/components/Pagination'
 import BasicLayout from '@/layout/BasicLayout'
 
-import Particles from '@tsparticles/vue3'
-import { loadSlim } from '@tsparticles/slim'
-
 import '@/utils/dialog'
-
-// import VueDND from 'awe-dnd'
-// Note: awe-dnd 不支持 Vue 3，已改用 vue3-dnd
 
 import 'remixicon/fonts/remixicon.css'
 
@@ -86,7 +78,6 @@ app.config.globalProperties.$filters = filters
 app.component('AppPagination', Pagination)
 app.component('Pagination', Pagination)
 app.component('BasicLayout', BasicLayout)
-app.component('CodeEditor', Codemirror)
 app.component('SvgIcon', SvgIcon)
 
 // 全局注册 Element Plus 图标：模板中的 <el-icon><Xxx /></el-icon> 需要
@@ -99,11 +90,6 @@ for (const [name, comp] of Object.entries(ElementPlusIconsVue)) {
 app.use(pinia)
 app.use(router)
 app.use(permission)
-app.use(Particles, {
-  init: async engine => {
-    await loadSlim(engine)
-  }
-})
 app.use(ElementPlus, {
   locale: zhCn,
   size: Cookies.get('size') || 'default'

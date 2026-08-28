@@ -8,7 +8,6 @@
  *
  *   vue-count-to    -> in-house composable (1 usage)
  *   vue-cropper     -> kept (avatar cropping; replacing it is not worth the risk)
- *   dropzone        -> kept (form generator)
  *
  * Remove the matching entry as each package is replaced, so stale declarations
  * do not mask genuinely missing types.
@@ -27,7 +26,3 @@ declare module 'vue-count-to' {
   export default CountTo
 }
 
-declare module 'dropzone' {
-  const Dropzone: unknown
-  export default Dropzone
-}
