@@ -837,29 +837,42 @@ export async function authenticate(context: BrowserContext) {
  * `calls.postList`. Endpoints that are not CRUD (the password reset, the role's
  * data scope) keep their own entries under `calls.extra`.
  */
+/**
+ * The three routes every signed-in page needs, shared by both mock sets.
+ *
+ * The catch-all must be registered before anything else: Playwright matches
+ * routes in reverse registration order, so a catch-all added later would
+ * swallow every request. Callers layer their specific routes on top of this.
+ *
+ * Counters live on the caller's object so each spec can assert how many times
+ * the profile was fetched -- the sign-in tests care about that as much as the
+ * authenticated ones do.
+ */
+async function installSessionMocks(page: Page, counters: { getinfo: number, menurole: number }) {
+  // Settings and other incidental lookups are answered with an empty payload
+  // so nothing waits on the network.
+  await page.route('**/api/v1/**', async route => {
+    await route.fulfill(json({ code: 200, data: {}}))
+  })
+
+  await page.route('**/api/v1/getinfo*', async route => {
+    counters.getinfo++
+    await route.fulfill(json(userInfo))
+  })
+
+  await page.route('**/api/v1/menurole*', async route => {
+    counters.menurole++
+    await route.fulfill(json(menuTree))
+  })
+}
+
 export async function installApiMocks(page: Page) {
   const extra = { getinfo: 0, menurole: 0, passwordReset: 0, roleDataScope: 0, operLogClean: 0, jobStarts: 0, jobStops: 0, tableImports: 0, tableImportBody: '', tableDeletes: 0, tableDeleteUrl: '', genTableList: 0, generated: [] as string[], setConfigSaves: 0, setConfigBody: '' }
 
   /** Milliseconds to hold a write open, so a test can submit again mid-flight. */
   const delays = { userWrite: 0, passwordReset: 0 }
 
-  // Registered FIRST on purpose: Playwright matches routes in reverse
-  // registration order, so this catch-all must go in before anything else or it
-  // would swallow every request. Settings and other incidental lookups are
-  // answered with an empty payload so nothing waits on the network.
-  await page.route('**/api/v1/**', async route => {
-    await route.fulfill(json({ code: 200, data: {}}))
-  })
-
-  await page.route('**/api/v1/getinfo*', async route => {
-    extra.getinfo++
-    await route.fulfill(json(userInfo))
-  })
-
-  await page.route('**/api/v1/menurole*', async route => {
-    extra.menurole++
-    await route.fulfill(json(menuTree))
-  })
+  await installSessionMocks(page, extra)
 
   await page.route('**/api/v1/dict-data/option-select*', async route => {
     const dictType = new URL(route.request().url()).searchParams.get('dictType')
@@ -1082,4 +1095,68 @@ export async function installApiMocks(page: Page) {
   }
 
   return { calls, delays }
+}
+
+/** The answer installLoginMocks accepts; anything else is rejected. */
+export const CAPTCHA_ANSWER = '1234'
+
+/**
+ * Mocks for the endpoints reachable *before* a session exists.
+ *
+ * Deliberately separate from installApiMocks, and used without authenticate():
+ * every other spec starts by planting a cookie, which is precisely what makes
+ * the sign-in path itself unreachable from them. The one page 91% of visitors
+ * pass through was the one page nothing executed.
+ *
+ * The captcha is answered with a real 1x1 PNG data URI rather than a bare
+ * string, because the page binds it to <img src> -- a placeholder would leave
+ * the element broken and any assertion about it meaningless.
+ */
+export async function installLoginMocks(page: Page) {
+  const calls = {
+    captcha: 0,
+    login: 0,
+    getinfo: 0,
+    menurole: 0,
+    /** Body of the most recent sign-in attempt, as the client sent it. */
+    lastLogin: null as Record<string, unknown> | null
+  }
+
+  await installSessionMocks(page, calls)
+
+  await page.route('**/api/v1/app-config*', async route => {
+    await route.fulfill(json({
+      code: 200,
+      data: { sys_app_name: 'go-admin', sys_app_logo: '' }
+    }))
+  })
+
+  await page.route('**/api/v1/captcha*', async route => {
+    calls.captcha++
+    await route.fulfill(json({
+      code: 200,
+      // A distinct id per issue, so a test can prove the refresh actually
+      // replaced the challenge instead of redrawing the same one.
+      id: `e2e-captcha-${calls.captcha}`,
+      data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
+    }))
+  })
+
+  await page.route('**/api/v1/login', async route => {
+    calls.login++
+    calls.lastLogin = JSON.parse(route.request().postData() || '{}')
+    const { username, password, code } = calls.lastLogin as Record<string, string>
+
+    if (username === 'admin' && password === '123456' && code === CAPTCHA_ANSWER) {
+      await route.fulfill(json({ code: 200, token: ADMIN_TOKEN, data: null }))
+      return
+    }
+    // 400, matching gin-jwt's LoginHandler: `mw.unauthorized(c, 400, ...)` for
+    // every Authenticator failure, captcha included. Not 401 -- that code is
+    // reserved for token validation and makes the interceptor reload the page,
+    // which is a different path entirely.
+    await route.fulfill(json({ code: 400, msg: '验证码错误', data: null }))
+  })
+
+  return calls
 }
