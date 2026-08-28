@@ -4,9 +4,11 @@
 
 <script>
 import * as echarts from 'echarts'
+import chartResize from '@/mixins/chartResize'
 
 export default {
   name: 'LineChart',
+  mixins: [chartResize],
   props: {
     className: { type: String, default: 'chart' },
     width: { type: String, default: '100%' },

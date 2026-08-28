@@ -6,6 +6,7 @@
 
 <script>
 import * as echarts from 'echarts'
+import chartResize from '@/mixins/chartResize'
 import moment from 'moment'
 
 const generateData = () => {
@@ -22,6 +23,7 @@ const generateData = () => {
 
 export default {
   name: 'MiniArea',
+  mixins: [chartResize],
   data() {
     return { chart: null, rawData: generateData() }
   },

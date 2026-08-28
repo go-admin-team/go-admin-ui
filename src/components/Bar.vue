@@ -7,9 +7,11 @@
 
 <script>
 import * as echarts from 'echarts'
+import chartResize from '@/mixins/chartResize'
 
 export default {
   name: 'AppBar',
+  mixins: [chartResize],
   props: {
     title: { type: String, default: '' },
     list: { type: Array, default: () => [] }
