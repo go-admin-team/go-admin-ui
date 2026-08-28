@@ -43,8 +43,8 @@
               <Cell v-if="card.title" :column="card.title" :row="row" :index="index" />
             </div>
             <div v-if="card.subtitle.length" class="pro-card__sub">
-              <span v-for="column in card.subtitle" :key="column.label">
-                <span class="pro-card__k">{{ column.label }}</span>
+              <span v-for="(column, at) in card.subtitle" :key="column.label" class="pro-card__sub-item">
+                <span v-if="at" class="pro-card__dot">·</span>
                 <Cell :column="column" :row="row" :index="index" />
               </span>
             </div>
@@ -72,19 +72,31 @@
           </button>
           <span v-else />
           <!--
-            Swiping is invisible until someone tries it, so the affordance is
-            spelled out. Without this the actions are simply unreachable for
-            anyone who does not already expect the gesture.
+            Shown on the first card only. The gesture is invisible until someone
+            tries it, so it has to be said once; repeating it on every card
+            turns a hint into wallpaper and costs a line in each of them.
           -->
-          <span v-if="actions" class="pro-card__hint">← 左滑操作</span>
+          <span v-if="actions && index === 0" class="pro-card__hint">← 左滑操作</span>
         </div>
       </div>
     </div>
+
+    <!--
+      Loads the next page as it scrolls into view, and stays as a button so the
+      list is still reachable without the observer -- and so someone who wants
+      the next page immediately does not have to scroll for it.
+    -->
+    <div v-if="hasMore || loading" ref="sentinelEl" class="pro-cards__more">
+      <el-button text :loading="loading" @click="emit('loadMore')">
+        {{ loading ? '加载中' : '加载更多' }}
+      </el-button>
+    </div>
+    <div v-else-if="showEnd && rows.length" class="pro-cards__end">没有更多了</div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onMounted, nextTick, type Slot } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, nextTick, type Slot } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { splitCard, readProp, type CardColumn } from './columns'
 
@@ -104,9 +116,13 @@ const props = defineProps<{
   selection?: boolean
   actions?: boolean
   selected: Set<unknown>
+  loading?: boolean
+  hasMore?: boolean
+  /** Whether the list is long enough for "no more" to tell the reader anything. */
+  showEnd?: boolean
 }>()
 
-const emit = defineEmits<{ toggle: [row: Record<string, unknown>] }>()
+const emit = defineEmits<{ toggle: [row: Record<string, unknown>], loadMore: [] }>()
 
 defineSlots<{ actions?: Slot }>()
 
@@ -134,9 +150,11 @@ const expanded = ref(new Set<number>())
 const swiped = ref(-1)
 const drag = reactive({ index: -1, startX: 0, startY: 0, base: 0, offset: 0, axis: '', moved: false })
 
-// Page changes replace every row; keeping the old indices would leave a card
-// open or swiped over data that is no longer the same record.
-watch(() => props.rows, () => {
+// A re-query replaces every row, and keeping the old indices would leave a card
+// open or swiped over a different record. Appending a page is not that: the
+// rows already on screen are unchanged, so their state stays.
+watch(() => props.rows.length, (now, before) => {
+  if (before !== undefined && now > before) return
   expanded.value = new Set()
   swiped.value = -1
   drag.index = -1
@@ -156,6 +174,34 @@ const measure = () => {
 }
 onMounted(() => nextTick(measure))
 watch(() => props.rows.length, () => nextTick(measure))
+
+/**
+ * Fires once the sentinel is near the bottom of the viewport. rootMargin gives
+ * it a screen of lead time so the next page is usually there before the user
+ * reaches the end.
+ */
+const sentinelEl = ref<HTMLElement>()
+let observer: IntersectionObserver | undefined
+
+const watchSentinel = () => {
+  observer?.disconnect()
+  const target = sentinelEl.value
+  if (!target || typeof IntersectionObserver === 'undefined') return
+  observer = new IntersectionObserver(entries => {
+    // Guarded on loading as well as intersecting: the sentinel stays on screen
+    // while the request is in flight, and would otherwise fire for every page
+    // at once.
+    if (entries.some(entry => entry.isIntersecting) && !props.loading && props.hasMore) {
+      emit('loadMore')
+    }
+  }, { rootMargin: '600px 0px' })
+  observer.observe(target)
+}
+
+watch(sentinelEl, watchSentinel)
+watch(() => [props.hasMore, props.loading], () => nextTick(watchSentinel))
+onMounted(() => nextTick(watchSentinel))
+onBeforeUnmount(() => observer?.disconnect())
 
 const offsetOf = (index: number) => {
   if (drag.index === index && drag.axis === 'x') return drag.offset
@@ -244,6 +290,15 @@ function toggleRow(row: Record<string, unknown>, index: number) {
 <style lang="scss" scoped>
 .pro-cards { display: flex; flex-direction: column; gap: 8px; }
 
+.pro-cards__more { display: flex; justify-content: center; padding: 4px 0 8px; }
+
+.pro-cards__end {
+  padding: 12px 0 4px;
+  font-size: 13px;
+  color: var(--ga-text-4, #00000040);
+  text-align: center;
+}
+
 .pro-card {
   position: relative;
   overflow: hidden;
@@ -280,7 +335,7 @@ function toggleRow(row: Record<string, unknown>, index: number) {
   .pro-card.is-dragging & { transition: none; }
 }
 
-.pro-card__head { display: flex; align-items: flex-start; gap: 10px; padding: 12px; }
+.pro-card__head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
 
 .pro-card__check {
   flex-shrink: 0;
@@ -303,15 +358,21 @@ function toggleRow(row: Record<string, unknown>, index: number) {
 .pro-card__sub {
   display: flex;
   flex-wrap: wrap;
-  gap: 3px 12px;
-  margin-top: 4px;
+  align-items: baseline;
+  margin-top: 2px;
   font-size: 13px;
   color: var(--ga-text-3);
 }
 
-.pro-card__k { margin-right: 4px; color: var(--ga-text-4, #00000040); }
+.pro-card__sub-item { display: inline-flex; align-items: baseline; }
 
-.pro-card__badge { flex-shrink: 0; margin-top: 2px; }
+.pro-card__dot { margin: 0 6px; color: var(--ga-text-4, #00000040); }
+
+// Only the expanded rows caption their values; the subtitle reads as a phrase
+// and labelling each half of it doubles the words for no gain.
+.pro-card__k { color: var(--ga-text-3); }
+
+.pro-card__badge { flex-shrink: 0; }
 
 // grid-template-rows animates to content height without measuring it.
 .pro-card__more {
@@ -327,13 +388,13 @@ function toggleRow(row: Record<string, unknown>, index: number) {
   .pro-card.is-open & { grid-template-rows: 1fr; }
 }
 
-.pro-card__fields { padding: 0 12px; }
+.pro-card__fields { padding: 0 12px 2px; }
 
 .pro-card__field {
   display: flex;
   justify-content: space-between;
   gap: 16px;
-  padding: 9px 0;
+  padding: 8px 0;
   font-size: 13px;
   border-top: 1px solid var(--ga-border-light, #0505050f);
 }
@@ -365,7 +426,7 @@ function toggleRow(row: Record<string, unknown>, index: number) {
   align-items: center;
   gap: 5px;
   // 44px, per the iOS HIG minimum -- the visible text is much shorter.
-  min-height: 44px;
+  min-height: 40px;
   padding: 0;
   font-family: inherit;
   font-size: 13px;
