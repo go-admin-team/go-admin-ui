@@ -6,8 +6,48 @@
       surface read as a single block of controls, so the eye had to work out
       which button changed the query and which changed the data.
     -->
+    <!--
+      On a phone the filters are collapsed behind a button. Left open they cost
+      181px -- a quarter of the screen -- before a single row is visible, and a
+      list page whose first screen is a form is not a list page. The count on
+      the button is what makes collapsing safe: a filter still applied while the
+      panel is shut would otherwise be invisible, and an empty-looking list with
+      no explanation is worse than the space the form took.
+    -->
+    <div v-if="asCards && $slots.search" class="pro-table__filter-bar">
+      <el-button text @click="filtersOpen = !filtersOpen">
+        <el-icon class="pro-table__filter-icon"><Search /></el-icon>
+        筛选<template v-if="activeFilters"> · {{ activeFilters }}</template>
+      </el-button>
+    </div>
+
+    <!--
+      On a phone the filters live in a sheet that rises from the bottom, not in
+      a panel that pushes the list down. Inline, they cost 181px before a single
+      row is visible; in a sheet they cost a button, and the list stays the page.
+      Rising from the bottom rather than the side puts the controls within reach
+      of the thumb that opened them.
+    -->
+    <el-drawer
+      v-if="asCards && $slots.search"
+      v-model="filtersOpen"
+      direction="btt"
+      size="auto"
+      :with-header="false"
+      class="pro-table__sheet"
+    >
+      <div class="pro-table__sheet-grip" />
+      <el-form :model="table.query" label-position="top" class="pro-table__sheet-form" @submit.prevent="submitFilters">
+        <slot name="search" />
+        <div class="pro-table__sheet-actions">
+          <el-button @click="resetFilters">重置</el-button>
+          <el-button type="primary" native-type="submit" :loading="table.loading">查看结果</el-button>
+        </div>
+      </el-form>
+    </el-drawer>
+
     <el-form
-      v-if="$slots.search"
+      v-if="$slots.search && !asCards"
       :model="table.query"
       inline
       label-width="auto"
@@ -31,7 +71,7 @@
     </el-form>
 
     <div class="pro-table__data">
-      <div v-if="$slots.toolbar" class="pro-table__toolbar">
+      <div v-if="$slots.toolbar && !asCards" class="pro-table__toolbar">
         <slot name="toolbar" />
         <el-button
           class="pro-table__refresh"
@@ -52,13 +92,17 @@
       -->
       <MobileCards
         v-if="asCards"
-        :rows="table.rows as unknown as Record<string, unknown>[]"
+        :rows="stack as unknown as Record<string, unknown>[]"
         :columns="cardColumns()"
         :row-key="rowKey"
         :selection="selection"
         :actions="!!$slots.actions"
         :selected="selectedKeys"
+        :loading="table.loading"
+        :has-more="hasMore"
+        :show-end="table.total > table.query.pageSize"
         @toggle="row => toggleCardRow(row as unknown as TRow)"
+        @load-more="loadMore"
       >
         <template v-if="$slots.actions" #actions="scope">
           <slot name="actions" v-bind="scope" />
@@ -115,8 +159,35 @@
         :page and :limit. Handling update:page and update:limit as well would
         only set the same values a moment earlier.
       -->
+      <!--
+        Page actions move to the thumb.
+        A row of small buttons in the top-right corner is a pointer's layout:
+        on a phone they are the furthest thing from the hand and the smallest
+        target on screen. Collapsed into one floating button, which opens the
+        page's own toolbar above it -- so a page contributes the same buttons to
+        both layouts and states them once.
+      -->
+      <div v-if="asCards && $slots.toolbar" class="pro-table__fab">
+        <div v-show="fabOpen" class="pro-table__fab-menu">
+          <slot name="toolbar" />
+          <el-button class="pro-table__fab-refresh" :loading="table.loading" @click="table.getList">
+            <el-icon><Refresh /></el-icon>刷新
+          </el-button>
+        </div>
+        <button
+          type="button"
+          class="pro-table__fab-btn"
+          :class="{ 'is-open': fabOpen }"
+          :aria-expanded="fabOpen"
+          aria-label="页面操作"
+          @click="fabOpen = !fabOpen"
+        >
+          <el-icon><Plus /></el-icon>
+        </button>
+      </div>
+
       <Pagination
-        v-if="paginated"
+        v-if="paginated && !asCards"
         v-show="table.total > 0"
         :total="table.total"
         :page="table.query.pageIndex"
@@ -128,11 +199,12 @@
 </template>
 
 <script setup lang="ts" generic="TRow extends object, TQuery extends object">
-import { ref, computed, watch, useSlots, onMounted, onBeforeUnmount, type Ref } from 'vue'
-import { Refresh } from '@element-plus/icons-vue'
+import { ref, computed, watch, useSlots, type Ref } from 'vue'
+import { Plus, Refresh, Search } from '@element-plus/icons-vue'
 import Pagination from '@/components/Pagination/index.vue'
 import MobileCards from './MobileCards.vue'
 import { readCardColumns } from './columns'
+import { useNarrowScreen } from '@/composables/useNarrowScreen'
 import type { UseTableReturn } from '@/composables/useTable'
 
 /**
@@ -222,26 +294,9 @@ const handleReset = async() => {
   await props.table.resetQuery()
 }
 
-/**
- * Cards below the breakpoint.
- *
- * matchMedia rather than a resize listener: it fires only when the answer
- * changes, so a drag across the desktop range costs nothing. Registered on
- * mount because the initial paint is server-agnostic here -- there is no SSR
- * pass whose markup this would have to match.
- */
+// Shared with the pages, which need the same answer -- see useNarrowScreen.
 const slots = useSlots()
-const narrow = ref(false)
-let query: MediaQueryList | undefined
-const onQueryChange = (event: MediaQueryListEvent) => { narrow.value = event.matches }
-
-onMounted(() => {
-  query = window.matchMedia(`(max-width: ${props.cardBreakpoint - 1}px)`)
-  narrow.value = query.matches
-  query.addEventListener('change', onQueryChange)
-})
-onBeforeUnmount(() => query?.removeEventListener('change', onQueryChange))
-
+const narrow = useNarrowScreen(props.cardBreakpoint - 1)
 const asCards = computed(() => props.card && narrow.value)
 
 /**
@@ -288,6 +343,78 @@ watch(asCards, () => {
   }
 })
 
+const filtersOpen = ref(false)
+const fabOpen = ref(false)
+
+// The sheet closes on submit: on a phone the result *is* the feedback, and a
+// panel left open would cover it.
+const submitFilters = async() => {
+  await props.table.search()
+  filtersOpen.value = false
+}
+
+const resetFilters = async() => {
+  await handleReset()
+  filtersOpen.value = false
+}
+
+// Leaving the narrow layout with the menu open would leave it floating over a
+// desktop toolbar that is visible again anyway.
+watch(asCards, cards => { if (!cards) fabOpen.value = false })
+
+/**
+ * How many filters are actually applied, for the button's badge.
+ *
+ * Read off the query rather than the form, because a filter can be set from
+ * outside it -- clicking the department tree on sys-user, or a chart
+ * drill-down -- and those are exactly the ones a user would not think to look
+ * for behind a collapsed panel.
+ */
+const PAGING_KEYS = new Set(['pageIndex', 'pageSize', 'orderBy', 'sort', 'order'])
+const activeFilters = computed(() =>
+  Object.entries(props.table.query as Record<string, unknown>).filter(([key, value]) => {
+    if (PAGING_KEYS.has(key)) return false
+    if (value === undefined || value === null || value === '') return false
+    return !(Array.isArray(value) && value.length === 0)
+  }).length
+)
+
+/**
+ * Cards accumulate; the table paginates.
+ *
+ * A pager is a poor fit for a phone -- the controls alone measure 450px against
+ * a 317px column, and nobody types a page number on a touch screen. So in card
+ * mode each page is appended to what is already on screen and the pager is
+ * replaced by a sentinel that loads the next one as it scrolls into view.
+ *
+ * Kept here rather than in useTable so the desktop path is untouched: useTable
+ * still replaces `rows` per page, and this only stacks them for the cards.
+ */
+const stack = ref([]) as Ref<TRow[]>
+
+watch(() => props.table.rows, rows => {
+  if (!asCards.value) return
+  // search() and resetQuery() both reset pageIndex, so page one is also the
+  // signal that the list has been re-queried and the stack is stale.
+  stack.value = props.table.query.pageIndex <= 1 ? [...rows] : [...stack.value, ...rows]
+}, { immediate: true })
+
+// Entering card mode mid-session starts from whatever page is loaded; leaving
+// it hands the list back to the pager, which reads table.rows directly.
+watch(asCards, cards => {
+  if (cards) stack.value = [...props.table.rows]
+})
+
+const hasMore = computed(() => props.paginated && stack.value.length < props.table.total)
+
+const loadMore = () => {
+  if (props.table.loading || !hasMore.value) return
+  return props.table.handlePagination({
+    page: props.table.query.pageIndex + 1,
+    limit: props.table.query.pageSize
+  })
+}
+
 /**
  * Ticking a row from a click on the row: the one thing el-table's own instance
  * does that `table` cannot. Exposed by name rather than by handing out the
@@ -312,6 +439,148 @@ defineExpose({
  * page colour between them, which reads as a bigger break than "these filter
  * the thing below".
  */
+/*
+ * Filters fill the width on a phone.
+ *
+ * Pages set an explicit width on their search controls -- `style="width: 160px"`
+ * is the house style -- which is right for an inline row on a desktop and wrong
+ * in a stacked column, where it leaves a ragged margin down the right. Overriding
+ * inline styles needs !important; the alternative is editing that width on every
+ * search field of every page.
+ */
+@media (max-width: 767px) {
+  .pro-table__search {
+    :deep(.el-form-item) {
+      display: flex;
+      width: 100%;
+      margin-right: 0;
+    }
+
+    :deep(.el-form-item__content) { flex: 1; }
+
+    :deep(.el-input),
+    :deep(.el-select),
+    :deep(.el-tree-select),
+    :deep(.el-date-editor) { width: 100% !important; }
+  }
+}
+
+/*
+ * The floating action button.
+ *
+ * Fixed to the viewport rather than the list, so it stays reachable while the
+ * list scrolls. 56px is the Material size and comfortably past the 44px iOS
+ * minimum; bottom-right is where a thumb rests on a phone held in either hand.
+ */
+.pro-table__fab {
+  position: fixed;
+  right: 16px;
+  bottom: 24px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.pro-table__fab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  color: #fff;
+  cursor: pointer;
+  background: var(--ga-brand, #1677ff);
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 18%);
+  transition: transform 0.2s ease;
+
+  .el-icon { font-size: 24px; }
+
+  &.is-open { transform: rotate(45deg); }
+}
+
+.pro-table__fab-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 8px;
+  background: var(--ga-bg-container, #fff);
+  border: 1px solid var(--ga-border-light, #0505050f);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 12%);
+
+  // The page's own buttons, restacked. Element Plus lays sibling buttons out
+  // in a row with a left margin; here each one is a full-width menu entry.
+  :deep(.el-button) {
+    justify-content: flex-start;
+    min-width: 120px;
+    min-height: 40px;
+    margin: 0 !important;
+  }
+}
+
+.pro-table__fab-refresh { justify-content: flex-start; }
+
+// Clears the button so it never covers the last card.
+@media (max-width: 767px) {
+  .pro-table__data { padding-bottom: 72px; }
+}
+
+/*
+ * The filter sheet.
+ *
+ * label-position: top rather than left -- a left label column costs horizontal
+ * room the controls need, and stacked labels are what a phone form looks like.
+ */
+:global(.pro-table__sheet) {
+  border-radius: 16px 16px 0 0;
+
+  .el-drawer__body { padding: 0 16px 16px; }
+}
+
+.pro-table__sheet-grip {
+  width: 36px;
+  height: 4px;
+  margin: 8px auto 12px;
+  background: var(--ga-border, #d9d9d9);
+  border-radius: 2px;
+}
+
+.pro-table__sheet-form {
+  :deep(.el-form-item) { margin-bottom: 14px; }
+
+  :deep(.el-input),
+  :deep(.el-select),
+  :deep(.el-tree-select),
+  :deep(.el-date-editor) { width: 100% !important; }
+}
+
+.pro-table__sheet-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 4px;
+
+  :deep(.el-button) {
+    flex: 1;
+    min-height: 44px;
+    margin: 0;
+  }
+}
+
+.pro-table__filter-bar {
+  display: flex;
+  justify-content: flex-start;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--ga-border-light);
+}
+
+.pro-table__filter-icon { margin-right: 4px; }
+
 .pro-table__search {
   padding-bottom: 12px;
   margin-bottom: 12px;
