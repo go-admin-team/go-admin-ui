@@ -610,6 +610,30 @@ $edge:     var(--ga-border-light);
   .form-box { max-width: 340px; }
 }
 
+/*
+ * On a phone the terminal is a passenger.
+ *
+ * It is the page's main visual on a desktop, where it sits beside the form. In
+ * a stacked layout it goes above the form and takes its natural height -- eight
+ * lines of code, 493px, 60% of a 375x812 screen -- so the form it is meant to
+ * introduce is pushed into the bottom third and the submit button ends up 110px
+ * from the edge.
+ *
+ * It is also the half that reads worst there: the lines wrap mid-path
+ * (`config/settin gs.yml`), so what remains is a decorative block that has been
+ * broken to fit. The wordmark carries the brand on its own, and the form gets
+ * the screen.
+ */
+@media (max-width: 767px) {
+  // The whole panel, not just the terminal. Once the terminal goes, what is
+  // left is a wordmark -- and the form already opens with the same name and a
+  // line explaining the page. Saying it twice in 375px is worse than not
+  // branding the screen at all.
+  .stage { display: none; }
+
+  .panel { padding: 28px 24px 32px; }
+}
+
 /* 尊重系统的减少动效偏好 */
 @media (prefers-reduced-motion: reduce) {
   .term-body .l { animation: none; opacity: 1; }
