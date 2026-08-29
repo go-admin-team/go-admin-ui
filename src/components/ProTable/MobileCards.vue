@@ -176,9 +176,16 @@ onMounted(() => nextTick(measure))
 watch(() => props.rows.length, () => nextTick(measure))
 
 /**
- * Fires once the sentinel is near the bottom of the viewport. rootMargin gives
- * it a screen of lead time so the next page is usually there before the user
- * reaches the end.
+ * Fires when the sentinel actually reaches the viewport.
+ *
+ * No lead time, deliberately. A rootMargin wide enough to prefetch is also wide
+ * enough to reach the sentinel before the user has scrolled at all: a first page
+ * of ten cards stands about 90px past the fold, so a 600px margin loaded page
+ * two on arrival, then page three, until the list ran out -- turning a paged
+ * list into an eager one and firing every request the pager existed to avoid.
+ *
+ * The margin cannot be tuned around that, because the distance depends on how
+ * tall the cards happen to be. Zero is the one value that means what it says.
  */
 const sentinelEl = ref<HTMLElement>()
 let observer: IntersectionObserver | undefined
@@ -194,7 +201,7 @@ const watchSentinel = () => {
     if (entries.some(entry => entry.isIntersecting) && !props.loading && props.hasMore) {
       emit('loadMore')
     }
-  }, { rootMargin: '600px 0px' })
+  }, { rootMargin: '0px' })
   observer.observe(target)
 }
 
