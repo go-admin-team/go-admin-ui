@@ -7,7 +7,14 @@
     <div :class="{hasTagsView:needTagsView}" class="main-container">
       <div :class="{'fixed-header':fixedHeader}">
         <navbar @open-settings="settingsOpen = true" />
-        <tags-view v-if="needTagsView" />
+        <!--
+          Not rendered on a phone. Multiple open tabs is a desktop idea: closing
+          one needs a pointer, and showing more than two needs horizontal room.
+          Hidden with v-if rather than CSS because AppMain computes its own top
+          padding from the same condition -- displaying none would leave the
+          40px it reserved as a blank strip.
+        -->
+        <tags-view v-if="needTagsView && device !== 'mobile'" />
       </div>
       <app-main />
       <right-panel v-if="showSettings" v-model="settingsOpen">

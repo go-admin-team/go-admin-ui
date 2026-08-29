@@ -8,15 +8,21 @@
 import { mapState } from 'pinia'
 import RouterViewKeepAlive from './RouterViewKeepAlive'
 import { useSettingsStore } from '@/stores/settings'
+import { useAppStore } from '@/stores/app'
 
 export default {
   name: 'AppMain',
   components: { RouterViewKeepAlive },
   computed: {
     ...mapState(useSettingsStore, ['fixedHeader', 'tagsView']),
+    ...mapState(useAppStore, ['device']),
     appMainStyle() {
       if (!this.fixedHeader) return {}
-      const headerHeight = 50 + (this.tagsView ? 40 : 0)
+      // Must agree with layout/index.vue on when the tab strip exists; the two
+      // reading different conditions is what leaves a blank strip under the
+      // navbar.
+      const showsTags = this.tagsView && this.device !== 'mobile'
+      const headerHeight = 50 + (showsTags ? 40 : 0)
       return { paddingTop: headerHeight + 'px' }
     }
   }

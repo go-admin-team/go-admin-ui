@@ -129,17 +129,29 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           // 对应 Vue CLI 的 splitChunks：element-plus 与其余三方库分开打包
+          /**
+           * Only the two groups the entry genuinely needs are named here.
+           * Everything else is left to the bundler, which puts a module
+           * reachable only through a dynamic import into an async chunk.
+           *
+           * The rule this replaces ended with `return 'chunk-libs'`, which
+           * assigned *every* dependency to a chunk the entry loads -- so a
+           * library used by one lazy page was still downloaded by every
+           * visitor before the login form appeared. echarts alone is 370 kB
+           * gzipped, larger than Element Plus, and it is only ever drawn on
+           * the dashboard. codemirror only exists on the generator page,
+           * vue-cropper only on the avatar dialog.
+           *
+           * The same mechanism silently defeated the export button's dynamic
+           * import once already; naming a chunk here is what caused it. Add a
+           * name only for something the first paint truly needs, and let the
+           * size guard in tests/unit/build catch a regression.
+           */
           manualChunks(id) {
             if (!id.includes('node_modules')) return
-            // The xlsx writer is reached only from the export button, behind a
-            // dynamic import. Naming it here would assign it to a chunk the
-            // entry already loads, which is what silently defeated that import
-            // for the writer this replaced: every visitor paid for it on first
-            // paint. Returning nothing leaves it to rollup, which puts a
-            // module reachable only asynchronously in an async chunk.
-            if (/[\\/](write-excel-file|fflate)[\\/]/.test(id)) return
             if (/[\\/]element-plus[\\/]/.test(id)) return 'chunk-elementPlus'
-            return 'chunk-libs'
+            if (/[\\/](vue|vue-router|vue-demi|pinia|@vue)[\\/]/.test(id)) return 'chunk-vue'
+            return
           },
           chunkFileNames: 'js/[name].[hash].js',
           entryFileNames: 'js/[name].[hash].js',

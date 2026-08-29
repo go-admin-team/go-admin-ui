@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import * as echarts from 'echarts'
+import echarts from '@/utils/echarts'
 import chartResize from '@/mixins/chartResize'
 import moment from 'moment'
 

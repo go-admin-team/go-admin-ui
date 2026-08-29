@@ -37,4 +37,23 @@ withDefaults(defineProps<{
   padding: 12px;
   box-sizing: border-box;
 }
+
+/*
+ * Edge to edge on a phone.
+ *
+ * The 12px gutter plus the card's own border and radius spend roughly 30px of a
+ * 375px screen on framing content that has nothing beside it to be framed
+ * against. On a desktop the card separates the page from a wide grey field;
+ * on a phone it is the whole viewport.
+ */
+@media (max-width: 767px) {
+  .page-container { padding: 0; }
+
+  .page-container__body {
+    border: 0;
+    border-radius: 0;
+  }
+
+  :deep(.el-card__body) { padding: 12px; }
+}
 </style>

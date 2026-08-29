@@ -31,3 +31,7 @@ jobs:
     - run: pnpm build:prod
       env:
         CI: true
+    # Runs here rather than with the unit tests: it measures dist/, which only
+    # exists in this job.
+    - name: Check first-paint budget
+      run: pnpm check:size

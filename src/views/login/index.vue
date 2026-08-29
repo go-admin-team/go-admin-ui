@@ -132,6 +132,7 @@
 
 <script>
 import { getCodeImg } from '@/api/login'
+import { prefetchOnIdle } from '@/utils/prefetch'
 import { useSystemStore } from '@/stores/system'
 import { useUserStore } from '@/stores/user'
 import { User, Lock, Key, View, Hide, Loading } from '@element-plus/icons-vue'
@@ -182,6 +183,10 @@ export default {
   created() {
     this.getCode()
     this.getSystemSetting()
+    // Everyone who signs in lands on the dashboard, and it is the heaviest
+    // route in the app. Fetching it while the captcha is being read removes
+    // the pause that would otherwise follow the login button.
+    prefetchOnIdle(() => import('@/views/dashboard/index'))
   },
   mounted() {
     if (!this.loginForm.username) {

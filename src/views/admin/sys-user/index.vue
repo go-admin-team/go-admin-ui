@@ -2,7 +2,14 @@
   <PageContainer>
     <el-row :gutter="16">
       <!-- Department tree: clicking a node filters the list -->
-      <el-col :span="4" :xs="24">
+      <el-col v-if="!narrow" :span="4" :xs="24" class="dept-pane">
+        <!--
+          On a phone this is not a sidebar. xs=24 gives it the full width, so it
+          becomes a block sitting on top of the list, and together with the
+          search form it pushed the first record off the first screen. Hidden
+          there; the same filter is offered inside the search panel instead, so
+          the phone has one place to filter from rather than two.
+        -->
         <el-input
           v-model="deptName"
           placeholder="请输入部门名称"
@@ -11,6 +18,7 @@
         />
         <el-tree
           ref="treeRef"
+          class="dept-tree"
           :data="deptOptions"
           :props="{ label: 'label', children: 'children' }"
           :filter-node-method="filterDept"
@@ -25,6 +33,19 @@
       <el-col :span="20" :xs="24">
         <ProTable :table="table" selection row-key="userId" :actions-width="140">
           <template #search>
+            <el-form-item v-if="narrow" label="部门">
+              <el-tree-select
+                :model-value="deptFilter"
+                :data="deptOptions"
+                :props="{ label: 'label', children: 'children' }"
+                node-key="id"
+                check-strictly
+                clearable
+                placeholder="选择部门"
+                style="width: 160px"
+                @update:model-value="handleDeptFilter"
+              />
+            </el-form-item>
             <el-form-item label="用户名称">
               <el-input
                 v-model="table.query.username"
@@ -297,7 +318,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
+import { useNarrowScreen } from '@/composables/useNarrowScreen'
 import { ElMessageBox } from 'element-plus'
 import { Key } from '@element-plus/icons-vue'
 import type { FormRules } from 'element-plus'
@@ -338,6 +360,35 @@ const { sys_normal_disable, sys_user_sex } = useDict('sys_normal_disable', 'sys_
 
 // ── Department tree ───────────────────────────────────────────────
 const deptName = ref('')
+/**
+ * Exactly one department control is mounted at a time.
+ *
+ * v-if rather than a media query: CSS would leave both components alive, and
+ * el-tree-select teleports its dropdown to the body regardless of whether the
+ * field is visible -- so the page would carry two identical option lists and
+ * "the 测试部 option" would match both.
+ */
+const narrow = useNarrowScreen()
+
+/**
+ * The narrow layout's stand-in for the department tree.
+ *
+ * query.deptId is stored as `/id/` -- the format the API expects -- so it is
+ * unwrapped for the select and wrapped again on the way back. Sharing the query
+ * key means the two controls stay in step: picking a department on a phone and
+ * then rotating to a tablet shows the tree with the same node applied.
+ */
+const deptFilter = computed(() => {
+  const raw = table.query.deptId
+  if (!raw) return undefined
+  const id = Number(String(raw).replace(/\//g, ''))
+  return Number.isFinite(id) ? id : undefined
+})
+
+const handleDeptFilter = (id?: number) => {
+  table.query.deptId = id ? `/${id}/` : undefined
+  void table.search()
+}
 const deptOptions = ref<DeptTreeNode[]>([])
 const treeRef = ref()
 
@@ -485,6 +536,9 @@ const handleStatusChange = async(row: SysUser) => {
 </script>
 
 <style lang="scss" scoped>
+// The toggle exists only on the narrow layout; on a desktop the tree is a
+// sidebar and needs no lid.
+
 .dept-filter {
   margin-bottom: 12px;
 }
