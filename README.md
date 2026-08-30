@@ -37,6 +37,8 @@ The front-end and back-end separation authority management system based on Gin +
 
 - Form builder
 
+- Multi-language interface (Chinese and English), switched without a reload and with no database or backend change
+
 - Multi-command mode
 
 - TODO: unit test

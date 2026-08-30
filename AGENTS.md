@@ -246,6 +246,65 @@ export function listUser(query: SysUserQuery & PageQuery) {
 **承载子路由的位置一律用 `RouterViewKeepAlive`，不要写裸 `<router-view />`** ——
 后者渲染出的页面不受 `keep-alive` 管辖，多级菜单的缓存会失效。
 
+## 多语言
+
+**新代码不要写中文字面量。** 界面上的每一句话都从语言包取：
+
+```vue
+<template>
+  <el-button>{{ $t('common.add') }}</el-button>          <!-- Options API 页面照样能用 -->
+</template>
+
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+msgSuccess(t('admin.sysUser.resetOk'))
+</script>
+```
+
+没有组件实例的地方（`utils/`、`composables/`）用 `import { i18n } from '@/lang'` 再 `i18n.global.t(...)`。
+
+语言包在 `src/lang/{语言}/`，**目录结构与 `src/views/` 一一对应**，所以"新页面的文案放哪"
+不需要决策，照抄路径即可。高频公共词（新增/修改/删除/确定/取消…）一律先查 `common.ts`，
+**有就复用**，别在各页面重复定义——`pnpm check:i18n` 会把只用一次的公共词报成死键。
+
+key 分层命名（`admin.sysUser.resetPassword`），**不要用中文原文当 key**：
+中文短句当 key，改一次措辞就要连带改所有引用点。
+
+### 菜单和字典的文案不走 `t()`
+
+它们来自数据库，键是后端的 `menu_name` 和 `dict_type`+`dict_value`：
+
+```ts
+import { routeTitle, translateDictLabel } from '@/lang/backend'
+```
+
+**查不到就回退数据库原值，而且这是正常状态**——用户自建的菜单永远不会在语言包里。
+所以这条路径故意不经过 `t()`/`te()`：那会为每个自建菜单打一条 missing-key 警告，
+而用 `missingWarn: false` 关掉它，会连普通语言包里真正的遗漏一起消音。两种"查不到"性质不同。
+
+`zh-CN` 目录下**没有也不要加** `menu.ts` / `dict.ts`——中文本来就是数据库里的值，
+加一份等于给同一批文案造第二个源头，改菜单名时两边就会对不上。
+
+### 加一门语言
+
+复制 `src/lang/en-US/` 改译文，在 `src/lang/locales.ts` 的 `LOCALES` 里加一行。
+**不改表结构、不改后端、不需要数据库迁移。**
+
+两道 CI 检查看着它：`tests/unit/lang/parity.spec.ts` 比对两棵 key 树是否对称（menu/dict 除外，
+它们的正确形态就是不对称的）；`pnpm check:i18n` 拿 `menu.ts`/`dict.ts` 的键去核对后端
+`config/db.sql` 的种子数据，键对不上就是拼错了。
+
+### 迁移存量页面时
+
+**zh-CN 的值必须与页面当前渲染的文字逐字一致**，一个标点都不能改。e2e 里有 300 多处中文断言，
+"中文界面逐字不变"正是迁移正确性的验收标准，那些断言是免费的回归保护。
+遇到明显别扭的措辞（`Header 固定`、`侧边栏Logo` 这种中英混排）也照抄——
+改措辞是另一件事，单独一个提交、单独改测试。
+
+e2e 的浏览器语言在 `playwright.config.ts` 里钉死为 `zh-CN`。别去掉：应用跟随
+`navigator.language`，而 Playwright 默认 en-US，去掉之后整套中文断言会一起变红。
+
 ## 全局可用
 
 无需 import 即可使用：
