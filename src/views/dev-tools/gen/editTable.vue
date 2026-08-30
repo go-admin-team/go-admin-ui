@@ -219,10 +219,17 @@ const info = ref<GenTable>({})
 const basicForm = ref<{ validate: () => Promise<unknown> }>()
 const genForm = ref<{ validate: () => Promise<unknown> }>()
 
-/** The relation pickers offer the columns of whichever table a row points at. */
+/**
+ * The relation pickers offer the columns of whichever table a row points at.
+ *
+ * Empty rather than a 请选择 placeholder row: the two el-options below bind
+ * `:value="column.jsonField"`, which that row does not carry, so it rendered an
+ * option whose value was undefined and Element Plus warned on every one of them.
+ * el-select shows its own placeholder when it has no options.
+ */
 const attachForeignColumns = (row: GenTable) => {
   const target = tableTree.value.find(item => item.tableName === row.fkTableName)
-  row.fkCol = target?.columns ?? [{ columnId: 0, columnName: '请选择' }]
+  row.fkCol = target?.columns ?? []
 }
 
 const load = async() => {
@@ -234,7 +241,11 @@ const load = async() => {
       getGenTable(tableId),
       getDictOptionselect()
     ])
-    tableTree.value = [{ tableId: 0, className: '请选择' }, ...(tree.data ?? [])]
+    // No placeholder row: el-select already has a placeholder, and this one
+    // carried `className` while the option below binds `tableName` -- so every
+    // render rejected an undefined `value`. Same shape as the fkCol default
+    // above, and the other half of the same fault.
+    tableTree.value = tree.data ?? []
     columns.value = detail.data?.list ?? []
     // The three flags arrive as booleans and the radio groups work in strings
     const loaded = (detail.data?.info ?? {}) as GenTable
