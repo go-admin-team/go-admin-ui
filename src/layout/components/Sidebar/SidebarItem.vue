@@ -15,12 +15,12 @@
       >
         <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
           <svg-icon v-if="menuIcon(onlyOneChild)" :icon-class="menuIcon(onlyOneChild)" />
-          <template #title>{{ onlyOneChild.meta.title }}</template>
+          <template #title>{{ routeTitle(onlyOneChild) }}</template>
         </el-menu-item>
       </a>
       <el-menu-item v-else-if="onlyOneChild.meta" :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
         <svg-icon v-if="menuIcon(onlyOneChild)" :icon-class="menuIcon(onlyOneChild)" />
-        <template #title>{{ onlyOneChild.meta.title }}</template>
+        <template #title>{{ routeTitle(onlyOneChild) }}</template>
       </el-menu-item>
     </template>
 
@@ -34,7 +34,7 @@
              span 必须是直接子元素，中间不能再包一层容器 -->
         <template v-if="item.meta">
           <svg-icon v-if="item.meta.icon" :icon-class="item.meta.icon" />
-          <span>{{ item.meta.title }}</span>
+          <span>{{ routeTitle(item) }}</span>
         </template>
       </template>
       <sidebar-item
@@ -52,6 +52,7 @@
 <script>
 import path from 'path'
 import { isExternal } from '@/utils/validate'
+import { routeTitle } from '@/lang/backend'
 import FixiOSBug from './FixiOSBug'
 
 export default {
@@ -79,6 +80,11 @@ export default {
     return {}
   },
   methods: {
+    // Titles are translated where they are rendered rather than written back
+    // into meta.title. The menu tree lives in three separate Pinia arrays, and
+    // rewriting it would have to keep all three in step; reading through this
+    // is reactive on the locale for free. See lang/backend.ts.
+    routeTitle,
     // 子路由未单独配图标时回退到父级，与原 Item 组件的取值一致
     menuIcon(child) {
       return (child.meta && child.meta.icon) || (this.item.meta && this.item.meta.icon)

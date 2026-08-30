@@ -3,7 +3,7 @@
     <div>
       <div class="setting-drawer-content">
         <div class="setting-drawer-title">
-          页面设置
+          {{ $t('layout.settings.title') }}
         </div>
         <div class="setting-drawer-block-checbox">
           <div class="setting-drawer-block-checbox-item" @click="handleTheme('light')">
@@ -29,47 +29,47 @@
       <el-divider />
       <div class="setting-drawer-content">
         <div class="setting-drawer-title">
-          主题设置
+          {{ $t('layout.settings.theme') }}
         </div>
         <div class="drawer-item">
-          <span>主题颜色</span>
+          <span>{{ $t('layout.settings.themeColor') }}</span>
           <theme-picker style="float: right;height: 26px;margin: -3px 8px 0 0;" @change="themeChange" />
         </div>
 
         <!-- 明暗配色。与上面的「侧栏风格」是两个维度：这里决定整个界面，
              那里只决定侧栏那一条。跟随系统是默认值，也是唯一会随系统变的选项。 -->
         <div class="drawer-item">
-          <span>明暗配色</span>
+          <span>{{ $t('layout.settings.colorScheme') }}</span>
           <el-radio-group v-model="colorScheme" size="small" class="drawer-color-scheme">
-            <el-radio-button value="system">跟随系统</el-radio-button>
-            <el-radio-button value="light">浅色</el-radio-button>
-            <el-radio-button value="dark">深色</el-radio-button>
+            <el-radio-button value="system">{{ $t('layout.settings.system') }}</el-radio-button>
+            <el-radio-button value="light">{{ $t('layout.settings.light') }}</el-radio-button>
+            <el-radio-button value="dark">{{ $t('layout.settings.dark') }}</el-radio-button>
           </el-radio-group>
         </div>
       </div>
       <el-divider />
       <div class="setting-drawer-content">
         <div class="setting-drawer-title">
-          布局设置
+          {{ $t('layout.settings.layout') }}
         </div>
 
         <div class="drawer-item">
-          <span>开启 TopNav</span>
+          <span>{{ $t('layout.settings.topNav') }}</span>
           <el-switch v-model="topNav" class="drawer-switch" />
         </div>
 
         <div class="drawer-item">
-          <span>开启任务栏</span>
+          <span>{{ $t('layout.settings.tagsView') }}</span>
           <el-switch v-model="tagsView" :active-color="activeColor" class="drawer-switch" />
         </div>
 
         <div class="drawer-item">
-          <span>Header 固定</span>
+          <span>{{ $t('layout.settings.fixedHeader') }}</span>
           <el-switch v-model="fixedHeader" :active-color="activeColor" class="drawer-switch" />
         </div>
 
         <div class="drawer-item">
-          <span>侧边栏Logo</span>
+          <span>{{ $t('layout.settings.sidebarLogo') }}</span>
           <el-switch v-model="sidebarLogo" :active-color="activeColor" class="drawer-switch" />
         </div>
       </div>

@@ -9,17 +9,17 @@
       :key="index"
       :index="item.path"
     ><svg-icon :icon-class="item.meta.icon" />
-      {{ item.meta.title }}</el-menu-item>
+      {{ routeTitle(item) }}</el-menu-item>
 
     <!-- 顶部菜单超出数量折叠 -->
     <el-sub-menu v-show="hiddenMenus.length > 0" index="more">
-      <template #title>更多菜单</template>
+      <template #title>{{ $t('layout.topNav.more') }}</template>
       <el-menu-item
         v-for="(item, index) in hiddenMenus"
         :key="'h' + index"
         :index="item.path"
       ><svg-icon :icon-class="item.meta.icon" />
-        {{ item.meta.title }}</el-menu-item>
+        {{ routeTitle(item) }}</el-menu-item>
     </el-sub-menu>
   </el-menu>
 </template>
@@ -28,6 +28,7 @@
 import { mapState } from 'pinia'
 import { usePermissionStore } from '@/stores/permission'
 import { constantRoutes } from '@/router'
+import { routeTitle } from '@/lang/backend'
 
 export default {
   data() {
@@ -91,6 +92,7 @@ export default {
     this.setVisibleNumber()
   },
   methods: {
+    routeTitle,
     // 根据宽度计算设置显示栏数
     setVisibleNumber() {
       const width = document.body.getBoundingClientRect().width - 200

@@ -1,4 +1,6 @@
 import common from './common'
+import layout from './layout'
+import route from './route'
 
 /**
  * Chinese, the default and the fallback.
@@ -9,4 +11,4 @@ import common from './common'
  * drift the first time someone renamed a menu. Chinese always falls through to
  * the database value; see lang/backend.ts.
  */
-export default { common }
+export default { common, layout, route }
