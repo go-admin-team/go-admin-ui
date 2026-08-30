@@ -12,7 +12,7 @@
         -->
         <el-input
           v-model="deptName"
-          placeholder="请输入部门名称"
+          :placeholder="$t('admin.sysUser.deptNamePlaceholder')"
           clearable
           class="dept-filter"
         />
@@ -33,7 +33,7 @@
       <el-col :span="20" :xs="24">
         <ProTable :table="table" selection row-key="userId" :actions-width="140">
           <template #search>
-            <el-form-item v-if="narrow" label="部门">
+            <el-form-item v-if="narrow" :label="$t('admin.sysUser.dept')">
               <el-tree-select
                 :model-value="deptFilter"
                 :data="deptOptions"
@@ -41,31 +41,31 @@
                 node-key="id"
                 check-strictly
                 clearable
-                placeholder="选择部门"
+                :placeholder="$t('admin.sysUser.deptPlaceholder')"
                 style="width: 160px"
                 @update:model-value="handleDeptFilter"
               />
             </el-form-item>
-            <el-form-item label="用户名称">
+            <el-form-item :label="$t('admin.sysUser.username')">
               <el-input
                 v-model="table.query.username"
-                placeholder="请输入用户名称"
+                :placeholder="$t('admin.sysUser.usernamePlaceholder')"
                 clearable
                 style="width: 160px"
               />
             </el-form-item>
-            <el-form-item label="手机号码">
+            <el-form-item :label="$t('admin.sysUser.phone')">
               <el-input
                 v-model="table.query.phone"
-                placeholder="请输入手机号码"
+                :placeholder="$t('admin.sysUser.phonePlaceholder')"
                 clearable
                 style="width: 160px"
               />
             </el-form-item>
-            <el-form-item label="状态">
+            <el-form-item :label="$t('admin.sysUser.status')">
               <el-select
                 v-model="table.query.status"
-                placeholder="用户状态"
+                :placeholder="$t('admin.sysUser.statusPlaceholder')"
                 clearable
                 style="width: 160px"
               >
@@ -84,7 +84,7 @@
               v-permisaction="['admin:sysUser:add']"
               type="primary"
               @click="handleAdd"
-            >新增</el-button>
+            >{{ $t('common.add') }}</el-button>
             <!-- Plain, not filled: these act on a selection and are usually
                  disabled, and a disabled filled button reads as broken rather
                  than as "pick a row first". See AGENTS.md. -->
@@ -92,24 +92,40 @@
               v-permisaction="['admin:sysUser:edit']"
               :disabled="table.single"
               @click="handleEditSelected"
-            >修改</el-button>
+            >{{ $t('common.edit') }}</el-button>
             <el-button
               v-permisaction="['admin:sysUser:remove']"
               type="danger"
               plain
               :disabled="table.multiple"
               @click="remove(table.selectedIds)"
-            >删除</el-button>
+            >{{ $t('common.delete') }}</el-button>
           </template>
 
           <!-- min-width, not width: width is rigid and overflows the container,
                min-width lets el-table fit and redistribute. See AGENTS.md. -->
-          <el-table-column label="编号" prop="userId" min-width="70" sortable="custom" />
-          <el-table-column label="登录名" prop="username" min-width="100" sortable="custom" show-overflow-tooltip />
-          <el-table-column label="昵称" prop="nickName" min-width="85" show-overflow-tooltip />
-          <el-table-column label="部门" prop="dept.deptName" min-width="85" show-overflow-tooltip />
-          <el-table-column label="手机号" prop="phone" min-width="110" />
-          <el-table-column label="状态" prop="status" width="82" sortable="custom">
+          <el-table-column :label="$t('admin.sysUser.userId')" prop="userId" min-width="70" sortable="custom" />
+          <el-table-column
+            :label="$t('admin.sysUser.loginName')"
+            prop="username"
+            min-width="100"
+            sortable="custom"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            :label="$t('admin.sysUser.nickNameColumn')"
+            prop="nickName"
+            min-width="85"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            :label="$t('admin.sysUser.dept')"
+            prop="dept.deptName"
+            min-width="85"
+            show-overflow-tooltip
+          />
+          <el-table-column :label="$t('admin.sysUser.phoneColumn')" prop="phone" min-width="110" />
+          <el-table-column :label="$t('admin.sysUser.status')" prop="status" width="82" sortable="custom">
             <template #default="{ row }">
               <el-switch
                 v-model="row.status"
@@ -119,7 +135,7 @@
               />
             </template>
           </el-table-column>
-          <el-table-column label="创建时间" prop="createdAt" min-width="110" sortable="custom">
+          <el-table-column :label="$t('common.createdAt')" prop="createdAt" min-width="110" sortable="custom">
             <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
           </el-table-column>
           <template #actions="{ row }">
@@ -128,14 +144,14 @@
               link
               type="primary"
               @click="userForm.openEdit(row)"
-            >修改</el-button>
+            >{{ $t('common.edit') }}</el-button>
             <el-button
               v-if="row.userId !== 1"
               v-permisaction="['admin:sysUser:remove']"
               link
               type="danger"
               @click="remove(row.userId)"
-            >删除</el-button>
+            >{{ $t('common.delete') }}</el-button>
             <!-- Icon rather than the words: this column is pinned, so its width
                  comes out of the columns that scroll past it. -->
             <el-button
@@ -143,7 +159,7 @@
               link
               type="primary"
               class="row-icon-action"
-              :title="`重置密码：${row.username}`"
+              :title="$t('admin.sysUser.resetPasswordFor', { name: row.username })"
               @click="handleResetPwd(row)"
             >
               <el-icon><Key /></el-icon>
@@ -156,7 +172,7 @@
     <!-- Create / edit -->
     <el-dialog
       v-model="userForm.visible"
-      :title="userForm.title"
+      :title="userForm.isEdit ? $t('admin.sysUser.editTitle') : $t('admin.sysUser.addTitle')"
       width="640px"
       :close-on-click-modal="false"
       @closed="userForm.reset"
@@ -170,18 +186,21 @@
       >
         <el-row :gutter="16">
           <el-col :span="12">
-            <el-form-item label="用户昵称" prop="nickName">
-              <el-input v-model="userForm.model.nickName" placeholder="请输入用户昵称" />
+            <el-form-item :label="$t('admin.sysUser.nickName')" prop="nickName">
+              <el-input
+                v-model="userForm.model.nickName"
+                :placeholder="$t('admin.sysUser.nickNamePlaceholder')"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="归属部门" prop="deptId">
+            <el-form-item :label="$t('admin.sysUser.deptId')" prop="deptId">
               <el-tree-select
                 v-model="userForm.model.deptId"
                 :data="deptOptions"
                 :props="{ label: 'label', children: 'children' }"
                 node-key="id"
-                placeholder="请选择归属部门"
+                :placeholder="$t('admin.sysUser.deptIdPlaceholder')"
                 check-strictly
                 :render-after-expand="false"
                 style="width: 100%"
@@ -189,35 +208,50 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="手机号码" prop="phone">
-              <el-input v-model="userForm.model.phone" placeholder="请输入手机号码" maxlength="11" />
+            <el-form-item :label="$t('admin.sysUser.phone')" prop="phone">
+              <el-input
+                v-model="userForm.model.phone"
+                :placeholder="$t('admin.sysUser.phonePlaceholder')"
+                maxlength="11"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="邮箱" prop="email">
-              <el-input v-model="userForm.model.email" placeholder="请输入邮箱" maxlength="50" />
+            <el-form-item :label="$t('admin.sysUser.email')" prop="email">
+              <el-input
+                v-model="userForm.model.email"
+                :placeholder="$t('admin.sysUser.emailPlaceholder')"
+                maxlength="50"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="用户名称" prop="username">
-              <el-input v-model="userForm.model.username" placeholder="请输入用户名称" />
+            <el-form-item :label="$t('admin.sysUser.username')" prop="username">
+              <el-input
+                v-model="userForm.model.username"
+                :placeholder="$t('admin.sysUser.usernamePlaceholder')"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <!-- Only on create: the edit endpoint does not take a password, and
                  el-form skips rules for items that are not rendered -->
-            <el-form-item v-if="!userForm.isEdit" label="用户密码" prop="password">
+            <el-form-item v-if="!userForm.isEdit" :label="$t('admin.sysUser.password')" prop="password">
               <el-input
                 v-model="userForm.model.password"
-                placeholder="请输入用户密码"
+                :placeholder="$t('admin.sysUser.passwordPlaceholder')"
                 type="password"
                 show-password
               />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="用户性别" prop="sex">
-              <el-select v-model="userForm.model.sex" placeholder="请选择" style="width: 100%">
+            <el-form-item :label="$t('admin.sysUser.sex')" prop="sex">
+              <el-select
+                v-model="userForm.model.sex"
+                :placeholder="$t('admin.sysUser.selectPlaceholder')"
+                style="width: 100%"
+              >
                 <el-option
                   v-for="item in sys_user_sex"
                   :key="item.value"
@@ -228,7 +262,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="状态" prop="status">
+            <el-form-item :label="$t('admin.sysUser.status')" prop="status">
               <el-radio-group v-model="userForm.model.status">
                 <el-radio
                   v-for="item in sys_normal_disable"
@@ -239,8 +273,12 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="岗位" prop="postId">
-              <el-select v-model="userForm.model.postId" placeholder="请选择" style="width: 100%">
+            <el-form-item :label="$t('admin.sysUser.post')" prop="postId">
+              <el-select
+                v-model="userForm.model.postId"
+                :placeholder="$t('admin.sysUser.selectPlaceholder')"
+                style="width: 100%"
+              >
                 <el-option
                   v-for="item in postOptions"
                   :key="item.postId"
@@ -252,8 +290,12 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="角色" prop="roleId">
-              <el-select v-model="userForm.model.roleId" placeholder="请选择" style="width: 100%">
+            <el-form-item :label="$t('admin.sysUser.role')" prop="roleId">
+              <el-select
+                v-model="userForm.model.roleId"
+                :placeholder="$t('admin.sysUser.selectPlaceholder')"
+                style="width: 100%"
+              >
                 <el-option
                   v-for="item in roleOptions"
                   :key="item.roleId"
@@ -265,16 +307,20 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="备注" prop="remark">
-              <el-input v-model="userForm.model.remark" type="textarea" placeholder="请输入内容" />
+            <el-form-item :label="$t('admin.sysUser.remark')" prop="remark">
+              <el-input
+                v-model="userForm.model.remark"
+                type="textarea"
+                :placeholder="$t('admin.sysUser.remarkPlaceholder')"
+              />
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <template #footer>
-        <el-button @click="userForm.close">取 消</el-button>
+        <el-button @click="userForm.close">{{ $t('common.dialogCancel') }}</el-button>
         <el-button type="primary" :loading="userForm.submitting" @click="userForm.submit">
-          确 定
+          {{ $t('common.dialogConfirm') }}
         </el-button>
       </template>
     </el-dialog>
@@ -283,7 +329,7 @@
          its own validation and its own in-flight state -->
     <el-dialog
       v-model="passwordForm.visible"
-      title="重置密码"
+      :title="$t('admin.sysUser.resetPassword')"
       width="420px"
       :close-on-click-modal="false"
       @closed="passwordForm.reset"
@@ -294,23 +340,23 @@
         :rules="passwordForm.rules"
         label-width="88px"
       >
-        <el-form-item label="用户">
+        <el-form-item :label="$t('admin.sysUser.user')">
           <span>{{ passwordForm.model.username }}</span>
         </el-form-item>
-        <el-form-item label="新密码" prop="password">
+        <el-form-item :label="$t('admin.sysUser.newPassword')" prop="password">
           <el-input
             v-model="passwordForm.model.password"
             type="password"
-            placeholder="请输入新密码"
+            :placeholder="$t('admin.sysUser.newPasswordPlaceholder')"
             show-password
             @keyup.enter="passwordForm.submit"
           />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="passwordForm.close">取 消</el-button>
+        <el-button @click="passwordForm.close">{{ $t('common.dialogCancel') }}</el-button>
         <el-button type="primary" :loading="passwordForm.submitting" @click="passwordForm.submit">
-          确 定
+          {{ $t('common.dialogConfirm') }}
         </el-button>
       </template>
     </el-dialog>
@@ -319,6 +365,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useNarrowScreen } from '@/composables/useNarrowScreen'
 import { ElMessageBox } from 'element-plus'
 import { Key } from '@element-plus/icons-vue'
@@ -343,6 +390,8 @@ import type { DeptTreeNode, SysPost, SysRole, SysUser, SysUserQuery } from '@/ty
 
 // Must match the menu_name the backend serves, or keep-alive silently misses
 defineOptions({ name: 'SysUserManage' })
+
+const { t } = useI18n()
 
 // ── The list ──────────────────────────────────────────────────────
 const table = useTable<SysUser, SysUserQuery>({
@@ -432,20 +481,28 @@ onMounted(async() => {
 })
 
 // ── Create / edit ─────────────────────────────────────────────────
-const userRules: FormRules = {
-  username: [{ required: true, message: '用户名称不能为空', trigger: 'blur' }],
-  nickName: [{ required: true, message: '用户昵称不能为空', trigger: 'blur' }],
-  deptId: [{ required: true, message: '归属部门不能为空', trigger: 'change' }],
-  password: [{ required: true, message: '用户密码不能为空', trigger: 'blur' }],
+/**
+ * Rebuilt whenever the language changes.
+ *
+ * A plain object here is evaluated once, when the page is set up, and the page
+ * is kept alive -- so a message already rendered under a field, 用户名称不能为空,
+ * would keep that language after the reader switched. useForm unwraps the ref,
+ * so :rules="userForm.rules" is unchanged.
+ */
+const userRules = computed<FormRules>(() => ({
+  username: [{ required: true, message: t('admin.sysUser.rules.username'), trigger: 'blur' }],
+  nickName: [{ required: true, message: t('admin.sysUser.rules.nickName'), trigger: 'blur' }],
+  deptId: [{ required: true, message: t('admin.sysUser.rules.deptId'), trigger: 'change' }],
+  password: [{ required: true, message: t('admin.sysUser.rules.password'), trigger: 'blur' }],
   email: [
-    { required: true, message: '邮箱地址不能为空', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+    { required: true, message: t('admin.sysUser.rules.email'), trigger: 'blur' },
+    { type: 'email', message: t('admin.sysUser.rules.emailFormat'), trigger: ['blur', 'change'] }
   ],
   phone: [
-    { required: true, message: '手机号码不能为空', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+    { required: true, message: t('admin.sysUser.rules.phone'), trigger: 'blur' },
+    { pattern: /^1[3-9]\d{9}$/, message: t('admin.sysUser.rules.phoneFormat'), trigger: 'blur' }
   ]
-}
+}))
 
 const userForm = useForm<SysUser, number>({
   defaultModel: () => ({
@@ -465,7 +522,8 @@ const userForm = useForm<SysUser, number>({
   idKey: 'userId',
   rules: userRules,
   api: { get: getUser, add: addUser, update: updateUser },
-  title: { create: '添加用户', edit: '修改用户' },
+  // No `title` option: useForm captures it once, so the dialog would keep the
+  // language it was opened in. The dialog builds its own from `isEdit`.
   onSuccess: () => table.getList()
 })
 
@@ -482,12 +540,13 @@ interface PasswordModel {
   password: string
 }
 
-const passwordRules: FormRules = {
+/** Computed for the same reason userRules is. */
+const passwordRules = computed<FormRules>(() => ({
   password: [
-    { required: true, message: '新密码不能为空', trigger: 'blur' },
-    { min: 6, max: 20, message: '密码长度为 6 到 20 位', trigger: 'blur' }
+    { required: true, message: t('admin.sysUser.rules.newPassword'), trigger: 'blur' },
+    { min: 6, max: 20, message: t('admin.sysUser.rules.passwordLength'), trigger: 'blur' }
   ]
-}
+}))
 
 const passwordForm = useForm<PasswordModel>({
   defaultModel: () => ({ userId: undefined, username: undefined, password: '' }),
@@ -495,7 +554,9 @@ const passwordForm = useForm<PasswordModel>({
   // Not a create/update pair, so it supplies its own handler. The old page used
   // ElMessageBox.prompt, which cannot validate a length or mask the input.
   submit: model => resetUserPwd(model.userId as number, model.password),
-  successMessage: '密码重置成功'
+  // A function rather than a string: useForm keeps whatever it is given, and a
+  // string would be resolved once, at setup.
+  successMessage: () => t('admin.sysUser.resetOk')
 })
 
 const handleResetPwd = (row: SysUser) => {
@@ -505,20 +566,27 @@ const handleResetPwd = (row: SysUser) => {
 // ── Row actions ───────────────────────────────────────────────────
 const { remove } = useRemove({
   api: delUser,
-  confirmText: count => `确认删除选中的 ${count} 个用户？`,
+  // The count is both a named value and the plural choice: Chinese needs one
+  // form, English needs two, and passing it twice lets each pack decide.
+  confirmText: count => t('admin.sysUser.removeConfirm', { count }, count),
   onSuccess: () => table.getList()
 })
 
 const handleStatusChange = async(row: SysUser) => {
   const enabling = row.status === '2'
-  const label = enabling ? '启用' : '停用'
   const revert = () => { row.status = enabling ? '1' : '2' }
 
+  // Two whole sentences rather than a verb spliced into one: 启用/停用 is the
+  // object of the Chinese sentence but the verb of the English one.
+  const question = enabling
+    ? t('admin.sysUser.enableConfirm', { name: row.username })
+    : t('admin.sysUser.disableConfirm', { name: row.username })
+
   try {
-    await ElMessageBox.confirm(`确认${label}用户「${row.username}」？`, '提示', {
+    await ElMessageBox.confirm(question, t('common.notice'), {
       type: 'warning',
-      confirmButtonText: '确定',
-      cancelButtonText: '取消'
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel')
     })
   } catch {
     revert()
@@ -527,7 +595,7 @@ const handleStatusChange = async(row: SysUser) => {
 
   try {
     await changeUserStatus(row)
-    msgSuccess(`${label}成功`)
+    msgSuccess(enabling ? t('admin.sysUser.enableOk') : t('admin.sysUser.disableOk'))
   } catch {
     // The switch has already moved; put it back so it matches the server
     revert()

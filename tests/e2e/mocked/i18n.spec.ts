@@ -89,6 +89,55 @@ test.describe('switching language', () => {
     await expect(table).not.toContainText('正常')
   })
 
+  test('translates a validation message that is already on screen', async({ page }) => {
+    // The failure this is here for: a page declares `const rules = { ... }` at
+    // setup, which runs once, so every message inside it is frozen in whichever
+    // language the page was opened in. Nothing reports it -- validation keeps
+    // working, the dialog keeps rejecting, the sentence under the field is just
+    // in the wrong language. The five admin pages pass a computed instead, and
+    // el-form revalidates when its rules change (validateOnRuleChange), which
+    // is what repaints a message already rendered.
+    //
+    // Asserting on a message triggered *after* the switch would not catch it:
+    // el-form-item's error text can also be repainted by remounting, and the
+    // dialog reopening is enough to make that path look green.
+    await openList(page)
+    await page.getByRole('button', { name: '新增' }).click()
+
+    // Located by visibility rather than by its title, which is one of the
+    // things about to change.
+    const dialog = page.locator('.el-dialog:visible')
+    await expect(dialog).toContainText('添加用户')
+    await dialog.getByRole('button', { name: '确 定' }).click()
+
+    const errors = dialog.locator('.el-form-item__error')
+    await expect(errors.filter({ hasText: '用户名称不能为空' })).toHaveCount(1)
+
+    // Dispatched rather than clicked, and that is the one liberty this test
+    // takes: el-dialog puts .el-overlay-dialog over the whole viewport at
+    // z-index 2009, so the navbar switcher is genuinely unreachable by mouse
+    // while the dialog is open. The event still lands on el-dropdown's own
+    // handler, so everything after this line is the real path. A user meets the
+    // same frozen rules by switching first and opening the dialog after --
+    // which the tail of this test also checks.
+    await page.locator('#lang-select').dispatchEvent('click')
+    await page.getByRole('menuitem', { name: 'English', exact: true }).click()
+
+    await expect(errors.filter({ hasText: 'Username is required' })).toHaveCount(1)
+    await expect(errors.filter({ hasText: '用户名称不能为空' })).toHaveCount(0)
+
+    // And the route a user does take: close, reopen, fail validation again.
+    // Reopening does not re-run setup, so a frozen object would still be
+    // handing out Chinese here.
+    await dialog.getByRole('button', { name: 'Cancel' }).click()
+    await expect(dialog).toHaveCount(0)
+    await page.getByRole('button', { name: 'Add', exact: true }).click()
+
+    await expect(dialog).toContainText('Add User')
+    await dialog.getByRole('button', { name: 'OK' }).click()
+    await expect(errors.filter({ hasText: 'Username is required' })).toHaveCount(1)
+  })
+
   test('keeps the language across a reload', async({ page }) => {
     await openList(page)
     await switchTo(page, 'English')

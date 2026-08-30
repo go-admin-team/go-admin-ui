@@ -2,14 +2,29 @@
   <PageContainer>
     <ProTable :table="table" selection row-key="roleId" :actions-width="180">
       <template #search>
-        <el-form-item label="角色名称">
-          <el-input v-model="table.query.roleName" placeholder="请输入角色名称" clearable style="width: 160px" />
+        <el-form-item :label="$t('admin.sysRole.roleName')">
+          <el-input
+            v-model="table.query.roleName"
+            :placeholder="$t('admin.sysRole.roleNamePlaceholder')"
+            clearable
+            style="width: 160px"
+          />
         </el-form-item>
-        <el-form-item label="权限字符">
-          <el-input v-model="table.query.roleKey" placeholder="请输入权限字符" clearable style="width: 160px" />
+        <el-form-item :label="$t('admin.sysRole.roleKey')">
+          <el-input
+            v-model="table.query.roleKey"
+            :placeholder="$t('admin.sysRole.roleKeyPlaceholder')"
+            clearable
+            style="width: 160px"
+          />
         </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="table.query.status" placeholder="角色状态" clearable style="width: 140px">
+        <el-form-item :label="$t('admin.sysRole.status')">
+          <el-select
+            v-model="table.query.status"
+            :placeholder="$t('admin.sysRole.statusPlaceholder')"
+            clearable
+            style="width: 140px"
+          >
             <el-option
               v-for="item in sys_normal_disable"
               :key="item.value"
@@ -21,27 +36,38 @@
       </template>
 
       <template #toolbar>
-        <el-button v-permisaction="['admin:sysRole:add']" type="primary" @click="handleAdd">新增</el-button>
+        <el-button v-permisaction="['admin:sysRole:add']" type="primary" @click="handleAdd">{{ $t('common.add') }}</el-button>
         <el-button
           v-permisaction="['admin:sysRole:edit']"
           :disabled="table.single"
           @click="handleEdit(table.selection[0])"
-        >修改</el-button>
+        >{{ $t('common.edit') }}</el-button>
         <el-button
           v-permisaction="['admin:sysRole:remove']"
           type="danger"
           plain
           :disabled="table.multiple"
           @click="remove(table.selectedIds)"
-        >删除</el-button>
-        <el-button :loading="exporting" @click="handleExport">导出</el-button>
+        >{{ $t('common.delete') }}</el-button>
+        <el-button :loading="exporting" @click="handleExport">{{ $t('common.export') }}</el-button>
       </template>
 
-      <el-table-column label="编码" prop="roleId" min-width="80" sortable="custom" />
-      <el-table-column label="名称" prop="roleName" min-width="120" sortable="custom" show-overflow-tooltip />
-      <el-table-column label="权限字符" prop="roleKey" min-width="120" show-overflow-tooltip />
-      <el-table-column label="排序" prop="roleSort" min-width="80" sortable="custom" />
-      <el-table-column label="状态" prop="status" width="82" sortable="custom">
+      <el-table-column :label="$t('admin.sysRole.roleId')" prop="roleId" min-width="80" sortable="custom" />
+      <el-table-column
+        :label="$t('admin.sysRole.name')"
+        prop="roleName"
+        min-width="120"
+        sortable="custom"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        :label="$t('admin.sysRole.roleKey')"
+        prop="roleKey"
+        min-width="120"
+        show-overflow-tooltip
+      />
+      <el-table-column :label="$t('admin.sysRole.sort')" prop="roleSort" min-width="80" sortable="custom" />
+      <el-table-column :label="$t('admin.sysRole.status')" prop="status" width="82" sortable="custom">
         <template #default="{ row }">
           <el-switch
             v-model="row.status"
@@ -51,19 +77,19 @@
           />
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" prop="createdAt" min-width="110" sortable="custom">
+      <el-table-column :label="$t('common.createdAt')" prop="createdAt" min-width="110" sortable="custom">
         <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
       </el-table-column>
 
       <template #actions="{ row }">
         <el-button v-permisaction="['admin:sysRole:edit']" link type="primary" @click="handleEdit(row)">
-          修改
+          {{ $t('common.edit') }}
         </el-button>
         <el-button v-permisaction="['admin:sysRole:update']" link type="primary" @click="handleDataScope(row)">
-          数据权限
+          {{ $t('admin.sysRole.dataScope') }}
         </el-button>
         <el-button v-permisaction="['admin:sysRole:remove']" link type="danger" @click="remove(row.roleId)">
-          删除
+          {{ $t('common.delete') }}
         </el-button>
       </template>
     </ProTable>
@@ -71,7 +97,7 @@
     <!-- Create / edit, with the menu tree -->
     <el-dialog
       v-model="roleForm.visible"
-      :title="roleForm.title"
+      :title="roleForm.isEdit ? $t('admin.sysRole.editTitle') : $t('admin.sysRole.addTitle')"
       width="560px"
       :close-on-click-modal="false"
       @closed="roleForm.reset"
@@ -83,16 +109,24 @@
         :rules="roleForm.rules"
         label-width="88px"
       >
-        <el-form-item label="角色名称" prop="roleName">
-          <el-input v-model="roleForm.model.roleName" placeholder="请输入角色名称" :disabled="roleForm.isEdit" />
+        <el-form-item :label="$t('admin.sysRole.roleName')" prop="roleName">
+          <el-input
+            v-model="roleForm.model.roleName"
+            :placeholder="$t('admin.sysRole.roleNamePlaceholder')"
+            :disabled="roleForm.isEdit"
+          />
         </el-form-item>
-        <el-form-item label="权限字符" prop="roleKey">
-          <el-input v-model="roleForm.model.roleKey" placeholder="请输入权限字符" :disabled="roleForm.isEdit" />
+        <el-form-item :label="$t('admin.sysRole.roleKey')" prop="roleKey">
+          <el-input
+            v-model="roleForm.model.roleKey"
+            :placeholder="$t('admin.sysRole.roleKeyPlaceholder')"
+            :disabled="roleForm.isEdit"
+          />
         </el-form-item>
-        <el-form-item label="角色顺序" prop="roleSort">
+        <el-form-item :label="$t('admin.sysRole.roleSort')" prop="roleSort">
           <el-input-number v-model="roleForm.model.roleSort" controls-position="right" :min="0" />
         </el-form-item>
-        <el-form-item label="状态" prop="status">
+        <el-form-item :label="$t('admin.sysRole.status')" prop="status">
           <el-radio-group v-model="roleForm.model.status">
             <el-radio
               v-for="item in sys_normal_disable"
@@ -101,7 +135,7 @@
             >{{ item.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="菜单权限">
+        <el-form-item :label="$t('admin.sysRole.menuPermission')">
           <el-tree
             ref="menuTreeRef"
             :data="menuOptions"
@@ -111,13 +145,17 @@
             class="permission-tree"
           />
         </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="roleForm.model.remark" type="textarea" placeholder="请输入内容" />
+        <el-form-item :label="$t('admin.sysRole.remark')" prop="remark">
+          <el-input
+            v-model="roleForm.model.remark"
+            type="textarea"
+            :placeholder="$t('admin.sysRole.remarkPlaceholder')"
+          />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="roleForm.close">取 消</el-button>
-        <el-button type="primary" :loading="roleForm.submitting" @click="roleForm.submit">确 定</el-button>
+        <el-button @click="roleForm.close">{{ $t('common.dialogCancel') }}</el-button>
+        <el-button type="primary" :loading="roleForm.submitting" @click="roleForm.submit">{{ $t('common.dialogConfirm') }}</el-button>
       </template>
     </el-dialog>
 
@@ -129,7 +167,7 @@
     -->
     <el-dialog
       v-model="scopeForm.visible"
-      title="分配数据权限"
+      :title="$t('admin.sysRole.dataScopeTitle')"
       width="560px"
       :close-on-click-modal="false"
       @closed="scopeForm.reset"
@@ -140,44 +178,45 @@
         :model="scopeForm.model"
         label-width="88px"
       >
-        <el-form-item label="角色名称">
+        <el-form-item :label="$t('admin.sysRole.roleName')">
           <el-input :model-value="scopeForm.model.roleName" disabled />
         </el-form-item>
-        <el-form-item label="权限字符">
+        <el-form-item :label="$t('admin.sysRole.roleKey')">
           <el-input :model-value="scopeForm.model.roleKey" disabled />
         </el-form-item>
-        <el-form-item label="权限范围">
+        <el-form-item :label="$t('admin.sysRole.scope')">
           <el-select v-model="scopeForm.model.dataScope" style="width: 100%">
             <el-option
-              v-for="item in DATA_SCOPES"
+              v-for="item in dataScopes"
               :key="item.value"
               :label="item.label"
               :value="item.value"
             />
           </el-select>
         </el-form-item>
-        <el-form-item v-show="scopeForm.model.dataScope === CUSTOM_SCOPE" label="数据权限">
+        <el-form-item v-show="scopeForm.model.dataScope === CUSTOM_SCOPE" :label="$t('admin.sysRole.dataScope')">
           <el-tree
             ref="deptTreeRef"
             :data="deptOptions"
             show-checkbox
             default-expand-all
             node-key="id"
-            empty-text="加载中，请稍后"
+            :empty-text="$t('admin.sysRole.treeLoading')"
             class="permission-tree"
           />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="scopeForm.close">取 消</el-button>
-        <el-button type="primary" :loading="scopeForm.submitting" @click="scopeForm.submit">确 定</el-button>
+        <el-button @click="scopeForm.close">{{ $t('common.dialogCancel') }}</el-button>
+        <el-button type="primary" :loading="scopeForm.submitting" @click="scopeForm.submit">{{ $t('common.dialogConfirm') }}</el-button>
       </template>
     </el-dialog>
   </PageContainer>
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref, computed, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessageBox } from 'element-plus'
 import type { FormRules } from 'element-plus'
 
@@ -198,17 +237,23 @@ import type { DeptTreeNode, SysRole, SysRoleQuery } from '@/types/admin'
 // Must match the menu_name the backend serves, or keep-alive silently misses
 defineOptions({ name: 'SysRoleManage' })
 
+const { t } = useI18n()
+
 const { sys_normal_disable } = useDict('sys_normal_disable')
 
 /** Only 自定 needs the department tree; the rest are computed server-side. */
 const CUSTOM_SCOPE = '2'
-const DATA_SCOPES = [
-  { value: '1', label: '全部数据权限' },
-  { value: CUSTOM_SCOPE, label: '自定数据权限' },
-  { value: '3', label: '本部门数据权限' },
-  { value: '4', label: '本部门及以下数据权限' },
-  { value: '5', label: '仅本人数据权限' }
-]
+
+// Computed, not a plain array: a plain one is built once when the page is set
+// up, and keep-alive keeps that instance around, so the select would go on
+// offering the language the page was first opened in -- including on screen.
+const dataScopes = computed(() => [
+  { value: '1', label: t('admin.sysRole.scopeOptions.all') },
+  { value: CUSTOM_SCOPE, label: t('admin.sysRole.scopeOptions.custom') },
+  { value: '3', label: t('admin.sysRole.scopeOptions.dept') },
+  { value: '4', label: t('admin.sysRole.scopeOptions.deptAndBelow') },
+  { value: '5', label: t('admin.sysRole.scopeOptions.self') }
+])
 
 const table = useTable<SysRole, SysRoleQuery>({
   api: listRole,
@@ -219,7 +264,18 @@ const table = useTable<SysRole, SysRoleQuery>({
 // ── Menu tree, shared by create and edit ──────────────────────────
 const menuTreeRef = ref()
 const menuOptions = ref<Array<Record<string, unknown>>>([])
-const menuEmptyText = ref('加载中，请稍后')
+/**
+ * Whether the role being edited is the super admin, which holds everything
+ * implicitly and so has no tree to tick.
+ *
+ * A flag rather than the message itself: storing the text would freeze it in
+ * the language it was assigned in, and this one stays on screen.
+ */
+const superAdminOnly = ref(false)
+
+const menuEmptyText = computed(() =>
+  superAdminOnly.value ? t('admin.sysRole.adminNeedsNoMenus') : t('admin.sysRole.treeLoading')
+)
 
 /** The full menu tree, fetched once. Role 0 means "everything on offer". */
 const loadMenuTree = async() => {
@@ -228,11 +284,19 @@ const loadMenuTree = async() => {
 }
 void loadMenuTree()
 
-const rules: FormRules = {
-  roleName: [{ required: true, message: '角色名称不能为空', trigger: 'blur' }],
-  roleKey: [{ required: true, message: '权限字符不能为空', trigger: 'blur' }],
-  roleSort: [{ required: true, message: '角色顺序不能为空', trigger: 'blur' }]
-}
+/**
+ * Rebuilt whenever the language changes.
+ *
+ * A plain object here is evaluated once, when the page is set up, and the page
+ * is kept alive -- so a message already rendered under a field would keep the
+ * language it was built in. useForm unwraps the ref, so :rules="roleForm.rules"
+ * is unchanged.
+ */
+const rules = computed<FormRules>(() => ({
+  roleName: [{ required: true, message: t('admin.sysRole.rules.roleName'), trigger: 'blur' }],
+  roleKey: [{ required: true, message: t('admin.sysRole.rules.roleKey'), trigger: 'blur' }],
+  roleSort: [{ required: true, message: t('admin.sysRole.rules.roleSort'), trigger: 'blur' }]
+}))
 
 const roleForm = useForm<SysRole, number>({
   defaultModel: () => ({
@@ -246,7 +310,8 @@ const roleForm = useForm<SysRole, number>({
   }),
   idKey: 'roleId',
   rules,
-  title: { create: '添加角色', edit: '修改角色' },
+  // No `title` option: useForm captures it once, so the dialog would keep the
+  // language it was opened in. The dialog builds its own from `isEdit`.
   api: {
     get: getRole,
     add: model => addRole({ ...model, menuIds: checkedMenuIds() }),
@@ -273,7 +338,7 @@ const handleEdit = async(row: SysRole) => {
   await roleForm.openEdit(row)
   // The super admin holds everything implicitly, so there is nothing to tick
   if (roleForm.model.roleKey === 'admin') {
-    menuEmptyText.value = '系统超级管理员无需此操作'
+    superAdminOnly.value = true
     menuOptions.value = []
     return
   }
@@ -290,7 +355,9 @@ const scopeForm = useForm<SysRole, number>({
   idKey: 'roleId',
   api: { get: getRole },
   submit: model => dataScope({ ...model, deptIds: deptTreeRef.value?.getCheckedKeys() ?? [] }),
-  successMessage: '数据权限已保存',
+  // A function rather than a string: useForm keeps whatever it is given, and a
+  // string would be resolved once, at setup.
+  successMessage: () => t('admin.sysRole.dataScopeSaved'),
   onSuccess: () => table.getList()
 })
 
@@ -310,14 +377,19 @@ const { remove } = useRemove({
 
 const handleStatusChange = async(row: SysRole) => {
   const enabling = row.status === '2'
-  const label = enabling ? '启用' : '停用'
   const revert = () => { row.status = enabling ? '1' : '2' }
 
+  // Two whole sentences rather than a verb spliced into one: 启用/停用 is the
+  // object of the Chinese sentence but the verb of the English one.
+  const question = enabling
+    ? t('admin.sysRole.enableConfirm', { name: row.roleName })
+    : t('admin.sysRole.disableConfirm', { name: row.roleName })
+
   try {
-    await ElMessageBox.confirm(`确认${label}角色「${row.roleName}」？`, '提示', {
+    await ElMessageBox.confirm(question, t('common.notice'), {
       type: 'warning',
-      confirmButtonText: '确定',
-      cancelButtonText: '取消'
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel')
     })
   } catch {
     revert()
@@ -326,7 +398,7 @@ const handleStatusChange = async(row: SysRole) => {
 
   try {
     await changeRoleStatus(row.roleId as number, row.status as string)
-    msgSuccess(`${label}成功`)
+    msgSuccess(enabling ? t('admin.sysRole.enableOk') : t('admin.sysRole.disableOk'))
   } catch {
     // The switch has already moved; put it back so it matches the server
     revert()
@@ -335,11 +407,20 @@ const handleStatusChange = async(row: SysRole) => {
 
 const { exportExcel, exporting } = useExport()
 
+// Built on each click rather than once, so the sheet is written in the
+// language the reader is in when they ask for it.
 const handleExport = () => exportExcel({
-  header: ['角色编号', '角色名称', '权限字符', '显示顺序', '状态', '创建时间'],
+  header: [
+    t('admin.sysRole.exportHeader.roleId'),
+    t('admin.sysRole.exportHeader.roleName'),
+    t('admin.sysRole.exportHeader.roleKey'),
+    t('admin.sysRole.exportHeader.roleSort'),
+    t('admin.sysRole.exportHeader.status'),
+    t('admin.sysRole.exportHeader.createdAt')
+  ],
   fields: ['roleId', 'roleName', 'roleKey', 'roleSort', 'status', 'createdAt'],
   rows: table.rows as Array<Record<string, unknown>>,
-  filename: '角色管理'
+  filename: t('admin.sysRole.exportFilename')
 })
 </script>
 

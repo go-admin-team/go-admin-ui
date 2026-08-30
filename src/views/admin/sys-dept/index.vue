@@ -13,11 +13,21 @@
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     >
       <template #search>
-        <el-form-item label="部门名称">
-          <el-input v-model="table.query.deptName" placeholder="请输入部门名称" clearable style="width: 180px" />
+        <el-form-item :label="$t('admin.sysDept.deptName')">
+          <el-input
+            v-model="table.query.deptName"
+            :placeholder="$t('admin.sysDept.deptNamePlaceholder')"
+            clearable
+            style="width: 180px"
+          />
         </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="table.query.status" placeholder="部门状态" clearable style="width: 140px">
+        <el-form-item :label="$t('admin.sysDept.status')">
+          <el-select
+            v-model="table.query.status"
+            :placeholder="$t('admin.sysDept.statusPlaceholder')"
+            clearable
+            style="width: 140px"
+          >
             <el-option
               v-for="item in sys_normal_disable"
               :key="item.value"
@@ -30,20 +40,25 @@
 
       <template #toolbar>
         <el-button v-permisaction="['admin:sysDept:add']" type="primary" @click="handleAdd()">
-          新增
+          {{ $t('common.add') }}
         </el-button>
       </template>
 
-      <el-table-column prop="deptName" label="部门名称" min-width="180" show-overflow-tooltip />
-      <el-table-column prop="sort" label="排序" width="80" />
-      <el-table-column prop="status" label="状态" width="90">
+      <el-table-column
+        prop="deptName"
+        :label="$t('admin.sysDept.deptName')"
+        min-width="180"
+        show-overflow-tooltip
+      />
+      <el-table-column prop="sort" :label="$t('admin.sysDept.sort')" width="80" />
+      <el-table-column prop="status" :label="$t('admin.sysDept.status')" width="90">
         <template #default="{ row }">
           <el-tag :type="Number(row.status) === 1 ? 'danger' : 'success'" disable-transitions>
             {{ dictLabel(sys_normal_disable, row.status) }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" prop="createdAt" min-width="110">
+      <el-table-column :label="$t('common.createdAt')" prop="createdAt" min-width="110">
         <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
       </el-table-column>
 
@@ -53,13 +68,13 @@
           link
           type="primary"
           @click="handleUpdate(row)"
-        >修改</el-button>
+        >{{ $t('common.edit') }}</el-button>
         <el-button
           v-permisaction="['admin:sysDept:add']"
           link
           type="primary"
           @click="handleAdd(row)"
-        >新增</el-button>
+        >{{ $t('common.add') }}</el-button>
         <!-- A root has no parent to fall back to, so it cannot be removed here -->
         <el-button
           v-if="row.parentId !== 0"
@@ -67,13 +82,13 @@
           link
           type="danger"
           @click="handleDelete(row)"
-        >删除</el-button>
+        >{{ $t('common.delete') }}</el-button>
       </template>
     </ProTable>
 
     <el-dialog
       v-model="form.visible"
-      :title="form.title"
+      :title="form.isEdit ? $t('admin.sysDept.editTitle') : $t('admin.sysDept.addTitle')"
       width="600px"
       :close-on-click-modal="false"
       @closed="form.reset"
@@ -87,7 +102,7 @@
       >
         <el-row :gutter="16">
           <el-col :span="24">
-            <el-form-item label="上级部门" prop="parentId">
+            <el-form-item :label="$t('admin.sysDept.parent')" prop="parentId">
               <!-- Disabled while editing: moving a department between parents is
                    not something this endpoint supports. -->
               <el-tree-select
@@ -95,7 +110,7 @@
                 :data="parent.options"
                 :props="{ label: 'deptName', children: 'children' }"
                 node-key="deptId"
-                placeholder="选择上级部门"
+                :placeholder="$t('admin.sysDept.parentPlaceholder')"
                 :disabled="form.isEdit"
                 check-strictly
                 :render-after-expand="false"
@@ -104,32 +119,47 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="部门名称" prop="deptName">
-              <el-input v-model="form.model.deptName" placeholder="请输入部门名称" />
+            <el-form-item :label="$t('admin.sysDept.deptName')" prop="deptName">
+              <el-input
+                v-model="form.model.deptName"
+                :placeholder="$t('admin.sysDept.deptNamePlaceholder')"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="显示排序" prop="sort">
+            <el-form-item :label="$t('admin.sysDept.displaySort')" prop="sort">
               <el-input-number v-model="form.model.sort" controls-position="right" :min="0" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="负责人" prop="leader">
-              <el-input v-model="form.model.leader" placeholder="请输入负责人" maxlength="20" />
+            <el-form-item :label="$t('admin.sysDept.leader')" prop="leader">
+              <el-input
+                v-model="form.model.leader"
+                :placeholder="$t('admin.sysDept.leaderPlaceholder')"
+                maxlength="20"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="联系电话" prop="phone">
-              <el-input v-model="form.model.phone" placeholder="请输入联系电话" maxlength="11" />
+            <el-form-item :label="$t('admin.sysDept.phone')" prop="phone">
+              <el-input
+                v-model="form.model.phone"
+                :placeholder="$t('admin.sysDept.phonePlaceholder')"
+                maxlength="11"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="邮箱" prop="email">
-              <el-input v-model="form.model.email" placeholder="请输入邮箱" maxlength="50" />
+            <el-form-item :label="$t('admin.sysDept.email')" prop="email">
+              <el-input
+                v-model="form.model.email"
+                :placeholder="$t('admin.sysDept.emailPlaceholder')"
+                maxlength="50"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="部门状态" prop="status">
+            <el-form-item :label="$t('admin.sysDept.deptStatus')" prop="status">
               <el-radio-group v-model="form.model.status">
                 <el-radio
                   v-for="item in sys_normal_disable"
@@ -142,14 +172,16 @@
         </el-row>
       </el-form>
       <template #footer>
-        <el-button @click="form.close">取 消</el-button>
-        <el-button type="primary" :loading="form.submitting" @click="form.submit">确 定</el-button>
+        <el-button @click="form.close">{{ $t('common.dialogCancel') }}</el-button>
+        <el-button type="primary" :loading="form.submitting" @click="form.submit">{{ $t('common.dialogConfirm') }}</el-button>
       </template>
     </el-dialog>
   </PageContainer>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { FormRules } from 'element-plus'
 
 import PageContainer from '@/components/PageContainer/index.vue'
@@ -163,6 +195,8 @@ import type { SysDept, SysDeptQuery } from '@/types/admin'
 
 // Must match the menu_name the backend serves, or keep-alive silently misses
 defineOptions({ name: 'SysDeptManage' })
+
+const { t } = useI18n()
 
 const { sys_normal_disable } = useDict('sys_normal_disable')
 
@@ -180,18 +214,28 @@ const parent = useTreePicker<SysDept>({
   api: () => getDeptList(),
   idKey: 'deptId',
   labelKey: 'deptName',
-  rootLabel: '主类目',
+  // Read once, the way useForm's rules were before they took a ref: the label
+  // a reader already has on screen keeps the language the page was opened in.
+  rootLabel: t('admin.sysDept.rootCategory'),
   rootId: ROOT_ID
 })
 
-const rules: FormRules = {
-  parentId: [{ required: true, message: '上级部门不能为空', trigger: 'change' }],
-  deptName: [{ required: true, message: '部门名称不能为空', trigger: 'blur' }],
-  sort: [{ required: true, message: '排序不能为空', trigger: 'blur' }],
-  leader: [{ required: true, message: '负责人不能为空', trigger: 'blur' }],
-  email: [{ type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }],
-  phone: [{ pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }]
-}
+/**
+ * Rebuilt whenever the language changes.
+ *
+ * A plain object here is evaluated once, when the page is set up, and the page
+ * is kept alive -- so a message already rendered under a field, 部门名称不能为空,
+ * would keep that language after the reader switched. useForm unwraps the ref,
+ * so :rules="form.rules" is unchanged.
+ */
+const rules = computed<FormRules>(() => ({
+  parentId: [{ required: true, message: t('admin.sysDept.rules.parentId'), trigger: 'change' }],
+  deptName: [{ required: true, message: t('admin.sysDept.rules.deptName'), trigger: 'blur' }],
+  sort: [{ required: true, message: t('admin.sysDept.rules.sort'), trigger: 'blur' }],
+  leader: [{ required: true, message: t('admin.sysDept.rules.leader'), trigger: 'blur' }],
+  email: [{ type: 'email', message: t('admin.sysDept.rules.emailFormat'), trigger: ['blur', 'change'] }],
+  phone: [{ pattern: /^1[3-9]\d{9}$/, message: t('admin.sysDept.rules.phoneFormat'), trigger: 'blur' }]
+}))
 
 const form = useForm<SysDept, number>({
   defaultModel: () => ({
@@ -206,7 +250,8 @@ const form = useForm<SysDept, number>({
   }),
   idKey: 'deptId',
   rules,
-  title: { create: '添加部门', edit: '修改部门' },
+  // No `title` option: useForm captures it once, so the dialog would keep the
+  // language it was opened in. The dialog builds its own from `isEdit`.
   api: {
     get: getDeptForForm,
     add: addDept,
@@ -231,7 +276,7 @@ const handleUpdate = (row: SysDept) => {
 
 const { remove } = useRemove({
   api: delDept,
-  confirmText: () => '确认删除该部门？其下级部门也会一并删除。',
+  confirmText: () => t('admin.sysDept.removeConfirm'),
   onSuccess: () => {
     parent.invalidate()
     return table.getList()

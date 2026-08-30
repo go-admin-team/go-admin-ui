@@ -22,6 +22,23 @@ export default {
   empty: '暂无数据',
   loading: '加载中',
 
+  // The toolbar and row actions every list page repeats, and the column every
+  // one of them ends with. All five admin pages migrated so far carry each of
+  // these; sys-role and sys-config carry 导出 as well.
+  add: '新增',
+  edit: '修改',
+  delete: '删除',
+  export: '导出',
+  createdAt: '创建时间',
+
+  // The dialog footer's pair, which is NOT the same string as confirm/cancel
+  // above: Element Plus's own message box renders 确定/取消, while the footer of
+  // a two-character Chinese button is spaced by convention. The e2e suite
+  // matches on both spellings, so collapsing them would change what renders.
+  // English has no such convention, so both spellings translate to one word.
+  dialogConfirm: '确 定',
+  dialogCancel: '取 消',
+
   // What utils/request.ts says when a request cannot be completed. They sit
   // here rather than in a module of their own because the interceptor has no
   // component instance and no page to belong to -- it speaks for every one of

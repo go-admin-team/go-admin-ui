@@ -12,6 +12,17 @@ export default {
   empty: 'No data',
   loading: 'Loading',
 
+  add: 'Add',
+  edit: 'Edit',
+  delete: 'Delete',
+  export: 'Export',
+  createdAt: 'Created At',
+
+  // Same words as confirm/cancel. The two Chinese spellings differ only in the
+  // spacing convention for two-character buttons, which English does not have.
+  dialogConfirm: 'OK',
+  dialogCancel: 'Cancel',
+
   systemNotice: 'System Notice',
   relogin: 'Log in again',
   sessionExpired: 'Your session has expired',
