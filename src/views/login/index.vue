@@ -11,7 +11,7 @@
       </header>
 
       <div class="stage-main">
-        <div class="term" role="img" aria-label="go-admin 启动过程示意">
+        <div class="term" role="img" :aria-label="$t('login.terminalAlt')">
           <div class="term-bar">
             <i class="dot dot--r" /><i class="dot dot--y" /><i class="dot dot--g" />
             <span class="term-path">~/go-admin</span>
@@ -42,7 +42,7 @@
     <div class="panel">
       <div class="form-box">
         <h1 class="panel-title">{{ sysInfo && sysInfo.sys_app_name || 'go-admin' }}</h1>
-        <p class="panel-sub">使用管理员账号登录控制台</p>
+        <p class="panel-sub">{{ $t('login.subtitle') }}</p>
 
         <el-form
           ref="loginForm"
@@ -53,11 +53,11 @@
           autocomplete="on"
           @submit.prevent="handleLogin"
         >
-          <el-form-item label="账号" prop="username">
+          <el-form-item :label="$t('login.username')" prop="username">
             <el-input
               ref="username"
               v-model="loginForm.username"
-              placeholder="请输入账号"
+              :placeholder="$t('login.usernamePlaceholder')"
               name="username"
               type="text"
               tabindex="1"
@@ -67,13 +67,13 @@
             />
           </el-form-item>
 
-          <el-form-item label="密码" prop="password">
+          <el-form-item :label="$t('login.password')" prop="password">
             <el-input
               :key="passwordType"
               ref="password"
               v-model="loginForm.password"
               :type="passwordType"
-              placeholder="请输入密码"
+              :placeholder="$t('login.passwordPlaceholder')"
               name="password"
               tabindex="2"
               autocomplete="on"
@@ -92,11 +92,11 @@
             </el-input>
           </el-form-item>
 
-          <el-form-item label="验证码" prop="code">
+          <el-form-item :label="$t('login.captcha')" prop="code">
             <div class="captcha-row">
               <el-input
                 v-model="loginForm.code"
-                placeholder="请输入验证码"
+                :placeholder="$t('login.captchaPlaceholder')"
                 name="code"
                 type="text"
                 tabindex="3"
@@ -106,8 +106,8 @@
                 :prefix-icon="Key"
                 @keyup.enter="handleLogin"
               />
-              <button type="button" class="captcha-wrap" title="点击刷新验证码" @click="getCode">
-                <img v-if="codeUrl" :src="codeUrl" class="captcha-img" alt="验证码">
+              <button type="button" class="captcha-wrap" :title="$t('login.captchaRefresh')" @click="getCode">
+                <img v-if="codeUrl" :src="codeUrl" class="captcha-img" :alt="$t('login.captcha')">
                 <el-icon v-else class="is-loading"><Loading /></el-icon>
               </button>
             </div>
@@ -119,13 +119,20 @@
             class="submit-btn"
             @click.prevent="handleLogin"
           >
-            {{ loading ? '登录中' : '登录' }}
+            {{ loading ? $t('login.submitting') : $t('login.submit') }}
           </el-button>
         </el-form>
 
-        <p class="panel-tip">忘记密码请联系系统管理员重置</p>
+        <p class="panel-tip">{{ $t('login.forgotPassword') }}</p>
       </div>
     </div>
+
+    <!--
+      Anchored to the page rather than to either half: the hero is hidden below
+      768px and its footer below 860px, so a switcher living there disappears on
+      exactly the screens where a visitor has no other way to change language.
+    -->
+    <lang-select id="lang-select" class="lang-switch" />
 
   </div>
 </template>
@@ -137,11 +144,12 @@ import { useSystemStore } from '@/stores/system'
 import { useUserStore } from '@/stores/user'
 import { User, Lock, Key, View, Hide, Loading } from '@element-plus/icons-vue'
 import Gopher from '@/components/Gopher'
+import LangSelect from '@/components/LangSelect'
 import { version } from '../../../package.json'
 
 export default {
   name: 'LoginPage',
-  components: { Gopher },
+  components: { Gopher, LangSelect },
   setup() {
     return { User, Lock, Key, View, Hide, Loading }
   },
@@ -155,17 +163,25 @@ export default {
         code: '',
         uuid: ''
       },
-      loginRules: {
-        username: [{ required: true, trigger: 'blur', message: '用户名不能为空' }],
-        password: [{ required: true, trigger: 'blur', message: '密码不能为空' }],
-        code: [{ required: true, trigger: 'change', message: '验证码不能为空' }]
-      },
       passwordType: 'password',
       capsTooltip: false,
       loading: false,
       redirect: undefined,
       otherQuery: {},
       sysInfo: ''
+    }
+  },
+  computed: {
+    /**
+     * Computed rather than part of data(): data() is evaluated once, so the
+     * messages would keep the language the page was created in.
+     */
+    loginRules() {
+      return {
+        username: [{ required: true, trigger: 'blur', message: this.$t('login.rules.username') }],
+        password: [{ required: true, trigger: 'blur', message: this.$t('login.rules.password') }],
+        code: [{ required: true, trigger: 'change', message: this.$t('login.rules.captcha') }]
+      }
     }
   },
   watch: {
@@ -278,10 +294,35 @@ $field:    var(--ga-bg-container); // 输入框底（抬升面）
 $edge:     var(--ga-border-light);
 
 .login-page {
+  position: relative;
   display: flex;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+}
+
+/*
+ * The language switcher, in the corner rather than in the flow.
+ *
+ * This is the only surface a signed-out visitor has, and it is the most visited
+ * page on the deployment -- someone who cannot read the current language has to
+ * find the switcher here or not at all. Every other entry point to it lives in
+ * the navbar, which is inside the layout this page sits outside of.
+ *
+ * Absolutely positioned so it costs the form no height: the phone layout is
+ * measured on the submit button staying above the fold and on the page not
+ * scrolling (tests/e2e/mocked/login.spec.ts). It sits over the form panel,
+ * which is the half that survives every breakpoint.
+ */
+.lang-switch {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  color: var(--ga-text-2);
+  transition: color 0.16s ease;
+
+  &:hover { color: $go-deep; }
 }
 
 /* ── 左：终端主视觉 ─────────────────────────── */

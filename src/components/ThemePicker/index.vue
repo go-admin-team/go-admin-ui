@@ -41,7 +41,7 @@ export default {
       const originalCluster = this.getThemeCluster(oldVal.replace('#', ''))
 
       const $message = this.$message({
-        message: '编译主题中',
+        message: this.$t('components.themePicker.compiling'),
         customClass: 'theme-message',
         type: 'success',
         duration: 0,

@@ -1,6 +1,9 @@
 import common from './common'
 import layout from './layout'
 import route from './route'
+import components from './components'
+import login from './login'
+import dashboard from './dashboard'
 
 /**
  * Chinese, the default and the fallback.
@@ -11,4 +14,4 @@ import route from './route'
  * drift the first time someone renamed a menu. Chinese always falls through to
  * the database value; see lang/backend.ts.
  */
-export default { common, layout, route }
+export default { common, layout, route, components, login, dashboard }
