@@ -97,7 +97,7 @@
     <!-- Create / edit, with the menu tree -->
     <el-dialog
       v-model="roleForm.visible"
-      :title="roleForm.isEdit ? $t('admin.sysRole.editTitle') : $t('admin.sysRole.addTitle')"
+      :title="roleForm.title"
       width="560px"
       :close-on-click-modal="false"
       @closed="roleForm.reset"
@@ -310,8 +310,13 @@ const roleForm = useForm<SysRole, number>({
   }),
   idKey: 'roleId',
   rules,
-  // No `title` option: useForm captures it once, so the dialog would keep the
-  // language it was opened in. The dialog builds its own from `isEdit`.
+  // Computed, not `t(...)` directly: useForm reads the option on every render,
+  // so a string resolved here once would pin the dialog to the language the
+  // page was opened in.
+  title: {
+    create: computed(() => t('admin.sysRole.addTitle')),
+    edit: computed(() => t('admin.sysRole.editTitle'))
+  },
   api: {
     get: getRole,
     add: model => addRole({ ...model, menuIds: checkedMenuIds() }),

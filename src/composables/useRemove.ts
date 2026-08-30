@@ -4,6 +4,7 @@ import { asReportedError } from '@/utils/request'
 import type { ReportedError } from '@/utils/request'
 import { ElMessageBox } from 'element-plus'
 import { msgSuccess } from '@/utils/message'
+import { i18n } from '@/lang'
 import type { Id } from '@/types/api'
 
 /**
@@ -35,7 +36,13 @@ export interface UseRemoveOptions {
   /** Run after a successful delete -- typically the list's `getList`. */
   onSuccess?: (ids: Id[]) => void | Promise<void>
 
-  /** Confirmation body. Defaults to a count. */
+  /**
+   * Confirmation body. Defaults to a count.
+   *
+   * A function rather than a string, which is also what makes the default
+   * follow the language: it is called when the dialog opens, so the t() inside
+   * it is resolved then rather than when the page was set up.
+   */
   confirmText?: (count: number) => string
 
   /** Toast after a successful delete. Pass null to stay silent. */
@@ -71,7 +78,8 @@ export function useRemove(options: UseRemoveOptions): UseRemoveReturn {
   const {
     api,
     onSuccess,
-    confirmText = (count: number) => `确认删除选中的 ${count} 条数据？`,
+    confirmText = (count: number) =>
+      i18n.global.t('composables.remove.confirm', { count }, count),
     successMessage,
     onError
   } = options
@@ -98,10 +106,14 @@ export function useRemove(options: UseRemoveOptions): UseRemoveReturn {
     pending = true
     try {
       try {
-        await ElMessageBox.confirm(confirmText(ids.length), '提示', {
+        // Read here rather than once at setup: this composable has no
+        // component instance, so it cannot use useI18n(), and a title resolved
+        // when the page loaded would keep that language for the rest of the
+        // session. Same reason and same shape as utils/request.ts.
+        await ElMessageBox.confirm(confirmText(ids.length), i18n.global.t('common.notice'), {
           type: 'warning',
-          confirmButtonText: '确定',
-          cancelButtonText: '取消'
+          confirmButtonText: i18n.global.t('common.confirm'),
+          cancelButtonText: i18n.global.t('common.cancel')
         })
       } catch {
         // Dismissing the dialog is a decision, not a failure
@@ -110,7 +122,9 @@ export function useRemove(options: UseRemoveOptions): UseRemoveReturn {
 
       removing.value = true
       await api(ids)
-      if (successMessage !== null) msgSuccess(successMessage ?? '删除成功')
+      if (successMessage !== null) {
+        msgSuccess(successMessage ?? i18n.global.t('composables.remove.success'))
+      }
       await onSuccess?.(ids)
       return true
     } catch(error) {

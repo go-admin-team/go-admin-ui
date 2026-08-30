@@ -88,7 +88,7 @@
 
     <el-dialog
       v-model="form.visible"
-      :title="form.isEdit ? $t('admin.sysDept.editTitle') : $t('admin.sysDept.addTitle')"
+      :title="form.title"
       width="600px"
       :close-on-click-modal="false"
       @closed="form.reset"
@@ -214,9 +214,7 @@ const parent = useTreePicker<SysDept>({
   api: () => getDeptList(),
   idKey: 'deptId',
   labelKey: 'deptName',
-  // Read once, the way useForm's rules were before they took a ref: the label
-  // a reader already has on screen keeps the language the page was opened in.
-  rootLabel: t('admin.sysDept.rootCategory'),
+  rootLabel: computed(() => t('admin.sysDept.rootCategory')),
   rootId: ROOT_ID
 })
 
@@ -250,8 +248,13 @@ const form = useForm<SysDept, number>({
   }),
   idKey: 'deptId',
   rules,
-  // No `title` option: useForm captures it once, so the dialog would keep the
-  // language it was opened in. The dialog builds its own from `isEdit`.
+  // Computed, not `t(...)` directly: useForm reads the option on every render,
+  // so a string resolved here once would pin the dialog to the language the
+  // page was opened in.
+  title: {
+    create: computed(() => t('admin.sysDept.addTitle')),
+    edit: computed(() => t('admin.sysDept.editTitle'))
+  },
   api: {
     get: getDeptForForm,
     add: addDept,
