@@ -138,6 +138,17 @@ test.describe('switching language', () => {
     await expect(errors.filter({ hasText: 'Username is required' })).toHaveCount(1)
   })
 
+  /**
+   * The whole confirm dialog, not just the sentence the page passes in.
+   *
+   * useRemove owned four strings: the body, the title, and both buttons. Only
+   * the body could be overridden, so a migrated page reached English there
+   * while '提示' / '确定' / '取消' stayed written into the composable -- an
+   * English question inside a Chinese box, on every list page in the
+   * application. sys-config is used because it takes the default body too, so
+   * this covers all four at once.
+   */
+
   test('keeps the language across a reload', async({ page }) => {
     await openList(page)
     await switchTo(page, 'English')
@@ -174,6 +185,43 @@ test.describe('switching language', () => {
 
     await switchTo(page, 'English')
     await expect(pager).toContainText('/page')
+  })
+
+  test('translates what the navbar search can find', async({ page }) => {
+    // The one place that cannot translate as it renders: fuse.js indexes plain
+    // strings up front, so the titles are copied into the index when it is
+    // built. Everything else reads through routeTitle at render time and
+    // follows the language for free -- this had to be rebuilt explicitly, and
+    // the menu tree it is built from does not change on a switch, so the
+    // existing `routes` watcher would never have fired.
+    await openList(page)
+
+    const search = page.locator('#header-search')
+    const input = search.locator('input')
+    // Scoped to the dropdown that is actually open: el-select teleports its
+    // popper to <body>, and the page behind has its own selects whose options
+    // are in the DOM too.
+    const results = page.locator('.el-select-dropdown:visible .el-select-dropdown__item')
+
+    // The icon toggles, so it is clicked once per open -- and switching
+    // language closes it, because the switcher click reaches the body listener
+    // this component installs while open.
+    await search.locator('.search-icon').click()
+    await expect(input).toBeVisible()
+    // Typed rather than filled: el-select's remote mode runs its query off the
+    // input event, and only reveals the dropdown once results arrive.
+    await input.pressSequentially('User')
+    // The fixture's own title, which is what zh-CN shows: no menu.ts entry is
+    // consulted, the stored value comes straight through.
+    await expect(results.first()).toHaveText('Admin > User')
+
+    await switchTo(page, 'English')
+
+    await search.locator('.search-icon').click()
+    await expect(input).toBeVisible()
+    await input.pressSequentially('User')
+    // Same query, rebuilt index: now the translated title.
+    await expect(results.first()).toHaveText('Admin > User Management')
   })
 
   test('follows the language in the browser tab', async({ page }) => {

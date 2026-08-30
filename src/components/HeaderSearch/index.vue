@@ -24,6 +24,7 @@ import { mapState } from 'pinia'
 import { usePermissionStore } from '@/stores/permission'
 import Fuse from 'fuse.js'
 import path from 'path'
+import { routeTitle } from '@/lang/backend'
 
 export default {
   name: 'HeaderSearch',
@@ -41,6 +42,17 @@ export default {
   },
   watch: {
     routes() {
+      this.searchPool = this.generateRoutes(this.routes)
+    },
+    /**
+     * The index stores titles, so it has to be rebuilt when they change.
+     *
+     * Everything else that renders a menu title translates as it renders and is
+     * reactive for free. This one cannot: fuse.js indexes plain strings up
+     * front, and the menu tree itself never changes on a language switch -- the
+     * `routes` watcher above would not fire.
+     */
+    '$i18n.locale'() {
       this.searchPool = this.generateRoutes(this.routes)
     },
     searchPool(list) {
@@ -108,8 +120,11 @@ export default {
           title: [...prefixTitle]
         }
 
+        // meta.title decides whether the route is worth indexing at all; the
+        // string that goes IN is the translated one, or English users would be
+        // searching a list of Chinese names.
         if (router.meta && router.meta.title) {
-          data.title = [...data.title, router.meta.title]
+          data.title = [...data.title, routeTitle(router)]
 
           if (router.redirect !== 'noRedirect') {
             // only push the routes with title
@@ -130,7 +145,12 @@ export default {
     },
     querySearch(query) {
       if (query !== '') {
-        this.options = this.fuse.search(query)
+        // fuse 6 returns [{ item, refIndex, score }] rather than the matched
+        // objects themselves, which fuse 3 did. Assigning the wrapper straight
+        // through left every option with an undefined `title`, so the template
+        // threw on .join() and the dropdown rendered as "no data" -- the search
+        // has not returned a usable result since that upgrade.
+        this.options = this.fuse.search(query).map(result => result.item)
       } else {
         this.options = []
       }
