@@ -56,6 +56,14 @@ jobs:
         env:
           GO_ADMIN_PATH: ${{ github.workspace }}/go-admin
 
+      # The menu and dictionary packs are keyed by the backend's own seed data,
+      # so a typo in a key falls back to Chinese and looks like an untranslated
+      # menu rather than a bug. --require-seed for the same reason as above.
+      - name: i18n data
+        run: pnpm check:i18n -- --require-seed
+        env:
+          GO_ADMIN_PATH: ${{ github.workspace }}/go-admin
+
   e2e:
     name: e2e
     runs-on: ubuntu-latest

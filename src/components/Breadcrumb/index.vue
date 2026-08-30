@@ -2,8 +2,8 @@
   <el-breadcrumb class="app-breadcrumb" separator="/">
     <transition-group name="breadcrumb">
       <el-breadcrumb-item v-for="(item,index) in levelList" :key="item.path">
-        <span v-if="item.redirect==='noRedirect'||index==levelList.length-1" class="no-redirect">{{ item.meta.title }}</span>
-        <a v-else @click.prevent="handleLink(item)">{{ item.meta.title }}</a>
+        <span v-if="item.redirect==='noRedirect'||index==levelList.length-1" class="no-redirect">{{ routeTitle(item) }}</span>
+        <a v-else @click.prevent="handleLink(item)">{{ routeTitle(item) }}</a>
       </el-breadcrumb-item>
     </transition-group>
   </el-breadcrumb>
@@ -11,6 +11,7 @@
 
 <script>
 import { compile } from 'path-to-regexp'
+import { routeTitle } from '@/lang/backend'
 
 export default {
   data() {
@@ -31,13 +32,19 @@ export default {
     this.getBreadcrumb()
   },
   methods: {
+    // The breadcrumb reads $route.matched, which is vue-router's own matcher
+    // state -- not the Pinia menu tree. Anything that translated by rewriting
+    // the store would change the sidebar and leave the breadcrumb in the old
+    // language, which is the kind of half-applied switch nobody notices in
+    // review. Translating at render time cannot go out of step.
+    routeTitle,
     getBreadcrumb() {
       // only show routes with meta.title
       let matched = this.$route.matched.filter(item => item.meta && item.meta.title)
       const first = matched[0]
 
       if (!this.isDashboard(first)) {
-        matched = [{ path: '/index', meta: { title: '首页' }}].concat(matched)
+        matched = [{ path: '/index', meta: { title: '首页', titleKey: 'route.dashboard' }}].concat(matched)
       }
 
       this.levelList = matched.filter(item => item.meta && item.meta.title && item.meta.breadcrumb !== false)

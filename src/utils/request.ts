@@ -3,6 +3,9 @@ import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import { getToken } from '@/utils/auth'
+// No component instance here, so the global composer is the way in; it is a
+// Composition-mode instance, so t() stays reactive to a language switch.
+import { i18n } from '@/lang'
 import type { ApiResponse } from '@/types/api'
 
 /**
@@ -66,11 +69,11 @@ service.interceptors.request.use(
 const promptRelogin = () => {
   useUserStore().resetToken()
   ElMessageBox.confirm(
-    '登录状态已过期，您可以继续留在该页面，或者重新登录',
-    '系统提示',
+    i18n.global.t('common.sessionExpiredPrompt'),
+    i18n.global.t('common.systemNotice'),
     {
-      confirmButtonText: '重新登录',
-      cancelButtonText: '取消',
+      confirmButtonText: i18n.global.t('common.relogin'),
+      cancelButtonText: i18n.global.t('common.cancel'),
       type: 'warning'
     }
   ).then(() => {
@@ -94,7 +97,7 @@ service.interceptors.response.use(
 
     if (code === 6401) {
       promptRelogin()
-      return Promise.reject(reported(new Error('登录状态已过期')))
+      return Promise.reject(reported(new Error(i18n.global.t('common.sessionExpired'))))
     }
 
     if (code !== 200) {
@@ -115,7 +118,7 @@ service.interceptors.response.use(
   },
   (error: AxiosError) => {
     const message = error.message === 'Network Error'
-      ? '服务器连接异常，请检查服务器！'
+      ? i18n.global.t('common.networkError')
       : error.message
 
     if (error.message !== 'Network Error') {

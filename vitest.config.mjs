@@ -34,6 +34,9 @@ export default defineConfig({
     environment: 'jsdom',
     // Test files use describe/it/expect/vi directly instead of importing each
     globals: true,
+
+    // Installs the i18n plugin for every mount; see the file for why.
+    setupFiles: ['tests/unit/support/setup.ts'],
     include: ['tests/unit/**/*.spec.{js,ts}'],
     coverage: {
       provider: 'v8',

@@ -1,5 +1,5 @@
 <template>
-  <button type="button" class="settings-trigger" :title="title" @click="$emit('click')">
+  <button type="button" class="settings-trigger" :title="title || $t('components.rightPanel.title')" @click="$emit('click')">
     <i class="ri-settings-3-line" />
   </button>
 </template>
@@ -20,9 +20,15 @@
 export default {
   name: 'AppSettingsTrigger',
   props: {
+    /**
+     * Overrides the label. Left empty it falls back to the drawer's own
+     * heading, which is where the default belongs -- a translated default
+     * cannot live here, since props are read once at definition time and would
+     * freeze the language the module was imported in.
+     */
     title: {
       type: String,
-      default: '系统布局配置'
+      default: ''
     }
   },
   emits: ['click']

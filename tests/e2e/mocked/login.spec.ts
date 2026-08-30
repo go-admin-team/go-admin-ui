@@ -120,3 +120,51 @@ test.describe('signing in', () => {
     await expect(page.locator('.submit-btn')).toHaveText('登录')
   })
 })
+
+/**
+ * The same page on a phone.
+ *
+ * Its layout is two halves side by side: a terminal animation and the form.
+ * Stacked, the terminal keeps its natural height -- eight lines of code, 493px
+ * of a 812px screen -- and pushes the form, which is the only part with a job,
+ * into the bottom third.
+ */
+test.describe('signing in on a phone', () => {
+  const PHONE = { width: 375, height: 812 }
+
+  test('the screen is the form', async({ page }) => {
+    await installLoginMocks(page)
+    await page.setViewportSize(PHONE)
+    await page.goto('/#/login')
+    await expect(page.locator('.captcha-img')).toBeVisible()
+
+    // The decorative half is gone, and with it the second copy of the product
+    // name -- the form already opens with it.
+    await expect(page.locator('.stage')).toBeHidden()
+    await expect(page.locator('.panel-title')).toBeVisible()
+
+    const submit = (await page.locator('.submit-btn').boundingBox())!
+    // Reachable rather than merely present: it sat 110px from the bottom edge
+    // with the terminal above it, which on a real phone is under the browser's
+    // own chrome.
+    expect(submit.y + submit.height, 'the submit button sits too low')
+      .toBeLessThan(PHONE.height - 180)
+
+    // And the form still fits without scrolling.
+    const scrolls = await page.evaluate(() =>
+      document.documentElement.scrollHeight > document.documentElement.clientHeight
+    )
+    expect(scrolls, 'the login form scrolls').toBe(false)
+  })
+
+  test('the terminal is still there on a desktop', async({ page }) => {
+    await installLoginMocks(page)
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await page.goto('/#/login')
+    await expect(page.locator('.captcha-img')).toBeVisible()
+
+    // It is the page's main visual where there is room for it.
+    await expect(page.locator('.stage')).toBeVisible()
+    await expect(page.locator('.term')).toBeVisible()
+  })
+})

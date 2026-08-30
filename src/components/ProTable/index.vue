@@ -17,7 +17,7 @@
     <div v-if="asCards && $slots.search" class="pro-table__filter-bar">
       <el-button text @click="filtersOpen = !filtersOpen">
         <el-icon class="pro-table__filter-icon"><Search /></el-icon>
-        筛选<template v-if="activeFilters"> · {{ activeFilters }}</template>
+        {{ $t('components.proTable.filters') }}<template v-if="activeFilters"> · {{ activeFilters }}</template>
       </el-button>
     </div>
 
@@ -40,8 +40,8 @@
       <el-form :model="table.query" label-position="top" class="pro-table__sheet-form" @submit.prevent="submitFilters">
         <slot name="search" />
         <div class="pro-table__sheet-actions">
-          <el-button @click="resetFilters">重置</el-button>
-          <el-button type="primary" native-type="submit" :loading="table.loading">查看结果</el-button>
+          <el-button @click="resetFilters">{{ $t('common.reset') }}</el-button>
+          <el-button type="primary" native-type="submit" :loading="table.loading">{{ $t('components.proTable.showResults') }}</el-button>
         </div>
       </el-form>
     </el-drawer>
@@ -65,8 +65,8 @@
           nothing on others, and double-fired on any page that added its own
           @keyup.enter to compensate.
         -->
-        <el-button type="primary" native-type="submit" :loading="table.loading">搜索</el-button>
-        <el-button @click="handleReset">重置</el-button>
+        <el-button type="primary" native-type="submit" :loading="table.loading">{{ $t('common.search') }}</el-button>
+        <el-button @click="handleReset">{{ $t('common.reset') }}</el-button>
       </el-form-item>
     </el-form>
 
@@ -77,7 +77,7 @@
           class="pro-table__refresh"
           :loading="table.loading"
           circle
-          title="刷新"
+          :title="$t('common.refresh')"
           @click="table.getList"
         >
           <el-icon><Refresh /></el-icon>
@@ -137,7 +137,7 @@
         -->
         <el-table-column
           v-if="$slots.actions"
-          label="操作"
+          :label="$t('common.actions')"
           fixed="right"
           :width="actionsWidth"
           class-name="pro-table__actions"
@@ -148,7 +148,7 @@
         </el-table-column>
         <template #empty>
           <slot name="empty">
-            <el-empty :image-size="80" description="暂无数据" />
+            <el-empty :image-size="80" :description="$t('common.empty')" />
           </slot>
         </template>
       </el-table>
@@ -171,7 +171,7 @@
         <div v-show="fabOpen" class="pro-table__fab-menu">
           <slot name="toolbar" />
           <el-button class="pro-table__fab-refresh" :loading="table.loading" @click="table.getList">
-            <el-icon><Refresh /></el-icon>刷新
+            <el-icon><Refresh /></el-icon>{{ $t('common.refresh') }}
           </el-button>
         </div>
         <button
@@ -179,7 +179,7 @@
           class="pro-table__fab-btn"
           :class="{ 'is-open': fabOpen }"
           :aria-expanded="fabOpen"
-          aria-label="页面操作"
+          :aria-label="$t('components.proTable.pageActions')"
           @click="fabOpen = !fabOpen"
         >
           <el-icon><Plus /></el-icon>

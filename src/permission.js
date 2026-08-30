@@ -7,8 +7,23 @@ import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from '@/utils/auth' // get token from cookie
 import getPageTitle from '@/utils/get-page-title'
 import { trackPageView } from '@/utils/analytics'
+import { watch } from 'vue'
+import { i18n } from '@/lang'
+import { routeTitle } from '@/lang/backend'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
+
+/**
+ * The browser tab follows the language too.
+ *
+ * The guard below only runs on navigation, so switching language would leave
+ * the tab showing the title from whichever language was current when the page
+ * was opened -- the one piece of the interface a user keeps seeing while
+ * working in another tab.
+ */
+watch(() => i18n.global.locale.value, () => {
+  document.title = getPageTitle(routeTitle(router.currentRoute.value))
+})
 
 const whiteList = ['/login', '/auth-redirect'] // no redirect whitelist
 
@@ -17,7 +32,7 @@ router.beforeEach(async(to, from, next) => {
   NProgress.start()
 
   // set page title
-  document.title = getPageTitle(to.meta.title)
+  document.title = getPageTitle(routeTitle(to))
 
   // determine whether the user has logged in
   const hasToken = getToken()

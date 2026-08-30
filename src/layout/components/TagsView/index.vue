@@ -25,17 +25,17 @@
               @click="navigate"
               @contextmenu.prevent="openMenu(item,$event)"
             >
-              {{ item.title }}
+              {{ routeTitle(item) }}
             </span>
           </router-link>
         </template>
       </el-tab-pane>
     </el-tabs>
     <ul v-show="visible" :style="{left:left+'px',top:top+'px'}" class="contextmenu">
-      <li class="tags-item" @click="refreshSelectedTag(selectedTag)" @mouseover="handleTagsOver(1)" @mouseleave="handleTagsLeave(1)">刷新当前标签页</li>
-      <li v-if="!isAffix(selectedTag)" class="tags-item" @click="closeSelectedTag(selectedTag)" @mouseover="handleTagsOver(2)" @mouseleave="handleTagsLeave(2)">关闭当前标签页</li>
-      <li class="tags-item" @click="closeOthersTags" @mouseover="handleTagsOver(3)" @mouseleave="handleTagsLeave(3)">关闭其他标签页</li>
-      <li class="tags-item" @click="closeAllTags(selectedTag)" @mouseover="handleTagsOver(4)" @mouseleave="handleTagsLeave(4)">关闭全部标签页</li>
+      <li class="tags-item" @click="refreshSelectedTag(selectedTag)" @mouseover="handleTagsOver(1)" @mouseleave="handleTagsLeave(1)">{{ $t('layout.tagsView.refresh') }}</li>
+      <li v-if="!isAffix(selectedTag)" class="tags-item" @click="closeSelectedTag(selectedTag)" @mouseover="handleTagsOver(2)" @mouseleave="handleTagsLeave(2)">{{ $t('layout.tagsView.close') }}</li>
+      <li class="tags-item" @click="closeOthersTags" @mouseover="handleTagsOver(3)" @mouseleave="handleTagsLeave(3)">{{ $t('layout.tagsView.closeOthers') }}</li>
+      <li class="tags-item" @click="closeAllTags(selectedTag)" @mouseover="handleTagsOver(4)" @mouseleave="handleTagsLeave(4)">{{ $t('layout.tagsView.closeAll') }}</li>
     </ul>
   </div>
 </template>
@@ -46,6 +46,7 @@ import path from 'path'
 import { useSettingsStore } from '@/stores/settings'
 import { useTagsViewStore } from '@/stores/tagsView'
 import { usePermissionStore } from '@/stores/permission'
+import { routeTitle } from '@/lang/backend'
 
 export default {
   data() {
@@ -82,6 +83,11 @@ export default {
     this.beforeUnload()
   },
   methods: {
+    // The store copies `title` into each visited view when the tab is opened,
+    // so an open tab would otherwise keep the title it had in the old
+    // language. Reading through routeTitle uses the view's `name` and `meta` --
+    // both of which the copy preserves -- so open tabs follow a switch too.
+    routeTitle,
     // 刷新前缓存tab
     beforeUnload() {
       // 监听页面刷新

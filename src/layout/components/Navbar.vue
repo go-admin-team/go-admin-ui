@@ -20,6 +20,8 @@
 
       </template>
 
+      <lang-select id="lang-select" class="right-menu-item hover-effect" />
+
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="hover">
         <div class="avatar-wrapper">
           <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
@@ -28,10 +30,10 @@
         <template #dropdown>
           <el-dropdown-menu>
             <router-link to="/profile/index">
-              <el-dropdown-item>个人中心</el-dropdown-item>
+              <el-dropdown-item>{{ $t('route.profile') }}</el-dropdown-item>
             </router-link>
             <el-dropdown-item divided>
-              <span style="display:block;" @click="logout">退出登录</span>
+              <span style="display:block;" @click="logout">{{ $t('layout.logout') }}</span>
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -51,6 +53,7 @@ import Hamburger from '@/components/Hamburger'
 import Screenfull from '@/components/Screenfull'
 import HeaderSearch from '@/components/HeaderSearch'
 import SettingsTrigger from '@/components/SettingsTrigger'
+import LangSelect from '@/components/LangSelect'
 
 export default {
   components: {
@@ -59,7 +62,8 @@ export default {
     Hamburger,
     Screenfull,
     HeaderSearch,
-    SettingsTrigger
+    SettingsTrigger,
+    LangSelect
   },
   // The layout owns the drawer's open state; the navbar only asks for it
   emits: ['open-settings'],
@@ -81,9 +85,9 @@ export default {
       useAppStore().toggleSideBar()
     },
     async logout() {
-      this.$confirm('确定注销并退出系统吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      this.$confirm(this.$t('layout.logoutConfirm'), this.$t('common.notice'), {
+        confirmButtonText: this.$t('common.confirm'),
+        cancelButtonText: this.$t('common.cancel'),
         type: 'warning'
       }).then(() => {
         useUserStore().LogOut().then(() => {

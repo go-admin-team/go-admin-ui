@@ -68,7 +68,7 @@
         <div v-if="card.detail.length || actions" class="pro-card__foot">
           <button v-if="card.detail.length" type="button" class="pro-card__toggle">
             <el-icon class="pro-card__chev"><ArrowDown /></el-icon>
-            {{ expanded.has(index) ? '收起' : `其余 ${card.detail.length} 项` }}
+            {{ expanded.has(index) ? $t('components.cards.collapse') : $t('components.cards.more', { count: card.detail.length }) }}
           </button>
           <span v-else />
           <!--
@@ -76,7 +76,7 @@
             tries it, so it has to be said once; repeating it on every card
             turns a hint into wallpaper and costs a line in each of them.
           -->
-          <span v-if="actions && index === 0" class="pro-card__hint">← 左滑操作</span>
+          <span v-if="actions && index === 0" class="pro-card__hint">{{ $t('components.cards.swipeHint') }}</span>
         </div>
       </div>
     </div>
@@ -88,10 +88,10 @@
     -->
     <div v-if="hasMore || loading" ref="sentinelEl" class="pro-cards__more">
       <el-button text :loading="loading" @click="emit('loadMore')">
-        {{ loading ? '加载中' : '加载更多' }}
+        {{ loading ? $t('common.loading') : $t('components.cards.loadMore') }}
       </el-button>
     </div>
-    <div v-else-if="showEnd && rows.length" class="pro-cards__end">没有更多了</div>
+    <div v-else-if="showEnd && rows.length" class="pro-cards__end">{{ $t('components.cards.noMore') }}</div>
   </div>
 </template>
 

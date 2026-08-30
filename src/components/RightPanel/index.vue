@@ -3,8 +3,8 @@
     <div class="rightPanel-background" />
     <div class="rightPanel">
       <div class="rightPanel-head">
-        <span class="rightPanel-title">系统布局配置</span>
-        <button type="button" class="rightPanel-close" title="关闭" @click="show = false">
+        <span class="rightPanel-title">{{ $t('components.rightPanel.title') }}</span>
+        <button type="button" class="rightPanel-close" :title="$t('common.close')" @click="show = false">
           <i class="ri-close-line" />
         </button>
       </div>

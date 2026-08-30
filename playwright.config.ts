@@ -64,6 +64,13 @@ export default defineConfig({
 
   use: {
     baseURL: 'http://localhost:9527',
+    // Pinned, not inherited. The app picks its language from
+    // navigator.language when the visitor has not chosen one, and Playwright's
+    // browsers report en-US by default -- so without this the whole suite runs
+    // against the English interface and every Chinese assertion in it fails.
+    // The suite describes what a Chinese-speaking user sees; the language
+    // detection itself is covered in i18n.spec.ts, which overrides this.
+    locale: 'zh-CN',
     headless: true,
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

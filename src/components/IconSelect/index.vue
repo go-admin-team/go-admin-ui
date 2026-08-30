@@ -1,6 +1,6 @@
 <template>
   <div class="icon-body">
-    <el-input v-model="name" style="position: relative;" clearable placeholder="请输入图标名称" @clear="filterIcons" @input="filterIcons">
+    <el-input v-model="name" style="position: relative;" clearable :placeholder="$t('components.iconSelect.placeholder')" @clear="filterIcons" @input="filterIcons">
       <template #suffix>
         <i class="ri-search-line el-input__icon" />
       </template>
