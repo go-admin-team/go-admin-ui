@@ -19,8 +19,5 @@ export default {
     // the two headings are different strings in Chinese and translating them
     // to the same English would hide that.
     title: 'System Layout Settings'
-  },
-  themePicker: {
-    compiling: 'Compiling theme'
   }
 }
