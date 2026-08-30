@@ -10,11 +10,21 @@
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     >
       <template #search>
-        <el-form-item label="菜单名称">
-          <el-input v-model="table.query.title" placeholder="请输入菜单名称" clearable style="width: 180px" />
+        <el-form-item :label="$t('admin.sysMenu.menuName')">
+          <el-input
+            v-model="table.query.title"
+            :placeholder="$t('admin.sysMenu.menuNamePlaceholder')"
+            clearable
+            style="width: 180px"
+          />
         </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="table.query.visible" placeholder="菜单状态" clearable style="width: 140px">
+        <el-form-item :label="$t('admin.sysMenu.status')">
+          <el-select
+            v-model="table.query.visible"
+            :placeholder="$t('admin.sysMenu.statusPlaceholder')"
+            clearable
+            style="width: 140px"
+          >
             <el-option
               v-for="item in sys_show_hide"
               :key="item.value"
@@ -27,30 +37,40 @@
 
       <template #toolbar>
         <el-button v-permisaction="['admin:sysMenu:add']" type="primary" @click="handleAdd()">
-          新增
+          {{ $t('common.add') }}
         </el-button>
       </template>
 
-      <el-table-column prop="title" label="菜单名称" min-width="180" show-overflow-tooltip />
-      <el-table-column prop="icon" label="图标" width="70">
+      <el-table-column
+        prop="title"
+        :label="$t('admin.sysMenu.menuName')"
+        min-width="180"
+        show-overflow-tooltip
+      />
+      <el-table-column prop="icon" :label="$t('admin.sysMenu.icon')" width="70">
         <template #default="{ row }">
           <svg-icon v-if="row.icon" :icon-class="row.icon" />
         </template>
       </el-table-column>
-      <el-table-column prop="sort" label="排序" width="70" />
-      <el-table-column prop="permission" label="权限标识" min-width="150" show-overflow-tooltip>
+      <el-table-column prop="sort" :label="$t('admin.sysMenu.sort')" width="70" />
+      <el-table-column
+        prop="permission"
+        :label="$t('admin.sysMenu.permission')"
+        min-width="150"
+        show-overflow-tooltip
+      >
         <template #default="{ row }">
           <el-popover v-if="row.sysApi && row.sysApi.length" trigger="hover" placement="top" :width="520">
             <el-table :data="row.sysApi" size="small" max-height="260">
-              <el-table-column prop="title" label="接口" min-width="200">
+              <el-table-column prop="title" :label="$t('admin.sysMenu.api')" min-width="200">
                 <template #default="{ row: api }">
-                  <el-tag v-if="!api.title" type="danger" disable-transitions>暂无</el-tag>
+                  <el-tag v-if="!api.title" type="danger" disable-transitions>{{ $t('admin.sysMenu.apiUntitled') }}</el-tag>
                   <el-tag v-else :type="api.type === 'SYS' ? 'success' : 'info'" disable-transitions>
                     [{{ api.type }}] {{ api.title }}
                   </el-tag>
                 </template>
               </el-table-column>
-              <el-table-column prop="path" label="路径" min-width="240">
+              <el-table-column prop="path" :label="$t('admin.sysMenu.path')" min-width="240">
                 <template #default="{ row: api }">
                   <MethodTag :method="api.action" />
                   {{ api.path }}
@@ -62,10 +82,15 @@
           <span v-else>{{ row.permission || '-' }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="component" label="组件路径" min-width="160" show-overflow-tooltip>
+      <el-table-column
+        prop="component"
+        :label="$t('admin.sysMenu.componentPath')"
+        min-width="160"
+        show-overflow-tooltip
+      >
         <template #default="{ row }">{{ row.menuType === 'A' ? row.path : row.component }}</template>
       </el-table-column>
-      <el-table-column prop="visible" label="可见" width="90">
+      <el-table-column prop="visible" :label="$t('admin.sysMenu.visible')" width="90">
         <template #default="{ row }">
           <!-- A button-level entry is never in the menu, so visibility is moot -->
           <span v-if="row.menuType === 'F'">--</span>
@@ -74,16 +99,16 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" prop="createdAt" min-width="110">
+      <el-table-column :label="$t('common.createdAt')" prop="createdAt" min-width="110">
         <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
       </el-table-column>
 
       <template #actions="{ row }">
         <el-button v-permisaction="['admin:sysMenu:edit']" link type="primary" @click="handleEdit(row)">
-          修改
+          {{ $t('common.edit') }}
         </el-button>
         <el-button v-permisaction="['admin:sysMenu:remove']" link type="danger" @click="remove(row.menuId)">
-          删除
+          {{ $t('common.delete') }}
         </el-button>
         <!-- Icon rather than the words, per the two-button rule: this column is
              pinned, so every pixel it takes comes out of the columns that would
@@ -93,7 +118,7 @@
           link
           type="primary"
           class="row-icon-action"
-          :title="`在「${row.title}」下新增`"
+          :title="$t('admin.sysMenu.addUnder', { title: row.title })"
           @click="handleAdd(row)"
         >
           <el-icon><Plus /></el-icon>
@@ -103,7 +128,7 @@
 
     <el-dialog
       v-model="form.visible"
-      :title="form.title"
+      :title="form.isEdit ? $t('admin.sysMenu.editTitle') : $t('admin.sysMenu.addTitle')"
       width="820px"
       :close-on-click-modal="false"
       @closed="form.reset"
@@ -117,13 +142,13 @@
       >
         <el-row :gutter="16">
           <el-col :span="24">
-            <el-form-item label="上级菜单" prop="parentId">
+            <el-form-item :label="$t('admin.sysMenu.parent')" prop="parentId">
               <el-tree-select
                 v-model="form.model.parentId"
                 :data="parent.options"
                 :props="{ label: 'title', children: 'children' }"
                 node-key="menuId"
-                placeholder="选择上级菜单"
+                :placeholder="$t('admin.sysMenu.parentPlaceholder')"
                 check-strictly
                 :render-after-expand="false"
                 style="width: 100%"
@@ -132,31 +157,31 @@
           </el-col>
 
           <el-col :span="12">
-            <el-form-item label="菜单类型" prop="menuType">
+            <el-form-item :label="$t('admin.sysMenu.menuType')" prop="menuType">
               <el-radio-group v-model="form.model.menuType">
-                <el-radio value="M">目录</el-radio>
-                <el-radio value="C">菜单</el-radio>
-                <el-radio value="F">按钮</el-radio>
+                <el-radio value="M">{{ $t('admin.sysMenu.typeDirectory') }}</el-radio>
+                <el-radio value="C">{{ $t('admin.sysMenu.typeMenu') }}</el-radio>
+                <el-radio value="F">{{ $t('admin.sysMenu.typeButton') }}</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="菜单标题" prop="title">
-              <el-input v-model="form.model.title" placeholder="请输入菜单标题" />
+            <el-form-item :label="$t('admin.sysMenu.title')" prop="title">
+              <el-input v-model="form.model.title" :placeholder="$t('admin.sysMenu.titlePlaceholder')" />
             </el-form-item>
           </el-col>
 
           <el-col :span="12">
-            <el-form-item label="显示排序" prop="sort">
+            <el-form-item :label="$t('admin.sysMenu.displaySort')" prop="sort">
               <el-input-number v-model="form.model.sort" controls-position="right" :min="0" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item v-if="!isButton" label="菜单图标">
+            <el-form-item v-if="!isButton" :label="$t('admin.sysMenu.menuIcon')">
               <el-popover placement="bottom-start" :width="460" trigger="click">
                 <IconSelect @selected="name => (form.model.icon = name)" />
                 <template #reference>
-                  <el-input v-model="form.model.icon" placeholder="点击选择图标" readonly>
+                  <el-input v-model="form.model.icon" :placeholder="$t('admin.sysMenu.iconPlaceholder')" readonly>
                     <template #prefix>
                       <svg-icon v-if="form.model.icon" :icon-class="form.model.icon" />
                     </template>
@@ -169,39 +194,54 @@
           <el-col v-if="!isButton" :span="12">
             <el-form-item prop="menuName">
               <template #label>
-                <FieldLabel label="路由名称" tip="必须与页面组件的 name 一致，否则 keep-alive 缓存静默失效" />
+                <FieldLabel
+                  :label="$t('admin.sysMenu.routeName')"
+                  :tip="$t('admin.sysMenu.routeNameTip')"
+                />
               </template>
-              <el-input v-model="form.model.menuName" placeholder="请输入路由名称" />
+              <el-input
+                v-model="form.model.menuName"
+                :placeholder="$t('admin.sysMenu.routeNamePlaceholder')"
+              />
             </el-form-item>
           </el-col>
           <el-col v-if="!isButton" :span="12">
             <el-form-item prop="component">
               <template #label>
                 <FieldLabel
-                  label="组件路径"
-                  tip="views 下的路径，如 /admin/sys-api/index；目录类型填 Layout"
+                  :label="$t('admin.sysMenu.componentPath')"
+                  :tip="$t('admin.sysMenu.componentPathTip')"
                 />
               </template>
-              <el-input v-model="form.model.component" placeholder="请输入组件路径" />
+              <el-input
+                v-model="form.model.component"
+                :placeholder="$t('admin.sysMenu.componentPathPlaceholder')"
+              />
             </el-form-item>
           </el-col>
 
           <el-col v-if="!isButton" :span="12">
             <el-form-item prop="path">
               <template #label>
-                <FieldLabel label="路由地址" tip="访问此页面的 url，建议以 / 开头" />
+                <FieldLabel
+                  :label="$t('admin.sysMenu.routePath')"
+                  :tip="$t('admin.sysMenu.routePathTip')"
+                />
               </template>
-              <el-input v-model="form.model.path" placeholder="请输入路由地址" />
+              <el-input
+                v-model="form.model.path"
+                :placeholder="$t('admin.sysMenu.routePathPlaceholder')"
+              />
             </el-form-item>
           </el-col>
           <el-col v-if="!isButton" :span="12">
             <el-form-item>
               <template #label>
-                <FieldLabel label="是否外链" tip="通过 iframe 打开指定地址" />
+                <FieldLabel :label="$t('admin.sysMenu.isFrame')" :tip="$t('admin.sysMenu.isFrameTip')" />
               </template>
               <el-radio-group v-model="form.model.isFrame">
-                <el-radio value="0">是</el-radio>
-                <el-radio value="1">否</el-radio>
+                <el-radio value="0">{{ $t('admin.sysMenu.yes') }}</el-radio>
+                <el-radio value="1">{{ $t('admin.sysMenu.no') }}</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -209,15 +249,25 @@
           <el-col v-if="hasPermission" :span="12">
             <el-form-item>
               <template #label>
-                <FieldLabel label="权限标识" tip="前端据此控制按钮是否显示" />
+                <FieldLabel
+                  :label="$t('admin.sysMenu.permission')"
+                  :tip="$t('admin.sysMenu.permissionTip')"
+                />
               </template>
-              <el-input v-model="form.model.permission" placeholder="如 admin:sysUser:add" maxlength="50" />
+              <el-input
+                v-model="form.model.permission"
+                :placeholder="$t('admin.sysMenu.permissionPlaceholder')"
+                maxlength="50"
+              />
             </el-form-item>
           </el-col>
           <el-col v-if="!isButton" :span="12">
             <el-form-item>
               <template #label>
-                <FieldLabel label="菜单状态" tip="隐藏的菜单不出现在侧边栏，但路由仍然可达" />
+                <FieldLabel
+                  :label="$t('admin.sysMenu.menuStatus')"
+                  :tip="$t('admin.sysMenu.menuStatusTip')"
+                />
               </template>
               <el-radio-group v-model="form.model.visible">
                 <el-radio
@@ -232,14 +282,17 @@
           <el-col v-if="hasPermission" :span="24">
             <el-form-item>
               <template #label>
-                <FieldLabel label="api 权限" tip="未授权的接口，持有此菜单的角色将无权访问" />
+                <FieldLabel
+                  :label="$t('admin.sysMenu.apiPermission')"
+                  :tip="$t('admin.sysMenu.apiPermissionTip')"
+                />
               </template>
               <el-transfer
                 v-model="grantedApiIds"
                 filterable
                 :props="{ key: 'id', label: 'title' }"
-                :titles="['未授权', '已授权']"
-                :button-texts="['收回', '授权']"
+                :titles="[$t('admin.sysMenu.unauthorized'), $t('admin.sysMenu.authorized')]"
+                :button-texts="[$t('admin.sysMenu.revoke'), $t('admin.sysMenu.authorize')]"
                 :data="apiOptions"
                 class="api-transfer"
               />
@@ -248,8 +301,8 @@
         </el-row>
       </el-form>
       <template #footer>
-        <el-button @click="form.close">取 消</el-button>
-        <el-button type="primary" :loading="form.submitting" @click="form.submit">确 定</el-button>
+        <el-button @click="form.close">{{ $t('common.dialogCancel') }}</el-button>
+        <el-button type="primary" :loading="form.submitting" @click="form.submit">{{ $t('common.dialogConfirm') }}</el-button>
       </template>
     </el-dialog>
   </PageContainer>
@@ -257,6 +310,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { FormRules } from 'element-plus'
 
 import PageContainer from '@/components/PageContainer/index.vue'
@@ -274,6 +328,8 @@ import type { SysApi, SysMenu, SysMenuQuery } from '@/types/admin'
 // Must match the menu_name the backend serves, or keep-alive silently misses
 defineOptions({ name: 'SysMenuManage' })
 
+const { t } = useI18n()
+
 const { sys_show_hide } = useDict('sys_show_hide')
 
 const table = useTable<SysMenu, SysMenuQuery>({
@@ -290,7 +346,9 @@ const parent = useTreePicker<SysMenu>({
   api: () => listMenu({}),
   idKey: 'menuId',
   labelKey: 'title',
-  rootLabel: '主类目',
+  // Read once, the way useForm's rules were before they took a ref: the label
+  // a reader already has on screen keeps the language the page was opened in.
+  rootLabel: t('admin.sysMenu.rootCategory'),
   rootId: ROOT_ID
 })
 
@@ -311,10 +369,18 @@ const loadApiOptions = async() => {
 
 onMounted(loadApiOptions)
 
-const rules: FormRules = {
-  title: [{ required: true, message: '菜单标题不能为空', trigger: 'blur' }],
-  sort: [{ required: true, message: '菜单顺序不能为空', trigger: 'blur' }]
-}
+/**
+ * Rebuilt whenever the language changes.
+ *
+ * A plain object here is evaluated once, when the page is set up, and the page
+ * is kept alive -- so a message already rendered under a field would keep the
+ * language it was built in. useForm unwraps the ref, so :rules="form.rules" is
+ * unchanged.
+ */
+const rules = computed<FormRules>(() => ({
+  title: [{ required: true, message: t('admin.sysMenu.rules.title'), trigger: 'blur' }],
+  sort: [{ required: true, message: t('admin.sysMenu.rules.sort'), trigger: 'blur' }]
+}))
 
 const form = useForm<SysMenu, number>({
   defaultModel: () => ({
@@ -335,7 +401,8 @@ const form = useForm<SysMenu, number>({
   }),
   idKey: 'menuId',
   rules,
-  title: { create: '添加菜单', edit: '修改菜单' },
+  // No `title` option: useForm captures it once, so the dialog would keep the
+  // language it was opened in. The dialog builds its own from `isEdit`.
   api: {
     get: getMenu,
     add: addMenu,
@@ -380,7 +447,7 @@ const handleEdit = (row: SysMenu) => {
 
 const { remove } = useRemove({
   api: delMenu,
-  confirmText: () => '确认删除该菜单？其下级菜单也会一并删除。',
+  confirmText: () => t('admin.sysMenu.removeConfirm'),
   onSuccess: () => {
     parent.invalidate()
     return table.getList()
