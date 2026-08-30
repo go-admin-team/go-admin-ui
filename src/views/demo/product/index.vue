@@ -36,7 +36,7 @@
       <el-table-column label="名称" prop="name" min-width="120" show-overflow-tooltip />
       <el-table-column label="编码" prop="code" min-width="100" />
       <el-table-column label="单价" prop="price" min-width="90" align="right" />
-      <el-table-column label="状态" min-width="90">
+      <el-table-column label="状态" prop="status" min-width="90">
         <template #default="{ row }">
           <el-tag :type="row.status === '1' ? 'success' : 'info'">
             {{ row.status === '1' ? '正常' : '停用' }}

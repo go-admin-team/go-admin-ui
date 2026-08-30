@@ -72,14 +72,23 @@ export function readCardColumns(slot: Slot | undefined): CardColumn[] {
  * the heading. It is still shown, just among the detail fields, because the
  * number does get quoted in support conversations.
  *
- * Matched on prop first, which is a code identifier and so predictable. The
- * label check covers the one that is not (`dictCode`, labelled 编码). A page
- * whose real title happens to look like this can say so with `card-role`.
+ * Matched on `prop` only. The label is a caption shown to the user, so once the
+ * pages are translated it is whatever language the reader picked -- a rule
+ * reading it would work in Chinese and quietly stop working in English, with no
+ * error and no blank: the card would just start titling itself with a primary
+ * key again. `prop` is a code identifier and does not move.
+ *
+ * `Code$` covers the three columns the label check used to catch on its own:
+ * dictCode, code, and postCode. The last one changes what sys-post shows --
+ * 岗位编码 stops being the heading and 岗位名称 takes it, which is the better
+ * card either way.
+ *
+ * A page whose real title happens to look like an identifier can say so with
+ * `card-role="title"`.
  */
 const isIdentifier = (column: CardColumn) => {
   const prop = column.prop ?? ''
-  if (prop === 'id' || /Id$/.test(prop)) return true
-  return /^(编号|编码|序号|ID)$/i.test(column.label)
+  return /^(id|code)$/i.test(prop) || /(Id|Code)$/.test(prop)
 }
 
 /**
@@ -115,20 +124,29 @@ export function splitCard(columns: CardColumn[]) {
 }
 
 /**
- * A status-ish column, promoted to the badge beside the title.
+ * A status column, promoted to the badge beside the title.
  *
- * Only columns that render something of their own qualify: a status is drawn
- * as a tag or a switch, never as bare text. A plain text column named 状态
- * would read as a badge but arrive as an unstyled string, which looks broken --
- * better to leave it in the field list. Guessing wrong is cheap either way,
- * since the column still appears, just not beside the title.
+ * Keyed on `prop` for the same reason as isIdentifier: a list of Chinese words
+ * stops matching the moment the page is translated, and the failure is silent --
+ * the badge simply never appears. Of the twelve pages that had a badge, eight
+ * name the column `status`; the rest are covered by `card-role="badge"`, which
+ * is clearer than widening this pattern until it catches them by accident.
+ *
+ * That accident is what the old rule did: it took the first column whose label
+ * contained 状态/内置/类型/是否, which on the dictionary page was 字典类型 and on
+ * the generator page was go类型 -- neither of them a status, both of them
+ * merely first.
+ *
+ * Only columns that render something of their own qualify: a status is drawn as
+ * a tag or a switch, never as bare text. A plain text column would read as a
+ * badge but arrive as an unstyled string, which looks broken -- better to leave
+ * it in the field list.
  */
 function guessBadge(columns: CardColumn[], title: CardColumn | undefined) {
-  const NAMES = ['状态', '内置', '类型', '是否']
   return columns.find(column =>
     column !== title &&
     column.render &&
-    NAMES.some(name => column.label.includes(name))
+    /^(status|state)$/i.test(column.prop ?? '')
   )
 }
 

@@ -112,20 +112,68 @@ describe('splitCard', () => {
     expect(card.detail.map(c => c.label)).toEqual(['手机号', '创建时间', '编号'])
   })
 
-  it('recognises an identifier by prop or by label', () => {
-    // roleId/postId/tableId/jobId match on prop; dictCode only matches on its
-    // label, which is why both checks exist.
-    const byProp = splitCard(readCardColumns(slotOf(
+  it('recognises an identifier by prop, in either spelling', () => {
+    // roleId/postId/tableId/jobId end in Id; dictCode/postCode/code end in
+    // Code. Both are code identifiers, which is the point -- see below.
+    const byId = splitCard(readCardColumns(slotOf(
       column({ label: '编码', prop: 'roleId' }),
       column({ label: '名称', prop: 'roleName' })
     )))
-    expect(byProp.title?.label).toBe('名称')
+    expect(byId.title?.label).toBe('名称')
 
-    const byLabel = splitCard(readCardColumns(slotOf(
+    const byCode = splitCard(readCardColumns(slotOf(
       column({ label: '编码', prop: 'dictCode' }),
       column({ label: '字典名称', prop: 'dictName' })
     )))
-    expect(byLabel.title?.label).toBe('字典名称')
+    expect(byCode.title?.label).toBe('字典名称')
+  })
+
+  it('still reads the columns right when the labels are not Chinese', () => {
+    // The rules used to match the label -- /^(编号|编码|序号|ID)$/ for the
+    // identifier and a list of Chinese words for the badge. Once the pages are
+    // translated the label is whatever language the reader picked, so those
+    // rules would work in Chinese and silently stop working in English: no
+    // error, no blank, the card just goes back to titling itself with a primary
+    // key and loses its badge. This is the case that would catch that.
+    const card = splitCard(readCardColumns(slotOf(
+      column({ label: 'ID', prop: 'userId' }),
+      column({ label: 'Username', prop: 'username' }),
+      column({ label: 'Nickname', prop: 'nickName' }),
+      column({ label: 'Status', prop: 'status' }, () => [h('span', 'Normal')])
+    )))
+
+    expect(card.title?.label).toBe('Username')
+    expect(card.badge?.label).toBe('Status')
+    expect(card.detail.map(c => c.label)).toEqual(['ID'])
+  })
+
+  it('does not promote a column that merely reads like a status', () => {
+    // sys-login-log has a 类型 column on prop `msg`, and the dictionary page a
+    // 字典类型 on `dictType`. The old rule took the first column whose label
+    // contained 状态/内置/类型/是否, so on those two pages it picked a column
+    // that was not a status at all -- it was merely first. Keyed on prop, they
+    // stay in the field list where they belong.
+    const card = splitCard(readCardColumns(slotOf(
+      column({ label: '字典名称', prop: 'dictName' }),
+      column({ label: '字典类型', prop: 'dictType' }, () => [h('span', 'sys_user_sex')]),
+      column({ label: '状态', prop: 'status' }, () => [h('span', '正常')])
+    )))
+
+    expect(card.badge?.label).toBe('状态')
+    expect(card.subtitle.map(c => c.label)).toEqual(['字典类型'])
+  })
+
+  it('lets a page name a badge the rule cannot infer', () => {
+    // sys-config's 内置 column is a real badge on prop `configType`, which is
+    // not a status by any spelling. Saying so explicitly beats widening the
+    // pattern until it catches configType by accident -- that is exactly how
+    // the label rule ended up picking 字典类型.
+    const card = splitCard(readCardColumns(slotOf(
+      column({ label: '参数名称', prop: 'configName' }),
+      column({ label: '内置', prop: 'configType', 'card-role': 'badge' }, () => [h('span', '是')])
+    )))
+
+    expect(card.badge?.label).toBe('内置')
   })
 
   it('keeps a meaningful first column as the title', () => {
