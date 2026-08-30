@@ -21,6 +21,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { LOCALES, setLocale, type Locale } from '@/lang'
+import { msgError } from '@/utils/message'
 
 /**
  * The language switcher.
@@ -34,9 +35,26 @@ import { LOCALES, setLocale, type Locale } from '@/lang'
  * "English", not "英语" -- because the person reading it may not read the
  * current one.
  */
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 
-const choose = (value: Locale) => { void setLocale(value) }
+/**
+ * Switching can fail: the pack for another language is a separate chunk, and
+ * this project is deployed to intranets and offline networks where a partial
+ * deploy is a real possibility. Discarding the promise left the click doing
+ * nothing at all, with only an unhandled rejection in a console nobody has
+ * open.
+ *
+ * The message is rendered in the language still in effect -- the switch did not
+ * happen -- which is the one the reader can already read.
+ */
+const choose = async(value: Locale) => {
+  try {
+    await setLocale(value)
+  } catch(error) {
+    console.error(`could not load the language pack for ${value}`, error)
+    msgError(t('layout.languageFailed'))
+  }
+}
 </script>
 
 <style lang="scss" scoped>

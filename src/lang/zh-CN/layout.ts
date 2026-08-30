@@ -9,6 +9,7 @@
  */
 export default {
   language: '语言',
+  languageFailed: '语言切换失败，请检查网络后重试',
   logout: '退出登录',
   logoutConfirm: '确定注销并退出系统吗？',
   settings: {
