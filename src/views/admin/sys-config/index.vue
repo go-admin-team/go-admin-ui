@@ -60,7 +60,7 @@
           </el-popover>
         </template>
       </el-table-column>
-      <el-table-column label="内置" prop="configType" min-width="90" sortable="custom">
+      <el-table-column label="内置" prop="configType" card-role="badge" min-width="90" sortable="custom">
         <template #default="{ row }">{{ dictLabel(sys_yes_no, row.configType) }}</template>
       </el-table-column>
       <el-table-column label="备注" prop="remark" min-width="140" show-overflow-tooltip />
