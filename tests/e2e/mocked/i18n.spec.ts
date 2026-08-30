@@ -138,17 +138,6 @@ test.describe('switching language', () => {
     await expect(errors.filter({ hasText: 'Username is required' })).toHaveCount(1)
   })
 
-  /**
-   * The whole confirm dialog, not just the sentence the page passes in.
-   *
-   * useRemove owned four strings: the body, the title, and both buttons. Only
-   * the body could be overridden, so a migrated page reached English there
-   * while '提示' / '确定' / '取消' stayed written into the composable -- an
-   * English question inside a Chinese box, on every list page in the
-   * application. sys-config is used because it takes the default body too, so
-   * this covers all four at once.
-   */
-
   test('keeps the language across a reload', async({ page }) => {
     await openList(page)
     await switchTo(page, 'English')
@@ -254,6 +243,85 @@ test.describe('switching language', () => {
     // And the interface is still the language it was, rather than half-switched.
     await expect(page.locator('.sidebar-container')).toContainText('User')
     await expect(page.locator('.sidebar-container')).not.toContainText('User Management')
+  })
+
+  /**
+   * The whole confirm dialog, not just the sentence the page passes in.
+   *
+   * useRemove owned four strings: the body, the title, and both buttons. Only
+   * the body could be overridden, so a migrated page reached English there
+   * while '提示' / '确定' / '取消' stayed written into the composable -- an
+   * English question inside a Chinese box, on every list page in the
+   * application. sys-config is used because it takes the default body too, so
+   * this covers all four at once.
+   */
+  test('asks to delete in English, box and buttons included', async({ page }) => {
+    await page.goto('/#/admin/sys-config')
+    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+
+    await switchTo(page, 'English')
+    await page.getByRole('row', { name: /应用名称/ }).getByRole('button', { name: 'Delete' }).click()
+
+    const box = page.locator('.el-message-box')
+    await expect(box).toBeVisible()
+    await expect(box.locator('.el-message-box__title')).toHaveText('Notice')
+    await expect(box.locator('.el-message-box__message')).toHaveText('Delete the selected record?')
+    await expect(box.getByRole('button', { name: 'OK' })).toBeVisible()
+    await expect(box.getByRole('button', { name: 'Cancel' })).toBeVisible()
+
+    // And nothing else in it either -- the four assertions above name the parts
+    // that were wrong once, this one catches the next one.
+    expect(await box.innerText(), 'Chinese left in the dialog').not.toMatch(/[\u4e00-\u9fa5]/)
+
+    await box.getByRole('button', { name: 'OK' }).click()
+    await expect(page.locator('.el-message--success')).toContainText('Deleted successfully')
+  })
+
+  test('renames the picker root that no API sends', async({ page }) => {
+    // Every branch in the parent picker comes from the department endpoint and
+    // is Chinese in either language. The root above them is the one node this
+    // repository writes, so it is the one node a switch has to repaint -- and
+    // useTreePicker read it once, when the page was set up, which pinned it to
+    // whichever language that was.
+    //
+    // The tree behind it is fetched once and cached, and reopening the dialog
+    // does not re-run setup, so nothing here refetches or rebuilds: the label
+    // has to follow on its own.
+    await page.goto('/#/admin/sys-dept')
+    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+
+    const dialog = page.locator('.el-dialog:visible')
+    const root = () => dialog.locator('.el-form-item').first().locator('.el-select__wrapper')
+
+    await page.getByRole('button', { name: '新增', exact: true }).first().click()
+    await expect(dialog).toContainText('添加部门')
+    await expect(root()).toHaveText('主类目')
+
+    await dialog.getByRole('button', { name: '取 消' }).click()
+    await expect(dialog).toHaveCount(0)
+
+    await switchTo(page, 'English')
+    await page.getByRole('button', { name: 'Add', exact: true }).first().click()
+
+    await expect(dialog).toContainText('Add Department')
+    await expect(root()).toHaveText('Root')
+  })
+
+  test('retitles a dialog that is already open', async({ page }) => {
+    // The title moved back into useForm's `title` option in this batch. The
+    // option is read on every render, so a page that passes a computed follows
+    // the switch -- a page that passes a plain t(...) would sit here in the old
+    // language with the rest of the dialog in the new one.
+    await openList(page)
+    await page.getByRole('button', { name: '新增', exact: true }).click()
+
+    const dialog = page.locator('.el-dialog:visible')
+    await expect(dialog.locator('.el-dialog__title')).toHaveText('添加用户')
+
+    await page.locator('#lang-select').dispatchEvent('click')
+    await page.getByRole('menuitem', { name: 'English', exact: true }).click()
+
+    await expect(dialog.locator('.el-dialog__title')).toHaveText('Add User')
   })
 
   test('switches back', async({ page }) => {

@@ -143,6 +143,46 @@ test.describe('sys-dept', () => {
       .locator('.el-select__wrapper')).toHaveText('研发部')
   })
 
+  /**
+   * The parent picker's `data` prop, which Element Plus declares as an Array.
+   *
+   * useTreePicker returned a bare object holding a computed, so property access
+   * -- `parent.options`, which is how both tree pages read it -- handed the
+   * template the ComputedRef rather than the array inside it. el-tree-select
+   * warned on every render: 18 times in one run of this file before it was
+   * fixed, 22 in sys-menu. Nothing else showed it, because Vue passes the value
+   * through after warning, so the picker worked and only the console said
+   * otherwise.
+   *
+   * Scoped to `prop "data"` deliberately. This page also logs three warnings
+   * about el-input-number's modelValue, where the sort field arrives from the
+   * list as the string "1" -- a real but separate defect, and a bare "no
+   * warnings at all" assertion here would be about that one instead.
+   */
+  test('hands the parent picker an array, not the computed wrapping it', async({ page }) => {
+    const warnings: string[] = []
+    page.on('console', message => {
+      if (message.text().includes('Invalid prop')) warnings.push(message.text())
+    })
+
+    await installApiMocks(page)
+
+    await page.goto('/#/admin/sys-dept')
+    await page.waitForSelector('.el-table')
+
+    // The picker is only mounted once a dialog opens
+    await page.getByRole('row', { name: /研发部/ }).getByRole('button', { name: '新增' }).click()
+    const dialog = page.getByRole('dialog').filter({ hasText: '添加部门' })
+    await expect(dialog).toBeVisible()
+    // Waited for rather than assumed: the warning is logged while the picker
+    // renders, so the assertion below has to run after it has.
+    await expect(dialog.locator('.el-form-item').filter({ hasText: '上级部门' })
+      .locator('.el-select__wrapper')).toHaveText('研发部')
+
+    const aboutData = warnings.filter(text => text.includes('prop "data"'))
+    expect(aboutData, aboutData[0] ?? '').toHaveLength(0)
+  })
+
   // The list sends status as a number, the dictionary keys on strings, and the
   // write endpoints want numbers back.
   test('submits status and sort as numbers', async({ page }) => {

@@ -1,6 +1,7 @@
 import { computed, nextTick, ref } from 'vue'
 import type { FormRules } from 'element-plus'
 import { useForm } from '@/composables/useForm'
+import { i18n, setLocale } from '@/lang'
 import type { ApiResponse } from '@/types/api'
 import { deferred } from '../support/async'
 
@@ -146,6 +147,45 @@ describe('useForm', () => {
 
       await form.openEdit({ userId: 1 })
       expect(form.title).toBe('修改用户')
+    })
+
+    describe('the title in another language', () => {
+      afterEach(async() => { await setLocale('zh-CN') })
+
+      it('defaults to 新增 / 修改 in whichever language is current', async() => {
+        const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId' })
+
+        form.openCreate()
+        expect(form.title).toBe('新增')
+
+        await setLocale('en-US')
+        expect(form.title).toBe('Add')
+
+        await form.openEdit({ userId: 1 })
+        expect(form.title).toBe('Edit')
+      })
+
+      it('follows a computed title through a switch', async() => {
+        // The dialog stays open while the reader switches, so the title has to
+        // be re-read rather than captured when useForm was called. A page that
+        // passes a plain t(...) gets the frozen behaviour this guards against
+        // -- which is why the option takes a MaybeRef.
+        const form = useForm<User, number>({
+          defaultModel: defaultUser,
+          idKey: 'userId',
+          // What the five migrated pages pass, verbatim.
+          title: {
+            create: computed(() => i18n.global.t('admin.sysUser.addTitle')),
+            edit: computed(() => i18n.global.t('admin.sysUser.editTitle'))
+          }
+        })
+
+        form.openCreate()
+        expect(form.title).toBe('添加用户')
+
+        await setLocale('en-US')
+        expect(form.title).toBe('Add User')
+      })
     })
   })
 
@@ -390,6 +430,33 @@ describe('useForm', () => {
       await form.submit()
 
       expect(msgSuccess).toHaveBeenCalledWith('加了 bob')
+    })
+
+    it('translates the default toast rather than always saying 新增成功', async() => {
+      // The default is resolved inside submit(), so it follows a switch made
+      // long after the page was set up. Both branches are checked: the add and
+      // the edit toast come from two different keys and a migration that moved
+      // only one of them would still look right on the page it was tested on.
+      const add = vi.fn().mockResolvedValue(undefined)
+      const update = vi.fn().mockResolvedValue(undefined)
+      const form = useForm<User, number>({
+        defaultModel: defaultUser,
+        idKey: 'userId',
+        api: { add, update }
+      })
+
+      await setLocale('en-US')
+      try {
+        form.openCreate({ username: 'bob' })
+        await form.submit()
+        expect(msgSuccess).toHaveBeenLastCalledWith('Added successfully')
+
+        await form.openEdit({ userId: 1, username: 'bob' })
+        await form.submit()
+        expect(msgSuccess).toHaveBeenLastCalledWith('Saved successfully')
+      } finally {
+        await setLocale('zh-CN')
+      }
     })
 
     it('stays silent when successMessage is null', async() => {
