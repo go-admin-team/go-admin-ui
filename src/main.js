@@ -11,7 +11,6 @@ import 'element-plus/dist/index.css'
 // the variable overrides. src/styles/tokens.css then points those variables at
 // the design tokens, so both themes resolve from one source.
 import 'element-plus/theme-chalk/dark/css-vars.css'
-import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
 // Loaded before the project's own styles so both can build on the tokens
 import '@/styles/tokens.css'
@@ -20,6 +19,8 @@ import '@/styles/admin.scss'
 // Loaded last so utility classes sit after the project's own styles.
 // See the file header for why preflight is excluded.
 import '@/styles/tailwind.css'
+
+import { i18n, setupI18n } from '@/lang'
 
 import App from './App'
 import pinia from './stores'
@@ -90,8 +91,10 @@ for (const [name, comp] of Object.entries(ElementPlusIconsVue)) {
 app.use(pinia)
 app.use(router)
 app.use(permission)
+app.use(i18n)
+// No `locale` here on purpose -- the plugin would read it once and never
+// again. App.vue's <el-config-provider> supplies it reactively instead.
 app.use(ElementPlus, {
-  locale: zhCn,
   size: Cookies.get('size') || 'default'
 })
 
@@ -102,11 +105,17 @@ app.directive('dialogDrag', dialogDrag)
 setupErrorHandler(app)
 
 // 挂载应用
-app.mount('#app')
+// Mounting waits for the language pack so the first paint is already in the
+// right language. For zh-CN -- bundled into the entry -- this resolves on the
+// next microtask; only a visitor whose language has to be fetched waits on a
+// request, and they would otherwise see a frame of Chinese.
+setupI18n().finally(() => {
+  app.mount('#app')
 
-// 应用挂载完成后淡出首屏加载层，动画结束再从 DOM 移除
-const loader = document.getElementById('loader-wrapper')
-if (loader) {
-  document.body.classList.add('loaded')
-  setTimeout(() => loader.remove(), 500)
-}
+  // 应用挂载完成后淡出首屏加载层，动画结束再从 DOM 移除
+  const loader = document.getElementById('loader-wrapper')
+  if (loader) {
+    document.body.classList.add('loaded')
+    setTimeout(() => loader.remove(), 500)
+  }
+})

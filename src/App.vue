@@ -1,12 +1,23 @@
 <template>
-  <div id="app">
-    <router-view />
-  </div>
+  <!-- Element Plus reads its own locale from an injected config, so its date
+       picker, pagination and empty states only follow a language change when
+       the app is wrapped like this. Passing `locale` to app.use(ElementPlus)
+       fixes it at boot instead. -->
+  <el-config-provider :locale="elementLocale">
+    <div id="app">
+      <router-view />
+    </div>
+  </el-config-provider>
 </template>
 
 <script>
+import { elementLocale } from '@/lang'
+
 export default {
   name: 'App',
+  setup() {
+    return { elementLocale }
+  },
   mounted() {
     // 声明: 百度统计统计相关下载使用量无别的用途
     // 可自行删除

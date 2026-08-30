@@ -149,7 +149,15 @@ export default defineConfig(({ mode }) => {
            */
           manualChunks(id) {
             if (!id.includes('node_modules')) return
-            if (/[\\/]element-plus[\\/]/.test(id)) return 'chunk-elementPlus'
+            if (/[\\/]element-plus[\\/]/.test(id)) {
+              // Except its locale packs. Naming a module here assigns it to a
+              // chunk the entry loads, so every language Element Plus ships
+              // would be downloaded by every visitor -- exactly the bug this
+              // manualChunks was rewritten to fix, one level down. src/lang
+              // imports them dynamically and needs them to stay split.
+              if (/[\\/]locale[\\/]lang[\\/]/.test(id)) return
+              return 'chunk-elementPlus'
+            }
             if (/[\\/](vue|vue-router|vue-demi|pinia|@vue)[\\/]/.test(id)) return 'chunk-vue'
             return
           },

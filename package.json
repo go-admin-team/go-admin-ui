@@ -66,6 +66,7 @@
     "vue-codemirror": "^6.1.1",
     "vue-count-to": "1.0.13",
     "vue-cropper": "^1.1.4",
+    "vue-i18n": "^11.4.10",
     "vue-router": "^4.6.4",
     "write-excel-file": "^4.1.1"
   },
