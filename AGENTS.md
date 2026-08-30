@@ -193,6 +193,29 @@ el-form 用 **`:ref="form.bindFormRef"`** 绑定（注意有冒号，是表达�
 
 `useRemove` 是例外，返回的是 ref，因为它的用法是解构（`const { remove } = ...`）；
 解构 reactive 对象会丢失响应性，解构出来的 ref 反而能在模板里自动解包。
+`useExport` / `useDict` 同理。**判据只有一条：调用方是属性访问就 `reactive()`，
+是解构就返回裸 ref。** 两者搞反不会报错——裸对象里的 computed 被属性访问取出来时
+不解包，模板拿到的是 `ComputedRef`，组件只在控制台刷
+`Invalid prop: type check failed`，功能照常。`useTreePicker` 曾经就是这样，
+`sys-dept` 一轮 e2e 刷 18 条、`sys-menu` 22 条，页面看不出任何异常。
+
+### composable 的内置文案跟随语言
+
+`useRemove` 的确认框（标题/正文/两个按钮）、`useForm` 的对话框标题与提交成功提示，
+默认值都从语言包取，**不用页面再传**。composable 没有组件实例，走
+`import { i18n } from '@/lang'` + `i18n.global.t(...)`，且**取值必须发生在每次用到的时候**——
+写在函数体、computed 或回调里都行，直接写成 `useXxx({ title: t('...') })` 这种在
+setup 阶段就求值的形式不行，那等于把整个页面钉死在打开时的语言。
+
+页面要覆盖默认值时，凡是"取一次就固定"的选项都收 `MaybeRef`，传 `computed(() => t(...))`：
+
+| 选项 | 类型 |
+|---|---|
+| `useForm` 的 `rules` | `MaybeRef<FormRules>` |
+| `useForm` 的 `title.create` / `title.edit` | `MaybeRef<string>` |
+| `useTreePicker` 的 `rootLabel` | `MaybeRef<string>` |
+
+`useRemove` 的 `confirmText` 不需要，它本来就是 `(count) => string`，每次开框都重新调用。
 
 字典用 `useDict`（模块级缓存，同一字典全站只取一次）：
 

@@ -1,9 +1,10 @@
-import { ref, reactive, computed, nextTick } from 'vue'
+import { ref, reactive, computed, nextTick, unref } from 'vue'
 import type { MaybeRef, Ref } from 'vue'
 import { asReportedError } from '@/utils/request'
 import type { ReportedError } from '@/utils/request'
 import type { FormInstance, FormRules } from 'element-plus'
 import { msgSuccess } from '@/utils/message'
+import { i18n } from '@/lang'
 import type { ApiResponse } from '@/types/api'
 
 /**
@@ -64,8 +65,17 @@ export interface UseFormOptions<TModel extends object, TId = unknown> {
    */
   submit?: SubmitFn<TModel>
 
-  /** Dialog titles. */
-  title?: { create?: string, edit?: string }
+  /**
+   * Dialog titles. Default to 新增 / 修改 in whichever language is current.
+   *
+   * Each accepts a computed as well as a plain string, for the same reason
+   * `rules` does: a page that passes `t('admin.sysDept.addTitle')` directly
+   * resolves it once, when the page is set up, and the dialog then keeps that
+   * language for as long as the page stays alive. Pass
+   * `computed(() => t(...))` instead -- the title below unwraps it on every
+   * read.
+   */
+  title?: { create?: MaybeRef<string>, edit?: MaybeRef<string> }
 
   /** Toast shown after a successful submit. Pass null to stay silent. */
   successMessage?: string | ((model: TModel, isEdit: boolean) => string) | null
@@ -176,8 +186,14 @@ export function useForm<TModel extends object, TId = unknown>(
     return id !== undefined && id !== null && id !== ''
   })
 
+  // Inside the computed, so both halves are re-read on every render: the
+  // defaults follow the language for free, and an unref'd title does too.
+  // This composable has no component instance, so t() comes off the i18n
+  // instance rather than useI18n() -- the same route utils/request.ts takes.
   const title = computed(() =>
-    isEdit.value ? (titles.edit ?? '修改') : (titles.create ?? '新增')
+    isEdit.value
+      ? (unref(titles.edit) ?? i18n.global.t('common.edit'))
+      : (unref(titles.create) ?? i18n.global.t('common.add'))
   )
 
   const reset = () => {
@@ -271,7 +287,9 @@ export function useForm<TModel extends object, TId = unknown>(
       if (successMessage !== null) {
         const text = typeof successMessage === 'function'
           ? successMessage(model.value, editing)
-          : successMessage ?? (editing ? '修改成功' : '新增成功')
+          : successMessage ?? (editing
+            ? i18n.global.t('composables.form.editSuccess')
+            : i18n.global.t('composables.form.addSuccess'))
         msgSuccess(text)
       }
       visible.value = false

@@ -172,7 +172,7 @@
     <!-- Create / edit -->
     <el-dialog
       v-model="userForm.visible"
-      :title="userForm.isEdit ? $t('admin.sysUser.editTitle') : $t('admin.sysUser.addTitle')"
+      :title="userForm.title"
       width="640px"
       :close-on-click-modal="false"
       @closed="userForm.reset"
@@ -522,8 +522,13 @@ const userForm = useForm<SysUser, number>({
   idKey: 'userId',
   rules: userRules,
   api: { get: getUser, add: addUser, update: updateUser },
-  // No `title` option: useForm captures it once, so the dialog would keep the
-  // language it was opened in. The dialog builds its own from `isEdit`.
+  // Computed, not `t(...)` directly: useForm reads the option on every render,
+  // so a string resolved here once would pin the dialog to the language the
+  // page was opened in.
+  title: {
+    create: computed(() => t('admin.sysUser.addTitle')),
+    edit: computed(() => t('admin.sysUser.editTitle'))
+  },
   onSuccess: () => table.getList()
 })
 

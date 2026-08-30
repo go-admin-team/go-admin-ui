@@ -256,4 +256,28 @@ test.describe('dev-tools editTable', () => {
     // Strings in the radio groups, booleans on the wire
     expect(typeof sent.isAuth).toBe('boolean')
   })
+
+  test('a column with no relation table offers no key to pick', async({ page }) => {
+    // The fallback used to be a synthetic `{ columnId: 0, columnName: '请选择' }`
+    // row, and the two pickers below it bind :value="column.jsonField" -- which
+    // that row does not carry. So each rendered one option whose value was
+    // undefined: blank, because the option's own slot prints jsonField too, and
+    // selectable, which would have written undefined onto the record. Element
+    // Plus reported it, on every render, as `Invalid prop: type check failed for
+    // prop "value"`.
+    //
+    // el-select has a placeholder of its own, so nothing was gained by it.
+    await installApiMocks(page)
+
+    await page.goto('/#/dev-tools/editTable?tableId=1')
+    await page.waitForSelector('.el-table')
+
+    const cell = page.locator('.el-table__body .el-table__row').first().locator('td').nth(15)
+    await expect(cell.locator('.el-select__placeholder')).toHaveText('请选择')
+    await cell.locator('.el-select').click()
+
+    const dropdown = page.locator('.el-select-dropdown:visible')
+    await expect(dropdown).toBeVisible()
+    await expect(dropdown.locator('.el-select-dropdown__item')).toHaveCount(0)
+  })
 })

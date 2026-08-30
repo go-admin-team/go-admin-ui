@@ -1,5 +1,5 @@
-import { ref, computed } from 'vue'
-import type { ComputedRef } from 'vue'
+import { ref, reactive, computed, unref } from 'vue'
+import type { MaybeRef } from 'vue'
 import type { ApiResponse } from '@/types/api'
 
 /**
@@ -23,7 +23,7 @@ import type { ApiResponse } from '@/types/api'
  *     api: () => listMenu({}),
  *     idKey: 'menuId',
  *     labelKey: 'title',
- *     rootLabel: '主类目'
+ *     rootLabel: computed(() => t('admin.sysMenu.rootCategory'))
  *   })
  *
  *   // opening a dialog
@@ -42,15 +42,34 @@ export interface UseTreePickerOptions<TRow> {
   idKey: string
   /** Field el-tree-select shows as the label. */
   labelKey: string
-  /** Label of the synthetic root, e.g. '主类目'. */
-  rootLabel: string
+  /**
+   * Label of the synthetic root, e.g. 主类目.
+   *
+   * Accepts a computed as well as a plain string, and a translated page needs
+   * one: a plain `t(...)` is resolved once, when the page is set up, so the one
+   * node in the picker that is not a database record would keep whichever
+   * language the page was opened in while every branch under it changed.
+   */
+  rootLabel: MaybeRef<string>
   /** Value the synthetic root carries. Backends use 0 for "no parent". */
   rootId?: number
 }
 
+/**
+ * Plain values, not Refs -- the object is wrapped in reactive() before it is
+ * returned, the way useTable and useForm are.
+ *
+ * The rule is what the call site does with it. This one is reached by property
+ * access (`parent.options`, `parent.ensure()`), and property access on a plain
+ * object hands the template the ComputedRef itself: el-tree-select then got an
+ * object where its `data` prop declares an array and logged `Invalid prop: type
+ * check failed for prop "data"` on every render. useRemove, useExport and
+ * useDict return bare objects holding refs on purpose -- those are destructured,
+ * and destructuring a reactive object would snapshot the values instead.
+ */
 export interface UseTreePickerReturn<TRow> {
   /** Bind to el-tree-select's `data`. The synthetic root wraps the tree. */
-  options: ComputedRef<TRow[]>
+  options: TRow[]
   /** Loads the tree unless it is already current. Safe to call on every open. */
   ensure: () => Promise<void>
   /** Marks the tree stale, so the next `ensure()` refetches it. */
@@ -89,8 +108,12 @@ export function useTreePicker<TRow extends object>(
   const invalidate = () => { current = false }
 
   const pickerOptions = computed<TRow[]>(() => [
-    { [idKey]: rootId, [labelKey]: rootLabel, children: tree.value } as unknown as TRow
+    { [idKey]: rootId, [labelKey]: unref(rootLabel), children: tree.value } as unknown as TRow
   ])
 
-  return { options: pickerOptions, ensure, invalidate }
+  return reactive({
+    options: pickerOptions,
+    ensure,
+    invalidate
+  }) as UseTreePickerReturn<TRow>
 }

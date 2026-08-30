@@ -1,5 +1,6 @@
 import { nextTick } from 'vue'
 import { useRemove } from '@/composables/useRemove'
+import { setLocale } from '@/lang'
 import { deferred } from '../support/async'
 
 const confirm = vi.hoisted(() => vi.fn())
@@ -168,5 +169,74 @@ describe('useRemove', () => {
     await remove(1)
 
     expect(msgSuccess).not.toHaveBeenCalled()
+  })
+
+  /**
+   * The reason this batch exists.
+   *
+   * The confirmation body was the only part a page could pass in, so a
+   * translated page reached English there while the title and both buttons --
+   * written as '提示' / '确定' / '取消' inside the composable -- stayed Chinese.
+   * An English reader deleting a row met an English question in a Chinese
+   * dialog, on every list page in the application, including the ones already
+   * migrated.
+   */
+  describe('in English', () => {
+    const HAN = /[\u4e00-\u9fa5]/
+
+    beforeEach(async() => { await setLocale('en-US') })
+    afterEach(async() => { await setLocale('zh-CN') })
+
+    it('asks, titles and labels the dialog in English -- all four', async() => {
+      accepts()
+      const api = vi.fn().mockResolvedValue(undefined)
+      const { remove } = useRemove({ api })
+
+      await remove([4, 5])
+
+      const [body, title, options] = confirm.mock.calls[0]
+      expect(body).toBe('Delete the 2 selected records?')
+      expect(title).toBe('Notice')
+      expect(options.confirmButtonText).toBe('OK')
+      expect(options.cancelButtonText).toBe('Cancel')
+      expect(msgSuccess).toHaveBeenCalledWith('Deleted successfully')
+
+      // Named rather than positional, so a failure says which part is still
+      // Chinese instead of only that something is.
+      const parts = {
+        body,
+        title,
+        confirmButtonText: options.confirmButtonText,
+        cancelButtonText: options.cancelButtonText,
+        toast: vi.mocked(msgSuccess).mock.calls[0][0]
+      }
+      expect(Object.entries(parts).filter(([, text]) => HAN.test(String(text)))).toEqual([])
+    })
+
+    it('counts in the singular, which Chinese does not have to', async() => {
+      accepts()
+      const api = vi.fn().mockResolvedValue(undefined)
+      const { remove } = useRemove({ api })
+
+      await remove(7)
+
+      expect(confirm.mock.calls[0][0]).toBe('Delete the selected record?')
+    })
+
+    it('follows a switch made after the page was set up', async() => {
+      // useRemove is called once, when the page is created. Reading the
+      // strings there -- the obvious way to write it -- would pin every dialog
+      // the page ever opens to the language it was opened in.
+      await setLocale('zh-CN')
+      accepts()
+      const api = vi.fn().mockResolvedValue(undefined)
+      const { remove } = useRemove({ api })
+
+      await setLocale('en-US')
+      await remove(7)
+
+      expect(confirm.mock.calls[0][1]).toBe('Notice')
+      expect(confirm.mock.calls[0][0]).toBe('Delete the selected record?')
+    })
   })
 })
