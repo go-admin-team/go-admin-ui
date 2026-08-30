@@ -1,4 +1,5 @@
-import { nextTick } from 'vue'
+import { computed, nextTick, ref } from 'vue'
+import type { FormRules } from 'element-plus'
 import { useForm } from '@/composables/useForm'
 import type { ApiResponse } from '@/types/api'
 import { deferred } from '../support/async'
@@ -145,6 +146,47 @@ describe('useForm', () => {
 
       await form.openEdit({ userId: 1 })
       expect(form.title).toBe('修改用户')
+    })
+  })
+
+  describe('validation rules', () => {
+    it('follows a computed, so a translated page can rebuild its messages', () => {
+      // Pages declare `const rules = { ... }` at module scope, which is
+      // evaluated once. Once the messages come from t(), that freezes them in
+      // whichever language was current when the module loaded -- and the error
+      // a user is looking at right now would keep the old wording after they
+      // switch. Passing a computed is the fix, and this is what makes it
+      // possible: reactive() unwraps it on the way out, so the page still binds
+      // :rules="form.rules" and nothing else changes.
+      const chinese = ref(true)
+      const rules = computed<FormRules>(() => ({
+        username: [{ required: true, message: chinese.value ? '用户名称不能为空' : 'Username is required' }]
+      }))
+
+      const form = useForm<User, number>({
+        defaultModel: defaultUser,
+        rules,
+        submit: () => Promise.resolve()
+      })
+
+      const message = () => (form.rules?.username as Array<{ message: string }>)[0].message
+      expect(message()).toBe('用户名称不能为空')
+
+      chinese.value = false
+      expect(message()).toBe('Username is required')
+    })
+
+    it('still takes a plain object', () => {
+      // The other fifteen pages have not been migrated yet, and must keep
+      // working untouched.
+      const form = useForm<User, number>({
+        defaultModel: defaultUser,
+        rules: { username: [{ required: true, message: '用户名称不能为空' }] },
+        submit: () => Promise.resolve()
+      })
+
+      expect((form.rules?.username as Array<{ message: string }>)[0].message)
+        .toBe('用户名称不能为空')
     })
   })
 

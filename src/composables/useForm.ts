@@ -1,5 +1,5 @@
 import { ref, reactive, computed, nextTick } from 'vue'
-import type { Ref } from 'vue'
+import type { MaybeRef, Ref } from 'vue'
 import { asReportedError } from '@/utils/request'
 import type { ReportedError } from '@/utils/request'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -31,8 +31,16 @@ export interface UseFormOptions<TModel extends object, TId = unknown> {
   /** Initial model, as a factory so each open starts from a fresh object. */
   defaultModel: () => TModel
 
-  /** Element Plus validation rules. */
-  rules?: FormRules
+  /**
+   * Element Plus validation rules.
+   *
+   * Accepts a computed as well as a plain object, and translated pages need
+   * one: a plain `const rules = { ... }` is evaluated once, so a message built
+   * from t() keeps whichever language was current when the module loaded. The
+   * page still binds :rules="form.rules" -- the ref is unwrapped on the way
+   * out.
+   */
+  rules?: MaybeRef<FormRules>
 
   /**
    * Primary-key field. Its presence on the model decides whether submitting
@@ -95,7 +103,8 @@ export interface UseFormReturn<TModel extends object, TId = unknown> {
   model: TModel
   /**
    * The rules passed in, handed back so the page can bind :rules="form.rules"
-   * rather than keeping its own copy.
+   * rather than keeping its own copy. Unwrapped, so a computed passed in
+   * arrives here as a plain object.
    */
   rules: FormRules | undefined
   /** True while a submit is in flight. Bind to the confirm button's `loading`. */
