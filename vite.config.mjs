@@ -100,6 +100,9 @@ export default defineConfig(({ mode }) => {
     // 业务代码沿用 process.env.VUE_APP_* 写法，此处做等价注入
     define: {
       'process.env.VUE_APP_BASE_API': JSON.stringify(env.VUE_APP_BASE_API || ''),
+      // The login footer renders this only when it is set. Left empty in every
+      // .env here: a filing number belongs to whoever operates the deployment.
+      'process.env.VUE_APP_ICP': JSON.stringify(env.VUE_APP_ICP || ''),
       'process.env.NODE_ENV': JSON.stringify(mode === 'development' ? 'development' : 'production')
     },
 

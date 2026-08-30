@@ -34,7 +34,11 @@
         <ul class="stack">
           <li>Gin</li><li>GORM</li><li>Casbin</li><li>Vue 3</li><li>Element Plus</li>
         </ul>
-        <a href="https://beian.miit.gov.cn" target="_blank" class="icp">沪ICP备XXXXXXXXX号-1</a>
+        <!-- Only rendered where one is configured. The placeholder that used to
+             sit here shipped to every deployment, so each of them showed a
+             filing number made of X's. A real one belongs to whoever operates
+             the site, which the repository cannot know. -->
+        <a v-if="icp" href="https://beian.miit.gov.cn" target="_blank" class="icp">{{ icp }}</a>
       </footer>
     </div>
 
@@ -172,6 +176,10 @@ export default {
     }
   },
   computed: {
+    /** The ICP filing number, from VUE_APP_ICP. Empty in every .env here. */
+    icp() {
+      return process.env.VUE_APP_ICP || ''
+    },
     /**
      * Computed rather than part of data(): data() is evaluated once, so the
      * messages would keep the language the page was created in.

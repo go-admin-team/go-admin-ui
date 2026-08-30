@@ -1,5 +1,6 @@
 export default {
   language: 'Language',
+  languageFailed: 'Could not switch language. Check your connection and try again.',
   logout: 'Log out',
   logoutConfirm: 'Are you sure you want to log out?',
   settings: {

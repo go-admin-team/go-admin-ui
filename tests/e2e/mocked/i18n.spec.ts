@@ -236,6 +236,26 @@ test.describe('switching language', () => {
     await expect(page).toHaveTitle(/User Management/)
   })
 
+  test('says so when the language pack cannot be loaded', async({ page }) => {
+    // Each language other than the default is a separate chunk, and this
+    // project is deployed to intranets and offline networks where a partial
+    // deploy is a real possibility. The click used to discard its promise, so a
+    // failed load did nothing at all -- no change, no message, just an
+    // unhandled rejection in a console nobody has open.
+    await openList(page)
+
+    // Fails the request for the English pack, whatever it is named. In dev it
+    // is served from src/lang; a build names it en-US.<hash>.js.
+    await page.route(/en-US/, route => route.abort())
+
+    await switchTo(page, 'English')
+
+    await expect(page.locator('.el-message--error')).toBeVisible()
+    // And the interface is still the language it was, rather than half-switched.
+    await expect(page.locator('.sidebar-container')).toContainText('User')
+    await expect(page.locator('.sidebar-container')).not.toContainText('User Management')
+  })
+
   test('switches back', async({ page }) => {
     // Going one way can pass on a stale-but-correct-looking first render.
     await openList(page)

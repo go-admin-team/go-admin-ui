@@ -29,8 +29,5 @@ export default {
   },
   rightPanel: {
     title: '系统布局配置'
-  },
-  themePicker: {
-    compiling: '编译主题中'
   }
 }
