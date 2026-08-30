@@ -1,6 +1,7 @@
-import { ref } from 'vue'
-import type { Ref } from 'vue'
+import { computed, ref } from 'vue'
+import type { ComputedRef } from 'vue'
 import { getDicts } from '@/api/admin/dict/data'
+import { translateDictLabel } from '@/lang/backend'
 import type { ApiResponse, DictOption } from '@/types/api'
 
 /**
@@ -38,15 +39,26 @@ const fetchDict = (type: string): Promise<DictOption[]> => {
   return request
 }
 
-export function useDict<T extends string>(...types: T[]): Record<T, Ref<DictOption[]>> {
-  const result = {} as Record<T, Ref<DictOption[]>>
+export function useDict<T extends string>(...types: T[]): Record<T, ComputedRef<DictOption[]>> {
+  const result = {} as Record<T, ComputedRef<DictOption[]>>
 
   for (const type of types) {
-    const options = ref<DictOption[]>([])
-    result[type] = options
+    const fetched = ref<DictOption[]>([])
     void fetchDict(type).then(list => {
-      options.value = list
+      fetched.value = list
     })
+
+    // Computed, not the ref itself. The backend has one label column and sends
+    // the same Chinese whatever the language, so the cache above is still
+    // right -- switching language must not refetch anything. What was wrong was
+    // handing out a ref that is assigned once: a page already on screen when
+    // the language changed kept the labels it resolved with. Translating in a
+    // computed re-runs on the locale, and costs a map over at most a few dozen
+    // entries.
+    result[type] = computed(() => fetched.value.map(option => ({
+      ...option,
+      label: translateDictLabel(type, option.value, option.label)
+    })))
   }
 
   return result

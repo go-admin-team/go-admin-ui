@@ -1,4 +1,6 @@
 import common from './common'
+import menu from './menu'
+import dict from './dict'
 
 /**
  * English.
@@ -6,4 +8,4 @@ import common from './common'
  * Unlike zh-CN this does carry menu and dict: those are the translations of
  * text the backend only ever sends in Chinese.
  */
-export default { common }
+export default { common, menu, dict }
