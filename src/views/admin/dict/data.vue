@@ -2,7 +2,7 @@
   <PageContainer>
     <ProTable :table="table" selection row-key="dictCode" :actions-width="120">
       <template #search>
-        <el-form-item label="字典名称">
+        <el-form-item :label="$t('admin.dict.data.dictName')">
           <el-select v-model="table.query.dictType" style="width: 180px">
             <el-option
               v-for="item in typeOptions"
@@ -12,11 +12,21 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="字典标签">
-          <el-input v-model="table.query.dictLabel" placeholder="请输入字典标签" clearable style="width: 160px" />
+        <el-form-item :label="$t('admin.dict.data.dictLabel')">
+          <el-input
+            v-model="table.query.dictLabel"
+            :placeholder="$t('admin.dict.data.dictLabelPlaceholder')"
+            clearable
+            style="width: 160px"
+          />
         </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="table.query.status" placeholder="数据状态" clearable style="width: 130px">
+        <el-form-item :label="$t('admin.dict.data.status')">
+          <el-select
+            v-model="table.query.status"
+            :placeholder="$t('admin.dict.data.statusPlaceholder')"
+            clearable
+            style="width: 130px"
+          >
             <el-option
               v-for="item in sys_normal_disable"
               :key="item.value"
@@ -28,78 +38,106 @@
       </template>
 
       <template #toolbar>
-        <el-button v-permisaction="['admin:sysDictData:add']" type="primary" @click="handleAdd">新增</el-button>
+        <el-button v-permisaction="['admin:sysDictData:add']" type="primary" @click="handleAdd">
+          {{ $t('common.add') }}
+        </el-button>
         <el-button
           v-permisaction="['admin:sysDictData:remove']"
           type="danger"
           plain
           :disabled="table.multiple"
           @click="remove(table.selectedIds)"
-        >删除</el-button>
+        >{{ $t('common.delete') }}</el-button>
       </template>
 
-      <el-table-column label="编码" prop="dictCode" width="80" />
-      <el-table-column label="字典标签" prop="dictLabel" min-width="140" show-overflow-tooltip />
-      <el-table-column label="字典键值" prop="dictValue" min-width="140" show-overflow-tooltip />
-      <el-table-column label="排序" prop="dictSort" width="80" />
-      <el-table-column label="状态" prop="status" width="90">
+      <el-table-column :label="$t('admin.dict.data.dictCode')" prop="dictCode" width="80" />
+      <el-table-column
+        :label="$t('admin.dict.data.dictLabel')"
+        prop="dictLabel"
+        min-width="140"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        :label="$t('admin.dict.data.dictValue')"
+        prop="dictValue"
+        min-width="140"
+        show-overflow-tooltip
+      />
+      <el-table-column :label="$t('admin.dict.data.dictSort')" prop="dictSort" width="80" />
+      <el-table-column :label="$t('admin.dict.data.status')" prop="status" width="90">
         <template #default="{ row }">
           <el-tag :type="Number(row.status) === 2 ? 'success' : 'danger'" disable-transitions>
             {{ dictLabel(sys_normal_disable, row.status) }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="备注" prop="remark" min-width="160" show-overflow-tooltip />
-      <el-table-column label="创建时间" prop="createdAt" min-width="110">
+      <el-table-column
+        :label="$t('admin.dict.data.remark')"
+        prop="remark"
+        min-width="160"
+        show-overflow-tooltip
+      />
+      <el-table-column :label="$t('common.createdAt')" prop="createdAt" min-width="110">
         <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
       </el-table-column>
 
       <template #actions="{ row }">
         <el-button v-permisaction="['admin:sysDictData:edit']" link type="primary" @click="form.openEdit(row)">
-          修改
+          {{ $t('common.edit') }}
         </el-button>
         <el-button v-permisaction="['admin:sysDictData:remove']" link type="danger" @click="remove(row.dictCode)">
-          删除
+          {{ $t('common.delete') }}
         </el-button>
       </template>
     </ProTable>
 
     <el-dialog v-model="form.visible" :title="form.title" width="500px" :close-on-click-modal="false">
       <el-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" label-width="90px">
-        <el-form-item label="字典类型">
+        <el-form-item :label="$t('admin.dict.data.dictType')">
           <el-input v-model="form.model.dictType" disabled />
         </el-form-item>
-        <el-form-item label="数据标签" prop="dictLabel">
-          <el-input v-model="form.model.dictLabel" placeholder="请输入数据标签" />
+        <el-form-item :label="$t('admin.dict.data.label')" prop="dictLabel">
+          <el-input v-model="form.model.dictLabel" :placeholder="$t('admin.dict.data.labelPlaceholder')" />
         </el-form-item>
-        <el-form-item label="数据键值" prop="dictValue">
-          <el-input v-model="form.model.dictValue" placeholder="请输入数据键值" :disabled="form.isEdit" />
+        <el-form-item :label="$t('admin.dict.data.value')" prop="dictValue">
+          <el-input
+            v-model="form.model.dictValue"
+            :placeholder="$t('admin.dict.data.valuePlaceholder')"
+            :disabled="form.isEdit"
+          />
         </el-form-item>
-        <el-form-item label="显示排序" prop="dictSort">
+        <el-form-item :label="$t('admin.dict.data.displaySort')" prop="dictSort">
           <el-input-number v-model="form.model.dictSort" controls-position="right" :min="0" />
         </el-form-item>
-        <el-form-item label="状态" prop="status">
+        <el-form-item :label="$t('admin.dict.data.status')" prop="status">
           <el-radio-group v-model="form.model.status">
             <el-radio v-for="item in sys_normal_disable" :key="item.value" :value="item.value">
               {{ item.label }}
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.model.remark" type="textarea" placeholder="请输入内容" />
+        <el-form-item :label="$t('admin.dict.data.remark')" prop="remark">
+          <el-input
+            v-model="form.model.remark"
+            type="textarea"
+            :placeholder="$t('admin.dict.data.remarkPlaceholder')"
+          />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="form.close()">取 消</el-button>
-        <el-button type="primary" :loading="form.submitting" @click="form.submit()">确 定</el-button>
+        <el-button @click="form.close()">{{ $t('common.dialogCancel') }}</el-button>
+        <el-button type="primary" :loading="form.submitting" @click="form.submit()">
+          {{ $t('common.dialogConfirm') }}
+        </el-button>
       </template>
     </el-dialog>
   </PageContainer>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import type { FormRules } from 'element-plus'
 
 import PageContainer from '@/components/PageContainer/index.vue'
@@ -115,6 +153,7 @@ import type { SysDictData, SysDictDataQuery, SysDictType } from '@/types/admin'
 defineOptions({ name: 'SysDictDataManage' })
 
 const route = useRoute()
+const { t } = useI18n()
 const { sys_normal_disable } = useDict('sys_normal_disable')
 
 /**
@@ -161,11 +200,19 @@ onMounted(async() => {
   await options
 })
 
-const rules: FormRules = {
-  dictLabel: [{ required: true, message: '数据标签不能为空', trigger: 'blur' }],
-  dictValue: [{ required: true, message: '数据键值不能为空', trigger: 'blur' }],
-  dictSort: [{ required: true, message: '显示排序不能为空', trigger: 'blur' }]
-}
+/**
+ * Rebuilt whenever the language changes.
+ *
+ * A plain object here is evaluated once, when the page is set up, and the page
+ * is kept alive -- so a message already rendered under a field would keep the
+ * language it was built in. useForm unwraps the ref, so :rules="form.rules" is
+ * unchanged.
+ */
+const rules = computed<FormRules>(() => ({
+  dictLabel: [{ required: true, message: t('admin.dict.data.rules.dictLabel'), trigger: 'blur' }],
+  dictValue: [{ required: true, message: t('admin.dict.data.rules.dictValue'), trigger: 'blur' }],
+  dictSort: [{ required: true, message: t('admin.dict.data.rules.dictSort'), trigger: 'blur' }]
+}))
 
 const form = useForm<SysDictData, number>({
   defaultModel: () => ({
@@ -179,7 +226,13 @@ const form = useForm<SysDictData, number>({
   }),
   idKey: 'dictCode',
   rules,
-  title: { create: '添加字典数据', edit: '修改字典数据' },
+  // Computed, not `t(...)` directly: useForm reads the option on every render,
+  // so a string resolved here once would pin the dialog to the language the
+  // page was opened in.
+  title: {
+    create: computed(() => t('admin.dict.data.addTitle')),
+    edit: computed(() => t('admin.dict.data.editTitle'))
+  },
   api: { get: getDataForForm, add: addData, update: updateData },
   onSuccess: () => table.getList()
 })
@@ -189,7 +242,9 @@ const handleAdd = () => form.openCreate({ dictType: currentType })
 
 const { remove } = useRemove({
   api: delData,
-  confirmText: count => `确认删除选中的 ${count} 条字典数据？`,
+  // The count is both a named value and the plural choice: Chinese needs one
+  // form, English needs two, and passing it twice lets each pack decide.
+  confirmText: count => t('admin.dict.data.removeConfirm', { count }, count),
   onSuccess: () => table.getList()
 })
 </script>

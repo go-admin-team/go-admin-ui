@@ -42,5 +42,46 @@ export default {
     configKey: 'Parameter key is required',
     configValue: 'Parameter value is required',
     isFrontend: 'Show in frontend is required'
+  },
+
+  set: {
+    sidebarTitle: 'System Settings',
+    sidebarSub: 'Basic information and appearance',
+    basic: 'Basic Information',
+    basicSub: 'Name, logo, password',
+    appearance: 'Appearance',
+    appearanceSub: 'Skin and theme',
+
+    basicTitle: 'Basic System Information',
+    basicDesc: 'Set the system name, the logo and the default user password',
+    logoEmpty: 'No logo',
+    logoName: 'System Logo',
+    logoHint: '200×200 recommended, JPG or PNG, up to 2MB',
+    upload: 'Upload Image',
+    appName: 'System Name',
+    appNamePlaceholder: 'Please enter system name',
+    initPassword: 'Initial User Password',
+    initPasswordPlaceholder: 'Please enter the initial password',
+
+    appearanceDesc: 'Adjust the skin and the sidebar theme',
+    skin: 'Skin',
+    skinPlaceholder: 'Please select a skin',
+    skinBlue: 'Blue',
+    sideTheme: 'Sidebar Theme',
+    sideThemePlaceholder: 'Please select a sidebar theme',
+    themeHint: 'Click to switch theme',
+    themeDark: 'Dark Theme',
+    themeLight: 'Light Theme',
+
+    save: 'Save Settings',
+    // 'Saved', not 'Updated': the same wording the composables use for a
+    // persisted change.
+    saveOk: 'Saved successfully',
+    logoTooLarge: 'The file is larger than 2MB',
+
+    rules: {
+      appName: 'Please enter system name',
+      initPassword: 'Please enter the initial password'
+    }
   }
 }

@@ -1,6 +1,16 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 import { authenticate, installApiMocks } from './fixtures'
 import { captureBodies } from './support/crud'
+
+/**
+ * The suite runs in Chinese (playwright.config.ts pins the locale), so anything
+ * English has to switch first. Clicked rather than dispatched: none of the
+ * pages below has a modal open over the navbar.
+ */
+const switchTo = async(page: Page, label: string) => {
+  await page.locator('#lang-select').click()
+  await page.getByRole('menuitem', { name: label, exact: true }).click()
+}
 
 /**
  * The code generator's table list. Six row actions and a preview dialog that
@@ -279,5 +289,216 @@ test.describe('dev-tools editTable', () => {
     const dropdown = page.locator('.el-select-dropdown:visible')
     await expect(dropdown).toBeVisible()
     await expect(dropdown.locator('.el-select-dropdown__item')).toHaveCount(0)
+  })
+})
+
+/**
+ * The same three screens in English.
+ *
+ * The generator is the least-visited page in the application and the one with
+ * the most developer jargon, so these assert the words themselves rather than
+ * just "something changed": a translation that silently falls back to the key
+ * still changes the text.
+ */
+test.describe('dev-tools gen in English', () => {
+  test.beforeEach(async({ page, context }) => {
+    await authenticate(context)
+    await installApiMocks(page)
+  })
+
+  test('the list translates in place, without a reload', async({ page }) => {
+    let reloaded = false
+    page.on('framenavigated', frame => {
+      if (frame === page.mainFrame()) reloaded = true
+    })
+
+    await page.goto('/#/dev-tools/gen')
+    await page.waitForSelector('.el-table')
+    await expect(page.locator('.el-table__header')).toContainText('模型名称')
+
+    reloaded = false
+    await switchTo(page, 'English')
+
+    const header = page.locator('.el-table__header')
+    for (const label of ['ID', 'Table Name', 'Menu Name', 'Model Name', 'Created At']) {
+      await expect(header).toContainText(label)
+    }
+    await expect(page.locator('.el-table__header')).not.toContainText('模型名称')
+
+    const toolbar = page.locator('.pro-table__toolbar')
+    await expect(toolbar.getByRole('button', { name: 'Import' })).toBeVisible()
+    await expect(toolbar.getByRole('button', { name: 'Delete' })).toBeVisible()
+
+    expect(reloaded, 'the page reloaded instead of re-rendering').toBe(false)
+  })
+
+  test('the row actions and the overflow menu translate', async({ page }) => {
+    await page.goto('/#/dev-tools/gen')
+    await page.waitForSelector('.el-table')
+    await switchTo(page, 'English')
+
+    const row = page.getByRole('row', { name: /sys_demo/ })
+    await expect(row.getByRole('button', { name: 'Edit' })).toBeVisible()
+    await expect(row.getByRole('button', { name: 'Preview' })).toBeVisible()
+
+    await row.locator('.el-dropdown button').click()
+    // The language switcher is an el-dropdown too, and its popper is still on
+    // screen a moment after the switch -- so the row's menu is the one that is
+    // not offering languages.
+    const menu = page.locator('.el-dropdown-menu:visible').filter({ hasNotText: '简体中文' })
+    await expect(menu).toContainText('Generate into Project')
+    await expect(menu).toContainText('Generate Configuration')
+    await expect(menu).toContainText('Generate Migration Script')
+    await expect(menu).toContainText('Delete')
+    expect(await menu.innerText(), 'Chinese left in the menu').not.toMatch(/[一-龥]/)
+  })
+
+  test('deleting one table asks in English, in the singular', async({ page }) => {
+    // The Chinese sentence has one form. English has two, and the count decides
+    // -- a page that passed a plain string here would read "the 1 selected
+    // tables". The row menu deletes exactly one, which is the form the
+    // composable's own default never exercises.
+    await page.goto('/#/dev-tools/gen')
+    await page.waitForSelector('.el-table')
+    await switchTo(page, 'English')
+
+    const row = page.getByRole('row', { name: /sys_demo/ })
+    await row.locator('.el-dropdown button').click()
+    await page.locator('.el-dropdown-menu:visible').getByText('Delete').click()
+
+    const box = page.locator('.el-message-box')
+    await expect(box.locator('.el-message-box__message'))
+      .toHaveText('Delete the generator configuration for the selected table?')
+    expect(await box.innerText(), 'Chinese left in the dialog').not.toMatch(/[一-龥]/)
+  })
+
+  test('the preview dialog is titled in English', async({ page }) => {
+    await page.goto('/#/dev-tools/gen')
+    await page.waitForSelector('.el-table')
+    await switchTo(page, 'English')
+
+    await page.getByRole('row', { name: /sys_demo/ }).getByRole('button', { name: 'Preview' }).click()
+
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.locator('.el-dialog__title')).toHaveText('Code Preview')
+  })
+})
+
+/**
+ * The editor, whose 字段信息 tab is the densest cluster of developer jargon in
+ * the application -- go类型, json属性, 查询方式. Its two tabs are separate
+ * components with a rule set each, and both had those rules as a module-level
+ * constant: evaluated once, at setup, which this page never re-runs because it
+ * is kept alive.
+ */
+test.describe('dev-tools editTable in English', () => {
+  test.beforeEach(async({ page, context }) => {
+    await authenticate(context)
+    await installApiMocks(page)
+    await page.goto('/#/dev-tools/editTable?tableId=1')
+    await page.waitForSelector('.el-table')
+  })
+
+  test('the tabs, the column headers and the footer translate', async({ page }) => {
+    await switchTo(page, 'English')
+
+    // Scoped to the page's own card: the tab strip above it is an el-tabs too
+    const tabs = page.locator('.el-card .el-tabs__nav')
+    await expect(tabs).toContainText('Basic Information')
+    await expect(tabs).toContainText('Field Information')
+    await expect(tabs).toContainText('Generation Information')
+
+    const header = page.locator('.el-table__header')
+    for (const label of [
+      'No.', 'Column Name', 'Description', 'DB Type', 'Go Type', 'Go Field', 'JSON Field',
+      'Edit', 'List', 'Query', 'Query Type', 'Required', 'Display Type', 'Dictionary Type',
+      'Relation Table', 'Relation Key', 'Relation Value'
+    ]) {
+      await expect(header).toContainText(label)
+    }
+    expect(await header.innerText(), 'Chinese left in the headers').not.toMatch(/[一-龥]/)
+
+    await expect(page.getByRole('button', { name: 'Back' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible()
+
+    // The alert above the table, and the two headers that carry an explanation
+    await expect(page.locator('.el-alert__title')).toContainText('are hidden from this list')
+    await page.locator('.el-table__header .field-label__hint').first().hover()
+    // role=tooltip, not .el-popper: the switcher's own popper is still fading
+    // out and is an .el-popper too
+    await expect(page.locator('[role="tooltip"]:visible'))
+      .toContainText('Whether the column appears in the list')
+  })
+
+  test('a validation message already on screen follows the language', async({ page }) => {
+    // The failure this exists for: `const rules = { ... }` at module scope is
+    // evaluated once, so a message rendered under a field keeps the language it
+    // was built in. Nothing reports it -- validation still works, the form still
+    // refuses to submit, the sentence is just in the wrong language. Asserting
+    // on a message triggered *after* the switch would not catch it, because
+    // re-triggering repaints the text either way.
+    await page.getByRole('tab', { name: '基本信息' }).click()
+
+    const author = page.getByPlaceholder('请输入作者名称')
+    await author.fill('')
+    await author.blur()
+
+    const errors = page.locator('.el-form-item__error')
+    await expect(errors.filter({ hasText: '请输入作者' })).toHaveCount(1)
+
+    await switchTo(page, 'English')
+
+    await expect(errors.filter({ hasText: 'Please enter author' })).toHaveCount(1)
+    await expect(errors.filter({ hasText: '请输入作者' })).toHaveCount(0)
+  })
+
+  test('the generation tab\'s validation message follows the language too', async({ page }) => {
+    // A second rule set in a second component. Covered separately because
+    // fixing one file and not the other leaves half a form in the old language
+    // -- and both tabs are visible one click apart.
+    await page.getByRole('tab', { name: '生成信息' }).click()
+
+    const business = page.locator('.el-form-item').filter({ hasText: '业务名' }).locator('input')
+    await business.fill('')
+    await business.blur()
+
+    const errors = page.locator('.el-form-item__error')
+    await expect(errors.filter({ hasText: '请输入生成业务名' })).toHaveCount(1)
+
+    await switchTo(page, 'English')
+
+    await expect(errors.filter({ hasText: 'Please enter the business name' })).toHaveCount(1)
+    await expect(errors.filter({ hasText: '请输入生成业务名' })).toHaveCount(0)
+  })
+
+  test('the dictionary picker offers the seeded types by their English name', async({ page }) => {
+    // These names arrive from the database, so they are Chinese in either
+    // language -- but the seeded ones have a translation keyed by dict_type,
+    // and lang/backend.ts already knows how to find it. Without that lookup the
+    // one dropdown on this page that lists backend data stays Chinese while
+    // every label around it is English. A dictionary the operator created has
+    // no entry and keeps its stored name; that is the designed fallback, and it
+    // is also what keeps the Chinese interface byte-for-byte unchanged.
+    await switchTo(page, 'English')
+
+    // Column 13 is 字典类型; 15 is the relation key the test above uses
+    const cell = page.locator('.el-table__body .el-table__row').first().locator('td').nth(13)
+    await cell.locator('.el-select').click()
+
+    const dropdown = page.locator('.el-select-dropdown:visible')
+    await expect(dropdown).toContainText('System Status')
+    await expect(dropdown).not.toContainText('系统状态')
+    // The dict_type itself is an identifier and stays as it is
+    await expect(dropdown).toContainText('sys_common_status')
+  })
+
+  test('saving reports success in English', async({ page }) => {
+    // The endpoint answers without a `msg`, so this is the client's own string.
+    // Where the backend does send one it wins, in whatever language it was
+    // written -- see the note in the batch report.
+    await switchTo(page, 'English')
+    await page.getByRole('button', { name: 'Submit' }).click()
+
+    await expect(page.locator('.el-message--success')).toContainText('Saved successfully')
   })
 })

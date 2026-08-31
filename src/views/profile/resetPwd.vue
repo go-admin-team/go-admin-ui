@@ -1,17 +1,17 @@
 <template>
   <el-form ref="form" :model="user" :rules="rules" label-width="80px">
-    <el-form-item label="旧密码" prop="oldPassword">
-      <el-input v-model="user.oldPassword" placeholder="请输入旧密码" type="password" />
+    <el-form-item :label="$t('profile.password.old')" prop="oldPassword">
+      <el-input v-model="user.oldPassword" :placeholder="$t('profile.password.oldPlaceholder')" type="password" />
     </el-form-item>
-    <el-form-item label="新密码" prop="newPassword">
-      <el-input v-model="user.newPassword" placeholder="请输入新密码" type="password" />
+    <el-form-item :label="$t('profile.password.new')" prop="newPassword">
+      <el-input v-model="user.newPassword" :placeholder="$t('profile.password.newPlaceholder')" type="password" />
     </el-form-item>
-    <el-form-item label="确认密码" prop="confirmPassword">
-      <el-input v-model="user.confirmPassword" placeholder="请确认密码" type="password" />
+    <el-form-item :label="$t('profile.password.confirm')" prop="confirmPassword">
+      <el-input v-model="user.confirmPassword" :placeholder="$t('profile.password.confirmPlaceholder')" type="password" />
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" size="mini" @click="submit">保存</el-button>
-      <el-button type="danger" size="mini" @click="close">关闭</el-button>
+      <el-button type="primary" size="mini" @click="submit">{{ $t('profile.save') }}</el-button>
+      <el-button type="danger" size="mini" @click="close">{{ $t('profile.close') }}</el-button>
     </el-form-item>
   </el-form>
 </template>
@@ -22,31 +22,45 @@ import { updateUserPwd } from '@/api/admin/sys-user'
 
 export default {
   data() {
-    const equalToPassword = (rule, value, callback) => {
-      if (this.user.newPassword !== value) {
-        callback(new Error('两次输入的密码不一致'))
-      } else {
-        callback()
-      }
-    }
     return {
       test: '1test',
       user: {
         oldPassword: undefined,
         newPassword: undefined,
         confirmPassword: undefined
-      },
-      // 表单校验
-      rules: {
+      }
+    }
+  },
+  computed: {
+    /**
+     * Rebuilt per render rather than held in data().
+     *
+     * data() runs once, so messages built from t() there would keep whichever
+     * language the page was opened in -- including the one already displayed
+     * under a field. el-form revalidates when its rules change, which is what
+     * repaints a message that is on screen.
+     *
+     * The validator is a different case: it is called at validation time, so
+     * the Error it raises is already resolved then.
+     */
+    rules() {
+      const equalToPassword = (rule, value, callback) => {
+        if (this.user.newPassword !== value) {
+          callback(new Error(this.$t('profile.password.rules.mismatch')))
+        } else {
+          callback()
+        }
+      }
+      return {
         oldPassword: [
-          { required: true, message: '旧密码不能为空', trigger: 'blur' }
+          { required: true, message: this.$t('profile.password.rules.oldRequired'), trigger: 'blur' }
         ],
         newPassword: [
-          { required: true, message: '新密码不能为空', trigger: 'blur' },
-          { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
+          { required: true, message: this.$t('profile.password.rules.newRequired'), trigger: 'blur' },
+          { min: 6, max: 20, message: this.$t('profile.password.rules.length'), trigger: 'blur' }
         ],
         confirmPassword: [
-          { required: true, message: '确认密码不能为空', trigger: 'blur' },
+          { required: true, message: this.$t('profile.password.rules.confirmRequired'), trigger: 'blur' },
           { required: true, validator: equalToPassword, trigger: 'blur' }
         ]
       }

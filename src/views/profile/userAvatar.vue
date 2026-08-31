@@ -1,6 +1,6 @@
 <template>
   <div>
-    <img :src="options.img" title="点击上传头像" class="img-circle img-lg" @click="editCropper()">
+    <img :src="options.img" :title="$t('profile.avatar.hint')" class="img-circle img-lg" @click="editCropper()">
     <el-dialog v-model="open" :title="title" width="800px" :close-on-click-modal="false">
       <el-row>
         <el-col :xs="24" :md="12" :style="{height: '350px'}">
@@ -26,7 +26,7 @@
         <el-col :lg="2" :md="2">
           <el-upload action="#" :http-request="requestUpload" :show-file-list="false" :before-upload="beforeUpload">
             <el-button size="small">
-              上传
+              {{ $t('profile.avatar.upload') }}
               <i class="ri-upload-line el-icon--right" />
             </el-button>
           </el-upload>
@@ -44,7 +44,7 @@
           <el-button size="small" @click="rotateRight()" />
         </el-col>
         <el-col :lg="{span: 2, offset: 6}" :md="2">
-          <el-button type="primary" size="small" @click="uploadImg()">提 交</el-button>
+          <el-button type="primary" size="small" @click="uploadImg()">{{ $t('profile.avatar.submit') }}</el-button>
         </el-col>
       </el-row>
     </el-dialog>
@@ -66,8 +66,6 @@ export default {
     return {
       // 是否显示弹出层
       open: false,
-      // 弹出层标题
-      title: '修改头像',
       options: {
         img: useUserStore().avatar, // 裁剪图片的地址
         autoCrop: true, // 是否默认生成截图框
@@ -76,6 +74,16 @@ export default {
         fixedBox: true // 固定截图框大小 不允许改变
       },
       previews: {}
+    }
+  },
+  computed: {
+    /**
+     * The dialog title, which used to live in data(). That runs once, so a
+     * title built from t() there would keep the language the page was opened
+     * in -- and this dialog is opened long after that.
+     */
+    title() {
+      return this.$t('profile.avatar.dialogTitle')
     }
   },
   methods: {
@@ -102,7 +110,7 @@ export default {
     // 上传预处理
     beforeUpload(file) {
       if (file.type.indexOf('image/') === -1) {
-        this.msgError('文件格式错误，请上传图片类型,如：JPG，PNG后缀的文件。')
+        this.msgError(this.$t('profile.avatar.wrongType'))
       } else {
         const reader = new FileReader()
         reader.readAsDataURL(file)

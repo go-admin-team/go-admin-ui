@@ -8,11 +8,21 @@
       :default-sort="{ prop: 'createdAt', order: 'descending' }"
     >
       <template #search>
-        <el-form-item label="访问地址">
-          <el-input v-model="table.query.operUrl" placeholder="请输入访问地址" clearable style="width: 180px" />
+        <el-form-item :label="$t('admin.sysOperLog.operUrl')">
+          <el-input
+            v-model="table.query.operUrl"
+            :placeholder="$t('admin.sysOperLog.operUrlPlaceholder')"
+            clearable
+            style="width: 180px"
+          />
         </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="table.query.status" placeholder="操作状态" clearable style="width: 130px">
+        <el-form-item :label="$t('admin.sysOperLog.status')">
+          <el-select
+            v-model="table.query.status"
+            :placeholder="$t('admin.sysOperLog.statusPlaceholder')"
+            clearable
+            style="width: 130px"
+          >
             <el-option
               v-for="item in sys_common_status"
               :key="item.value"
@@ -21,13 +31,13 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="操作时间">
+        <el-form-item :label="$t('admin.sysOperLog.operTime')">
           <el-date-picker
             v-model="operatedBetween"
             type="datetimerange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
+            :range-separator="$t('admin.sysOperLog.rangeSeparator')"
+            :start-placeholder="$t('admin.sysOperLog.startDate')"
+            :end-placeholder="$t('admin.sysOperLog.endDate')"
             value-format="YYYY-MM-DD HH:mm:ss"
             style="width: 340px"
           />
@@ -41,22 +51,27 @@
           plain
           :disabled="table.multiple"
           @click="remove(table.selectedIds)"
-        >删除</el-button>
+        >{{ $t('common.delete') }}</el-button>
         <el-button v-permisaction="['admin:sysOperLog:remove']" type="danger" plain @click="handleClean">
-          清空
+          {{ $t('admin.sysOperLog.clean') }}
         </el-button>
         <el-button v-permisaction="['admin:sysOperLog:export']" :loading="exporting" @click="handleExport">
-          导出
+          {{ $t('common.export') }}
         </el-button>
       </template>
 
-      <el-table-column label="编号" prop="id" min-width="80" />
-      <el-table-column label="请求" prop="operUrl" min-width="220" show-overflow-tooltip>
+      <el-table-column :label="$t('admin.sysOperLog.operId')" prop="id" min-width="80" />
+      <el-table-column
+        :label="$t('admin.sysOperLog.request')"
+        prop="operUrl"
+        min-width="220"
+        show-overflow-tooltip
+      >
         <template #default="{ row }">
           <el-popover trigger="hover" placement="top" :width="360">
-            <p class="peek-line">Host：{{ row.operIp }}</p>
-            <p class="peek-line">归属地：{{ row.operLocation || '-' }}</p>
-            <p class="peek-line">耗时：{{ row.latencyTime || '-' }}</p>
+            <p class="peek-line">{{ $t('admin.sysOperLog.peekHost', { value: row.operIp }) }}</p>
+            <p class="peek-line">{{ $t('admin.sysOperLog.peekLocation', { value: row.operLocation || '-' }) }}</p>
+            <p class="peek-line">{{ $t('admin.sysOperLog.peekLatency', { value: row.latencyTime || '-' }) }}</p>
             <template #reference>
               <span>
                 <MethodTag :method="row.requestMethod" />
@@ -66,8 +81,13 @@
           </el-popover>
         </template>
       </el-table-column>
-      <el-table-column label="操作人员" prop="operName" min-width="130" show-overflow-tooltip />
-      <el-table-column label="状态" prop="status" width="90">
+      <el-table-column
+        :label="$t('admin.sysOperLog.operName')"
+        prop="operName"
+        min-width="130"
+        show-overflow-tooltip
+      />
+      <el-table-column :label="$t('admin.sysOperLog.status')" prop="status" width="90">
         <template #default="{ row }">
           <el-tag :type="Number(row.status) === 2 ? 'success' : 'danger'" disable-transitions>
             {{ dictLabel(sys_common_status, row.status) }}
@@ -76,41 +96,61 @@
       </el-table-column>
       <!-- prop is createdAt because createdAtOrder is the only order key
            SysOperaLogOrder binds; see the same column on the login log page -->
-      <el-table-column label="操作日期" prop="createdAt" min-width="150" sortable="custom">
+      <el-table-column
+        :label="$t('admin.sysOperLog.operDate')"
+        prop="createdAt"
+        min-width="150"
+        sortable="custom"
+      >
         <template #default="{ row }"><DateCell :value="row.operTime" pattern="{y}-{m}-{d} {h}:{i}" /></template>
       </el-table-column>
 
       <template #actions="{ row }">
         <el-button v-permisaction="['admin:sysOperLog:query']" link type="primary" @click="openDetail(row)">
-          详细
+          {{ $t('admin.sysOperLog.detail') }}
         </el-button>
       </template>
     </ProTable>
 
-    <el-dialog v-model="detailOpen" title="操作日志详细" width="720px" :close-on-click-modal="false">
+    <el-dialog
+      v-model="detailOpen"
+      :title="$t('admin.sysOperLog.detailTitle')"
+      width="720px"
+      :close-on-click-modal="false"
+    >
       <el-descriptions :column="2" border>
-        <el-descriptions-item label="请求地址" :span="2">{{ detail.operUrl }}</el-descriptions-item>
-        <el-descriptions-item label="登录信息">
+        <el-descriptions-item :label="$t('admin.sysOperLog.detailUrl')" :span="2">
+          {{ detail.operUrl }}
+        </el-descriptions-item>
+        <el-descriptions-item :label="$t('admin.sysOperLog.loginInfo')">
           {{ detail.operName }} / {{ detail.operIp }} / {{ detail.operLocation || '-' }}
         </el-descriptions-item>
-        <el-descriptions-item label="请求方式">{{ detail.requestMethod }}</el-descriptions-item>
-        <el-descriptions-item label="耗时">{{ detail.latencyTime || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="操作时间">{{ parseTime(detail.operTime) || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="系统模块">{{ detail.title || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="操作状态">
+        <el-descriptions-item :label="$t('admin.sysOperLog.requestMethod')">
+          {{ detail.requestMethod }}
+        </el-descriptions-item>
+        <el-descriptions-item :label="$t('admin.sysOperLog.latency')">
+          {{ detail.latencyTime || '-' }}
+        </el-descriptions-item>
+        <el-descriptions-item :label="$t('admin.sysOperLog.operTime')">
+          {{ parseTime(detail.operTime) || '-' }}
+        </el-descriptions-item>
+        <el-descriptions-item :label="$t('admin.sysOperLog.module')">
+          {{ detail.title || '-' }}
+        </el-descriptions-item>
+        <el-descriptions-item :label="$t('admin.sysOperLog.operStatus')">
           <el-tag :type="Number(detail.status) === 2 ? 'success' : 'danger'" disable-transitions>
             {{ dictLabel(sys_common_status, detail.status) }}
           </el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="请求参数" :span="2">
+        <el-descriptions-item :label="$t('admin.sysOperLog.operParam')" :span="2">
           <pre class="log-payload">{{ detail.operParam || '-' }}</pre>
         </el-descriptions-item>
-        <el-descriptions-item label="返回参数" :span="2">
+        <el-descriptions-item :label="$t('admin.sysOperLog.jsonResult')" :span="2">
           <pre class="log-payload">{{ detail.jsonResult || '-' }}</pre>
         </el-descriptions-item>
       </el-descriptions>
       <template #footer>
-        <el-button @click="detailOpen = false">关 闭</el-button>
+        <el-button @click="detailOpen = false">{{ $t('admin.sysOperLog.dialogClose') }}</el-button>
       </template>
     </el-dialog>
   </PageContainer>
@@ -118,6 +158,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessageBox } from 'element-plus'
 
 import PageContainer from '@/components/PageContainer/index.vue'
@@ -133,6 +174,8 @@ import type { SysOperaLog, SysOperaLogQuery } from '@/types/admin'
 
 // Must match the menu_name the backend serves, or keep-alive silently misses
 defineOptions({ name: 'OperLog' })
+
+const { t } = useI18n()
 
 const { sys_common_status } = useDict('sys_common_status')
 
@@ -168,7 +211,9 @@ const operatedBetween = computed<[string, string] | null>({
 
 const { remove } = useRemove({
   api: delSysOperlog,
-  confirmText: count => `确认删除选中的 ${count} 条操作日志？`,
+  // The count is both a named value and the plural choice: Chinese needs one
+  // form, English needs two, and passing it twice lets each pack decide.
+  confirmText: count => t('admin.sysOperLog.removeConfirm', { count }, count),
   onSuccess: () => table.getList()
 })
 
@@ -186,10 +231,13 @@ const handleClean = async() => {
   if (cleaning) return
   cleaning = true
   try {
-    await ElMessageBox.confirm('确认清空全部操作日志？此操作不可撤销。', '提示', {
+    // Every string read here rather than once at setup, so the box follows the
+    // language even after the page has been sitting open -- the same reason
+    // useRemove resolves its own four inside the call.
+    await ElMessageBox.confirm(t('admin.sysOperLog.cleanConfirm'), t('common.notice'), {
       type: 'warning',
-      confirmButtonText: '确定',
-      cancelButtonText: '取消'
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel')
     })
   } catch {
     cleaning = false
@@ -197,7 +245,7 @@ const handleClean = async() => {
   }
   try {
     await cleanOperlog()
-    msgSuccess('已清空')
+    msgSuccess(t('admin.sysOperLog.cleanOk'))
     // search, not getList: the log is empty now, so whatever page the user was
     // on no longer exists
     await table.search()
@@ -218,11 +266,24 @@ const openDetail = (row: SysOperaLog) => {
 
 const { exportExcel, exporting } = useExport()
 
+// Built on each click rather than once, so the sheet is written in the
+// language the reader is in when they ask for it.
 const handleExport = () => exportExcel({
-  header: ['编号', '系统模块', '操作类型', '操作人员', '主机', '操作地点', '请求方式', '请求地址', '状态', '操作日期'],
+  header: [
+    t('admin.sysOperLog.exportHeader.operId'),
+    t('admin.sysOperLog.exportHeader.module'),
+    t('admin.sysOperLog.exportHeader.businessType'),
+    t('admin.sysOperLog.exportHeader.operName'),
+    t('admin.sysOperLog.exportHeader.operIp'),
+    t('admin.sysOperLog.exportHeader.operLocation'),
+    t('admin.sysOperLog.exportHeader.requestMethod'),
+    t('admin.sysOperLog.exportHeader.operUrl'),
+    t('admin.sysOperLog.exportHeader.status'),
+    t('admin.sysOperLog.exportHeader.operDate')
+  ],
   fields: ['id', 'title', 'businessType', 'operName', 'operIp', 'operLocation', 'requestMethod', 'operUrl', 'status', 'operTime'],
   rows: table.rows as Array<Record<string, unknown>>,
-  filename: '操作日志'
+  filename: t('admin.sysOperLog.exportFilename')
 })
 </script>
 

@@ -3,9 +3,9 @@
     <el-row>
       <el-col :span="12">
         <el-form-item prop="tplCategory">
-          <template #label>生成模板</template>
+          <template #label>{{ $t('devTools.genInfoForm.tplCategory') }}</template>
           <el-select v-model="model.tplCategory">
-            <el-option label="关系表（增删改查）" value="crud" />
+            <el-option :label="$t('devTools.genInfoForm.tplCrud')" value="crud" />
             <!-- <el-option label="关系表（增删改查）" value="mcrud" />
             <el-option label="树表（增删改查）" value="tree" /> -->
           </el-select>
@@ -14,8 +14,8 @@
 
       <el-col :span="12">
         <el-form-item prop="packageName">
-          <template #label>应用名
-            <el-tooltip content="应用名，例如：在app文件夹下将该功能发到那个应用中，默认：admin" placement="top">
+          <template #label>{{ $t('devTools.genInfoForm.packageName') }}
+            <el-tooltip :content="$t('devTools.genInfoForm.packageNameTip')" placement="top">
               <i class="ri-question-line" />
             </el-tooltip></template>
           <el-input v-model="model.packageName" />
@@ -34,8 +34,8 @@
 
       <el-col :span="12">
         <el-form-item prop="businessName">
-          <template #label>业务名
-            <el-tooltip content="可理解为功能英文名，例如 user" placement="top">
+          <template #label>{{ $t('devTools.genInfoForm.businessName') }}
+            <el-tooltip :content="$t('devTools.genInfoForm.businessNameTip')" placement="top">
               <i class="ri-question-line" />
             </el-tooltip></template>
           <el-input v-model="model.businessName" />
@@ -44,8 +44,8 @@
 
       <el-col :span="12">
         <el-form-item prop="functionName">
-          <template #label>功能描述
-            <el-tooltip content="同步的数据库表备注，用作类描述，例如：用户" placement="top">
+          <template #label>{{ $t('devTools.genInfoForm.functionName') }}
+            <el-tooltip :content="$t('devTools.genInfoForm.functionNameTip')" placement="top">
               <i class="ri-question-line" />
             </el-tooltip></template>
           <el-input v-model="model.functionName" />
@@ -53,8 +53,8 @@
       </el-col>
       <el-col :span="12">
         <el-form-item prop="moduleName">
-          <template #label>接口路径
-            <el-tooltip content="接口路径，例如：api/v1/{sys-user}" placement="top">
+          <template #label>{{ $t('devTools.genInfoForm.moduleName') }}
+            <el-tooltip :content="$t('devTools.genInfoForm.moduleNameTip')" placement="top">
               <i class="ri-question-line" />
             </el-tooltip></template>
           <el-input v-model="model.moduleName">
@@ -107,14 +107,17 @@
     </el-row>
 
     <el-row v-show="model.tplCategory == 'tree'">
-      <h4 class="form-header">其他信息</h4>
+      <h4 class="form-header">{{ $t('devTools.genInfoForm.otherInfo') }}</h4>
       <el-col :span="12">
         <el-form-item>
-          <template #label>树编码字段
-            <el-tooltip content="树显示的编码字段名， 如：dept_id" placement="top">
+          <template #label>{{ $t('devTools.genInfoForm.treeCode') }}
+            <el-tooltip :content="$t('devTools.genInfoForm.treeCodeTip')" placement="top">
               <i class="ri-question-line" />
             </el-tooltip></template>
-          <el-select v-model="model.treeCode" placeholder="请选择">
+          <el-select
+            v-model="model.treeCode"
+            :placeholder="$t('devTools.genInfoForm.selectPlaceholder')"
+          >
             <el-option
               v-for="column in columns"
               :key="column.columnName"
@@ -126,11 +129,14 @@
       </el-col>
       <el-col :span="12">
         <el-form-item>
-          <template #label>树父编码字段
-            <el-tooltip content="树显示的父编码字段名， 如：parent_Id" placement="top">
+          <template #label>{{ $t('devTools.genInfoForm.treeParentCode') }}
+            <el-tooltip :content="$t('devTools.genInfoForm.treeParentCodeTip')" placement="top">
               <i class="ri-question-line" />
             </el-tooltip></template>
-          <el-select v-model="model.treeParentCode" placeholder="请选择">
+          <el-select
+            v-model="model.treeParentCode"
+            :placeholder="$t('devTools.genInfoForm.selectPlaceholder')"
+          >
             <el-option
               v-for="column in columns"
               :key="column.columnName"
@@ -142,11 +148,14 @@
       </el-col>
       <el-col :span="12">
         <el-form-item>
-          <template #label>树名称字段
-            <el-tooltip content="树节点的显示名称字段名， 如：dept_name" placement="top">
+          <template #label>{{ $t('devTools.genInfoForm.treeName') }}
+            <el-tooltip :content="$t('devTools.genInfoForm.treeNameTip')" placement="top">
               <i class="ri-question-line" />
             </el-tooltip></template>
-          <el-select v-model="model.treeName" placeholder="请选择">
+          <el-select
+            v-model="model.treeName"
+            :placeholder="$t('devTools.genInfoForm.selectPlaceholder')"
+          >
             <el-option
               v-for="column in columns"
               :key="column.columnName"
@@ -161,11 +170,17 @@
 </template>
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { FormInstance, FormRules } from 'element-plus'
 import type { GenTable } from '@/api/tools/gen'
 
-/** The 生成信息 tab. Same contract as BasicInfoForm; see it for the why. */
+/**
+ * The Generation Information tab. Same contract as BasicInfoForm; see it for
+ * the why, including why `rules` is a computed.
+ */
 defineOptions({ name: 'GenInfoForm' })
+
+const { t } = useI18n()
 
 const model = defineModel<GenTable>({ required: true })
 
@@ -176,22 +191,38 @@ const columns = computed(
   () => (model.value.columns ?? []) as Array<{ columnName?: string, columnComment?: string }>
 )
 
-const rules: FormRules = {
-  tplCategory: [{ required: true, message: '请选择生成模板', trigger: 'change' }],
+const rules = computed<FormRules>(() => ({
+  tplCategory: [
+    { required: true, message: t('devTools.genInfoForm.rules.tplCategory'), trigger: 'change' }
+  ],
   packageName: [
-    { required: true, message: '请输入生成包路径', trigger: 'blur' },
-    { pattern: /^[a-z]*$/, trigger: 'blur', message: '只允许小写字母，例如 system' }
+    { required: true, message: t('devTools.genInfoForm.rules.packageName'), trigger: 'blur' },
+    {
+      pattern: /^[a-z]*$/,
+      trigger: 'blur',
+      message: t('devTools.genInfoForm.rules.packageNamePattern')
+    }
   ],
   moduleName: [
-    { required: true, message: '请输入生成模块名', trigger: 'blur' },
-    { pattern: /^[a-z-]*[a-z]$/, trigger: 'blur', message: '只允许小写字母，例如 sys-demo' }
+    { required: true, message: t('devTools.genInfoForm.rules.moduleName'), trigger: 'blur' },
+    {
+      pattern: /^[a-z-]*[a-z]$/,
+      trigger: 'blur',
+      message: t('devTools.genInfoForm.rules.moduleNamePattern')
+    }
   ],
   businessName: [
-    { required: true, message: '请输入生成业务名', trigger: 'blur' },
-    { pattern: /^[a-z][A-Za-z]+$/, trigger: 'blur', message: '字母开头，只允许 a-z 与 A-Z' }
+    { required: true, message: t('devTools.genInfoForm.rules.businessName'), trigger: 'blur' },
+    {
+      pattern: /^[a-z][A-Za-z]+$/,
+      trigger: 'blur',
+      message: t('devTools.genInfoForm.rules.businessNamePattern')
+    }
   ],
-  functionName: [{ required: true, message: '请输入生成功能名', trigger: 'blur' }]
-}
+  functionName: [
+    { required: true, message: t('devTools.genInfoForm.rules.functionName'), trigger: 'blur' }
+  ]
+}))
 
 defineExpose({ validate: () => formRef.value?.validate().catch(() => false) })
 </script>

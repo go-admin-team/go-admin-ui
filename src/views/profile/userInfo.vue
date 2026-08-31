@@ -1,23 +1,23 @@
 <template>
   <el-form ref="form" :model="userForm" :rules="rules" label-width="80px">
-    <el-form-item label="用户昵称" prop="nickName">
+    <el-form-item :label="$t('profile.info.nickName')" prop="nickName">
       <el-input v-model="userForm.nickName" />
     </el-form-item>
-    <el-form-item label="手机号码" prop="phone">
+    <el-form-item :label="$t('profile.info.phone')" prop="phone">
       <el-input v-model="userForm.phone" maxlength="11" />
     </el-form-item>
-    <el-form-item label="邮箱" prop="email">
+    <el-form-item :label="$t('profile.info.email')" prop="email">
       <el-input v-model="userForm.email" maxlength="50" />
     </el-form-item>
-    <el-form-item label="性别">
+    <el-form-item :label="$t('profile.info.sex')">
       <el-radio-group v-model="userForm.sex">
-        <el-radio label="0">男</el-radio>
-        <el-radio label="1">女</el-radio>
+        <el-radio label="0">{{ $t('profile.info.male') }}</el-radio>
+        <el-radio label="1">{{ $t('profile.info.female') }}</el-radio>
       </el-radio-group>
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" size="mini" @click="submit">保存</el-button>
-      <el-button type="danger" size="mini" @click="close">关闭</el-button>
+      <el-button type="primary" size="mini" @click="submit">{{ $t('profile.save') }}</el-button>
+      <el-button type="danger" size="mini" @click="close">{{ $t('profile.close') }}</el-button>
     </el-form-item>
   </el-form>
 </template>
@@ -33,25 +33,33 @@ export default {
   },
   data() {
     return {
-      userForm: { ...this.user },
-      // 表单校验
-      rules: {
+      userForm: { ...this.user }
+    }
+  },
+  computed: {
+    /**
+     * Rebuilt per render rather than held in data(), which runs once: a message
+     * built from t() there keeps whichever language the page was opened in,
+     * including one already displayed under a field.
+     */
+    rules() {
+      return {
         nickName: [
-          { required: true, message: '用户昵称不能为空', trigger: 'blur' }
+          { required: true, message: this.$t('profile.info.rules.nickName'), trigger: 'blur' }
         ],
         email: [
-          { required: true, message: '邮箱地址不能为空', trigger: 'blur' },
+          { required: true, message: this.$t('profile.info.rules.emailRequired'), trigger: 'blur' },
           {
             type: 'email',
-            message: "'请输入正确的邮箱地址",
+            message: this.$t('profile.info.rules.emailFormat'),
             trigger: ['blur', 'change']
           }
         ],
         phone: [
-          { required: true, message: '手机号码不能为空', trigger: 'blur' },
+          { required: true, message: this.$t('profile.info.rules.phoneRequired'), trigger: 'blur' },
           {
             pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
-            message: '请输入正确的手机号码',
+            message: this.$t('profile.info.rules.phoneFormat'),
             trigger: 'blur'
           }
         ]

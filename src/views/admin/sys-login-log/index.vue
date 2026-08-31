@@ -8,11 +8,21 @@
       :default-sort="{ prop: 'createdAt', order: 'descending' }"
     >
       <template #search>
-        <el-form-item label="用户名">
-          <el-input v-model="table.query.username" placeholder="请输入用户名" clearable style="width: 160px" />
+        <el-form-item :label="$t('admin.sysLoginLog.username')">
+          <el-input
+            v-model="table.query.username"
+            :placeholder="$t('admin.sysLoginLog.usernamePlaceholder')"
+            clearable
+            style="width: 160px"
+          />
         </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="table.query.status" placeholder="登录状态" clearable style="width: 140px">
+        <el-form-item :label="$t('admin.sysLoginLog.status')">
+          <el-select
+            v-model="table.query.status"
+            :placeholder="$t('admin.sysLoginLog.statusPlaceholder')"
+            clearable
+            style="width: 140px"
+          >
             <el-option
               v-for="item in sys_common_status"
               :key="item.value"
@@ -21,8 +31,13 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="ip 地址">
-          <el-input v-model="table.query.ipaddr" placeholder="请输入 ip 地址" clearable style="width: 160px" />
+        <el-form-item :label="$t('admin.sysLoginLog.ipaddr')">
+          <el-input
+            v-model="table.query.ipaddr"
+            :placeholder="$t('admin.sysLoginLog.ipaddrPlaceholder')"
+            clearable
+            style="width: 160px"
+          />
         </el-form-item>
       </template>
 
@@ -33,25 +48,35 @@
           plain
           :disabled="table.multiple"
           @click="remove(table.selectedIds)"
-        >删除</el-button>
+        >{{ $t('common.delete') }}</el-button>
       </template>
 
-      <el-table-column label="用户名" prop="username" min-width="110" show-overflow-tooltip />
-      <el-table-column label="类型" prop="msg" min-width="120" show-overflow-tooltip />
-      <el-table-column label="状态" prop="status" width="90">
+      <el-table-column
+        :label="$t('admin.sysLoginLog.username')"
+        prop="username"
+        min-width="110"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        :label="$t('admin.sysLoginLog.msg')"
+        prop="msg"
+        min-width="120"
+        show-overflow-tooltip
+      />
+      <el-table-column :label="$t('admin.sysLoginLog.status')" prop="status" width="90">
         <template #default="{ row }">
           <el-tag :type="Number(row.status) === 2 ? 'success' : 'danger'" disable-transitions>
             {{ dictLabel(sys_common_status, row.status) }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="ip 地址" prop="ipaddr" min-width="130">
+      <el-table-column :label="$t('admin.sysLoginLog.ipaddr')" prop="ipaddr" min-width="130">
         <template #default="{ row }">
           <el-popover trigger="hover" placement="top" :width="300">
-            <p class="peek-line">归属地：{{ row.loginLocation || '-' }}</p>
-            <p class="peek-line">浏览器：{{ row.browser || '-' }}</p>
-            <p class="peek-line">系统：{{ row.os || '-' }}</p>
-            <p class="peek-line">固件：{{ row.platform || '-' }}</p>
+            <p class="peek-line">{{ $t('admin.sysLoginLog.peekLocation', { value: row.loginLocation || '-' }) }}</p>
+            <p class="peek-line">{{ $t('admin.sysLoginLog.peekBrowser', { value: row.browser || '-' }) }}</p>
+            <p class="peek-line">{{ $t('admin.sysLoginLog.peekOs', { value: row.os || '-' }) }}</p>
+            <p class="peek-line">{{ $t('admin.sysLoginLog.peekPlatform', { value: row.platform || '-' }) }}</p>
             <template #reference><span>{{ row.ipaddr }}</span></template>
           </el-popover>
         </template>
@@ -65,13 +90,18 @@
         measurement in CLAUDE.md: a sortable header plus `2026-08-01 14:00` needs
         about 141px, or the cells wrap.
       -->
-      <el-table-column label="登录时间" prop="createdAt" min-width="150" sortable="custom">
+      <el-table-column
+        :label="$t('admin.sysLoginLog.loginTime')"
+        prop="createdAt"
+        min-width="150"
+        sortable="custom"
+      >
         <template #default="{ row }"><DateCell :value="row.loginTime" pattern="{y}-{m}-{d} {h}:{i}" /></template>
       </el-table-column>
 
       <template #actions="{ row }">
         <el-button v-permisaction="['admin:sysLoginLog:remove']" link type="danger" @click="remove(row.id)">
-          删除
+          {{ $t('common.delete') }}
         </el-button>
       </template>
     </ProTable>
@@ -79,6 +109,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
@@ -89,6 +121,8 @@ import type { SysLoginLog, SysLoginLogQuery } from '@/types/admin'
 
 // Must match the menu_name the backend serves, or keep-alive silently misses
 defineOptions({ name: 'SysLoginLogManage' })
+
+const { t } = useI18n()
 
 const { sys_common_status } = useDict('sys_common_status')
 
@@ -110,7 +144,9 @@ const table = useTable<SysLoginLog, SysLoginLogQuery>({
 
 const { remove } = useRemove({
   api: delSysLoginlog,
-  confirmText: count => `确认删除选中的 ${count} 条登录日志？`,
+  // The count is both a named value and the plural choice: Chinese needs one
+  // form, English needs two, and passing it twice lets each pack decide.
+  confirmText: count => t('admin.sysLoginLog.removeConfirm', { count }, count),
   onSuccess: () => table.getList()
 })
 </script>

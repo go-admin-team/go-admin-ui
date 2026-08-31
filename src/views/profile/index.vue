@@ -6,7 +6,7 @@
           <el-card class="box-card">
             <template #header>
               <div class="clearfix">
-                <span>个人信息</span>
+                <span>{{ $t('profile.title') }}</span>
               </div>
             </template>
             <div>
@@ -15,27 +15,27 @@
               </div>
               <ul class="list-group list-group-striped">
                 <li class="list-group-item">
-                  <svg-icon icon-class="user" />用户名称
+                  <svg-icon icon-class="user" />{{ $t('profile.username') }}
                   <div class="pull-right">{{ user.username }}</div>
                 </li>
                 <li class="list-group-item">
-                  <svg-icon icon-class="phone" />手机号码
+                  <svg-icon icon-class="phone" />{{ $t('profile.phone') }}
                   <div class="pull-right">{{ user.phone }}</div>
                 </li>
                 <li class="list-group-item">
-                  <svg-icon icon-class="email" />用户邮箱
+                  <svg-icon icon-class="email" />{{ $t('profile.email') }}
                   <div class="pull-right">{{ user.email }}</div>
                 </li>
                 <li class="list-group-item">
-                  <svg-icon icon-class="tree" />所属部门
+                  <svg-icon icon-class="tree" />{{ $t('profile.dept') }}
                   <div class="pull-right">{{ deptName }}</div>
                 </li>
                 <li class="list-group-item">
-                  <svg-icon icon-class="peoples" />所属角色
+                  <svg-icon icon-class="peoples" />{{ $t('profile.role') }}
                   <div class="pull-right">{{ roleName }}</div>
                 </li>
                 <li class="list-group-item">
-                  <svg-icon icon-class="date" />创建日期
+                  <svg-icon icon-class="date" />{{ $t('profile.createdAt') }}
                   <div class="pull-right">{{ user.createdAt }}</div>
                 </li>
               </ul>
@@ -46,14 +46,14 @@
           <el-card>
             <template #header>
               <div class="clearfix">
-                <span>基本资料</span>
+                <span>{{ $t('profile.basic') }}</span>
               </div>
             </template>
             <el-tabs v-model="activeTab">
-              <el-tab-pane label="基本资料" name="userinfo">
+              <el-tab-pane :label="$t('profile.tabs.info')" name="userinfo">
                 <userInfo :user="user" />
               </el-tab-pane>
-              <el-tab-pane label="修改密码" name="resetPwd">
+              <el-tab-pane :label="$t('profile.tabs.password')" name="resetPwd">
                 <resetPwd :user="user" />
               </el-tab-pane>
             </el-tabs>
@@ -105,7 +105,7 @@ export default {
             }
           }
         } else {
-          this.roleName = '暂无'
+          this.roleName = this.$t('profile.noRole')
         }
         this.dept = response.data.user.dept
         this.deptName = this.dept.deptName
