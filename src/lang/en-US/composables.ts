@@ -1,4 +1,8 @@
 export default {
+  export: {
+    confirm: 'Export the current page of the list?'
+  },
+
   remove: {
     // Pluralised, which Chinese does not need: 条数据 covers any count, while
     // 'the 1 selected records' does not. Same shape as admin.sysUser.
