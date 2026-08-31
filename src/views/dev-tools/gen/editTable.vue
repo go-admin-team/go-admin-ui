@@ -51,7 +51,13 @@
             </template>
           </el-table-column>
 
-          <el-table-column :label="$t('devTools.editTable.isInsert')" width="50">
+          <el-table-column :label="$t('devTools.editTable.isInsert')" width="80" align="center">
+            <template #header>
+              <FieldLabel
+                :label="$t('devTools.editTable.isInsert')"
+                :tip="$t('devTools.editTable.isInsertTip')"
+              />
+            </template>
             <template #default="scope">
               <el-checkbox v-model="scope.row.isInsert" true-value="1" false-value="0" />
             </template>
