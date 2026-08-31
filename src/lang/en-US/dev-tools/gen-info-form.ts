@@ -16,14 +16,6 @@ export default {
   moduleName: 'API Path',
   moduleNameTip: "The API path, e.g. api/v1/{'{'}sys-user{'}'}",
 
-  otherInfo: 'Other Information',
-  treeCode: 'Tree Code Field',
-  treeCodeTip: 'The name of the code field the tree displays, e.g. dept_id',
-  treeParentCode: 'Tree Parent Code Field',
-  treeParentCodeTip: 'The name of the parent code field the tree displays, e.g. parent_Id',
-  treeName: 'Tree Name Field',
-  treeNameTip: 'The name of the field a tree node displays, e.g. dept_name',
-
   // The Chinese messages name fields the form no longer has (生成包路径 for
   // 应用名, 生成模块名 for 接口路径); the English keeps that mismatch rather
   // than quietly fixing one language and not the other

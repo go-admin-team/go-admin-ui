@@ -105,67 +105,6 @@
         </el-form-item>
       </el-col> -->
     </el-row>
-
-    <el-row v-show="model.tplCategory == 'tree'">
-      <h4 class="form-header">{{ $t('devTools.genInfoForm.otherInfo') }}</h4>
-      <el-col :span="12">
-        <el-form-item>
-          <template #label>{{ $t('devTools.genInfoForm.treeCode') }}
-            <el-tooltip :content="$t('devTools.genInfoForm.treeCodeTip')" placement="top">
-              <i class="ri-question-line" />
-            </el-tooltip></template>
-          <el-select
-            v-model="model.treeCode"
-            :placeholder="$t('common.selectPlaceholder')"
-          >
-            <el-option
-              v-for="column in columns"
-              :key="column.columnName"
-              :label="column.columnName + '：' + column.columnComment"
-              :value="column.columnName"
-            />
-          </el-select>
-        </el-form-item>
-      </el-col>
-      <el-col :span="12">
-        <el-form-item>
-          <template #label>{{ $t('devTools.genInfoForm.treeParentCode') }}
-            <el-tooltip :content="$t('devTools.genInfoForm.treeParentCodeTip')" placement="top">
-              <i class="ri-question-line" />
-            </el-tooltip></template>
-          <el-select
-            v-model="model.treeParentCode"
-            :placeholder="$t('common.selectPlaceholder')"
-          >
-            <el-option
-              v-for="column in columns"
-              :key="column.columnName"
-              :label="column.columnName + '：' + column.columnComment"
-              :value="column.columnName"
-            />
-          </el-select>
-        </el-form-item>
-      </el-col>
-      <el-col :span="12">
-        <el-form-item>
-          <template #label>{{ $t('devTools.genInfoForm.treeName') }}
-            <el-tooltip :content="$t('devTools.genInfoForm.treeNameTip')" placement="top">
-              <i class="ri-question-line" />
-            </el-tooltip></template>
-          <el-select
-            v-model="model.treeName"
-            :placeholder="$t('common.selectPlaceholder')"
-          >
-            <el-option
-              v-for="column in columns"
-              :key="column.columnName"
-              :label="column.columnName + '：' + column.columnComment"
-              :value="column.columnName"
-            />
-          </el-select>
-        </el-form-item>
-      </el-col>
-    </el-row>
   </el-form>
 </template>
 <script setup lang="ts">
@@ -185,11 +124,6 @@ const { t } = useI18n()
 const model = defineModel<GenTable>({ required: true })
 
 const formRef = ref<FormInstance>()
-
-/** The table's own columns, narrowed for the tree pickers below. */
-const columns = computed(
-  () => (model.value.columns ?? []) as Array<{ columnName?: string, columnComment?: string }>
-)
 
 const rules = computed<FormRules>(() => ({
   tplCategory: [
