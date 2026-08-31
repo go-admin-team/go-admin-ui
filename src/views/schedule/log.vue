@@ -3,18 +3,24 @@
     <div class="job-log">
       <div class="job-log__bar">
         <span class="job-log__state" :class="`is-${state}`">
-          <i class="job-log__dot" />{{ STATE_LABEL[state] }}
+          <i class="job-log__dot" />{{ stateLabel }}
         </span>
-        <span class="job-log__count">{{ lines.length }} 行</span>
+        <span class="job-log__count">
+          {{ $t('schedule.jobLog.lines', { count: lines.length }, lines.length) }}
+        </span>
         <div class="job-log__actions">
-          <el-button :disabled="!lines.length" @click="lines = []">清空</el-button>
-          <el-button v-if="state === 'closed'" type="primary" @click="connect">重连</el-button>
+          <el-button :disabled="!lines.length" @click="lines = []">
+            {{ $t('schedule.jobLog.clear') }}
+          </el-button>
+          <el-button v-if="state === 'closed'" type="primary" @click="connect">
+            {{ $t('schedule.jobLog.reconnect') }}
+          </el-button>
         </div>
       </div>
 
       <div ref="viewport" class="job-log__viewport">
         <p v-if="!lines.length" class="job-log__empty">
-          {{ state === 'open' ? '已连接，等待任务输出…' : '未连接' }}
+          {{ state === 'open' ? $t('schedule.jobLog.waiting') : $t('schedule.jobLog.disconnected') }}
         </p>
         <!-- Newest last, so the stream reads the way a terminal does. The
              previous version unshifted, which put the newest line on top and
@@ -28,22 +34,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
 import PageContainer from '@/components/PageContainer/index.vue'
 import { unWsLogout } from '@/api/ws'
 import { useUserStore } from '@/stores/user'
 
 defineOptions({ name: 'JobLog' })
 
+const { t } = useI18n()
+
 type State = 'connecting' | 'open' | 'closed'
 
-const STATE_LABEL: Record<State, string> = {
-  connecting: '连接中',
-  open: '已连接',
-  closed: '已断开'
-}
-
 const state = ref<State>('connecting')
+
+/**
+ * Computed, not a lookup table built once: this page is opened, left connected
+ * and looked at again later, so the word beside the dot has to follow a
+ * language change without a reconnect.
+ */
+const stateLabel = computed(() => ({
+  connecting: t('schedule.jobLog.connecting'),
+  open: t('schedule.jobLog.open'),
+  closed: t('schedule.jobLog.closed')
+}[state.value]))
 const lines = ref<Array<{ id: number, at: string, text: string }>>([])
 const viewport = ref<HTMLElement>()
 

@@ -3,25 +3,52 @@
     <el-row>
       <el-col :span="12">
         <el-form-item prop="tableName">
-          <template #label><FieldLabel label="数据表名称" tip="数据库表名称，针对gorm对应的table()使用，⚠️这里必须是蛇形结构" /></template>
-          <el-input v-model="model.tableName" placeholder="请输入表名称" />
+          <template #label>
+            <FieldLabel
+              :label="$t('devTools.basicInfoForm.tableName')"
+              :tip="$t('devTools.basicInfoForm.tableNameTip')"
+            />
+          </template>
+          <el-input
+            v-model="model.tableName"
+            :placeholder="$t('devTools.basicInfoForm.tableNamePlaceholder')"
+          />
         </el-form-item>
       </el-col>
       <el-col :span="12">
         <el-form-item prop="tableComment">
-          <template #label><FieldLabel label="菜单名称" tip="同步的数据库表名称，生成配置数据时，用作菜单名称" /></template>
-          <el-input v-model="model.tableComment" placeholder="请输入菜单名称" />
+          <template #label>
+            <FieldLabel
+              :label="$t('devTools.basicInfoForm.tableComment')"
+              :tip="$t('devTools.basicInfoForm.tableCommentTip')"
+            />
+          </template>
+          <el-input
+            v-model="model.tableComment"
+            :placeholder="$t('devTools.basicInfoForm.tableCommentPlaceholder')"
+          />
         </el-form-item>
       </el-col>
       <el-col :span="12">
         <el-form-item prop="className">
-          <template #label><FieldLabel label="结构体模型名称" tip="结构体模型名称，代码中的struct名称定义使用" /></template>
-          <el-input v-model="model.className" placeholder="请输入" />
+          <template #label>
+            <FieldLabel
+              :label="$t('devTools.basicInfoForm.className')"
+              :tip="$t('devTools.basicInfoForm.classNameTip')"
+            />
+          </template>
+          <el-input
+            v-model="model.className"
+            :placeholder="$t('devTools.basicInfoForm.classNamePlaceholder')"
+          />
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="作者名称" prop="functionAuthor">
-          <el-input v-model="model.functionAuthor" placeholder="请输入作者名称" />
+        <el-form-item :label="$t('devTools.basicInfoForm.functionAuthor')" prop="functionAuthor">
+          <el-input
+            v-model="model.functionAuthor"
+            :placeholder="$t('devTools.basicInfoForm.functionAuthorPlaceholder')"
+          />
         </el-form-item>
       </el-col>
       <!-- <el-col :span="12">
@@ -40,7 +67,7 @@
         </el-form-item>
       </el-col> -->
       <el-col :span="24">
-        <el-form-item label="备注" prop="remark">
+        <el-form-item :label="$t('devTools.basicInfoForm.remark')" prop="remark">
           <el-input v-model="model.remark" type="textarea" :rows="3" />
         </el-form-item>
       </el-col>
@@ -48,13 +75,14 @@
   </el-form>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { FormInstance, FormRules } from 'element-plus'
 import FieldLabel from '@/components/FieldLabel/index.vue'
 import type { GenTable } from '@/api/tools/gen'
 
 /**
- * The 基本信息 tab.
+ * The Basic Information tab.
  *
  * Holds the record through defineModel rather than copying a prop into local
  * state and emitting back. The previous version did the copy, but the parent
@@ -64,25 +92,51 @@ import type { GenTable } from '@/api/tools/gen'
  */
 defineOptions({ name: 'BasicInfoForm' })
 
+const { t } = useI18n()
+
 const model = defineModel<GenTable>({ required: true })
 
 const formRef = ref<FormInstance>()
 
-const rules: FormRules = {
+/**
+ * Rebuilt whenever the language changes.
+ *
+ * A plain object here is evaluated once, when the component is set up, so a
+ * message already rendered under a field would keep the language it was built
+ * in -- and this page is kept alive, so re-entering it does not re-run setup
+ * either. el-form revalidates when its rules change (validateOnRuleChange),
+ * which is what repaints a message that is already on screen. The template
+ * unwraps the ref, so :rules="rules" is unchanged.
+ */
+const rules = computed<FormRules>(() => ({
   tableName: [
-    { required: true, message: '请输入表名称', trigger: 'blur' },
-    { pattern: /^[a-z._]*$/, trigger: 'blur', message: '只允许小写字母，例如 sys_demo' }
+    { required: true, message: t('devTools.basicInfoForm.rules.tableName'), trigger: 'blur' },
+    {
+      pattern: /^[a-z._]*$/,
+      trigger: 'blur',
+      message: t('devTools.basicInfoForm.rules.tableNamePattern')
+    }
   ],
-  tableComment: [{ required: true, message: '请输入菜单名称', trigger: 'blur' }],
+  tableComment: [
+    { required: true, message: t('devTools.basicInfoForm.rules.tableComment'), trigger: 'blur' }
+  ],
   className: [
-    { required: true, message: '请输入模型名称', trigger: 'blur' },
-    { pattern: /^[A-Z][A-Za-z0-9]*$/, trigger: 'blur', message: '必须以大写字母开头，例如 SysDemo' }
+    { required: true, message: t('devTools.basicInfoForm.rules.className'), trigger: 'blur' },
+    {
+      pattern: /^[A-Z][A-Za-z0-9]*$/,
+      trigger: 'blur',
+      message: t('devTools.basicInfoForm.rules.classNamePattern')
+    }
   ],
   functionAuthor: [
-    { required: true, message: '请输入作者', trigger: 'blur' },
-    { pattern: /^[A-Za-z]+$/, trigger: 'blur', message: '只允许字母 a-z 或 A-Z' }
+    { required: true, message: t('devTools.basicInfoForm.rules.functionAuthor'), trigger: 'blur' },
+    {
+      pattern: /^[A-Za-z]+$/,
+      trigger: 'blur',
+      message: t('devTools.basicInfoForm.rules.functionAuthorPattern')
+    }
   ]
-}
+}))
 
 /** The parent validates both tabs before it submits. */
 defineExpose({ validate: () => formRef.value?.validate().catch(() => false) })

@@ -2,29 +2,54 @@
   <PageContainer>
     <ProTable :table="table" selection row-key="tableId" :actions-width="170">
       <template #search>
-        <el-form-item label="表名称">
-          <el-input v-model="table.query.tableName" placeholder="请输入表名称" clearable style="width: 170px" />
+        <el-form-item :label="$t('devTools.gen.tableName')">
+          <el-input
+            v-model="table.query.tableName"
+            :placeholder="$t('devTools.gen.tableNamePlaceholder')"
+            clearable
+            style="width: 170px"
+          />
         </el-form-item>
-        <el-form-item label="菜单名称">
-          <el-input v-model="table.query.tableComment" placeholder="请输入菜单名称" clearable style="width: 170px" />
+        <el-form-item :label="$t('devTools.gen.tableComment')">
+          <el-input
+            v-model="table.query.tableComment"
+            :placeholder="$t('devTools.gen.tableCommentPlaceholder')"
+            clearable
+            style="width: 170px"
+          />
         </el-form-item>
       </template>
 
       <template #toolbar>
-        <el-button type="primary" @click="importVisible = true">导入</el-button>
+        <el-button type="primary" @click="importVisible = true">{{ $t('devTools.gen.import') }}</el-button>
         <el-button
           type="danger"
           plain
           :disabled="table.multiple"
           @click="remove(table.selectedIds)"
-        >删除</el-button>
+        >{{ $t('common.delete') }}</el-button>
       </template>
 
-      <el-table-column label="序号" prop="tableId" width="70" />
-      <el-table-column label="表名称" prop="tableName" min-width="150" show-overflow-tooltip />
-      <el-table-column label="菜单名称" prop="tableComment" min-width="150" show-overflow-tooltip />
-      <el-table-column label="模型名称" prop="className" min-width="150" show-overflow-tooltip />
-      <el-table-column label="创建时间" prop="createdAt" min-width="110">
+      <el-table-column :label="$t('devTools.gen.tableId')" prop="tableId" width="70" />
+      <el-table-column
+        :label="$t('devTools.gen.tableName')"
+        prop="tableName"
+        min-width="150"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        :label="$t('devTools.gen.tableComment')"
+        prop="tableComment"
+        min-width="150"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        :label="$t('devTools.gen.className')"
+        prop="className"
+        min-width="150"
+        show-overflow-tooltip
+      />
+      <el-table-column :label="$t('common.createdAt')" prop="createdAt" min-width="110">
         <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
       </el-table-column>
 
@@ -35,18 +60,18 @@
         the rest behind a menu.
       -->
       <template #actions="{ row }">
-        <el-button link type="primary" @click="edit(row)">编辑</el-button>
-        <el-button link type="primary" @click="preview(row)">预览</el-button>
+        <el-button link type="primary" @click="edit(row)">{{ $t('devTools.gen.edit') }}</el-button>
+        <el-button link type="primary" @click="preview(row)">{{ $t('devTools.gen.preview') }}</el-button>
         <el-dropdown trigger="click" @command="(command: Command) => run(command, row)">
-          <el-button link type="primary" class="row-icon-action" title="更多操作">
+          <el-button link type="primary" class="row-icon-action" :title="$t('devTools.gen.moreActions')">
             <el-icon><MoreFilled /></el-icon>
           </el-button>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item command="project">生成到项目</el-dropdown-item>
-              <el-dropdown-item command="db">生成配置</el-dropdown-item>
-              <el-dropdown-item command="api">生成迁移脚本</el-dropdown-item>
-              <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
+              <el-dropdown-item command="project">{{ $t('devTools.gen.generateToProject') }}</el-dropdown-item>
+              <el-dropdown-item command="db">{{ $t('devTools.gen.generateConfig') }}</el-dropdown-item>
+              <el-dropdown-item command="api">{{ $t('devTools.gen.generateMigration') }}</el-dropdown-item>
+              <el-dropdown-item command="delete" divided>{{ $t('common.delete') }}</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -56,9 +81,14 @@
     <!--
       v-model binds `previewOpen`. It used to bind `open`, which no data property
       ever declared, so Vue warned on every render and the dialog never appeared:
-      clicking 预览 fetched every template and showed none of them.
+      clicking Preview fetched every template and showed none of them.
     -->
-    <el-dialog v-model="previewOpen" title="代码预览" fullscreen :close-on-click-modal="false">
+    <el-dialog
+      v-model="previewOpen"
+      :title="$t('devTools.gen.previewTitle')"
+      fullscreen
+      :close-on-click-modal="false"
+    >
       <div class="gen-preview">
         <div class="gen-preview__tabs">
           <el-tag
@@ -84,6 +114,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { Codemirror } from 'vue-codemirror'
 import { MoreFilled } from '@element-plus/icons-vue'
@@ -103,6 +134,7 @@ import type { SysTables, GenTableQuery } from '@/api/tools/gen'
 // Must match the menu_name the backend serves, or keep-alive silently misses
 defineOptions({ name: 'Gen' })
 
+const { t } = useI18n()
 const router = useRouter()
 
 const table = useTable<SysTables, GenTableQuery>({
@@ -113,7 +145,9 @@ const table = useTable<SysTables, GenTableQuery>({
 
 const { remove } = useRemove({
   api: delTable,
-  confirmText: count => `确认删除选中的 ${count} 张表的生成配置？`,
+  // A function, so the sentence is built when the dialog opens rather than when
+  // the page was set up -- the language may have changed in between
+  confirmText: count => t('devTools.gen.deleteConfirm', { count }, count),
   onSuccess: () => table.getList()
 })
 
@@ -166,7 +200,7 @@ const run = async(command: Command, row: SysTables) => {
   generating = true
   try {
     const response = await GENERATORS[command](Number(row.tableId))
-    msgSuccess(response.msg || '已生成')
+    msgSuccess(response.msg || t('devTools.gen.generated'))
   } catch {
     // Reported by the interceptor
   } finally {

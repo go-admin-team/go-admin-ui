@@ -1,36 +1,36 @@
 <template>
   <el-card>
     <el-tabs v-model="activeName">
-      <el-tab-pane label="基本信息" name="basic">
+      <el-tab-pane :label="$t('devTools.editTable.tabBasic')" name="basic">
         <BasicInfoForm ref="basicForm" v-model="info" />
       </el-tab-pane>
-      <el-tab-pane label="字段信息" name="cloum">
+      <el-tab-pane :label="$t('devTools.editTable.tabColumns')" name="cloum">
         <el-alert
-          title="⚠️表字段中的id、create_by、update_by、created_at、updated_at、deleted_at的字段在此列表中已经隐藏"
+          :title="$t('devTools.editTable.hiddenColumns')"
           type="warning"
           show-icon
         />
         <el-table :data="columns" max-height="calc(100vh - 300px)" style="width: 100%">
-          <el-table-column fixed label="序号" type="index" width="50" />
+          <el-table-column fixed :label="$t('devTools.editTable.index')" type="index" width="50" />
           <el-table-column
             fixed
-            label="字段列名"
+            :label="$t('devTools.editTable.columnName')"
             prop="columnName"
             width="150"
             :show-overflow-tooltip="true"
           />
-          <el-table-column fixed label="字段描述" width="150">
+          <el-table-column fixed :label="$t('devTools.editTable.columnComment')" width="150">
             <template #default="scope">
               <el-input v-model="scope.row.columnComment" />
             </template>
           </el-table-column>
           <el-table-column
-            label="物理类型"
+            :label="$t('devTools.editTable.columnType')"
             prop="columnType"
             width="120"
             :show-overflow-tooltip="true"
           />
-          <el-table-column label="go类型" width="120">
+          <el-table-column :label="$t('devTools.editTable.goType')" width="120">
             <template #default="scope">
               <el-select v-model="scope.row.goType">
                 <el-option label="int64" value="int64" />
@@ -40,18 +40,18 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column label="go属性" width="150">
+          <el-table-column :label="$t('devTools.editTable.goField')" width="150">
             <template #default="scope">
               <el-input v-model="scope.row.goField" />
             </template>
           </el-table-column>
-          <el-table-column label="json属性" width="150">
+          <el-table-column :label="$t('devTools.editTable.jsonField')" width="150">
             <template #default="scope">
               <el-input v-model="scope.row.jsonField" />
             </template>
           </el-table-column>
 
-          <el-table-column label="编辑" width="50">
+          <el-table-column :label="$t('devTools.editTable.isInsert')" width="50">
             <template #default="scope">
               <el-checkbox v-model="scope.row.isInsert" true-value="1" false-value="0" />
             </template>
@@ -63,19 +63,29 @@
             whole header row with it: the table rendered with zero <th> and no
             column labels at all.
           -->
-          <el-table-column label="列表" width="80" align="center">
-            <template #header><FieldLabel label="列表" tip="是否在列表中展示，打勾表示展示" /></template>
+          <el-table-column :label="$t('devTools.editTable.isList')" width="80" align="center">
+            <template #header>
+              <FieldLabel
+                :label="$t('devTools.editTable.isList')"
+                :tip="$t('devTools.editTable.isListTip')"
+              />
+            </template>
             <template #default="scope">
               <el-checkbox v-model="scope.row.isList" true-value="1" false-value="0" />
             </template>
           </el-table-column>
-          <el-table-column label="查询" width="80" align="center">
-            <template #header><FieldLabel label="查询" tip="是否作为搜索条件，打勾表示作为条件" /></template>
+          <el-table-column :label="$t('devTools.editTable.isQuery')" width="80" align="center">
+            <template #header>
+              <FieldLabel
+                :label="$t('devTools.editTable.isQuery')"
+                :tip="$t('devTools.editTable.isQueryTip')"
+              />
+            </template>
             <template #default="scope">
               <el-checkbox v-model="scope.row.isQuery" true-value="1" false-value="0" />
             </template>
           </el-table-column>
-          <el-table-column label="查询方式" width="120">
+          <el-table-column :label="$t('devTools.editTable.queryType')" width="120">
             <template #default="scope">
               <el-select v-model="scope.row.queryType">
                 <el-option label="=" value="EQ" />
@@ -89,43 +99,54 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column label="必填" width="50">
+          <el-table-column :label="$t('devTools.editTable.isRequired')" width="50">
             <template #default="scope">
               <el-checkbox v-model="scope.row.isRequired" true-value="1" false-value="0" />
             </template>
           </el-table-column>
-          <el-table-column label="显示类型" width="140">
+          <el-table-column :label="$t('devTools.editTable.htmlType')" width="140">
             <template #default="scope">
               <el-select v-model="scope.row.htmlType">
-                <el-option label="文本框" value="input" />
-                <el-option label="下拉框" value="select" />
-                <el-option label="单选框" value="radio" />
+                <el-option :label="$t('devTools.editTable.htmlTypes.input')" value="input" />
+                <el-option :label="$t('devTools.editTable.htmlTypes.select')" value="select" />
+                <el-option :label="$t('devTools.editTable.htmlTypes.radio')" value="radio" />
                 <!-- <el-option label="文件选择" value="file" /> -->
                 <!-- <el-option label="复选框" value="checkbox" />
                 <el-option label="日期控件" value="datetime" />-->
-                <el-option label="文本域" value="textarea" />
+                <el-option :label="$t('devTools.editTable.htmlTypes.textarea')" value="textarea" />
 
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column label="字典类型" width="160">
+          <el-table-column :label="$t('devTools.editTable.dictType')" width="160">
             <template #default="scope">
-              <el-select v-model="scope.row.dictType" clearable filterable placeholder="请选择">
+              <el-select
+                v-model="scope.row.dictType"
+                clearable
+                filterable
+                :placeholder="$t('devTools.editTable.selectPlaceholder')"
+              >
                 <el-option
                   v-for="dict in dictOptions"
                   :key="dict.dictType"
-                  :label="dict.dictName"
+                  :label="dictTypeName(dict)"
                   :value="dict.dictType"
                 >
-                  <span style="float: left">{{ dict.dictName }}</span>
+                  <span style="float: left">{{ dictTypeName(dict) }}</span>
                   <span style="float: right; color: #8492a6; font-size: 13px">{{ dict.dictType }}</span>
                 </el-option>
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column label="关系表" width="160">
+          <el-table-column :label="$t('devTools.editTable.fkTableName')" width="160">
             <template #default="scope">
-              <el-select v-model="scope.row.fkTableName" clearable filterable placeholder="请选择" @change="attachForeignColumns(scope.row)">
+              <el-select
+                v-model="scope.row.fkTableName"
+                clearable
+                filterable
+                :placeholder="$t('devTools.editTable.selectPlaceholder')"
+                @change="attachForeignColumns(scope.row)"
+              >
                 <el-option
                   v-for="table in tableTree"
                   :key="table.tableName"
@@ -138,9 +159,14 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column label="关系表key" width="150">
+          <el-table-column :label="$t('devTools.editTable.fkLabelId')" width="150">
             <template #default="scope">
-              <el-select v-model="scope.row.fkLabelId" clearable filterable placeholder="请选择">
+              <el-select
+                v-model="scope.row.fkLabelId"
+                clearable
+                filterable
+                :placeholder="$t('devTools.editTable.selectPlaceholder')"
+              >
                 <el-option
                   v-for="column in scope.row.fkCol"
                   :key="column.columnName"
@@ -153,9 +179,14 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column label="关系表value" width="150">
+          <el-table-column :label="$t('devTools.editTable.fkLabelName')" width="150">
             <template #default="scope">
-              <el-select v-model="scope.row.fkLabelName" clearable filterable placeholder="请选择">
+              <el-select
+                v-model="scope.row.fkLabelName"
+                clearable
+                filterable
+                :placeholder="$t('devTools.editTable.selectPlaceholder')"
+              >
                 <el-option
                   v-for="column in scope.row.fkCol"
                   :key="column.columnName"
@@ -170,25 +201,29 @@
           </el-table-column>
         </el-table>
       </el-tab-pane>
-      <el-tab-pane label="生成信息" name="genInfo">
+      <el-tab-pane :label="$t('devTools.editTable.tabGen')" name="genInfo">
         <GenInfoForm ref="genForm" v-model="info" />
       </el-tab-pane>
     </el-tabs>
     <el-form label-width="100px">
       <el-form-item style="text-align: center;margin-left:-100px;margin-top:10px;">
-        <el-button @click="close()">返回</el-button>
-        <el-button type="primary" :loading="saving" @click="submit()">提交</el-button>
+        <el-button @click="close()">{{ $t('devTools.editTable.back') }}</el-button>
+        <el-button type="primary" :loading="saving" @click="submit()">
+          {{ $t('devTools.editTable.submit') }}
+        </el-button>
       </el-form-item>
     </el-form>
   </el-card>
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
 import FieldLabel from '@/components/FieldLabel/index.vue'
 import BasicInfoForm from './basicInfoForm.vue'
 import GenInfoForm from './genInfoForm.vue'
+import { translateDictTypeName } from '@/lang/backend'
 import { useTagsViewStore } from '@/stores/tagsView'
 import { msgSuccess, msgError } from '@/utils/message'
 
@@ -200,6 +235,7 @@ import type { SysDictType } from '@/types/admin'
 // Must match the menu_name the backend serves, or keep-alive silently misses
 defineOptions({ name: 'EditTable' })
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
@@ -220,9 +256,20 @@ const basicForm = ref<{ validate: () => Promise<unknown> }>()
 const genForm = ref<{ validate: () => Promise<unknown> }>()
 
 /**
+ * The dictionary picker's option text.
+ *
+ * These names come from the database, so they arrive in Chinese whatever the
+ * interface language is -- but the seeded ones have a translation keyed by
+ * dict_type, which is what lang/backend.ts looks up. A dictionary the operator
+ * created has none and falls back to its stored name, which is also what zh-CN
+ * always gets: that language ships no dict.ts on purpose.
+ */
+const dictTypeName = (dict: SysDictType) => translateDictTypeName(dict.dictType, dict.dictName)
+
+/**
  * The relation pickers offer the columns of whichever table a row points at.
  *
- * Empty rather than a 请选择 placeholder row: the two el-options below bind
+ * Empty rather than a placeholder row: the two el-options below bind
  * `:value="column.jsonField"`, which that row does not carry, so it rendered an
  * option whose value was undefined and Element Plus warned on every one of them.
  * el-select shows its own placeholder when it has no options.
@@ -273,7 +320,7 @@ const submit = async() => {
   if (saving.value) return
   const results = await Promise.all([basicForm.value?.validate(), genForm.value?.validate()])
   if (!results.every(Boolean)) {
-    msgError('表单校验未通过，请重新检查提交内容')
+    msgError(t('devTools.editTable.validationFailed'))
     return
   }
 
@@ -293,7 +340,7 @@ const submit = async() => {
       isAuth: info.value.isAuth === 'true'
     }
     const response = await updateGenTable(payload)
-    msgSuccess(response.msg || '保存成功')
+    msgSuccess(response.msg || t('devTools.editTable.saveSuccess'))
     await close()
   } catch {
     // Reported by the interceptor
