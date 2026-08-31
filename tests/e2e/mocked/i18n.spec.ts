@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { authenticate, installApiMocks } from './fixtures'
+import { readWorkbook, values } from './support/workbook'
 
 /**
  * Switching language, and the three places that quietly do not follow.
@@ -322,6 +323,128 @@ test.describe('switching language', () => {
     await page.getByRole('menuitem', { name: 'English', exact: true }).click()
 
     await expect(dialog.locator('.el-dialog__title')).toHaveText('Add User')
+  })
+
+  /**
+   * The same freeze as the sys-user test above, on the batch that followed.
+   *
+   * Five of the seven pages in it declared `const rules: FormRules = { ... }`
+   * at setup, which runs once -- so a message built from t() there keeps the
+   * language the page was opened in, and nothing reports it: validation goes on
+   * working, the dialog goes on rejecting, the sentence under the field is just
+   * in the wrong language. Asserting on a message triggered *after* the switch
+   * would not catch it, because reopening the dialog remounts el-form-item and
+   * repaints the error either way.
+   */
+  test('translates a validation message already on screen, on a page that is not sys-user', async({ page }) => {
+    await page.goto('/#/admin/sys-post')
+    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+
+    await page.locator('.pro-table__toolbar').getByRole('button', { name: '新增' }).click()
+
+    const dialog = page.locator('.el-dialog:visible')
+    await expect(dialog).toContainText('添加岗位')
+    await dialog.getByRole('button', { name: '确 定' }).click()
+
+    const errors = dialog.locator('.el-form-item__error')
+    await expect(errors.filter({ hasText: '岗位名称不能为空' })).toHaveCount(1)
+
+    // Dispatched rather than clicked: the dialog's overlay covers the navbar,
+    // so the switcher is genuinely unreachable by mouse while it is open. The
+    // event still lands on el-dropdown's own handler.
+    await page.locator('#lang-select').dispatchEvent('click')
+    await page.getByRole('menuitem', { name: 'English', exact: true }).click()
+
+    await expect(errors.filter({ hasText: 'Position name is required' })).toHaveCount(1)
+    await expect(errors.filter({ hasText: '岗位名称不能为空' })).toHaveCount(0)
+    // The title is read on every render, so it has to follow the same switch.
+    await expect(dialog.locator('.el-dialog__title')).toHaveText('Add Position')
+  })
+
+  /**
+   * The settings page, which reaches el-form directly rather than through
+   * useForm -- so nothing unwraps a ref for it and the computed has to be bound
+   * straight to `:rules`. It is also the one page in the batch with no dialog:
+   * the message sits on the page itself, where a reader can stare at it for as
+   * long as they like before switching.
+   */
+  test('translates a validation message on the settings form, which has no useForm', async({ page }) => {
+    await page.goto('/#/admin/sys-config/set')
+    await page.waitForSelector('.config-section')
+
+    await page.getByPlaceholder('请输入系统名称').fill('')
+    await page.getByRole('button', { name: '保存设置' }).click()
+
+    const error = page.locator('.el-form-item__error')
+    await expect(error).toHaveText('请输入系统名称')
+
+    await switchTo(page, 'English')
+
+    await expect(error).toHaveText('Please enter system name')
+  })
+
+  /**
+   * The one confirm box in the batch that useRemove does not own.
+   *
+   * Emptying the log asks separately, through an ElMessageBox the page builds
+   * itself -- four strings that the composables' translation never touched, so
+   * they had to be read at click time here for the same reason useRemove reads
+   * its own inside the call.
+   */
+  test('empties the operation log in English, box and buttons included', async({ page }) => {
+    const { calls } = await installApiMocks(page)
+
+    await page.goto('/#/admin/sys-oper-log')
+    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+
+    await switchTo(page, 'English')
+    await page.locator('.pro-table__toolbar').getByRole('button', { name: 'Clear' }).click()
+
+    const box = page.locator('.el-message-box')
+    await expect(box).toBeVisible()
+    await expect(box.locator('.el-message-box__title')).toHaveText('Notice')
+    await expect(box.locator('.el-message-box__message'))
+      .toHaveText('Clear every operation log? This cannot be undone.')
+    await expect(box.getByRole('button', { name: 'OK' })).toBeVisible()
+    await expect(box.getByRole('button', { name: 'Cancel' })).toBeVisible()
+    // The four assertions above name the parts that were Chinese; this one
+    // catches whichever part is next.
+    expect(await box.innerText(), 'Chinese left in the dialog').not.toMatch(/[一-龥]/)
+
+    await box.getByRole('button', { name: 'OK' }).click()
+    await expect.poll(() => calls.extra.operLogClean).toBe(1)
+    await expect(page.locator('.el-message--success')).toContainText('Cleared')
+  })
+
+  /**
+   * The exported sheet, which is written rather than rendered.
+   *
+   * Its headings and its file name are the one piece of copy that leaves the
+   * browser, and they were built into a module-level array. Anything resolved
+   * once at setup would write Chinese headings into a workbook an English
+   * reader asked for -- and no assertion on the screen would notice, because
+   * the screen is correct.
+   */
+  test('writes the exported sheet in the language the reader asked in', async({ page }) => {
+    await page.goto('/#/admin/sys-post')
+    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+
+    await switchTo(page, 'English')
+    await page.locator('.pro-table__toolbar').getByRole('button', { name: 'Export' }).click()
+
+    // Located by role rather than by name: useExport still writes its own
+    // confirm in Chinese, which is not this test's subject.
+    const confirm = page.locator('.el-message-box')
+    await expect(confirm).toBeVisible()
+    const downloaded = page.waitForEvent('download')
+    await confirm.locator('.el-message-box__btns .el-button--primary').click()
+
+    const download = await downloaded
+    expect(download.suggestedFilename()).toBe('Position Management.xlsx')
+
+    const workbook = await readWorkbook(download)
+    const [header] = values(workbook)
+    expect(header).toEqual(['Position ID', 'Position Code', 'Position Name', 'Order', 'Created At'])
   })
 
   test('switches back', async({ page }) => {

@@ -3,6 +3,8 @@ import layout from './layout'
 import profile from './profile'
 import sysTools from './sys-tools'
 import demo from './demo'
+import devTools from './dev-tools'
+import schedule from './schedule'
 import route from './route'
 import components from './components'
 import login from './login'
@@ -19,4 +21,4 @@ import composables from './composables'
  * drift the first time someone renamed a menu. Chinese always falls through to
  * the database value; see lang/backend.ts.
  */
-export default { common, demo, sysTools, profile, layout, route, components, login, dashboard, admin, composables }
+export default { common, schedule, devTools, demo, sysTools, profile, layout, route, components, login, dashboard, admin, composables }
