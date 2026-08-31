@@ -470,6 +470,122 @@ test.describe('switching language', () => {
     expect(await box.innerText(), 'Chinese left in the dialog').not.toMatch(/[\u4e00-\u9fff]/)
   })
 
+  /**
+   * Toasts the server used to overrule.
+   *
+   * Every one of these call sites read `msgSuccess(response.msg || t('...'))`,
+   * which put the backend in charge of the wording and left the translation as
+   * a fallback that never ran -- these endpoints all answer with a message. It
+   * was wrong in both directions at once, and the fixtures hid it by answering
+   * with the same strings the language pack holds. They now answer what the
+   * real handlers answer.
+   */
+  test('reports a generated file in the reader\'s language, not the server\'s', async({ page }) => {
+    // The direction that needs no language switch at all: this endpoint replies
+    // in English (app/other/apis/tools/gen.go), so a Chinese user reading a
+    // Chinese interface was shown an English sentence.
+    await page.goto('/#/dev-tools/gen')
+    await page.waitForSelector('.el-table')
+
+    const row = page.getByRole('row', { name: /sys_demo/ })
+    await row.locator('.el-dropdown button').click()
+    await page.locator('.el-dropdown-menu:visible').getByText('生成配置').click()
+
+    const toast = page.locator('.el-message--success')
+    await expect(toast).toContainText('已生成')
+    await expect(toast).not.toContainText('Code generated successfully')
+  })
+
+  test('reports a saved setting in the reader\'s language, not the server\'s', async({ page }) => {
+    // And the other direction: this endpoint answers 更新成功 whoever is asking,
+    // so an English reader got a Chinese toast. Note it is not even the word
+    // the button promises -- the button says Save, the server says updated.
+    await page.goto('/#/admin/sys-config/set')
+    await page.waitForSelector('.config-section')
+
+    await switchTo(page, 'English')
+    await page.getByRole('button', { name: 'Save Settings' }).click()
+
+    const toast = page.locator('.el-message--success')
+    await expect(toast).toContainText('Saved successfully')
+    expect(await toast.innerText(), 'the server\'s Chinese reached the toast').not.toMatch(/[一-龥]/)
+  })
+
+  /**
+   * The import dialog, which no batch had touched at all.
+   *
+   * It was found by scanning for rendered Chinese rather than from the debt
+   * list: thirteen literals and no useI18n, sitting behind a toolbar button on
+   * an already-migrated page. Its own file rather than keys under gen.ts,
+   * because the two pages disagree on what tableComment means.
+   */
+  test('translates the import dialog, which is opened from a migrated page', async({ page }) => {
+    await page.goto('/#/dev-tools/gen')
+    await page.waitForSelector('.el-table')
+
+    await switchTo(page, 'English')
+    await page.locator('.pro-table__toolbar').getByRole('button', { name: 'Import' }).click()
+
+    const dialog = page.getByRole('dialog').filter({ hasText: 'Import Tables' })
+    await expect(dialog).toBeVisible()
+
+    // The count line is pluralised, which is the one string here Chinese does
+    // not need: 张表 covers any number.
+    await dialog.getByRole('cell', { name: 'sys_order' }).click()
+    await expect(dialog).toContainText('1 table selected')
+
+    // Nothing left behind -- title, search labels, column headers, buttons. The
+    // rows are deliberately excluded: 订单 is the comment MySQL holds on
+    // sys_order, and data out of the database stays in the language it was
+    // written in. That is the same line lang/backend.ts draws.
+    const chrome = [
+      await dialog.locator('.el-dialog__header').innerText(),
+      await dialog.locator('form').first().innerText(),
+      await dialog.locator('.el-table__header-wrapper').innerText(),
+      await dialog.locator('.el-dialog__footer').innerText()
+    ].join('\n')
+    expect(chrome, 'Chinese left in the import dialog').not.toMatch(/[一-龥]/)
+
+    await dialog.getByRole('button', { name: 'OK' }).click()
+    await expect(page.locator('.el-message--success')).toContainText('Imported successfully')
+  })
+
+  /**
+   * Dictionary columns in the exported sheet, which the screen gets right.
+   *
+   * The table renders status through dictLabel and shows 正常 / 关闭; the export
+   * projected the same field straight out of the row and wrote 2 and 1. Nobody
+   * looking at the page could tell -- the sheet is the half that leaves the
+   * browser, and it was the half that was wrong.
+   */
+  test('writes dictionary labels into the sheet, not the codes behind them', async({ page }) => {
+    await page.goto('/#/admin/sys-oper-log')
+    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+
+    await switchTo(page, 'English')
+    await page.locator('.pro-table__toolbar').getByRole('button', { name: 'Export' }).click()
+
+    const confirm = page.locator('.el-message-box')
+    await expect(confirm).toBeVisible()
+    const downloaded = page.waitForEvent('download')
+    await confirm.locator('.el-message-box__btns .el-button--primary').click()
+
+    const workbook = await readWorkbook(await downloaded)
+    const [, first, second] = values(workbook)
+
+    // Column order is fields: id, title, businessType, ..., status, operTime
+    expect(first[2], 'operation type written as a code').toBe('Add')
+    expect(first[8], 'status written as a code').toBe('Normal')
+    expect(second[2]).toBe('Delete')
+    expect(second[8]).toBe('Closed')
+
+    // And nothing anywhere in the sheet is still a bare status code.
+    for (const row of [first, second]) {
+      expect(row[2], 'businessType is still a raw code').not.toMatch(/^\d+$/)
+      expect(row[8], 'status is still a raw code').not.toMatch(/^\d+$/)
+    }
+  })
+
   test('switches back', async({ page }) => {
     // Going one way can pass on a stale-but-correct-looking first render.
     await openList(page)

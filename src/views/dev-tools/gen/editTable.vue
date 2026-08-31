@@ -339,8 +339,8 @@ const submit = async() => {
       isActions: info.value.isActions === 'true',
       isAuth: info.value.isAuth === 'true'
     }
-    const response = await updateGenTable(payload)
-    msgSuccess(response.msg || t('devTools.editTable.saveSuccess'))
+    await updateGenTable(payload)
+    msgSuccess(t('devTools.editTable.saveSuccess'))
     await close()
   } catch {
     // Reported by the interceptor

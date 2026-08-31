@@ -53,6 +53,10 @@ export const userInfo = {
       'admin:sysLoginLog:remove',
       'admin:sysOperLog:query',
       'admin:sysOperLog:remove',
+      // Without this the export button is not rendered at all, which is why
+      // nothing had ever exercised this page's export. sysRole and sysConfig
+      // export without a permission check, so they need no equivalent here.
+      'admin:sysOperLog:export',
       'admin:sysDictType:add',
       'admin:sysDictType:edit',
       'admin:sysDictType:remove',
@@ -135,6 +139,29 @@ export const menuTree = {
       icon: 'star',
       noCache: false,
       children: [
+        {
+          // Both of these mount an iframe and install a window resize handler.
+          // Absent from this tree until now, which is why nothing ever caught
+          // the two of them overwriting each other's handler.
+          path: 'swagger',
+          component: '/dev-tools/swagger/index',
+          visible: '0',
+          menuName: 'Swagger',
+          title: 'Swagger',
+          icon: 'star',
+          noCache: false,
+          children: null
+        },
+        {
+          path: 'build',
+          component: '/dev-tools/build/index',
+          visible: '0',
+          menuName: 'Build',
+          title: 'Build',
+          icon: 'star',
+          noCache: false,
+          children: null
+        },
         {
           path: 'gen',
           component: '/dev-tools/gen/index',
@@ -633,6 +660,12 @@ export const loginLogRows = [
 export const operLogRows = [
   {
     id: 1,
+    // title and businessType are shown in the detail drawer and written into
+    // the export, and were absent here until the export started resolving
+    // businessType through a dictionary -- an absent field exports as blank,
+    // which looks the same as a correct one.
+    title: '用户管理',
+    businessType: '1',
     operName: 'admin',
     requestMethod: 'POST',
     operUrl: '/api/v1/sys-user',
@@ -646,6 +679,8 @@ export const operLogRows = [
   },
   {
     id: 2,
+    title: '岗位管理',
+    businessType: '3',
     operName: 'tester',
     requestMethod: 'DELETE',
     operUrl: '/api/v1/post',
@@ -884,7 +919,19 @@ export async function installApiMocks(page: Page) {
       sys_show_hide: [{ label: '显示', value: '0' }, { label: '隐藏', value: '1' }],
       sys_common_status: [{ label: '正常', value: '2' }, { label: '关闭', value: '1' }],
       sys_job_status: [{ label: '正常', value: '2' }, { label: '停用', value: '1' }],
-      sys_job_group: [{ label: '默认', value: 'DEFAULT' }, { label: '系统', value: 'SYSTEM' }]
+      sys_job_group: [{ label: '默认', value: 'DEFAULT' }, { label: '系统', value: 'SYSTEM' }],
+      // All twelve, not the two the fallback below would supply: the operation
+      // log exports this column, and a value the options do not cover comes out
+      // of dictLabel as the code itself -- which is the exact failure the
+      // export fix is about.
+      sys_oper_type: [
+        { label: '新增', value: '1' }, { label: '修改', value: '2' },
+        { label: '删除', value: '3' }, { label: '授权', value: '4' },
+        { label: '导出', value: '5' }, { label: '导入', value: '6' },
+        { label: '强退', value: '7' }, { label: '生成代码', value: '8' },
+        { label: '清空数据', value: '9' }, { label: '登录', value: '10' },
+        { label: '退出', value: '11' }, { label: '获取验证码', value: '12' }
+      ]
     }
     const data = DICTS[dictType ?? ''] ?? [{ label: '停用', value: '1' }, { label: '正常', value: '2' }]
     await route.fulfill(json({ code: 200, data }))
@@ -958,7 +1005,13 @@ export async function installApiMocks(page: Page) {
   for (const action of ['toproject', 'todb', 'apitofile']) {
     await page.route(`**/api/v1/gen/${action}/*`, async route => {
       extra.generated.push(action)
-      await route.fulfill(json({ code: 200, msg: '已生成', data: null }))
+      // What the real endpoint answers, verbatim, full-width exclamation mark
+      // and all -- app/other/apis/tools/gen.go. It is English regardless of who
+      // is asking, which is why a Chinese user saw an English toast here for as
+      // long as the frontend preferred response.msg. The mock used to answer
+      // 已生成, matching the language pack exactly, so no test could tell which
+      // of the two sources had produced the text on screen.
+      await route.fulfill(json({ code: 200, msg: 'Code generated successfully！', data: null }))
     })
   }
 
@@ -974,19 +1027,24 @@ export async function installApiMocks(page: Page) {
 
   await page.route('**/api/v1/job/start/*', async route => {
     extra.jobStarts++
-    await route.fulfill(json({ code: 200, msg: '启动成功', data: null }))
+    // Empty, as the real one is: SysJob.StartJob never sets Msg.
+    await route.fulfill(json({ code: 200, msg: '', data: null }))
   })
 
   await page.route('**/api/v1/job/remove/*', async route => {
     extra.jobStops++
-    await route.fulfill(json({ code: 200, msg: '停止成功', data: null }))
+    // Also empty on success. RemoveJob sets Msg only when the stop times out,
+    // and answers 200 even then -- which is why this page still reads msg.
+    await route.fulfill(json({ code: 200, msg: '', data: null }))
   })
 
   await page.route('**/api/v1/set-config*', async route => {
     if (route.request().method() === 'PUT') {
       extra.setConfigSaves++
       extra.setConfigBody = route.request().postData() ?? ''
-      await route.fulfill(json({ code: 200, msg: '保存成功', data: null }))
+      // 更新成功 is what the endpoint answers (app/admin/apis/sys_config.go),
+      // not the 保存成功 the button promises -- see the gen mock above.
+      await route.fulfill(json({ code: 200, msg: '更新成功', data: null }))
       return
     }
     await route.fulfill(json({

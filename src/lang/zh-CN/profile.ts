@@ -1,11 +1,11 @@
 /**
  * The account pages: the summary card, the two tabs, and the avatar cropper.
  *
- * Every Chinese value is byte-for-byte what the interface renders today (PRD
- * R5), including `'请输入正确的邮箱地址` -- that leading apostrophe is in the
- * source and reaches the screen. Fixing it is a separate change; correcting it
- * here would make the e2e assertions that guard this migration fail for the
- * wrong reason.
+ * Every Chinese value is byte-for-byte what the interface renders today, except
+ * one that was not: the email rule used to read `'请输入正确的邮箱地址`, with a
+ * stray leading apostrophe that reached the screen. It was carried across as-is
+ * during the migration and corrected afterwards, so that the change to the
+ * wording and the change to where the wording lives stayed separate.
  */
 export default {
   title: '个人信息',
@@ -33,7 +33,7 @@ export default {
     rules: {
       nickName: '用户昵称不能为空',
       emailRequired: '邮箱地址不能为空',
-      emailFormat: "'请输入正确的邮箱地址",
+      emailFormat: '请输入正确的邮箱地址',
       phoneRequired: '手机号码不能为空',
       phoneFormat: '请输入正确的手机号码'
     }

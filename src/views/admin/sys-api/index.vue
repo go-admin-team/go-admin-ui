@@ -197,8 +197,10 @@ const form = useForm<SysApi, number>({
   // Computed, not `t(...)` directly: useForm reads the option on every render,
   // so a string resolved here once would pin the drawer to the language the
   // page was opened in.
+  // Only `edit`: the API list is populated by the backend registering its own
+  // routes, so this page has no create path -- no button, no openCreate call,
+  // and `api` below has no `add`. A create title here could never render.
   title: {
-    create: computed(() => t('admin.sysApi.addTitle')),
     edit: computed(() => t('admin.sysApi.editTitle'))
   },
   api: { get: getSysApi, update: updateSysApi },

@@ -177,7 +177,10 @@ defineOptions({ name: 'OperLog' })
 
 const { t } = useI18n()
 
-const { sys_common_status } = useDict('sys_common_status')
+// sys_oper_type has no column of its own -- the table shows 模块 instead --
+// but the export has always carried the field, and carried it as the raw 1/2/3
+// the backend stores. Fetched here so the sheet can say what the number means.
+const { sys_common_status, sys_oper_type } = useDict('sys_common_status', 'sys_oper_type')
 
 const table = useTable<SysOperaLog, SysOperaLogQuery>({
   api: listSysOperlog,
@@ -282,7 +285,15 @@ const handleExport = () => exportExcel({
     t('admin.sysOperLog.exportHeader.operDate')
   ],
   fields: ['id', 'title', 'businessType', 'operName', 'operIp', 'operLocation', 'requestMethod', 'operUrl', 'status', 'operTime'],
-  rows: table.rows as Array<Record<string, unknown>>,
+  // Dictionary-backed columns are resolved here rather than written as the
+  // codes they are stored as. The sheet used to say 1 and 2 in the two columns
+  // the table renders as 正常/关闭 and 新增/修改 -- readable on screen,
+  // meaningless in the file, and the file is the half that gets sent on.
+  rows: table.rows.map(row => ({
+    ...row,
+    businessType: dictLabel(sys_oper_type.value, row.businessType),
+    status: dictLabel(sys_common_status.value, row.status)
+  })) as Array<Record<string, unknown>>,
   filename: t('admin.sysOperLog.exportFilename')
 })
 </script>

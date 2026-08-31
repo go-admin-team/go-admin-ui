@@ -26,20 +26,11 @@ export default {
   moduleName: '接口路径',
   moduleNameTip: "接口路径，例如：api/v1/{'{'}sys-user{'}'}",
 
-  // ── The tree section, shown only for tplCategory 'tree' ──────────
-  otherInfo: '其他信息',
-  treeCode: '树编码字段',
-  treeCodeTip: '树显示的编码字段名， 如：dept_id',
-  treeParentCode: '树父编码字段',
-  treeParentCodeTip: '树显示的父编码字段名， 如：parent_Id',
-  treeName: '树名称字段',
-  treeNameTip: '树节点的显示名称字段名， 如：dept_name',
-
   rules: {
     tplCategory: '请选择生成模板',
-    packageName: '请输入生成包路径',
+    packageName: '请输入应用名',
     packageNamePattern: '只允许小写字母，例如 system',
-    moduleName: '请输入生成模块名',
+    moduleName: '请输入接口路径',
     moduleNamePattern: '只允许小写字母，例如 sys-demo',
     businessName: '请输入生成业务名',
     businessNamePattern: '字母开头，只允许 a-z 与 A-Z',

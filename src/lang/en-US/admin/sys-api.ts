@@ -15,7 +15,6 @@ export default {
   peekType: 'Type: {value}',
   peekTitle: 'Title: {value}',
 
-  addTitle: 'Add API',
   editTitle: 'Edit API',
   typePlaceholder: 'Please select a type',
   actionPlaceholder: 'Please select a method',

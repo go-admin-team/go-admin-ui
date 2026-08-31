@@ -224,7 +224,7 @@ import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
 import { STATUS_NORMAL } from '@/api/status'
-import { useTable, useForm, useRemove, useDict, useExport } from '@/composables'
+import { useTable, useForm, useRemove, useDict, useExport, dictLabel } from '@/composables'
 import { msgSuccess } from '@/utils/message'
 
 import {
@@ -424,7 +424,12 @@ const handleExport = () => exportExcel({
     t('admin.sysRole.exportHeader.createdAt')
   ],
   fields: ['roleId', 'roleName', 'roleKey', 'roleSort', 'status', 'createdAt'],
-  rows: table.rows as Array<Record<string, unknown>>,
+  // The switch in the status column reads 2 as on and 1 as off; the sheet used
+  // to write those digits. See sys-oper-log for the same fix.
+  rows: table.rows.map(row => ({
+    ...row,
+    status: dictLabel(sys_normal_disable.value, row.status)
+  })) as Array<Record<string, unknown>>,
   filename: t('admin.sysRole.exportFilename')
 })
 </script>

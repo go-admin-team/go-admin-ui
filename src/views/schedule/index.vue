@@ -350,6 +350,14 @@ const toggle = async(row: SysJob, action: 'start' | 'stop') => {
     const call = action === 'start' ? startJob : removeJob
     const response = await call(row.jobId as number)
     const done = action === 'start' ? t('schedule.startSuccess') : t('schedule.stopSuccess')
+    // The one endpoint pair that keeps reading the server's message, unlike the
+    // success toasts elsewhere. It answers with an empty msg when the job
+    // actually started or stopped, so the translation below is what renders --
+    // but a stop that times out answers 200 with 操作超时！, and that is the
+    // only way the user hears about it. Replacing it with 停止成功 would turn a
+    // self-contradictory toast into a lie. The backend reporting a timeout as
+    // success is its own bug; until it is fixed, passing the message through is
+    // the honest option.
     msgSuccess(response.msg || done)
     await table.getList()
   } catch {

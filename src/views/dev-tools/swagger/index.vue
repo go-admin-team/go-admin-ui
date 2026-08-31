@@ -25,13 +25,24 @@ export default {
       loading: true
     }
   },
-  mounted: function() {
+  mounted() {
     setTimeout(() => {
       this.loading = false
     }, 230)
-    const that = this
-    window.onresize = function temp() {
-      that.height = document.documentElement.clientHeight - 94.5 + 'px;'
+    // addEventListener rather than window.onresize, and removed on the way out.
+    // Assigning to onresize gives the window one handler slot: this page and
+    // the form builder both claimed it, so whichever opened second silently
+    // replaced the other's -- and under keep-alive the first one's iframe then
+    // stopped resizing. Neither ever cleaned up, so the closure kept a
+    // reference to an unmounted component for the rest of the session.
+    window.addEventListener('resize', this.fitToWindow)
+  },
+  unmounted() {
+    window.removeEventListener('resize', this.fitToWindow)
+  },
+  methods: {
+    fitToWindow() {
+      this.height = document.documentElement.clientHeight - 94.5 + 'px;'
     }
   }
 }

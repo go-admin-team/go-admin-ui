@@ -13,6 +13,19 @@ import { ElMessage } from 'element-plus'
  * registration once every page is migrated.
  */
 
+/**
+ * Pass a translated string, never `response.msg`.
+ *
+ * Call sites used to read `msgSuccess(response.msg || t('...'))`, which put the
+ * server in charge of the wording and left the translation as a fallback that
+ * almost never ran -- these endpoints all answer with a message. The result was
+ * wrong in both directions at once: an English user saw 修改成功, and a Chinese
+ * user generating code saw the generator's "Code generated successfully！",
+ * because that endpoint happens to answer in English.
+ *
+ * Errors are the other way round and still read the server's message: a failure
+ * carries a reason the frontend has no copy for.
+ */
 export const msgSuccess = (msg: string) =>
   ElMessage({ showClose: true, message: msg, type: 'success' })
 

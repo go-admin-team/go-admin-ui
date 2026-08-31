@@ -6,6 +6,7 @@ import { getRoutes } from '@/api/admin/sys-role'
 // extension for a directory import, though Vite resolves either form.
 import Layout from '@/layout/index.vue'
 import { resolveRedirect } from '@/utils/route'
+import { i18n } from '@/lang'
 
 /** A menu record as returned by GET /api/v1/menurole */
 export interface BackendMenu {
@@ -137,7 +138,10 @@ export const usePermissionStore = defineStore('permission', {
       const response = await getRoutes()
 
       if (response.code !== 200) {
-        throw new Error(response.msg || '菜单数据加载异常')
+        // The server's message still wins here, unlike the success toasts:
+        // a failure carries a reason only the backend knows, and dropping it
+        // would leave the user with a sentence that never varies.
+        throw new Error(response.msg || i18n.global.t('common.menuLoadFailed'))
       }
 
       const menuData = (response.data || []) as BackendMenu[]

@@ -26,7 +26,6 @@ export default {
   peekTitle: '标题：{value}',
 
   // ── Edit ────────────────────────────────────────────────────────
-  addTitle: '添加接口',
   editTitle: '修改接口',
   typePlaceholder: '请选择类型',
   actionPlaceholder: '请选择方式',

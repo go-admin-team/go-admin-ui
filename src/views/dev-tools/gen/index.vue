@@ -199,8 +199,8 @@ const run = async(command: Command, row: SysTables) => {
   if (generating) return
   generating = true
   try {
-    const response = await GENERATORS[command](Number(row.tableId))
-    msgSuccess(response.msg || t('devTools.gen.generated'))
+    await GENERATORS[command](Number(row.tableId))
+    msgSuccess(t('devTools.gen.generated'))
   } catch {
     // Reported by the interceptor
   } finally {
