@@ -4,15 +4,15 @@
 
       <div class="config-wrapper">
 
-        <!-- ── 左侧导航 ── -->
+        <!-- ── Sidebar ── -->
         <div class="config-sidebar">
           <div class="sidebar-header">
             <div class="sidebar-icon-box">
               <el-icon :size="18" class="accent-icon"><Setting /></el-icon>
             </div>
             <div>
-              <p class="sidebar-header__title">系统配置</p>
-              <p class="sidebar-header__sub">基础信息与外观设置</p>
+              <p class="sidebar-header__title">{{ $t('admin.sysConfig.set.sidebarTitle') }}</p>
+              <p class="sidebar-header__sub">{{ $t('admin.sysConfig.set.sidebarSub') }}</p>
             </div>
           </div>
           <div class="sidebar-divider" />
@@ -33,10 +33,10 @@
           </div>
         </div>
 
-        <!-- ── 右侧主内容 ── -->
+        <!-- ── Main pane ── -->
         <div class="config-main">
 
-          <!-- 基础信息 -->
+          <!-- Basic information -->
           <transition name="fade-slide" mode="out-in">
             <div v-if="activeSection === 0" key="basic" class="config-section">
               <div class="section-head">
@@ -44,8 +44,8 @@
                   <el-icon :size="16" class="accent-icon"><OfficeBuilding /></el-icon>
                 </div>
                 <div>
-                  <p class="section-head__title">系统基础信息</p>
-                  <p class="section-head__desc">配置系统名称、Logo 及用户默认密码</p>
+                  <p class="section-head__title">{{ $t('admin.sysConfig.set.basicTitle') }}</p>
+                  <p class="section-head__desc">{{ $t('admin.sysConfig.set.basicDesc') }}</p>
                 </div>
               </div>
 
@@ -56,12 +56,12 @@
                     <img v-if="form.sys_app_logo" :src="form.sys_app_logo" alt="logo" class="logo-img">
                     <div v-else class="logo-empty">
                       <el-icon :size="24"><Picture /></el-icon>
-                      <span>暂无 Logo</span>
+                      <span>{{ $t('admin.sysConfig.set.logoEmpty') }}</span>
                     </div>
                   </div>
                   <div class="logo-meta">
-                    <p class="logo-meta__name">系统 Logo</p>
-                    <p class="logo-meta__hint">推荐 200×200，支持 JPG / PNG，大小不超过 2MB</p>
+                    <p class="logo-meta__name">{{ $t('admin.sysConfig.set.logoName') }}</p>
+                    <p class="logo-meta__hint">{{ $t('admin.sysConfig.set.logoHint') }}</p>
                     <el-upload
                       :headers="uploadHeaders"
                       :action="uploadAction"
@@ -70,7 +70,7 @@
                       :on-success="onLogoUploaded"
                     >
                       <el-button size="small" plain type="primary">
-                        <el-icon style="margin-right:4px"><Upload /></el-icon>上传图片
+                        <el-icon style="margin-right:4px"><Upload /></el-icon>{{ $t('admin.sysConfig.set.upload') }}
                       </el-button>
                     </el-upload>
                   </div>
@@ -81,15 +81,24 @@
                 <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
                   <el-row :gutter="20">
                     <el-col :span="12">
-                      <el-form-item label="系统名称" prop="sys_app_name">
-                        <el-input v-model="form.sys_app_name" placeholder="请输入系统名称" clearable>
+                      <el-form-item :label="$t('admin.sysConfig.set.appName')" prop="sys_app_name">
+                        <el-input
+                          v-model="form.sys_app_name"
+                          :placeholder="$t('admin.sysConfig.set.appNamePlaceholder')"
+                          clearable
+                        >
                           <template #prefix><el-icon><OfficeBuilding /></el-icon></template>
                         </el-input>
                       </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                      <el-form-item label="用户初始密码" prop="sys_user_initPassword">
-                        <el-input v-model="form.sys_user_initPassword" placeholder="请输入初始密码" clearable show-password>
+                      <el-form-item :label="$t('admin.sysConfig.set.initPassword')" prop="sys_user_initPassword">
+                        <el-input
+                          v-model="form.sys_user_initPassword"
+                          :placeholder="$t('admin.sysConfig.set.initPasswordPlaceholder')"
+                          clearable
+                          show-password
+                        >
                           <template #prefix><el-icon><Lock /></el-icon></template>
                         </el-input>
                       </el-form-item>
@@ -99,15 +108,15 @@
               </div>
             </div>
 
-            <!-- 外观设置 -->
+            <!-- Appearance -->
             <div v-else-if="activeSection === 1" key="theme" class="config-section">
               <div class="section-head">
                 <div class="section-head__icon-wrap">
                   <el-icon :size="16" class="accent-icon"><Brush /></el-icon>
                 </div>
                 <div>
-                  <p class="section-head__title">外观设置</p>
-                  <p class="section-head__desc">调整皮肤样式与侧栏主题风格</p>
+                  <p class="section-head__title">{{ $t('admin.sysConfig.set.appearance') }}</p>
+                  <p class="section-head__desc">{{ $t('admin.sysConfig.set.appearanceDesc') }}</p>
                 </div>
               </div>
 
@@ -115,23 +124,31 @@
                 <el-form label-position="top">
                   <el-row :gutter="20">
                     <el-col :span="12">
-                      <el-form-item label="皮肤样式">
-                        <el-select v-model="form.sys_index_skinName" placeholder="请选择皮肤样式" style="width:100%">
-                          <el-option v-for="(item, i) in sys_index_skinNameOptions" :key="i" :label="item.label" :value="item.value" />
+                      <el-form-item :label="$t('admin.sysConfig.set.skin')">
+                        <el-select
+                          v-model="form.sys_index_skinName"
+                          :placeholder="$t('admin.sysConfig.set.skinPlaceholder')"
+                          style="width:100%"
+                        >
+                          <el-option v-for="(item, i) in skinOptions" :key="i" :label="item.label" :value="item.value" />
                         </el-select>
                       </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                      <el-form-item label="侧栏主题">
-                        <el-select v-model="form.sys_index_sideTheme" placeholder="请选择侧栏主题" style="width:100%">
-                          <el-option v-for="(item, i) in sys_index_sideThemeOptions" :key="i" :label="item.label" :value="item.value" />
+                      <el-form-item :label="$t('admin.sysConfig.set.sideTheme')">
+                        <el-select
+                          v-model="form.sys_index_sideTheme"
+                          :placeholder="$t('admin.sysConfig.set.sideThemePlaceholder')"
+                          style="width:100%"
+                        >
+                          <el-option v-for="(item, i) in sideThemeOptions" :key="i" :label="item.label" :value="item.value" />
                         </el-select>
                       </el-form-item>
                     </el-col>
                   </el-row>
                 </el-form>
 
-                <p class="theme-label">点击快速切换主题</p>
+                <p class="theme-label">{{ $t('admin.sysConfig.set.themeHint') }}</p>
                 <div class="theme-row">
                   <div
                     class="theme-card"
@@ -146,7 +163,7 @@
                       </div>
                     </div>
                     <div class="tc-label">
-                      <span>深色主题</span>
+                      <span>{{ $t('admin.sysConfig.set.themeDark') }}</span>
                       <el-icon v-if="form.sys_index_sideTheme === 'theme-dark'" class="accent-icon"><Check /></el-icon>
                     </div>
                   </div>
@@ -163,7 +180,7 @@
                       </div>
                     </div>
                     <div class="tc-label">
-                      <span>浅色主题</span>
+                      <span>{{ $t('admin.sysConfig.set.themeLight') }}</span>
                       <el-icon v-if="form.sys_index_sideTheme === 'theme-light'" class="accent-icon"><Check /></el-icon>
                     </div>
                   </div>
@@ -172,10 +189,12 @@
             </div>
           </transition>
 
-          <!-- 操作栏 -->
+          <!-- Footer -->
           <div class="config-footer">
-            <el-button :loading="loading" @click="load">重置</el-button>
-            <el-button type="primary" :loading="saving" @click="submit">保存设置</el-button>
+            <el-button :loading="loading" @click="load">{{ $t('common.reset') }}</el-button>
+            <el-button type="primary" :loading="saving" @click="submit">
+              {{ $t('admin.sysConfig.set.save') }}
+            </el-button>
           </div>
 
         </div>
@@ -186,7 +205,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { FormInstance, FormRules, UploadProps } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { OfficeBuilding, Lock, Picture, Upload, Brush, Check, Setting } from '@element-plus/icons-vue'
@@ -199,6 +219,8 @@ import { msgSuccess } from '@/utils/message'
 
 // Must match the menu_name the backend serves, or keep-alive silently misses
 defineOptions({ name: 'SysConfigSet' })
+
+const { t } = useI18n()
 
 /**
  * The settings this page owns, and the only keys it will ever send.
@@ -225,23 +247,51 @@ const loading = ref(false)
 const saving = ref(false)
 const activeSection = ref(0)
 
-const rules: FormRules = {
-  sys_app_name: [{ required: true, message: '请输入系统名称', trigger: 'blur' }],
-  sys_user_initPassword: [{ required: true, message: '请输入初始密码', trigger: 'blur' }]
-}
+/**
+ * Rebuilt whenever the language changes.
+ *
+ * A plain object is evaluated once, when the page is set up, and this page is
+ * kept alive -- so a message already rendered under a field would keep the
+ * language it was built in. el-form revalidates when its rules change, which is
+ * what repaints one that is already on screen.
+ */
+const rules = computed<FormRules>(() => ({
+  sys_app_name: [{ required: true, message: t('admin.sysConfig.set.rules.appName'), trigger: 'blur' }],
+  sys_user_initPassword: [
+    { required: true, message: t('admin.sysConfig.set.rules.initPassword'), trigger: 'blur' }
+  ]
+}))
 
-// shallowRef: these are component definitions, and making them deeply reactive
-// buys nothing while costing a walk of every icon's internals
-const navItems = shallowRef([
-  { label: '基础信息', sub: '名称、Logo、密码', icon: OfficeBuilding },
-  { label: '外观设置', sub: '皮肤与主题风格', icon: Brush }
+/**
+ * The two sections of the page, rebuilt whenever the language changes.
+ *
+ * A computed rather than the shallowRef this replaces: the labels are the point
+ * of the list, and a plain array built at setup would keep the language the
+ * page was opened in. The icons ride along as plain component definitions --
+ * a computed hands its value back untouched, so nothing walks their internals,
+ * which is what the shallowRef was avoiding.
+ */
+const navItems = computed(() => [
+  {
+    label: t('admin.sysConfig.set.basic'),
+    sub: t('admin.sysConfig.set.basicSub'),
+    icon: OfficeBuilding
+  },
+  {
+    label: t('admin.sysConfig.set.appearance'),
+    sub: t('admin.sysConfig.set.appearanceSub'),
+    icon: Brush
+  }
 ])
 
-const sys_index_skinNameOptions = [{ label: '蓝色', value: 'skin-blue' }]
-const sys_index_sideThemeOptions = [
-  { label: '深色主题', value: 'theme-dark' },
-  { label: '浅色主题', value: 'theme-light' }
-]
+const skinOptions = computed(() => [
+  { label: t('admin.sysConfig.set.skinBlue'), value: 'skin-blue' }
+])
+
+const sideThemeOptions = computed(() => [
+  { label: t('admin.sysConfig.set.themeDark'), value: 'theme-dark' },
+  { label: t('admin.sysConfig.set.themeLight'), value: 'theme-light' }
+])
 
 /**
  * Doubles as the reset button.
@@ -278,7 +328,11 @@ const submit = async() => {
     const entries = Object.entries(form.value)
       .map(([configKey, configValue]) => ({ configKey, configValue }))
     const response = await updateSetConfig(entries)
-    msgSuccess(response.msg || '保存成功')
+    // The server's own message still wins, which is what renders today -- the
+    // endpoint answers 更新成功. It is Chinese in either language, and that is
+    // the one string on this page a switch cannot reach; translating the
+    // backend's messages is its own change.
+    msgSuccess(response.msg || t('admin.sysConfig.set.saveOk'))
 
     // The name and logo are in the shell, so the store has to hear about it
     useSystemStore().setInfo({
@@ -302,7 +356,7 @@ const uploadAction = process.env.VUE_APP_BASE_API + '/api/v1/public/uploadFile'
 
 const beforeLogoUpload: UploadProps['beforeUpload'] = file => {
   const withinLimit = file.size / 1024 / 1024 < 2
-  if (!withinLimit) ElMessage.error('文件大小超过 2MB')
+  if (!withinLimit) ElMessage.error(t('admin.sysConfig.set.logoTooLarge'))
   return withinLimit
 }
 
@@ -320,7 +374,7 @@ const onLogoUploaded: UploadProps['onSuccess'] = response => {
   color: var(--ga-brand);
 }
 
-// ── 页面容器 ──────────────────────────────────────────────
+// ── Page container ────────────────────────────────────────
 .sys-config-set {
   padding: 0;
 }
@@ -332,7 +386,7 @@ const onLogoUploaded: UploadProps['onSuccess'] = response => {
 }
 
 // ══════════════════════════════
-//  左侧导航卡
+//  Sidebar card
 // ══════════════════════════════
 .config-sidebar {
   width: 188px;
@@ -383,7 +437,7 @@ const onLogoUploaded: UploadProps['onSuccess'] = response => {
   margin: 0;
 }
 
-// 导航项
+// Nav item
 .nav-item {
   display: flex;
   align-items: center;
@@ -439,7 +493,7 @@ const onLogoUploaded: UploadProps['onSuccess'] = response => {
 }
 
 // ══════════════════════════════
-//  右侧主内容
+//  Main pane
 // ══════════════════════════════
 .config-main {
   flex: 1;
@@ -449,7 +503,7 @@ const onLogoUploaded: UploadProps['onSuccess'] = response => {
   gap: 12px;
 }
 
-// 内容分区卡片
+// Section card
 .config-section {
   background: var(--ga-bg-container);
   border-radius: 8px;
@@ -458,7 +512,7 @@ const onLogoUploaded: UploadProps['onSuccess'] = response => {
   overflow: hidden;
 }
 
-// 分区头部
+// Section head
 .section-head {
   display: flex;
   align-items: center;
@@ -494,12 +548,12 @@ const onLogoUploaded: UploadProps['onSuccess'] = response => {
   line-height: 1;
 }
 
-// 分区内容体
+// Section body
 .section-body {
   padding: 16px;
 }
 
-// ── Logo 区域 ──────────────────────────────────────────
+// ── Logo zone ─────────────────────────────────────────────
 .logo-zone {
   display: flex;
   align-items: center;
@@ -554,7 +608,7 @@ const onLogoUploaded: UploadProps['onSuccess'] = response => {
   line-height: 1.5;
 }
 
-// ── 主题选择 ─────────────────────────────────────────────
+// ── Theme picker ──────────────────────────────────────────
 .theme-label {
   margin: 12px 0 10px;
   font-size: 12px;
@@ -626,7 +680,7 @@ const onLogoUploaded: UploadProps['onSuccess'] = response => {
   border-top: 1px solid var(--ga-border-light);
 }
 
-// ── 底部操作栏 ────────────────────────────────────────────
+// ── Footer bar ────────────────────────────────────────────
 .config-footer {
   display: flex;
   justify-content: flex-end;
@@ -638,7 +692,7 @@ const onLogoUploaded: UploadProps['onSuccess'] = response => {
   box-shadow: 0 1px 2px var(--ga-shadow-1, rgba(0,0,0,0.05));
 }
 
-// ── 过渡动画 ─────────────────────────────────────────────
+// ── Transition ────────────────────────────────────────────
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: opacity 0.15s, transform 0.15s;

@@ -2,42 +2,76 @@
   <PageContainer>
     <ProTable :table="table" row-key="id" :actions-width="80">
       <template #search>
-        <el-form-item label="标题">
-          <el-input v-model="table.query.title" placeholder="请输入标题" clearable style="width: 160px" />
+        <el-form-item :label="$t('admin.sysApi.title')">
+          <el-input
+            v-model="table.query.title"
+            :placeholder="$t('admin.sysApi.titlePlaceholder')"
+            clearable
+            style="width: 160px"
+          />
         </el-form-item>
-        <el-form-item label="地址">
-          <el-input v-model="table.query.path" placeholder="请输入地址" clearable style="width: 200px" />
+        <el-form-item :label="$t('admin.sysApi.path')">
+          <el-input
+            v-model="table.query.path"
+            :placeholder="$t('admin.sysApi.pathPlaceholder')"
+            clearable
+            style="width: 200px"
+          />
         </el-form-item>
         <el-form-item label="Method">
-          <el-select v-model="table.query.action" placeholder="请选择" clearable style="width: 120px">
+          <el-select
+            v-model="table.query.action"
+            :placeholder="$t('admin.sysApi.selectPlaceholder')"
+            clearable
+            style="width: 120px"
+          >
             <el-option v-for="method in METHODS" :key="method" :value="method" :label="method" />
           </el-select>
         </el-form-item>
-        <el-form-item label="类型">
-          <el-select v-model="table.query.type" placeholder="请选择" clearable style="width: 110px">
+        <el-form-item :label="$t('admin.sysApi.type')">
+          <el-select
+            v-model="table.query.type"
+            :placeholder="$t('admin.sysApi.selectPlaceholder')"
+            clearable
+            style="width: 110px"
+          >
             <el-option value="SYS" label="SYS" />
             <el-option value="BUS" label="BUS" />
           </el-select>
         </el-form-item>
       </template>
 
-      <el-table-column label="标题" prop="title" min-width="240" sortable="custom" show-overflow-tooltip>
+      <el-table-column
+        :label="$t('admin.sysApi.title')"
+        prop="title"
+        min-width="240"
+        sortable="custom"
+        show-overflow-tooltip
+      >
         <template #default="{ row }">
           <!-- SYS routes are infrastructure and cannot be granted to a role,
                which is the distinction the colour carries. -->
-          <el-tag v-if="!row.title" type="danger" disable-transitions>暂无</el-tag>
+          <el-tag v-if="!row.title" type="danger" disable-transitions>{{ $t('admin.sysApi.none') }}</el-tag>
           <el-tag v-else :type="row.type === 'SYS' ? 'success' : 'info'" disable-transitions>
             [{{ row.type }}] {{ row.title }}
           </el-tag>
         </template>
       </el-table-column>
 
-      <el-table-column label="接口" prop="path" min-width="280" sortable="custom" show-overflow-tooltip>
+      <el-table-column
+        :label="$t('admin.sysApi.api')"
+        prop="path"
+        min-width="280"
+        sortable="custom"
+        show-overflow-tooltip
+      >
         <template #default="{ row }">
           <el-popover trigger="hover" placement="top" :width="360">
-            <p class="peek-line">Handle：{{ row.handle || '-' }}</p>
-            <p class="peek-line">类型：{{ row.type || '-' }}</p>
-            <p class="peek-line">标题：{{ row.title || '暂无' }}</p>
+            <p class="peek-line">{{ $t('admin.sysApi.peekHandle', { value: row.handle || '-' }) }}</p>
+            <p class="peek-line">{{ $t('admin.sysApi.peekType', { value: row.type || '-' }) }}</p>
+            <p class="peek-line">
+              {{ $t('admin.sysApi.peekTitle', { value: row.title || $t('admin.sysApi.none') }) }}
+            </p>
             <template #reference>
               <span><MethodTag :method="row.action" /> {{ row.path }}</span>
             </template>
@@ -45,13 +79,13 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="创建时间" prop="createdAt" min-width="120" sortable="custom">
+      <el-table-column :label="$t('common.createdAt')" prop="createdAt" min-width="120" sortable="custom">
         <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
       </el-table-column>
 
       <template #actions="{ row }">
         <el-button v-permisaction="['admin:sysApi:edit']" link type="primary" @click="form.openEdit(row)">
-          修改
+          {{ $t('common.edit') }}
         </el-button>
       </template>
     </ProTable>
@@ -65,35 +99,47 @@
         <el-form-item label="Handle" prop="handle">
           <el-input v-model="form.model.handle" placeholder="handle" />
         </el-form-item>
-        <el-form-item label="标题" prop="title">
-          <el-input v-model="form.model.title" placeholder="标题" />
+        <el-form-item :label="$t('admin.sysApi.title')" prop="title">
+          <el-input v-model="form.model.title" :placeholder="$t('admin.sysApi.title')" />
         </el-form-item>
-        <el-form-item label="类型" prop="type">
-          <el-select v-model="form.model.type" placeholder="请选择类型" style="width: 100%">
+        <el-form-item :label="$t('admin.sysApi.type')" prop="type">
+          <el-select
+            v-model="form.model.type"
+            :placeholder="$t('admin.sysApi.typePlaceholder')"
+            style="width: 100%"
+          >
             <el-option value="SYS" label="SYS" />
             <el-option value="BUS" label="BUS" />
           </el-select>
         </el-form-item>
         <el-form-item label="Method" prop="action">
-          <el-select v-model="form.model.action" placeholder="请选择方式" style="width: 100%">
+          <el-select
+            v-model="form.model.action"
+            :placeholder="$t('admin.sysApi.actionPlaceholder')"
+            style="width: 100%"
+          >
             <el-option v-for="method in METHODS" :key="method" :value="method" :label="method" />
           </el-select>
         </el-form-item>
-        <el-form-item label="地址" prop="path">
+        <el-form-item :label="$t('admin.sysApi.path')" prop="path">
           <!-- The path identifies the route; the backend registers it, so it is
                shown for confirmation rather than offered for editing. -->
-          <el-input v-model="form.model.path" disabled placeholder="地址" />
+          <el-input v-model="form.model.path" disabled :placeholder="$t('admin.sysApi.path')" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="form.close()">取 消</el-button>
-        <el-button type="primary" :loading="form.submitting" @click="form.submit()">确 定</el-button>
+        <el-button @click="form.close()">{{ $t('common.dialogCancel') }}</el-button>
+        <el-button type="primary" :loading="form.submitting" @click="form.submit()">
+          {{ $t('common.dialogConfirm') }}
+        </el-button>
       </template>
     </el-drawer>
   </PageContainer>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { FormRules } from 'element-plus'
 
 import PageContainer from '@/components/PageContainer/index.vue'
@@ -108,6 +154,8 @@ import type { SysApi, SysApiQuery } from '@/types/admin'
 // Must match the menu_name the backend serves, or keep-alive silently misses
 defineOptions({ name: 'SysApiManage' })
 
+const { t } = useI18n()
+
 const METHODS = ['GET', 'POST', 'PUT', 'DELETE']
 
 /**
@@ -121,11 +169,19 @@ const table = useTable<SysApi, SysApiQuery>({
   defaultQuery: () => ({ title: undefined, path: undefined, action: undefined, type: undefined })
 })
 
-const rules: FormRules = {
-  handle: [{ required: true, message: 'handle 不能为空', trigger: 'blur' }],
-  title: [{ required: true, message: '标题不能为空', trigger: 'blur' }],
-  type: [{ required: true, message: '类型不能为空', trigger: 'change' }]
-}
+/**
+ * Rebuilt whenever the language changes.
+ *
+ * A plain object here is evaluated once, when the page is set up, and the page
+ * is kept alive -- so a message already rendered under a field would keep the
+ * language it was built in. useForm unwraps the ref, so :rules="form.rules" is
+ * unchanged.
+ */
+const rules = computed<FormRules>(() => ({
+  handle: [{ required: true, message: t('admin.sysApi.rules.handle'), trigger: 'blur' }],
+  title: [{ required: true, message: t('admin.sysApi.rules.title'), trigger: 'blur' }],
+  type: [{ required: true, message: t('admin.sysApi.rules.type'), trigger: 'change' }]
+}))
 
 const form = useForm<SysApi, number>({
   defaultModel: () => ({
@@ -138,7 +194,13 @@ const form = useForm<SysApi, number>({
   }),
   idKey: 'id',
   rules,
-  title: { create: '添加接口', edit: '修改接口' },
+  // Computed, not `t(...)` directly: useForm reads the option on every render,
+  // so a string resolved here once would pin the drawer to the language the
+  // page was opened in.
+  title: {
+    create: computed(() => t('admin.sysApi.addTitle')),
+    edit: computed(() => t('admin.sysApi.editTitle'))
+  },
   api: { get: getSysApi, update: updateSysApi },
   onSuccess: () => table.getList()
 })
