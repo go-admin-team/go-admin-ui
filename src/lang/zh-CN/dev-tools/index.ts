@@ -2,6 +2,7 @@ import gen from './gen'
 import editTable from './edit-table'
 import basicInfoForm from './basic-info-form'
 import genInfoForm from './gen-info-form'
+import importTable from './import-table'
 
 /**
  * The dev-tools section, one module per page under src/views/dev-tools.
@@ -19,4 +20,4 @@ import genInfoForm from './gen-info-form'
  * build/index.vue is absent for the opposite reason -- it is not migrated yet,
  * and a half-migrated page is worse than an unmigrated one.
  */
-export default { gen, editTable, basicInfoForm, genInfoForm }
+export default { gen, editTable, basicInfoForm, genInfoForm, importTable }

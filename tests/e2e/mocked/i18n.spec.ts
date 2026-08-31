@@ -511,6 +511,45 @@ test.describe('switching language', () => {
     expect(await toast.innerText(), 'the server\'s Chinese reached the toast').not.toMatch(/[一-龥]/)
   })
 
+  /**
+   * The import dialog, which no batch had touched at all.
+   *
+   * It was found by scanning for rendered Chinese rather than from the debt
+   * list: thirteen literals and no useI18n, sitting behind a toolbar button on
+   * an already-migrated page. Its own file rather than keys under gen.ts,
+   * because the two pages disagree on what tableComment means.
+   */
+  test('translates the import dialog, which is opened from a migrated page', async({ page }) => {
+    await page.goto('/#/dev-tools/gen')
+    await page.waitForSelector('.el-table')
+
+    await switchTo(page, 'English')
+    await page.locator('.pro-table__toolbar').getByRole('button', { name: 'Import' }).click()
+
+    const dialog = page.getByRole('dialog').filter({ hasText: 'Import Tables' })
+    await expect(dialog).toBeVisible()
+
+    // The count line is pluralised, which is the one string here Chinese does
+    // not need: 张表 covers any number.
+    await dialog.getByRole('cell', { name: 'sys_order' }).click()
+    await expect(dialog).toContainText('1 table selected')
+
+    // Nothing left behind -- title, search labels, column headers, buttons. The
+    // rows are deliberately excluded: 订单 is the comment MySQL holds on
+    // sys_order, and data out of the database stays in the language it was
+    // written in. That is the same line lang/backend.ts draws.
+    const chrome = [
+      await dialog.locator('.el-dialog__header').innerText(),
+      await dialog.locator('form').first().innerText(),
+      await dialog.locator('.el-table__header-wrapper').innerText(),
+      await dialog.locator('.el-dialog__footer').innerText()
+    ].join('\n')
+    expect(chrome, 'Chinese left in the import dialog').not.toMatch(/[一-龥]/)
+
+    await dialog.getByRole('button', { name: 'OK' }).click()
+    await expect(page.locator('.el-message--success')).toContainText('Imported successfully')
+  })
+
   test('switches back', async({ page }) => {
     // Going one way can pass on a stale-but-correct-looking first render.
     await openList(page)
