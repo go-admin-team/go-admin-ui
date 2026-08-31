@@ -981,7 +981,13 @@ export async function installApiMocks(page: Page) {
   for (const action of ['toproject', 'todb', 'apitofile']) {
     await page.route(`**/api/v1/gen/${action}/*`, async route => {
       extra.generated.push(action)
-      await route.fulfill(json({ code: 200, msg: '已生成', data: null }))
+      // What the real endpoint answers, verbatim, full-width exclamation mark
+      // and all -- app/other/apis/tools/gen.go. It is English regardless of who
+      // is asking, which is why a Chinese user saw an English toast here for as
+      // long as the frontend preferred response.msg. The mock used to answer
+      // 已生成, matching the language pack exactly, so no test could tell which
+      // of the two sources had produced the text on screen.
+      await route.fulfill(json({ code: 200, msg: 'Code generated successfully！', data: null }))
     })
   }
 
@@ -997,19 +1003,24 @@ export async function installApiMocks(page: Page) {
 
   await page.route('**/api/v1/job/start/*', async route => {
     extra.jobStarts++
-    await route.fulfill(json({ code: 200, msg: '启动成功', data: null }))
+    // Empty, as the real one is: SysJob.StartJob never sets Msg.
+    await route.fulfill(json({ code: 200, msg: '', data: null }))
   })
 
   await page.route('**/api/v1/job/remove/*', async route => {
     extra.jobStops++
-    await route.fulfill(json({ code: 200, msg: '停止成功', data: null }))
+    // Also empty on success. RemoveJob sets Msg only when the stop times out,
+    // and answers 200 even then -- which is why this page still reads msg.
+    await route.fulfill(json({ code: 200, msg: '', data: null }))
   })
 
   await page.route('**/api/v1/set-config*', async route => {
     if (route.request().method() === 'PUT') {
       extra.setConfigSaves++
       extra.setConfigBody = route.request().postData() ?? ''
-      await route.fulfill(json({ code: 200, msg: '保存成功', data: null }))
+      // 更新成功 is what the endpoint answers (app/admin/apis/sys_config.go),
+      // not the 保存成功 the button promises -- see the gen mock above.
+      await route.fulfill(json({ code: 200, msg: '更新成功', data: null }))
       return
     }
     await route.fulfill(json({

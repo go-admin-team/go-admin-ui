@@ -470,6 +470,47 @@ test.describe('switching language', () => {
     expect(await box.innerText(), 'Chinese left in the dialog').not.toMatch(/[\u4e00-\u9fff]/)
   })
 
+  /**
+   * Toasts the server used to overrule.
+   *
+   * Every one of these call sites read `msgSuccess(response.msg || t('...'))`,
+   * which put the backend in charge of the wording and left the translation as
+   * a fallback that never ran -- these endpoints all answer with a message. It
+   * was wrong in both directions at once, and the fixtures hid it by answering
+   * with the same strings the language pack holds. They now answer what the
+   * real handlers answer.
+   */
+  test('reports a generated file in the reader\'s language, not the server\'s', async({ page }) => {
+    // The direction that needs no language switch at all: this endpoint replies
+    // in English (app/other/apis/tools/gen.go), so a Chinese user reading a
+    // Chinese interface was shown an English sentence.
+    await page.goto('/#/dev-tools/gen')
+    await page.waitForSelector('.el-table')
+
+    const row = page.getByRole('row', { name: /sys_demo/ })
+    await row.locator('.el-dropdown button').click()
+    await page.locator('.el-dropdown-menu:visible').getByText('生成配置').click()
+
+    const toast = page.locator('.el-message--success')
+    await expect(toast).toContainText('已生成')
+    await expect(toast).not.toContainText('Code generated successfully')
+  })
+
+  test('reports a saved setting in the reader\'s language, not the server\'s', async({ page }) => {
+    // And the other direction: this endpoint answers 更新成功 whoever is asking,
+    // so an English reader got a Chinese toast. Note it is not even the word
+    // the button promises -- the button says Save, the server says updated.
+    await page.goto('/#/admin/sys-config/set')
+    await page.waitForSelector('.config-section')
+
+    await switchTo(page, 'English')
+    await page.getByRole('button', { name: 'Save Settings' }).click()
+
+    const toast = page.locator('.el-message--success')
+    await expect(toast).toContainText('Saved successfully')
+    expect(await toast.innerText(), 'the server\'s Chinese reached the toast').not.toMatch(/[一-龥]/)
+  })
+
   test('switches back', async({ page }) => {
     // Going one way can pass on a stale-but-correct-looking first render.
     await openList(page)

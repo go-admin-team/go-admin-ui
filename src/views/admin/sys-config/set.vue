@@ -327,12 +327,8 @@ const submit = async() => {
   try {
     const entries = Object.entries(form.value)
       .map(([configKey, configValue]) => ({ configKey, configValue }))
-    const response = await updateSetConfig(entries)
-    // The server's own message still wins, which is what renders today -- the
-    // endpoint answers 更新成功. It is Chinese in either language, and that is
-    // the one string on this page a switch cannot reach; translating the
-    // backend's messages is its own change.
-    msgSuccess(response.msg || t('admin.sysConfig.set.saveOk'))
+    await updateSetConfig(entries)
+    msgSuccess(t('admin.sysConfig.set.saveOk'))
 
     // The name and logo are in the shell, so the store has to hear about it
     useSystemStore().setInfo({
