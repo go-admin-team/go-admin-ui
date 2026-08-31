@@ -136,6 +136,29 @@ export const menuTree = {
       noCache: false,
       children: [
         {
+          // Both of these mount an iframe and install a window resize handler.
+          // Absent from this tree until now, which is why nothing ever caught
+          // the two of them overwriting each other's handler.
+          path: 'swagger',
+          component: '/dev-tools/swagger/index',
+          visible: '0',
+          menuName: 'Swagger',
+          title: 'Swagger',
+          icon: 'star',
+          noCache: false,
+          children: null
+        },
+        {
+          path: 'build',
+          component: '/dev-tools/build/index',
+          visible: '0',
+          menuName: 'Build',
+          title: 'Build',
+          icon: 'star',
+          noCache: false,
+          children: null
+        },
+        {
           path: 'gen',
           component: '/dev-tools/gen/index',
           visible: '0',
