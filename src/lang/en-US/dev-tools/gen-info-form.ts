@@ -29,9 +29,9 @@ export default {
   // than quietly fixing one language and not the other
   rules: {
     tplCategory: 'Please select a generation template',
-    packageName: 'Please enter the package path',
+    packageName: 'Please enter the app name',
     packageNamePattern: 'Lowercase letters only, e.g. system',
-    moduleName: 'Please enter the module name',
+    moduleName: 'Please enter the API path',
     moduleNamePattern: 'Lowercase letters only, e.g. sys-demo',
     businessName: 'Please enter the business name',
     businessNamePattern: 'Must start with a letter; only a-z and A-Z are allowed',

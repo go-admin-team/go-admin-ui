@@ -37,9 +37,9 @@ export default {
 
   rules: {
     tplCategory: '请选择生成模板',
-    packageName: '请输入生成包路径',
+    packageName: '请输入应用名',
     packageNamePattern: '只允许小写字母，例如 system',
-    moduleName: '请输入生成模块名',
+    moduleName: '请输入接口路径',
     moduleNamePattern: '只允许小写字母，例如 sys-demo',
     businessName: '请输入生成业务名',
     businessNamePattern: '字母开头，只允许 a-z 与 A-Z',
