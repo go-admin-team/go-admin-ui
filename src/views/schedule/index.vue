@@ -128,7 +128,7 @@
       </template>
     </ProTable>
 
-    <el-dialog v-model="form.visible" v-dialogDrag :title="form.title" width="700px" :close-on-click-modal="false">
+    <el-dialog v-model="form.visible" :title="form.title" width="700px" :close-on-click-modal="false">
       <el-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" label-width="120px">
         <el-row :gutter="16">
           <el-col :span="12">

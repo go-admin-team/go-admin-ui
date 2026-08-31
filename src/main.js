@@ -32,7 +32,6 @@ import { getItems, setItems } from '@/api/table'
 import { getConfigKey } from '@/api/admin/sys-config'
 import { parseTime, resetForm, selectDictLabel, /* download,*/ selectItemsLabel } from '@/utils/costum'
 import { msgSuccess, msgError, msgInfo } from '@/utils/message'
-import { dialogDrag } from '@/utils/dialog' // dialog directive
 import { setupErrorHandler } from '@/utils/error-log' // error log
 
 import SvgIcon from './icons' // icon
@@ -45,8 +44,6 @@ import * as filters from './filters' // global filters
 
 import Pagination from '@/components/Pagination'
 import BasicLayout from '@/layout/BasicLayout'
-
-import '@/utils/dialog'
 
 import 'remixicon/fonts/remixicon.css'
 
@@ -97,9 +94,6 @@ app.use(i18n)
 app.use(ElementPlus, {
   size: Cookies.get('size') || 'default'
 })
-
-// 注册自定义指令
-app.directive('dialogDrag', dialogDrag)
 
 // 设置错误处理器
 setupErrorHandler(app)
