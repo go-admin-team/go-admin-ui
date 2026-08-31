@@ -53,6 +53,10 @@ export const userInfo = {
       'admin:sysLoginLog:remove',
       'admin:sysOperLog:query',
       'admin:sysOperLog:remove',
+      // Without this the export button is not rendered at all, which is why
+      // nothing had ever exercised this page's export. sysRole and sysConfig
+      // export without a permission check, so they need no equivalent here.
+      'admin:sysOperLog:export',
       'admin:sysDictType:add',
       'admin:sysDictType:edit',
       'admin:sysDictType:remove',
@@ -656,6 +660,12 @@ export const loginLogRows = [
 export const operLogRows = [
   {
     id: 1,
+    // title and businessType are shown in the detail drawer and written into
+    // the export, and were absent here until the export started resolving
+    // businessType through a dictionary -- an absent field exports as blank,
+    // which looks the same as a correct one.
+    title: '用户管理',
+    businessType: '1',
     operName: 'admin',
     requestMethod: 'POST',
     operUrl: '/api/v1/sys-user',
@@ -669,6 +679,8 @@ export const operLogRows = [
   },
   {
     id: 2,
+    title: '岗位管理',
+    businessType: '3',
     operName: 'tester',
     requestMethod: 'DELETE',
     operUrl: '/api/v1/post',
@@ -907,7 +919,19 @@ export async function installApiMocks(page: Page) {
       sys_show_hide: [{ label: '显示', value: '0' }, { label: '隐藏', value: '1' }],
       sys_common_status: [{ label: '正常', value: '2' }, { label: '关闭', value: '1' }],
       sys_job_status: [{ label: '正常', value: '2' }, { label: '停用', value: '1' }],
-      sys_job_group: [{ label: '默认', value: 'DEFAULT' }, { label: '系统', value: 'SYSTEM' }]
+      sys_job_group: [{ label: '默认', value: 'DEFAULT' }, { label: '系统', value: 'SYSTEM' }],
+      // All twelve, not the two the fallback below would supply: the operation
+      // log exports this column, and a value the options do not cover comes out
+      // of dictLabel as the code itself -- which is the exact failure the
+      // export fix is about.
+      sys_oper_type: [
+        { label: '新增', value: '1' }, { label: '修改', value: '2' },
+        { label: '删除', value: '3' }, { label: '授权', value: '4' },
+        { label: '导出', value: '5' }, { label: '导入', value: '6' },
+        { label: '强退', value: '7' }, { label: '生成代码', value: '8' },
+        { label: '清空数据', value: '9' }, { label: '登录', value: '10' },
+        { label: '退出', value: '11' }, { label: '获取验证码', value: '12' }
+      ]
     }
     const data = DICTS[dictType ?? ''] ?? [{ label: '停用', value: '1' }, { label: '正常', value: '2' }]
     await route.fulfill(json({ code: 200, data }))

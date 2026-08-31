@@ -550,6 +550,42 @@ test.describe('switching language', () => {
     await expect(page.locator('.el-message--success')).toContainText('Imported successfully')
   })
 
+  /**
+   * Dictionary columns in the exported sheet, which the screen gets right.
+   *
+   * The table renders status through dictLabel and shows 正常 / 关闭; the export
+   * projected the same field straight out of the row and wrote 2 and 1. Nobody
+   * looking at the page could tell -- the sheet is the half that leaves the
+   * browser, and it was the half that was wrong.
+   */
+  test('writes dictionary labels into the sheet, not the codes behind them', async({ page }) => {
+    await page.goto('/#/admin/sys-oper-log')
+    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+
+    await switchTo(page, 'English')
+    await page.locator('.pro-table__toolbar').getByRole('button', { name: 'Export' }).click()
+
+    const confirm = page.locator('.el-message-box')
+    await expect(confirm).toBeVisible()
+    const downloaded = page.waitForEvent('download')
+    await confirm.locator('.el-message-box__btns .el-button--primary').click()
+
+    const workbook = await readWorkbook(await downloaded)
+    const [, first, second] = values(workbook)
+
+    // Column order is fields: id, title, businessType, ..., status, operTime
+    expect(first[2], 'operation type written as a code').toBe('Add')
+    expect(first[8], 'status written as a code').toBe('Normal')
+    expect(second[2]).toBe('Delete')
+    expect(second[8]).toBe('Closed')
+
+    // And nothing anywhere in the sheet is still a bare status code.
+    for (const row of [first, second]) {
+      expect(row[2], 'businessType is still a raw code').not.toMatch(/^\d+$/)
+      expect(row[8], 'status is still a raw code').not.toMatch(/^\d+$/)
+    }
+  })
+
   test('switches back', async({ page }) => {
     // Going one way can pass on a stale-but-correct-looking first render.
     await openList(page)
