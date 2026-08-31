@@ -42,7 +42,7 @@ import { useUserStore } from '@/stores/user'
 
 defineOptions({ name: 'JobLog' })
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 type State = 'connecting' | 'open' | 'closed'
 
@@ -99,7 +99,10 @@ let scrollQueued = false
 const append = (text: string) => {
   lines.value.push({
     id: seq++,
-    at: new Date().toLocaleTimeString('zh-CN', { hour12: false }),
+    // The reader's locale, not a pinned zh-CN. hour12 stays false in either
+    // language: these are log timestamps, and a column of them only lines up
+    // on a 24-hour clock -- en-US would otherwise vary the width with AM/PM.
+    at: new Date().toLocaleTimeString(locale.value, { hour12: false }),
     text
   })
   if (lines.value.length > MAX_LINES) lines.value.splice(0, lines.value.length - MAX_LINES)
