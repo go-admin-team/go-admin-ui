@@ -116,7 +116,7 @@
             </el-tooltip></template>
           <el-select
             v-model="model.treeCode"
-            :placeholder="$t('devTools.genInfoForm.selectPlaceholder')"
+            :placeholder="$t('common.selectPlaceholder')"
           >
             <el-option
               v-for="column in columns"
@@ -135,7 +135,7 @@
             </el-tooltip></template>
           <el-select
             v-model="model.treeParentCode"
-            :placeholder="$t('devTools.genInfoForm.selectPlaceholder')"
+            :placeholder="$t('common.selectPlaceholder')"
           >
             <el-option
               v-for="column in columns"
@@ -154,7 +154,7 @@
             </el-tooltip></template>
           <el-select
             v-model="model.treeName"
-            :placeholder="$t('devTools.genInfoForm.selectPlaceholder')"
+            :placeholder="$t('common.selectPlaceholder')"
           >
             <el-option
               v-for="column in columns"

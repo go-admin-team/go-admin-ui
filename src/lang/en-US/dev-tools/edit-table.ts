@@ -41,7 +41,6 @@ export default {
   // label, so 'Relation Table Key' would be both longer and less accurate
   fkLabelId: 'Relation Key',
   fkLabelName: 'Relation Value',
-  selectPlaceholder: 'Please select',
 
   back: 'Back',
   submit: 'Submit',

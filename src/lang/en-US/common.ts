@@ -10,6 +10,7 @@ export default {
   actions: 'Actions',
   close: 'Close',
   empty: 'No data',
+  selectPlaceholder: 'Please select',
   loading: 'Loading',
 
   add: 'Add',

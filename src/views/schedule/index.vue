@@ -128,7 +128,7 @@
       </template>
     </ProTable>
 
-    <el-dialog v-model="form.visible" v-dialogDrag :title="form.title" width="700px" :close-on-click-modal="false">
+    <el-dialog v-model="form.visible" :title="form.title" width="700px" :close-on-click-modal="false">
       <el-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" label-width="120px">
         <el-row :gutter="16">
           <el-col :span="12">
@@ -140,7 +140,7 @@
             <el-form-item :label="$t('schedule.jobGroup')" prop="jobGroup">
               <el-select
                 v-model="form.model.jobGroup"
-                :placeholder="$t('schedule.selectPlaceholder')"
+                :placeholder="$t('common.selectPlaceholder')"
                 style="width: 100%"
               >
                 <el-option v-for="item in sys_job_group" :key="item.value" :label="item.label" :value="item.value" />
@@ -194,7 +194,7 @@
             <el-form-item :label="$t('schedule.status')" prop="status">
               <el-select
                 v-model="form.model.status"
-                :placeholder="$t('schedule.selectPlaceholder')"
+                :placeholder="$t('common.selectPlaceholder')"
                 style="width: 100%"
               >
                 <el-option v-for="item in sys_job_status" :key="item.value" :label="item.label" :value="item.value" />

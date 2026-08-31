@@ -23,7 +23,6 @@ export default {
   treeParentCodeTip: 'The name of the parent code field the tree displays, e.g. parent_Id',
   treeName: 'Tree Name Field',
   treeNameTip: 'The name of the field a tree node displays, e.g. dept_name',
-  selectPlaceholder: 'Please select',
 
   // The Chinese messages name fields the form no longer has (生成包路径 for
   // 应用名, 生成模块名 for 接口路径); the English keeps that mismatch rather

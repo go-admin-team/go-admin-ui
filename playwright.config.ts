@@ -83,9 +83,21 @@ export default defineConfig({
     // so startup detection times out.
     command: 'pnpm dev --host',
     url: 'http://127.0.0.1:9527',
-    // Reuse a dev server the developer already has running; always start a
-    // fresh one in CI.
-    reuseExistingServer: !process.env.CI,
+    /**
+     * Never reuse whatever happens to be on the port.
+     *
+     * This used to reuse a server the developer already had running, which
+     * saves a few seconds and costs a whole run: with two git worktrees open,
+     * the second suite silently drove the first one's dev server, reported
+     * results for the wrong tree, and collapsed with ERR_CONNECTION_REFUSED
+     * the moment that server restarted. A run that quietly measures the wrong
+     * code is worse than one that takes five seconds longer to start, and the
+     * failure gives no hint of what happened.
+     *
+     * PW_REUSE_SERVER=1 opts back in for anyone who wants the old behaviour
+     * and knows nothing else is on 9527.
+     */
+    reuseExistingServer: process.env.PW_REUSE_SERVER === '1',
     timeout: 120_000
   },
 

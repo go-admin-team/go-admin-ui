@@ -42,7 +42,6 @@ export default {
   password: '用户密码',
   passwordPlaceholder: '请输入用户密码',
   sex: '用户性别',
-  selectPlaceholder: '请选择',
   post: '岗位',
   role: '角色',
   remark: '备注',

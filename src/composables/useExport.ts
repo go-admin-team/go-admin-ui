@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import type { Ref } from 'vue'
 import { ElMessageBox } from 'element-plus'
+import { i18n } from '@/lang'
 import { buildSheet } from '@/utils/workbook'
 
 /**
@@ -54,7 +55,9 @@ export function useExport(): UseExportReturn {
     fields,
     rows,
     filename,
-    confirmText = '是否确认导出当前列表数据？'
+    // Resolved per call, like the rest: this is a destructuring default, so it
+    // runs when exportExcel does rather than when the module loaded.
+    confirmText = i18n.global.t('composables.export.confirm')
   }: ExportOptions<TRow>): Promise<boolean> => {
     if (pending) return false
     if (!rows.length) return false
@@ -63,10 +66,10 @@ export function useExport(): UseExportReturn {
     try {
       if (confirmText !== null) {
         try {
-          await ElMessageBox.confirm(confirmText, '提示', {
+          await ElMessageBox.confirm(confirmText, i18n.global.t('common.notice'), {
             type: 'warning',
-            confirmButtonText: '确定',
-            cancelButtonText: '取消'
+            confirmButtonText: i18n.global.t('common.confirm'),
+            cancelButtonText: i18n.global.t('common.cancel')
           })
         } catch {
           // Dismissing the confirm is a decision, not a failure

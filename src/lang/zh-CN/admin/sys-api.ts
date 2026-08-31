@@ -14,7 +14,6 @@ export default {
   titlePlaceholder: '请输入标题',
   path: '地址',
   pathPlaceholder: '请输入地址',
-  selectPlaceholder: '请选择',
   type: '类型',
 
   // ── Columns ─────────────────────────────────────────────────────

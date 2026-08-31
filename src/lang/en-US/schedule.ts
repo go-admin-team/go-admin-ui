@@ -31,7 +31,6 @@ export default {
 
   addTitle: 'Add Task',
   editTitle: 'Edit Task',
-  selectPlaceholder: 'Please select',
   invokeTargetTip: "For example: func (t *EXEC) ExamplesNoParam(){'{'}..{'}'} -- enter ExamplesNoParam. Calling with arguments is not supported yet.",
   args: 'Target Args',
   argsTip: 'With arguments: enter them as a string. Without: leave it empty. Only function calls are supported for now.',

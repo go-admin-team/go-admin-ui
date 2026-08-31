@@ -34,7 +34,6 @@ export default {
   treeParentCodeTip: '树显示的父编码字段名， 如：parent_Id',
   treeName: '树名称字段',
   treeNameTip: '树节点的显示名称字段名， 如：dept_name',
-  selectPlaceholder: '请选择',
 
   rules: {
     tplCategory: '请选择生成模板',

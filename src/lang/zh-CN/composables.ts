@@ -14,6 +14,10 @@
  * PRD R5.
  */
 export default {
+  export: {
+    confirm: '是否确认导出当前列表数据？'
+  },
+
   remove: {
     // The count is interpolated by name so the sentence can put it where the
     // language needs it; the template literal it replaces read

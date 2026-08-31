@@ -342,7 +342,7 @@ e2e 的浏览器语言在 `playwright.config.ts` 里钉死为 `zh-CN`。别去�
 
 无需 import 即可使用：
 
-- 指令：`v-permisaction` `v-permission` `v-dialogDrag`
+- 指令：`v-permisaction` `v-permission`
 - 组件：`<BasicLayout>` `<AppPagination>` `<SvgIcon>` `<CodeEditor>`
   （前两个是存量页面用的旧写法，新页面用 `PageContainer` / `ProTable`，显式 import）
 - Element Plus 图标已全局注册，模板中直接 `<el-icon><User /></el-icon>`

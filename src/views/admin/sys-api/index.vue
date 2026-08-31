@@ -21,7 +21,7 @@
         <el-form-item label="Method">
           <el-select
             v-model="table.query.action"
-            :placeholder="$t('admin.sysApi.selectPlaceholder')"
+            :placeholder="$t('common.selectPlaceholder')"
             clearable
             style="width: 120px"
           >
@@ -31,7 +31,7 @@
         <el-form-item :label="$t('admin.sysApi.type')">
           <el-select
             v-model="table.query.type"
-            :placeholder="$t('admin.sysApi.selectPlaceholder')"
+            :placeholder="$t('common.selectPlaceholder')"
             clearable
             style="width: 110px"
           >

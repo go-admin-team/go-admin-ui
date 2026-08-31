@@ -3,7 +3,6 @@ export default {
   titlePlaceholder: 'Please enter title',
   path: 'Path',
   pathPlaceholder: 'Please enter path',
-  selectPlaceholder: 'Please select',
   type: 'Type',
 
   // 'API' per the glossary, which keeps 'Interface' out of a product where it

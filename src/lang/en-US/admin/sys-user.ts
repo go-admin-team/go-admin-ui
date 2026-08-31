@@ -27,7 +27,6 @@ export default {
   password: 'Password',
   passwordPlaceholder: 'Please enter password',
   sex: 'Gender',
-  selectPlaceholder: 'Please select',
   post: 'Position',
   role: 'Role',
   remark: 'Remark',

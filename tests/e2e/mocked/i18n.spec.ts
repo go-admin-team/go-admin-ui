@@ -447,6 +447,29 @@ test.describe('switching language', () => {
     expect(header).toEqual(['Position ID', 'Position Code', 'Position Name', 'Order', 'Created At'])
   })
 
+  test('asks to export in English, box and buttons included', async({ page }) => {
+    // useExport was missed when the other composables were translated, so this
+    // dialog stayed Chinese on an English page in exactly the way useRemove's
+    // did: an English page, a Chinese question, Chinese buttons.
+    await page.goto('/#/admin/sys-post')
+    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+    await page.locator('#loader-wrapper').waitFor({ state: 'detached', timeout: 10000 })
+      .catch(() => { /* already gone */ })
+
+    await switchTo(page, 'English')
+    await page.getByRole('button', { name: 'Export' }).click()
+
+    const box = page.locator('.el-message-box')
+    await expect(box).toBeVisible()
+    await expect(box.locator('.el-message-box__title')).toHaveText('Notice')
+    await expect(box.locator('.el-message-box__message')).toHaveText('Export the current page of the list?')
+    await expect(box.getByRole('button', { name: 'OK' })).toBeVisible()
+    await expect(box.getByRole('button', { name: 'Cancel' })).toBeVisible()
+    // Nothing Chinese left anywhere in the dialog, not just in the parts named
+    // above -- the failure this replaces was a mix, not a single string.
+    expect(await box.innerText(), 'Chinese left in the dialog').not.toMatch(/[\u4e00-\u9fff]/)
+  })
+
   test('switches back', async({ page }) => {
     // Going one way can pass on a stale-but-correct-looking first render.
     await openList(page)
