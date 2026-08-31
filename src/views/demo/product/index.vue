@@ -4,13 +4,13 @@
       <!-- Search fields. No prop attributes needed: resetQuery rebuilds the
            query from its factory rather than asking el-form to reset itself -->
       <template #search>
-        <el-form-item label="名称">
-          <el-input v-model="table.query.name" placeholder="请输入名称" clearable />
+        <el-form-item :label="$t('demo.name')">
+          <el-input v-model="table.query.name" :placeholder="$t('demo.namePlaceholder')" clearable />
         </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="table.query.status" placeholder="请选择状态" clearable style="width: 120px">
-            <el-option label="正常" value="1" />
-            <el-option label="停用" value="2" />
+        <el-form-item :label="$t('demo.status')">
+          <el-select v-model="table.query.status" :placeholder="$t('demo.statusPlaceholder')" clearable style="width: 120px">
+            <el-option :label="$t('demo.normal')" value="1" />
+            <el-option :label="$t('demo.disabled')" value="2" />
           </el-select>
         </el-form-item>
       </template>
@@ -18,7 +18,7 @@
       <!-- Permission codes are 模块:资源:操作 and must match sys_menu -->
       <template #toolbar>
         <el-button v-permisaction="['demo:product:add']" type="primary" @click="form.openCreate()">
-          新增
+          {{ $t('common.add') }}
         </el-button>
         <!-- Plain while it needs a selection; see AGENTS.md -->
         <el-button
@@ -28,30 +28,30 @@
           :disabled="table.multiple"
           @click="remove(table.selectedIds)"
         >
-          删除
+          {{ $t('common.delete') }}
         </el-button>
       </template>
 
       <!-- min-width, not width: see AGENTS.md -->
-      <el-table-column label="名称" prop="name" min-width="120" show-overflow-tooltip />
-      <el-table-column label="编码" prop="code" min-width="100" />
-      <el-table-column label="单价" prop="price" min-width="90" align="right" />
-      <el-table-column label="状态" prop="status" min-width="90">
+      <el-table-column :label="$t('demo.name')" prop="name" min-width="120" show-overflow-tooltip />
+      <el-table-column :label="$t('demo.code')" prop="code" min-width="100" />
+      <el-table-column :label="$t('demo.price')" prop="price" min-width="90" align="right" />
+      <el-table-column :label="$t('demo.status')" prop="status" min-width="90">
         <template #default="{ row }">
           <el-tag :type="row.status === '1' ? 'success' : 'info'">
-            {{ row.status === '1' ? '正常' : '停用' }}
+            {{ row.status === '1' ? $t('demo.normal') : $t('demo.disabled') }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" min-width="110">
+      <el-table-column :label="$t('common.createdAt')" min-width="110">
         <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
       </el-table-column>
       <template #actions="{ row }">
         <el-button v-permisaction="['demo:product:edit']" link type="primary" @click="form.openEdit(row)">
-          修改
+          {{ $t('common.edit') }}
         </el-button>
         <el-button v-permisaction="['demo:product:delete']" link type="danger" @click="remove(row.id)">
-          删除
+          {{ $t('common.delete') }}
         </el-button>
       </template>
     </ProTable>
@@ -71,28 +71,28 @@
         :rules="form.rules"
         label-width="80px"
       >
-        <el-form-item label="名称" prop="name">
-          <el-input v-model="form.model.name" placeholder="请输入名称" />
+        <el-form-item :label="$t('demo.name')" prop="name">
+          <el-input v-model="form.model.name" :placeholder="$t('demo.namePlaceholder')" />
         </el-form-item>
-        <el-form-item label="编码" prop="code">
-          <el-input v-model="form.model.code" placeholder="请输入编码" />
+        <el-form-item :label="$t('demo.code')" prop="code">
+          <el-input v-model="form.model.code" :placeholder="$t('demo.codePlaceholder')" />
         </el-form-item>
-        <el-form-item label="单价" prop="price">
+        <el-form-item :label="$t('demo.price')" prop="price">
           <el-input-number v-model="form.model.price" :min="0" :precision="2" />
         </el-form-item>
-        <el-form-item label="状态" prop="status">
+        <el-form-item :label="$t('demo.status')" prop="status">
           <el-radio-group v-model="form.model.status">
-            <el-radio value="1">正常</el-radio>
-            <el-radio value="2">停用</el-radio>
+            <el-radio value="1">{{ $t('demo.normal') }}</el-radio>
+            <el-radio value="2">{{ $t('demo.disabled') }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.model.remark" type="textarea" placeholder="请输入内容" />
+        <el-form-item :label="$t('demo.remark')" prop="remark">
+          <el-input v-model="form.model.remark" type="textarea" :placeholder="$t('demo.remarkPlaceholder')" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="form.close">取 消</el-button>
-        <el-button type="primary" :loading="form.submitting" @click="form.submit">确 定</el-button>
+        <el-button @click="form.close">{{ $t('common.dialogCancel') }}</el-button>
+        <el-button type="primary" :loading="form.submitting" @click="form.submit">{{ $t('common.dialogConfirm') }}</el-button>
       </template>
     </el-dialog>
   </PageContainer>
@@ -107,6 +107,8 @@
  * useTable and useForm. What is left is what actually differs: which endpoints,
  * which columns, which fields, which rules.
  */
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { FormRules } from 'element-plus'
 
 import PageContainer from '@/components/PageContainer/index.vue'
@@ -128,10 +130,15 @@ const table = useTable<Product, ProductQuery>({
   defaultQuery: () => ({ name: undefined, status: undefined })
 })
 
-const rules: FormRules = {
-  name: [{ required: true, message: '名称不能为空', trigger: 'blur' }],
-  code: [{ required: true, message: '编码不能为空', trigger: 'blur' }]
-}
+const { t } = useI18n()
+
+// Computed, not a constant: module scope is evaluated once, so messages built
+// from t() there would keep the language the module loaded in -- including one
+// already displayed under a field. useForm accepts a MaybeRef.
+const rules = computed<FormRules>(() => ({
+  name: [{ required: true, message: t('demo.rules.name'), trigger: 'blur' }],
+  code: [{ required: true, message: t('demo.rules.code'), trigger: 'blur' }]
+}))
 
 const form = useForm<Product, number>({
   defaultModel: () => ({

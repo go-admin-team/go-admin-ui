@@ -1,5 +1,8 @@
 import common from './common'
 import layout from './layout'
+import profile from './profile'
+import sysTools from './sys-tools'
+import demo from './demo'
 import route from './route'
 import components from './components'
 import login from './login'
@@ -15,4 +18,4 @@ import dict from './dict'
  * Unlike zh-CN this does carry menu and dict: those are the translations of
  * text the backend only ever sends in Chinese.
  */
-export default { common, layout, route, components, login, dashboard, admin, composables, menu, dict }
+export default { common, demo, sysTools, profile, layout, route, components, login, dashboard, admin, composables, menu, dict }

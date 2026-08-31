@@ -26,21 +26,21 @@
                 <div class="monitor-content">
                   <el-row :gutter="10">
                     <el-col :sm="24" :md="12">
-                      <Cell label="系统" :value="info.os.goOs" border />
-                      <Cell label="内存" :value="`${info.mem.used}MB/${info.mem.total}MB`" border />
-                      <Cell label="交换" :value="`${info.swap.used}/${info.swap.total}`" border />
+                      <Cell :label="$t('sysTools.monitor.system')" :value="info.os.goOs" border />
+                      <Cell :label="$t('sysTools.monitor.memory')" :value="`${info.mem.used}MB/${info.mem.total}MB`" border />
+                      <Cell :label="$t('sysTools.monitor.swap')" :value="`${info.swap.used}/${info.swap.total}`" border />
                     </el-col>
                     <el-col :sm="24" :md="12">
-                      <Cell label="时间" :value="info.os.time" border />
-                      <Cell label="在线" :value="`${info.bootTime}小时`" border />
-                      <Cell label="硬盘" :value="`${info.disk.used}GB/${info.disk.total}GB`" border />
+                      <Cell :label="$t('sysTools.monitor.time')" :value="info.os.time" border />
+                      <Cell :label="$t('sysTools.monitor.uptime')" :value="$t('sysTools.monitor.hours', { n: info.bootTime })" border />
+                      <Cell :label="$t('sysTools.monitor.disk')" :value="`${info.disk.used}GB/${info.disk.total}GB`" border />
                     </el-col>
                   </el-row>
                   <el-row :gutter="10">
                     <el-col :sm="12" :md="12" class="line">
                       <el-row>
                         <el-col span="12" :sm="8" :md="8" xs="12">
-                          下载<i class="ri-arrow-down-s-fill" />
+                          {{ $t('sysTools.monitor.download') }}<i class="ri-arrow-down-s-fill" />
                         </el-col>
                         <el-col span="12" :sm="16" :md="16" xs="12" class="line-value">
                           {{ info.net.in }}KB
@@ -50,7 +50,7 @@
                     <el-col :sm="12" :md="12" class="line">
                       <el-row border>
                         <el-col span="12" :sm="6" :md="8">
-                          上传<i class="ri-arrow-up-s-fill" />
+                          {{ $t('sysTools.monitor.upload') }}<i class="ri-arrow-up-s-fill" />
                         </el-col>
                         <el-col span="12" :sm="6" :md="16" class="line-value">
                           {{ info.net.out }}KB
@@ -76,7 +76,7 @@
                   </el-row>
                   <el-row :gutter="10" class="monitor-progress">
                     <el-col :sm="24" :md="4">
-                      硬盘
+                      {{ $t('sysTools.monitor.disk') }}
                     </el-col>
                     <el-col :sm="24" :md="20">
                       <el-progress :color="customColors" :text-inside="true" :stroke-width="24" :percentage="info.disk.percent" />
@@ -86,8 +86,8 @@
                 </div>
                 <!-- <div class="monitor-footer">
 
-                  <Cell label="CPU主频" :value="info.cpu.cpuInfo[0].modelName.split('@ ')[1]" border />
-                  <Cell label="核心数" :value="`${info.cpu.cpuInfo[0].cores}`" />
+                  <Cell :label="$t('sysTools.monitor.cpuFreq')" :value="info.cpu.cpuInfo[0].modelName.split('@ ')[1]" border />
+                  <Cell :label="$t('sysTools.monitor.cores')" :value="`${info.cpu.cpuInfo[0].cores}`" />
                 </div> -->
               </div>
             </el-card>
@@ -95,28 +95,28 @@
 
           <!-- <el-card v-if="info.os" class="box-card">
             <div slot="header" class="clearfix">
-              <span>go运行环境</span>
+              <span>{{ $t('sysTools.monitor.goRuntime') }}</span>
             </div>
             <div class="monitor">
-              <Cell label="GO 版本" :value="info.os.version" border />
+              <Cell :label="$t('sysTools.monitor.goVersion')" :value="info.os.version" border />
               <Cell label="Goroutine" :value="`${info.os.numGoroutine}`" border />
-              <Cell label="项目地址" :value="info.os.projectDir" />
+              <Cell :label="$t('sysTools.monitor.projectDir')" :value="info.os.projectDir" />
             </div>
           </el-card> -->
 
           <el-card v-if="info.os" class="box-card">
             <template #header>
               <div class="clearfix">
-                <span>服务器信息</span>
+                <span>{{ $t('sysTools.monitor.serverInfo') }}</span>
               </div>
             </template>
             <div class="monitor">
-              <Cell label="主机名称" :value="info.os.hostName" border />
-              <Cell label="操作系统" :value="info.os.goOs" border />
-              <Cell label="服务器IP" :value="info.os.ip" border />
-              <Cell label="系统架构" :value="info.os.arch" border />
+              <Cell :label="$t('sysTools.monitor.hostName')" :value="info.os.hostName" border />
+              <Cell :label="$t('sysTools.monitor.os')" :value="info.os.goOs" border />
+              <Cell :label="$t('sysTools.monitor.ip')" :value="info.os.ip" border />
+              <Cell :label="$t('sysTools.monitor.arch')" :value="info.os.arch" border />
               <Cell label="CPU" :value="info.cpu.cpuInfo[0].modelName" border />
-              <Cell label="当前时间" :value="info.os.time" />
+              <Cell :label="$t('sysTools.monitor.currentTime')" :value="info.os.time" />
             </div>
           </el-card>
 
