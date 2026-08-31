@@ -25,7 +25,13 @@ export default {
   goField: 'go属性',
   jsonField: 'json属性',
 
-  isInsert: '编辑',
+  // 「表单」rather than 「编辑」, which is what this column said until now.
+  // The checkbox is bound to is_insert, and is_insert decides whether the column
+  // appears in the generated 添加或修改 dialog -- a form used for both. Read next
+  // to 列表 and 查询, which say where else a column shows up, 「编辑」 reads as
+  // "may be edited" -- which is is_edit, the one flag it does not control.
+  isInsert: '表单',
+  isInsertTip: '是否出现在新增/修改表单中，打勾表示出现',
   isList: '列表',
   isListTip: '是否在列表中展示，打勾表示展示',
   isQuery: '查询',

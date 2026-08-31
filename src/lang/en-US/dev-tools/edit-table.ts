@@ -17,7 +17,8 @@ export default {
   goField: 'Go Field',
   jsonField: 'JSON Field',
 
-  isInsert: 'Edit',
+  isInsert: 'Form',
+  isInsertTip: 'Whether the column appears in the add/edit form; ticked means it does',
   isList: 'List',
   isListTip: 'Whether the column appears in the list; ticked means it does',
   isQuery: 'Query',

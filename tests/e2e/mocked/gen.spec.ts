@@ -193,23 +193,35 @@ test.describe('dev-tools editTable', () => {
     await expect(headers.first()).toBeVisible()
 
     const text = await page.locator('.el-table__header').innerText()
-    for (const label of ['字段描述', 'go类型', 'json属性', '列表', '查询', '必填', '显示类型']) {
+    for (const label of ['字段描述', 'go类型', 'json属性', '表单', '列表', '查询', '必填', '显示类型']) {
       expect(text).toContain(label)
     }
   })
 
-  test('the two explained headers carry their explanation', async({ page }) => {
+  test('the explained headers carry their explanation', async({ page }) => {
     await installApiMocks(page)
 
     await page.goto('/#/dev-tools/editTable?tableId=1')
     await page.waitForSelector('.el-table')
 
-    // Two headers carry an explanation; the rest are plain labels
+    // Three headers carry an explanation; the rest are plain labels. 表单 joined
+    // them when it was renamed: it is the column most easily misread, so it is
+    // the one that most needed saying what it does.
     const hints = page.locator('.el-table__header .field-label__hint')
-    await expect(hints).toHaveCount(2)
+    await expect(hints).toHaveCount(3)
 
-    await hints.first().hover()
-    await expect(page.locator('.el-popper:visible')).toContainText('是否在列表中展示')
+    // In column order -- 表单, 列表, 查询.
+    for (const [index, expected] of [
+      [0, '是否出现在新增/修改表单中'],
+      [1, '是否在列表中展示'],
+      [2, '是否作为搜索条件']
+    ] as Array<[number, string]>) {
+      await hints.nth(index).hover()
+      // Located by its own text rather than by :visible -- hovering the next
+      // hint while the previous tooltip is still fading out leaves two of them
+      // on screen, and a bare :visible matches both.
+      await expect(page.locator('.el-popper').filter({ hasText: expected })).toBeVisible()
+    }
   })
 
   test('the columns load into editable rows', async({ page }) => {
@@ -411,7 +423,7 @@ test.describe('dev-tools editTable in English', () => {
     const header = page.locator('.el-table__header')
     for (const label of [
       'No.', 'Column Name', 'Description', 'DB Type', 'Go Type', 'Go Field', 'JSON Field',
-      'Edit', 'List', 'Query', 'Query Type', 'Required', 'Display Type', 'Dictionary Type',
+      'Form', 'List', 'Query', 'Query Type', 'Required', 'Display Type', 'Dictionary Type',
       'Relation Table', 'Relation Key', 'Relation Value'
     ]) {
       await expect(header).toContainText(label)
@@ -421,13 +433,16 @@ test.describe('dev-tools editTable in English', () => {
     await expect(page.getByRole('button', { name: 'Back' })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible()
 
-    // The alert above the table, and the two headers that carry an explanation
+    // The alert above the table, and the headers that carry an explanation
     await expect(page.locator('.el-alert__title')).toContainText('are hidden from this list')
+    // first() is now the Form column, which gained its hint when it was renamed
+    // from Edit -- the label that read as "may be edited", the one flag the
+    // checkbox does not control.
     await page.locator('.el-table__header .field-label__hint').first().hover()
     // role=tooltip, not .el-popper: the switcher's own popper is still fading
     // out and is an .el-popper too
     await expect(page.locator('[role="tooltip"]:visible'))
-      .toContainText('Whether the column appears in the list')
+      .toContainText('Whether the column appears in the add/edit form')
   })
 
   test('a validation message already on screen follows the language', async({ page }) => {
