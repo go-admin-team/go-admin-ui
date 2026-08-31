@@ -48,5 +48,17 @@ export default {
   relogin: '重新登录',
   sessionExpired: '登录状态已过期',
   sessionExpiredPrompt: '登录状态已过期，您可以继续留在该页面，或者重新登录',
-  networkError: '服务器连接异常，请检查服务器！'
+  networkError: '服务器连接异常，请检查服务器！',
+
+  // What the router guard reports when the menu cannot be built -- stores/
+  // permission.ts throws it, src/permission.js turns it into a toast. Same
+  // reason as the block above: the guard runs before any page exists.
+  menuLoadFailed: '菜单数据加载异常',
+
+  // The guard's last resort, for a throw that carried no message of its own.
+  // 'Has Error' is what renders today in both languages -- it is a placeholder
+  // left in the original code, not copy, and R5 keeps the Chinese value equal
+  // to what ships. Writing a real Chinese sentence here is a copy change, not a
+  // translation, so it is deliberately left alone.
+  unknownError: 'Has Error'
 }

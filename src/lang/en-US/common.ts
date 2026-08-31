@@ -28,5 +28,10 @@ export default {
   relogin: 'Log in again',
   sessionExpired: 'Your session has expired',
   sessionExpiredPrompt: 'Your session has expired. You can stay on this page, or log in again.',
-  networkError: 'Cannot reach the server. Please check that it is running.'
+  networkError: 'Cannot reach the server. Please check that it is running.',
+
+  menuLoadFailed: 'Could not load the menu',
+
+  // See the zh-CN note: the Chinese side keeps the original placeholder.
+  unknownError: 'Something went wrong'
 }

@@ -86,7 +86,7 @@ router.beforeEach(async(to, from, next) => {
           // ElMessage treats a non-string argument as its options bag, and an
           // Error's `message` is non-enumerable, so the toast came out empty.
           if (!error?.reported) {
-            ElMessage.error(error?.message || 'Has Error')
+            ElMessage.error(error?.message || i18n.global.t('common.unknownError'))
           }
           next(`/login?redirect=${to.path}`)
           NProgress.done()
