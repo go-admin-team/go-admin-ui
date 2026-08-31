@@ -140,7 +140,7 @@
             <el-form-item :label="$t('schedule.jobGroup')" prop="jobGroup">
               <el-select
                 v-model="form.model.jobGroup"
-                :placeholder="$t('schedule.selectPlaceholder')"
+                :placeholder="$t('common.selectPlaceholder')"
                 style="width: 100%"
               >
                 <el-option v-for="item in sys_job_group" :key="item.value" :label="item.label" :value="item.value" />
@@ -194,7 +194,7 @@
             <el-form-item :label="$t('schedule.status')" prop="status">
               <el-select
                 v-model="form.model.status"
-                :placeholder="$t('schedule.selectPlaceholder')"
+                :placeholder="$t('common.selectPlaceholder')"
                 style="width: 100%"
               >
                 <el-option v-for="item in sys_job_status" :key="item.value" :label="item.label" :value="item.value" />

@@ -249,7 +249,7 @@
             <el-form-item :label="$t('admin.sysUser.sex')" prop="sex">
               <el-select
                 v-model="userForm.model.sex"
-                :placeholder="$t('admin.sysUser.selectPlaceholder')"
+                :placeholder="$t('common.selectPlaceholder')"
                 style="width: 100%"
               >
                 <el-option
@@ -276,7 +276,7 @@
             <el-form-item :label="$t('admin.sysUser.post')" prop="postId">
               <el-select
                 v-model="userForm.model.postId"
-                :placeholder="$t('admin.sysUser.selectPlaceholder')"
+                :placeholder="$t('common.selectPlaceholder')"
                 style="width: 100%"
               >
                 <el-option
@@ -293,7 +293,7 @@
             <el-form-item :label="$t('admin.sysUser.role')" prop="roleId">
               <el-select
                 v-model="userForm.model.roleId"
-                :placeholder="$t('admin.sysUser.selectPlaceholder')"
+                :placeholder="$t('common.selectPlaceholder')"
                 style="width: 100%"
               >
                 <el-option

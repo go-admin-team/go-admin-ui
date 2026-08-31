@@ -50,7 +50,6 @@ export default {
   // ── Create / edit ───────────────────────────────────────────────
   addTitle: '添加任务',
   editTitle: '修改任务',
-  selectPlaceholder: '请选择',
   invokeTargetTip: "调用示例：func (t *EXEC) ExamplesNoParam(){'{'}..{'}'} 填写 ExamplesNoParam 即可；目前不支持带参调用",
   args: '目标参数',
   argsTip: '有参：请以 string 格式填写；无参：留空。目前仅支持函数调用',

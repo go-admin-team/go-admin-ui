@@ -20,6 +20,7 @@ export default {
   actions: '操作',
   close: '关闭',
   empty: '暂无数据',
+  selectPlaceholder: '请选择',
   loading: '加载中',
 
   // The toolbar and row actions every list page repeats, and the column every

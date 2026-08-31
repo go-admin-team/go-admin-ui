@@ -45,7 +45,6 @@ export default {
   fkTableName: '关系表',
   fkLabelId: '关系表key',
   fkLabelName: '关系表value',
-  selectPlaceholder: '请选择',
 
   // ── Footer ──────────────────────────────────────────────────────
   back: '返回',

@@ -124,7 +124,7 @@
                 v-model="scope.row.dictType"
                 clearable
                 filterable
-                :placeholder="$t('devTools.editTable.selectPlaceholder')"
+                :placeholder="$t('common.selectPlaceholder')"
               >
                 <el-option
                   v-for="dict in dictOptions"
@@ -144,7 +144,7 @@
                 v-model="scope.row.fkTableName"
                 clearable
                 filterable
-                :placeholder="$t('devTools.editTable.selectPlaceholder')"
+                :placeholder="$t('common.selectPlaceholder')"
                 @change="attachForeignColumns(scope.row)"
               >
                 <el-option
@@ -165,7 +165,7 @@
                 v-model="scope.row.fkLabelId"
                 clearable
                 filterable
-                :placeholder="$t('devTools.editTable.selectPlaceholder')"
+                :placeholder="$t('common.selectPlaceholder')"
               >
                 <el-option
                   v-for="column in scope.row.fkCol"
@@ -185,7 +185,7 @@
                 v-model="scope.row.fkLabelName"
                 clearable
                 filterable
-                :placeholder="$t('devTools.editTable.selectPlaceholder')"
+                :placeholder="$t('common.selectPlaceholder')"
               >
                 <el-option
                   v-for="column in scope.row.fkCol"
