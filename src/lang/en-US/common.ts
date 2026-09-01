@@ -31,6 +31,7 @@ export default {
   networkError: 'Cannot reach the server. Please check that it is running.',
 
   menuLoadFailed: 'Could not load the menu',
+  appNotInstalled: 'The app behind this feature is not installed.',
 
   // See the zh-CN note: the Chinese side keeps the original placeholder.
   unknownError: 'Something went wrong'
