@@ -23,7 +23,10 @@ export default [
       'src/assets/**',
       'public/**',
       'dist/**',
-      'node_modules/**'
+      'node_modules/**',
+      // Synced in from packaged apps: someone else's code, held to someone
+      // else's rules. Its own CI is what should be linting it.
+      'src/apps/**'
     ]
   },
 
