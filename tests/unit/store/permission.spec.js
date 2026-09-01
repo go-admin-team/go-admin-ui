@@ -1,4 +1,5 @@
 import { setActivePinia, createPinia } from 'pinia'
+import { mount } from '@vue/test-utils'
 
 /**
  * Ported from the Vuex version together with the store itself.
@@ -163,6 +164,89 @@ describe('stores/permission', () => {
 
       expect(first.name).toBe('NameOne')
       expect(second.name).toBe('NameTwo')
+    })
+
+    /**
+     * The apps branch, and the reason src/apps/_test-fixture is committed.
+     *
+     * import.meta.glob is a compile-time macro evaluated against the real
+     * filesystem, so this resolves a file that is genuinely on disk -- the same
+     * way the cases above resolve src/views/error-page/404.vue.
+     *
+     * The rendered text is what is asserted, not the name: the placeholder
+     * comes back carrying the requested name too, so a key-building mistake
+     * would pass a name assertion while every app page in the product had
+     * silently degraded to "not installed".
+     */
+    it('resolves a page under src/apps when the menu points there', async() => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const resolved = await loadView('/apps/_test-fixture/probe/index', 'ProbePage')()
+
+      expect(mount(resolved).text()).toBe('probe')
+      expect(resolved.name).toBe('ProbePage')
+      expect(warn).not.toHaveBeenCalled()
+      warn.mockRestore()
+    })
+
+    /**
+     * Existing menus store the component field with a leading slash, but the
+     * app form is written both ways -- the PRD's acceptance criteria spell it
+     * "apps/<code>/x/index" -- and a missing slash must not be the difference
+     * between an app that loads and one that reports itself uninstalled.
+     */
+    it('accepts an app path with or without the leading slash', async() => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const resolved = await loadView('apps/_test-fixture/probe/index', 'ProbePage')()
+
+      expect(mount(resolved).text()).toBe('probe')
+      expect(warn).not.toHaveBeenCalled()
+      warn.mockRestore()
+    })
+
+    /**
+     * BEHAVIOUR CHANGE, deliberate.
+     *
+     * A component the build does not contain used to throw, from inside the
+     * router's async component loader, where Vue Router has no recovery path --
+     * so a single mistyped menu path blanked the entire layout rather than the
+     * one panel. It now resolves to the AppNotInstalled placeholder.
+     *
+     * The console line is the other half: without it this change would trade a
+     * loud failure for a silent one, and "app not installed" is indistinguishable
+     * from "path typed wrong" on screen.
+     */
+    it('falls back to the placeholder instead of throwing for a missing views path', async() => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const resolved = await loadView('/does/not/exist', 'Missing')()
+
+      expect(resolved).toBeTruthy()
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('src/views/does/not/exist.vue'))
+      warn.mockRestore()
+    })
+
+    it('falls back to the placeholder instead of throwing for a missing app', async() => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const resolved = await loadView('/apps/ghost/x/index', 'Missing')()
+
+      expect(resolved).toBeTruthy()
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('src/apps/ghost/x/index.vue'))
+      warn.mockRestore()
+    })
+
+    // Building the menu is what triggers the warning, so a broken entry is
+    // reported at sign-in for every menu at once rather than one at a time as
+    // someone happens to click through them.
+    it('does not throw while building a menu whose component is missing', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const routes = []
+
+      expect(() => generaMenu(routes, [menuItem({ component: '/apps/ghost/x/index' })])).not.toThrow()
+      expect(typeof routes[0].component).toBe('function')
+      warn.mockRestore()
     })
   })
 
