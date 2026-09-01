@@ -55,6 +55,12 @@ export default {
   // reason as the block above: the guard runs before any page exists.
   menuLoadFailed: '菜单数据加载异常',
 
+  // Shown by components/AppNotInstalled when the menu names a component this
+  // build does not contain. Same nature as menuLoadFailed above -- it belongs
+  // to route resolution rather than to any one page, so there is no directory
+  // under src/views for it to mirror.
+  appNotInstalled: '该功能所属的应用未安装',
+
   // The guard's last resort, for a throw that carried no message of its own.
   // 'Has Error' is what renders today in both languages -- it is a placeholder
   // left in the original code, not copy, and R5 keeps the Chinese value equal

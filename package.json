@@ -5,9 +5,9 @@
   "author": "https://github.com/wenjianzhang",
   "license": "MIT",
   "scripts": {
-    "dev": "vite",
-    "build:prod": "vite build",
-    "build:stage": "vite build --mode staging",
+    "dev": "node scripts/sync-apps.mjs && vite",
+    "build:prod": "node scripts/sync-apps.mjs && vite build",
+    "build:stage": "node scripts/sync-apps.mjs && vite build --mode staging",
     "preview": "vite preview",
     "lint": "eslint src tests",
     "type-check": "vue-tsc --noEmit && tsc -p tsconfig.node.json",

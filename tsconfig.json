@@ -46,5 +46,9 @@
   // tests/e2e and the *.config files run under Node and need @types/node. Node
   // types are deliberately kept out of the browser side so application code
   // cannot reach for build-time-only APIs such as fs/path.
-  "exclude": ["node_modules", "dist", "tests/e2e"]
+  // src/apps holds views copied in from packaged apps by scripts/sync-apps.mjs.
+  // They are not this repository's code and must not be able to fail its
+  // type-check; nothing under src/ imports them, so excluding them here really
+  // does keep them out.
+  "exclude": ["node_modules", "dist", "tests/e2e", "src/apps/**"]
 }
