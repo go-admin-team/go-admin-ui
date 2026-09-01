@@ -1,6 +1,13 @@
 .DS_Store
 node_modules/
 dist/
+
+# Synced application views -- what scripts/sync-apps.mjs writes.
+# The single-level "*" (not "**") is what lets the negation below re-include
+# one child; src/apps/_test-fixture is a committed test fixture, not build
+# output, and the file itself says why.
+src/apps/*
+!src/apps/_test-fixture
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
