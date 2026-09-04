@@ -279,6 +279,28 @@ export function listUser(query: SysUserQuery & PageQuery) {
 **承载子路由的位置一律用 `RouterViewKeepAlive`，不要写裸 `<router-view />`** ——
 后者渲染出的页面不受 `keep-alive` 管辖，多级菜单的缓存会失效。
 
+### 打包应用的 `component` 必须以 `apps/` 开头
+
+`apps.config.mjs` 配置的第三方/商店应用，页面由 `scripts/sync-apps.mjs` 复制进
+`src/apps/<code>/`；`stores/permission.ts` 的 `appPath()` 只认**第一段是 `apps`**
+的路径去那里找组件，其余一律当成主仓内置视图去 `src/views/` 下找。
+
+所以给打包应用写菜单种子，`component` 必须是：
+
+```
+apps/<code>/<该应用内的相对路径>/index
+```
+
+比如 `code: 'order'` 的应用要写成 `apps/order/index`，**不能**写成
+`/order/index` —— 第一段是 `order` 而不是 `apps`，会被当成内置视图去找一个
+不存在的 `src/views/order/index.vue`，表现上同样会摔到 `AppNotInstalled`
+占位，但控制台报的是 views 路径，跟真实原因（漏了 `apps/` 前缀）对不上，
+排查时容易被带偏。
+
+`source` 目录内容原样搬进 `src/apps/<code>/`，不会在 `code` 之外自动再插一层
+——想要 `apps/<code>/index` 这种最短形式，`source` 就要直接指到该应用自己
+"这一个页面模块"的目录，而不是应用仓库的 `views` 根目录。
+
 ## 多语言
 
 **新代码不要写中文字面量。** 界面上的每一句话都从语言包取：
