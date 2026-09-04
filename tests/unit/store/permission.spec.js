@@ -237,6 +237,38 @@ describe('stores/permission', () => {
       warn.mockRestore()
     })
 
+    /**
+     * A menu whose component was written without the "apps/" prefix (e.g.
+     * "/order/index" instead of "apps/order/index") resolves through the views
+     * branch and reports a src/views/ path -- correct as far as it goes, but it
+     * gives no hint that the real fix is adding a path segment rather than
+     * creating that views file. This is the mismatch AGENTS.md's packaged-app
+     * section exists to prevent: without it, whoever copies a backend probe's
+     * menu seed verbatim (as PRD 006's did with "/order/index") gets sent
+     * looking in the wrong directory.
+     */
+    it('hints at the apps/ prefix when a views-path miss looks like it could be a packaged app', async() => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      await loadView('/order/index', 'Missing')()
+
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('apps/<code>/'))
+      warn.mockRestore()
+    })
+
+    // The apps branch already names the right fix (run scripts/sync-apps.mjs);
+    // it must not also get the views-path hint above, which would tell someone
+    // debugging an already-correct "apps/..." component to add a prefix it
+    // already has.
+    it('does not add the apps/ prefix hint for a miss that is already under apps/', async() => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      await loadView('/apps/ghost/x/index', 'Missing')()
+
+      expect(warn).toHaveBeenCalledWith(expect.not.stringContaining('apps/<code>/'))
+      warn.mockRestore()
+    })
+
     // Building the menu is what triggers the warning, so a broken entry is
     // reported at sign-in for every menu at once rather than one at a time as
     // someone happens to click through them.

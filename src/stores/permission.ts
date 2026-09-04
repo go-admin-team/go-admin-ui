@@ -71,12 +71,24 @@ const appPath = (view: string) => {
  * rather than rebuilt, so the two cannot drift apart. It is logged in
  * production too, because "installed the backend, not the frontend" is more
  * likely to surface on a deployment than on a developer's machine.
+ *
+ * `isAppPath` picks which of two hints follows the file name. A views-branch
+ * miss got only "check the menu's component path" -- true, but it points at a
+ * src/views/ file while staying silent about the one convention that would
+ * explain why a packaged app's page ended up there: 006's own backend probe
+ * seeded a menu with `component: "/order/index"` for a page that only exists
+ * under src/apps/order/, and the resulting warning named
+ * src/views/order/index.vue with nothing suggesting the real cause was a
+ * missing "apps/" segment -- exactly the wrong direction to send whoever is
+ * debugging it. See AGENTS.md's packaged-app section for the rule this spells
+ * out: a packaged app's component must start with "apps/<code>/".
  */
-const missingComponent = (key: string) => {
-  console.warn(
-    `[loadView] no component at ${key.replace('../', 'src/')} -- check the ` +
-    `menu's component path, or (for a packaged app) run scripts/sync-apps.mjs`
-  )
+const missingComponent = (key: string, isAppPath: boolean) => {
+  const path = key.replace('../', 'src/')
+  const hint = isAppPath
+    ? 'check the menu\'s component path, or run scripts/sync-apps.mjs if this app has not been synced into this build yet'
+    : 'check the menu\'s component path -- if this is meant to be a packaged app\'s page, its component must start with "apps/<code>/" (e.g. "apps/order/index"), not a views path'
+  console.warn(`[loadView] no component at ${path} -- ${hint}`)
   return () => Promise.resolve({ default: AppNotInstalled })
 }
 
@@ -101,7 +113,7 @@ export const loadView = (view: string, name?: string) => {
   // The globs are rooted one level up from this file, so "../apps/..." and
   // "../views/..." are what their keys look like.
   const key = app ? `../${app}.vue` : `../views${view}.vue`
-  const loader = (app ? appsModules : viewsModules)[key] ?? missingComponent(key)
+  const loader = (app ? appsModules : viewsModules)[key] ?? missingComponent(key, !!app)
   if (!name) return loader
 
   return () => Promise.resolve(loader()).then(mod => {
