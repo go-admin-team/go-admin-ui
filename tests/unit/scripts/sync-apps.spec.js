@@ -117,4 +117,20 @@ describe('scripts/sync-apps.mjs', () => {
 
     expect(existsSync(fixtureFile)).toBe(true)
   })
+
+  // The cleanup pass used to filter on entry.isDirectory(), so a stray
+  // non-directory entry -- macOS drops exactly this file the moment Finder
+  // opens a folder, and .gitignore already ignores it repo-wide -- survived
+  // every sync untouched even though .gitignore treats all of src/apps/
+  // (besides the fixture) as this script's output, nothing to hand-maintain.
+  it('deletes a stray non-directory entry left under src/apps/', () => {
+    const root = makeSandbox()
+    mkdirSync(join(root, 'src/apps'), { recursive: true })
+    writeFileSync(join(root, 'src/apps/.DS_Store'), '')
+    writeConfig(root, [])
+
+    run(root)
+
+    expect(existsSync(join(root, 'src/apps/.DS_Store'))).toBe(false)
+  })
 })

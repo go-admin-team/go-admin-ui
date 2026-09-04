@@ -69,12 +69,20 @@ for (const app of apps) {
  * copied into fresh builds and stops being reachable through a stale menu row
  * or a hand-typed URL, instead of lingering in dist/ until someone remembers
  * to `rm -rf` it by hand.
+ *
+ * Not filtered to directories: .gitignore already treats every entry under
+ * src/apps/ (besides the reserved fixture) as this sync's output, not
+ * something to hand-maintain, so a stray file (macOS drops a .DS_Store the
+ * moment Finder opens the folder) or a symlink is exactly as unowned as a
+ * stale app directory and gets removed the same way. A symlink's Dirent
+ * reports isDirectory() false even when it points at one, so a type filter
+ * here would have let a symlinked app dodge cleanup entirely.
  */
 if (existsSync(APPS_DIR)) {
   for (const entry of readdirSync(APPS_DIR, { withFileTypes: true })) {
-    if (!entry.isDirectory() || wanted.has(entry.name)) continue
+    if (wanted.has(entry.name)) continue
     rmSync(resolve(APPS_DIR, entry.name), { recursive: true, force: true })
-    console.log(`[sync-apps] removed "${entry.name}": not enabled in apps.config.mjs`)
+    console.log(`[sync-apps] removed "${entry.name}": not something this sync manages`)
   }
 }
 
