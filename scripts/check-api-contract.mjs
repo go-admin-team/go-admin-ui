@@ -36,6 +36,10 @@ const GO = process.env.GO_ADMIN_PATH ?? join(UI, '..', 'go-admin')
  */
 const CORE = process.env.GO_ADMIN_CORE_PATH ?? join(UI, '..', 'go-admin-core')
 
+/** Where in that repository the bases live -- named once, so the diagnostic
+ *  below names the directory actually read rather than the repository root. */
+const CORE_MODELS = 'sdk/contract/models'
+
 /**
  * Skipping keeps a UI-only checkout building; --require-models turns the skip
  * into a failure, which is what CI passes. Without it a broken checkout step
@@ -89,7 +93,7 @@ const MODEL_DIRS = [
   [GO, 'app/other/models/tools'], // the code generator's own tables
   // Last, so a base the Go repository still declares itself is the one used.
   // This is where the aliased ones are read from once it has stopped.
-  [CORE, 'sdk/contract/models']
+  [CORE, CORE_MODELS]
 ]
 
 const structs = {}
@@ -355,8 +359,8 @@ for (const block of declaredTypes.matchAll(/export interface (\w+) \{([^}]*)\}/g
  */
 if (unresolved.size) {
   const bases = [...unresolved].sort().join(', ')
-  const where = `embedded by the models but declared nowhere this can read: ${bases}`
-  const hint = `go-admin's common/models aliases them into go-admin-core; point GO_ADMIN_CORE_PATH at a checkout of it (looked in ${CORE})`
+  const where = `${bases} are embedded by the models but declared in no source this reads`
+  const hint = `go-admin's common/models aliases them into go-admin-core; point GO_ADMIN_CORE_PATH at a checkout of it (looked for ${join(CORE, CORE_MODELS)})`
   if (required) {
     console.error(`cannot check the api contract: ${where}\n  ${hint}`)
     process.exit(1)
