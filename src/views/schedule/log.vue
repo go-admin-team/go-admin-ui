@@ -1,5 +1,5 @@
 <template>
-  <PageContainer>
+  <PageContainer card>
     <div class="job-log">
       <div class="job-log__bar">
         <span class="job-log__state" :class="`is-${state}`">

@@ -13,7 +13,6 @@
             v-model="table.query.operUrl"
             :placeholder="$t('admin.sysOperLog.operUrlPlaceholder')"
             clearable
-            style="width: 180px"
           />
         </el-form-item>
         <el-form-item :label="$t('admin.sysOperLog.status')">
@@ -21,7 +20,6 @@
             v-model="table.query.status"
             :placeholder="$t('admin.sysOperLog.statusPlaceholder')"
             clearable
-            style="width: 130px"
           >
             <el-option
               v-for="item in sys_common_status"
@@ -31,7 +29,8 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('admin.sysOperLog.operTime')">
+        <!-- Two columns: a datetime range needs about 340px, half of one. -->
+        <el-form-item :label="$t('admin.sysOperLog.operTime')" class="is-wide">
           <el-date-picker
             v-model="operatedBetween"
             type="datetimerange"
@@ -39,7 +38,6 @@
             :start-placeholder="$t('admin.sysOperLog.startDate')"
             :end-placeholder="$t('admin.sysOperLog.endDate')"
             value-format="YYYY-MM-DD HH:mm:ss"
-            style="width: 340px"
           />
         </el-form-item>
       </template>

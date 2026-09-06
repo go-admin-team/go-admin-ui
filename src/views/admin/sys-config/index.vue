@@ -13,7 +13,6 @@
             v-model="table.query.configName"
             :placeholder="$t('admin.sysConfig.namePlaceholder')"
             clearable
-            style="width: 160px"
           />
         </el-form-item>
         <el-form-item :label="$t('admin.sysConfig.key')">
@@ -21,7 +20,6 @@
             v-model="table.query.configKey"
             :placeholder="$t('admin.sysConfig.keyPlaceholder')"
             clearable
-            style="width: 160px"
           />
         </el-form-item>
         <el-form-item :label="$t('admin.sysConfig.builtIn')">
@@ -29,7 +27,6 @@
             v-model="table.query.configType"
             :placeholder="$t('admin.sysConfig.builtInPlaceholder')"
             clearable
-            style="width: 120px"
           >
             <el-option
               v-for="item in sys_yes_no"

@@ -15,7 +15,6 @@
             v-model="table.query.title"
             :placeholder="$t('admin.sysMenu.menuNamePlaceholder')"
             clearable
-            style="width: 180px"
           />
         </el-form-item>
         <el-form-item :label="$t('admin.sysMenu.status')">
@@ -23,7 +22,6 @@
             v-model="table.query.visible"
             :placeholder="$t('admin.sysMenu.statusPlaceholder')"
             clearable
-            style="width: 140px"
           >
             <el-option
               v-for="item in sys_show_hide"

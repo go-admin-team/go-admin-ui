@@ -1,11 +1,5 @@
 <template>
-  <div class="pro-table">
-    <!--
-      Two panels, not one. The search form changes *which* rows are on screen;
-      the toolbar, table and pager act on the rows that already are. Sharing one
-      surface read as a single block of controls, so the eye had to work out
-      which button changed the query and which changed the data.
-    -->
+  <div ref="rootRef" class="pro-table" :class="{ 'pro-table--flat': !panels }">
     <!--
       On a phone the filters are collapsed behind a button. Left open they cost
       181px -- a quarter of the screen -- before a single row is visible, and a
@@ -46,164 +40,213 @@
       </el-form>
     </el-drawer>
 
-    <el-form
+    <component
+      :is="panelTag"
       v-if="$slots.search && !asCards"
-      :model="table.query"
-      inline
-      label-width="auto"
-      class="pro-table__search"
-      @submit.prevent="table.search"
+      v-bind="panelProps"
+      class="pro-table__search-panel"
     >
-      <slot name="search" />
-      <el-form-item>
-        <!--
-          native-type="submit" makes this the form's default submit button, so
-          Enter in any search field reaches @submit.prevent above and nothing
-          else needs a @keyup.enter of its own. Without it the browser's implicit
-          submission rule applies, which only fires when the form has exactly one
-          field that blocks it -- so Enter worked on some search bars, did
-          nothing on others, and double-fired on any page that added its own
-          @keyup.enter to compensate.
-        -->
-        <el-button type="primary" native-type="submit" :loading="table.loading">{{ $t('common.search') }}</el-button>
-        <el-button @click="handleReset">{{ $t('common.reset') }}</el-button>
-      </el-form-item>
-    </el-form>
-
-    <div class="pro-table__data">
-      <div v-if="$slots.toolbar && !asCards" class="pro-table__toolbar">
-        <slot name="toolbar" />
-        <el-button
-          class="pro-table__refresh"
-          :loading="table.loading"
-          circle
-          :title="$t('common.refresh')"
-          @click="table.getList"
-        >
-          <el-icon><Refresh /></el-icon>
-        </el-button>
-      </div>
-
       <!--
-        Below the breakpoint the table is replaced rather than restyled. A
-        table squeezed into 375px still has to be dragged sideways to read;
-        62% of a typical list here sits outside the viewport. The default slot
-        is still read for its column definitions -- it is simply not rendered.
+        A grid, not an inline row. Inline, the fields wrap wherever they happen
+        to run out of room, so the second line starts under whichever field was
+        widest and no two pages break in the same place. Fixed columns line the
+        labels and the controls up down the panel, and -- because a row now holds
+        a known number of fields -- make "everything past the first row" a
+        question the component can answer.
       -->
-      <MobileCards
-        v-if="asCards"
-        :rows="stack as unknown as Record<string, unknown>[]"
-        :columns="cardColumns()"
-        :row-key="rowKey"
-        :selection="selection"
-        :actions="!!$slots.actions"
-        :selected="selectedKeys"
-        :loading="table.loading"
-        :has-more="hasMore"
-        :show-end="table.total > table.query.pageSize"
-        @toggle="row => toggleCardRow(row as unknown as TRow)"
-        @load-more="loadMore"
+      <el-form
+        :model="table.query"
+        label-width="auto"
+        class="pro-table__search"
+        :style="{
+          gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+          // Clamped here rather than in a second CSS rule: a field asking for
+          // two columns of a one-column grid would overflow it.
+          '--wide-span': Math.min(2, cols)
+        }"
+        :data-visible="collapsed ? collapsible() : 0"
+        @submit.prevent="table.search"
       >
-        <template v-if="$slots.actions" #actions="scope">
-          <slot name="actions" v-bind="scope" />
-        </template>
-      </MobileCards>
-
-      <el-table
-        v-else
-        ref="tableRef"
-        v-loading="table.loading"
-        :data="table.rows"
-        :row-key="rowKey"
-        v-bind="$attrs"
-        @selection-change="table.handleSelectionChange"
-        @sort-change="table.handleSortChange"
-      >
+        <slot name="search" />
         <!--
-          No reserve-selection: it makes el-table keep rows selected across a data
-          change and, crucially, skip the selection-change event. After a bulk
-          delete the deleted ids stayed in the selection, the bulk button stayed
-          enabled, and a second click deleted ids that no longer existed.
+          The actions sit in the last column, which is where the eye ends up
+          after reading the fields and where the toolbar and the row actions
+          below already are. Not an el-form-item: it would be counted as a field
+          by the rule that hides the overflow, and it carries no label.
         -->
-        <el-table-column v-if="selection" type="selection" width="45" />
-        <slot />
-        <!--
-          The pinned action column is rendered here rather than by each page, so the
-          class the nowrap rule needs cannot be misspelled or forgotten. Pages that
-          wrote it themselves used at least two different class conventions, none of
-          them documented, and getting it wrong wraps the cell -- which changes the
-          row height of the pinned column only, so the pinned rows stop lining up
-          with the scrolling ones.
-        -->
-        <el-table-column
-          v-if="$slots.actions"
-          :label="$t('common.actions')"
-          fixed="right"
-          :width="actionsWidth"
-          class-name="pro-table__actions"
-        >
-          <template #default="scope">
-            <slot name="actions" v-bind="scope" />
-          </template>
-        </el-table-column>
-        <template #empty>
-          <slot name="empty">
-            <el-empty :image-size="80" :description="$t('common.empty')" />
-          </slot>
-        </template>
-      </el-table>
-
-      <!--
-        `pagination` carries both the page and the size, and handlePagination
-        writes both back into the query -- which flows straight back down as
-        :page and :limit. Handling update:page and update:limit as well would
-        only set the same values a moment earlier.
-      -->
-      <!--
-        Page actions move to the thumb.
-        A row of small buttons in the top-right corner is a pointer's layout:
-        on a phone they are the furthest thing from the hand and the smallest
-        target on screen. Collapsed into one floating button, which opens the
-        page's own toolbar above it -- so a page contributes the same buttons to
-        both layouts and states them once.
-      -->
-      <div v-if="asCards && $slots.toolbar" class="pro-table__fab">
-        <div v-show="fabOpen" class="pro-table__fab-menu">
-          <slot name="toolbar" />
-          <el-button class="pro-table__fab-refresh" :loading="table.loading" @click="table.getList">
-            <el-icon><Refresh /></el-icon>{{ $t('common.refresh') }}
+        <div class="pro-table__search-actions">
+          <el-button @click="handleReset">{{ $t('common.reset') }}</el-button>
+          <!--
+            native-type="submit" makes this the form's default submit button, so
+            Enter in any search field reaches @submit.prevent above and nothing
+            else needs a @keyup.enter of its own. Without it the browser's implicit
+            submission rule applies, which only fires when the form has exactly one
+            field that blocks it -- so Enter worked on some search bars, did
+            nothing on others, and double-fired on any page that added its own
+            @keyup.enter to compensate.
+          -->
+          <el-button type="primary" native-type="submit" :loading="table.loading">{{ $t('common.search') }}</el-button>
+          <!--
+            Offered only when something is actually hidden. A toggle on a panel
+            that already shows every filter is a control whose two states look
+            identical, and pages here carry between two and four filters -- so on
+            a wide screen most of them never collapse at all.
+          -->
+          <el-button
+            v-if="collapsible()"
+            link
+            type="primary"
+            @click="collapsed = !collapsed"
+          >
+            {{ collapsed ? $t('components.proTable.expand') : $t('components.proTable.collapse') }}
+            <el-icon class="pro-table__search-caret" :class="{ 'is-open': !collapsed }"><ArrowDown /></el-icon>
           </el-button>
         </div>
-        <button
-          type="button"
-          class="pro-table__fab-btn"
-          :class="{ 'is-open': fabOpen }"
-          :aria-expanded="fabOpen"
-          :aria-label="$t('components.proTable.pageActions')"
-          @click="fabOpen = !fabOpen"
-        >
-          <el-icon><Plus /></el-icon>
-        </button>
-      </div>
+      </el-form>
+    </component>
 
-      <Pagination
-        v-if="paginated && !asCards"
-        v-show="table.total > 0"
-        :total="table.total"
-        :page="table.query.pageIndex"
-        :limit="table.query.pageSize"
-        @pagination="table.handlePagination"
-      />
-    </div>
+    <component
+      :is="panelTag"
+      v-bind="panelProps"
+      class="pro-table__data-panel"
+    >
+      <div class="pro-table__data">
+        <div v-if="$slots.toolbar && !asCards" class="pro-table__toolbar">
+          <slot name="toolbar" />
+          <el-button
+            class="pro-table__refresh"
+            :loading="table.loading"
+            circle
+            :title="$t('common.refresh')"
+            @click="table.getList"
+          >
+            <el-icon><Refresh /></el-icon>
+          </el-button>
+        </div>
+
+        <!--
+          Below the breakpoint the table is replaced rather than restyled. A
+          table squeezed into 375px still has to be dragged sideways to read;
+          62% of a typical list here sits outside the viewport. The default slot
+          is still read for its column definitions -- it is simply not rendered.
+        -->
+        <MobileCards
+          v-if="asCards"
+          :rows="stack as unknown as Record<string, unknown>[]"
+          :columns="cardColumns()"
+          :row-key="rowKey"
+          :selection="selection"
+          :actions="!!$slots.actions"
+          :selected="selectedKeys"
+          :loading="table.loading"
+          :has-more="hasMore"
+          :show-end="table.total > table.query.pageSize"
+          @toggle="row => toggleCardRow(row as unknown as TRow)"
+          @load-more="loadMore"
+        >
+          <template v-if="$slots.actions" #actions="scope">
+            <slot name="actions" v-bind="scope" />
+          </template>
+        </MobileCards>
+
+        <el-table
+          v-else
+          ref="tableRef"
+          v-loading="table.loading"
+          :data="table.rows"
+          :row-key="rowKey"
+          v-bind="$attrs"
+          @selection-change="table.handleSelectionChange"
+          @sort-change="table.handleSortChange"
+        >
+          <!--
+            No reserve-selection: it makes el-table keep rows selected across a data
+            change and, crucially, skip the selection-change event. After a bulk
+            delete the deleted ids stayed in the selection, the bulk button stayed
+            enabled, and a second click deleted ids that no longer existed.
+          -->
+          <el-table-column v-if="selection" type="selection" width="45" />
+          <slot />
+          <!--
+            The pinned action column is rendered here rather than by each page, so the
+            class the nowrap rule needs cannot be misspelled or forgotten. Pages that
+            wrote it themselves used at least two different class conventions, none of
+            them documented, and getting it wrong wraps the cell -- which changes the
+            row height of the pinned column only, so the pinned rows stop lining up
+            with the scrolling ones.
+          -->
+          <el-table-column
+            v-if="$slots.actions"
+            :label="$t('common.actions')"
+            fixed="right"
+            :width="actionsWidth"
+            class-name="pro-table__actions"
+          >
+            <template #default="scope">
+              <slot name="actions" v-bind="scope" />
+            </template>
+          </el-table-column>
+          <template #empty>
+            <slot name="empty">
+              <el-empty :image-size="80" :description="$t('common.empty')" />
+            </slot>
+          </template>
+        </el-table>
+
+        <!--
+          `pagination` carries both the page and the size, and handlePagination
+          writes both back into the query -- which flows straight back down as
+          :page and :limit. Handling update:page and update:limit as well would
+          only set the same values a moment earlier.
+        -->
+        <!--
+          Page actions move to the thumb.
+          A row of small buttons in the top-right corner is a pointer's layout:
+          on a phone they are the furthest thing from the hand and the smallest
+          target on screen. Collapsed into one floating button, which opens the
+          page's own toolbar above it -- so a page contributes the same buttons to
+          both layouts and states them once.
+        -->
+        <div v-if="asCards && $slots.toolbar" class="pro-table__fab">
+          <div v-show="fabOpen" class="pro-table__fab-menu">
+            <slot name="toolbar" />
+            <el-button class="pro-table__fab-refresh" :loading="table.loading" @click="table.getList">
+              <el-icon><Refresh /></el-icon>{{ $t('common.refresh') }}
+            </el-button>
+          </div>
+          <button
+            type="button"
+            class="pro-table__fab-btn"
+            :class="{ 'is-open': fabOpen }"
+            :aria-expanded="fabOpen"
+            :aria-label="$t('components.proTable.pageActions')"
+            @click="fabOpen = !fabOpen"
+          >
+            <el-icon><Plus /></el-icon>
+          </button>
+        </div>
+
+        <Pagination
+          v-if="paginated && !asCards"
+          v-show="table.total > 0"
+          :total="table.total"
+          :page="table.query.pageIndex"
+          :limit="table.query.pageSize"
+          @pagination="table.handlePagination"
+        />
+      </div>
+    </component>
   </div>
 </template>
 
 <script setup lang="ts" generic="TRow extends object, TQuery extends object">
 import { ref, computed, watch, useSlots, type Ref } from 'vue'
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { ArrowDown, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import Pagination from '@/components/Pagination/index.vue'
 import MobileCards from './MobileCards.vue'
 import { readCardColumns } from './columns'
+import { countSearchFields, colsFor, collapseTo } from './search'
+import { useElementWidth } from '@/composables/useElementWidth'
 import { useNarrowScreen } from '@/composables/useNarrowScreen'
 import type { UseTableReturn } from '@/composables/useTable'
 
@@ -264,16 +307,25 @@ const props = withDefaults(defineProps<{
   card?: boolean
   /** Viewport width, in px, below which cards take over. */
   cardBreakpoint?: number
+  /**
+   * Draw the two halves as cards. Turn off inside a dialog, which is a panel
+   * already -- cards within a card read as a stack of boxes, and the dialog's
+   * own padding is the framing the content needs.
+   */
+  panels?: boolean
 }>(), {
   card: true,
   cardBreakpoint: 768,
   selection: false,
   rowKey: '',
   paginated: true,
-  actionsWidth: 120
+  actionsWidth: 120,
+  panels: true
 })
 
 const tableRef = ref()
+const rootRef = ref<HTMLElement>()
+const panelWidth = useElementWidth(rootRef)
 
 /**
  * resetQuery drops the sort key from the query, but the header keeps drawing
@@ -342,6 +394,33 @@ watch(asCards, () => {
     props.table.handleSelectionChange([])
   }
 })
+
+/**
+ * Columns in the search grid, from the panel's own width -- not the window's,
+ * which is a different number on any page that puts something beside the table.
+ * Below 768px the filters are in the sheet instead, so the single-column case
+ * only comes up in a very narrow panel on a wide screen.
+ */
+const cols = computed(() => colsFor(panelWidth.value))
+
+// Both halves are drawn the same way, so what a panel is gets said once.
+const panelTag = computed(() => (props.panels ? 'el-card' : 'div'))
+const panelProps = computed(() => (props.panels ? { shadow: 'never' } : {}))
+
+const collapsed = ref(true)
+
+/**
+ * How many filters stay on screen when the panel is collapsed, 0 meaning it
+ * shows all of them.
+ *
+ * Read during render, like the card columns and for the same reason: a page can
+ * add or drop a filter, and calling the slot from a computed would hold vnodes
+ * built in someone else's render context. It costs a handful of vnodes -- the
+ * fields' own contents sit in lazy slots that are not invoked -- and it is not
+ * re-run by typing in a filter, which belongs to that field's render effect
+ * rather than this one.
+ */
+const collapsible = () => collapseTo(countSearchFields(slots.search), cols.value)
 
 const filtersOpen = ref(false)
 const fabOpen = ref(false)
@@ -430,41 +509,125 @@ defineExpose({
 
 <style lang="scss" scoped>
 /*
- * Two surfaces: the query above, the data below.
+ * Two cards: the query above, the data below.
  *
- * PageContainer supplies the card these sit in, so the panels are drawn here
- * rather than by each page -- 27 pages would otherwise each decide where the
- * seam goes. The search panel keeps the card's own background and is separated
- * by a rule instead of a gap: two floating cards on a grey page put a stripe of
- * page colour between them, which reads as a bigger break than "these filter
- * the thing below".
+ * Drawn here rather than by each page, so the seam sits in the same place on
+ * all of them. They are separate surfaces because they answer to different
+ * things -- the form decides which rows are on screen, the table and its
+ * toolbar act on the rows that already are -- and a page-coloured gap says that
+ * more plainly than a rule inside one card, which reads as one block of
+ * controls with a line drawn through it.
+ *
+ * Neither panel needs a rule of its own: el-card draws the surface, and the gap
+ * between them is the one the stylesheet already gives any two stacked cards
+ * (.el-card + .el-card), so a list page is spaced like everything else.
  */
+
 /*
- * Filters fill the width on a phone.
- *
- * Pages set an explicit width on their search controls -- `style="width: 160px"`
- * is the house style -- which is right for an inline row on a desktop and wrong
- * in a stacked column, where it leaves a ragged margin down the right. Overriding
- * inline styles needs !important; the alternative is editing that width on every
- * search field of every page.
+ * Inside a dialog the cards come off -- the dialog is the card -- and the two
+ * halves are separated the way this layout separated them before the panels
+ * existed.
  */
-@media (max-width: 767px) {
-  .pro-table__search {
-    :deep(.el-form-item) {
-      display: flex;
-      width: 100%;
-      margin-right: 0;
-    }
-
-    :deep(.el-form-item__content) { flex: 1; }
-
-    :deep(.el-input),
-    :deep(.el-select),
-    :deep(.el-tree-select),
-    :deep(.el-date-editor) { width: 100% !important; }
-  }
+.pro-table--flat .pro-table__search {
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--ga-border-light);
 }
 
+/*
+ * The filter grid.
+ *
+ * Column count is set inline from the measured panel width -- the stylesheet
+ * cannot see how much room the component was given, only how wide the window
+ * is, and those differ on any page that puts something beside the table.
+ * minmax(0, 1fr) rather than 1fr: a date range picker has a min-content width
+ * of its own, and plain 1fr lets it push its column past its share.
+ */
+.pro-table__search {
+  display: grid;
+  column-gap: 16px;
+  row-gap: 16px;
+
+  :deep(.el-form-item) {
+    /* The grid owns the spacing; the form-item's own bottom margin would add a
+       second, uneven gap to it. */
+    margin: 0;
+  }
+
+  /* Fields fill their column. Pages used to set a pixel width on each control,
+     which is what an inline row needs and what a grid column undoes. */
+  :deep(.el-input),
+  :deep(.el-select),
+  :deep(.el-tree-select),
+  :deep(.el-date-editor) { width: 100%; }
+}
+
+/*
+ * Collapsing.
+ *
+ * data-visible is how many fields stay on screen, and 0 means the panel is
+ * showing all of them. :nth-of-type counts rendered elements, so a field
+ * switched off with v-if -- sys-user's department filter on the desktop layout
+ * -- does not take up one of the visible slots, and countSearchFields skips it
+ * for the same reason.
+ *
+ * The buttons are not an el-form-item, so they are never the element this hides.
+ */
+.pro-table__search[data-visible="1"] :deep(.el-form-item:nth-of-type(n + 2)),
+.pro-table__search[data-visible="2"] :deep(.el-form-item:nth-of-type(n + 3)),
+.pro-table__search[data-visible="3"] :deep(.el-form-item:nth-of-type(n + 4)) {
+  display: none;
+}
+
+/*
+ * Last column, hard against the right edge -- the same edge the toolbar, the
+ * row actions and the pager below all end on.
+ *
+ * grid-column: -2 / -1 pins them there whatever the field count is: with a row
+ * to spare they sit at the end of it, and with the row full they take the last
+ * column of the next one rather than being pushed to its left.
+ */
+.pro-table__search-actions {
+  display: flex;
+  grid-column: -2 / -1;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+
+  /* Element Plus spaces adjacent buttons itself, which leaves this run unevenly
+     spaced -- its 12px between the two it recognises, the declared 8px around
+     the toggle. The gap above is meant to be the only spacing here. */
+  :deep(.el-button + .el-button) { margin-left: 0; }
+}
+
+.pro-table__search-caret {
+  margin-left: 2px;
+  transition: transform 0.2s ease;
+
+  &.is-open { transform: rotate(180deg); }
+}
+
+/*
+ * A filter wide enough to need two columns -- a date range with times in it is
+ * about 340px before the label. Pages ask for this on the form-item; how much
+ * they get is the grid's to say, since it is the only side that knows whether
+ * there are two columns to give. (`span 1`, where a one-column panel lands, is
+ * the same placement as no rule at all.)
+ */
+.pro-table__search :deep(.el-form-item.is-wide) {
+  grid-column: span var(--wide-span);
+}
+
+/*
+ * Edge to edge on a phone: the data card is the whole viewport there, so its
+ * border and radius frame the content against nothing.
+ */
+@media (max-width: 767px) {
+  .pro-table__data-panel {
+    border: 0;
+    border-radius: 0;
+  }
+}
 /*
  * The floating action button.
  *
@@ -553,10 +716,12 @@ defineExpose({
 .pro-table__sheet-form {
   :deep(.el-form-item) { margin-bottom: 14px; }
 
+  /* No !important: the pages no longer set a width on their search controls,
+     and Element Plus's own widths are a single class each. */
   :deep(.el-input),
   :deep(.el-select),
   :deep(.el-tree-select),
-  :deep(.el-date-editor) { width: 100% !important; }
+  :deep(.el-date-editor) { width: 100%; }
 }
 
 .pro-table__sheet-actions {
@@ -580,12 +745,6 @@ defineExpose({
 }
 
 .pro-table__filter-icon { margin-right: 4px; }
-
-.pro-table__search {
-  padding-bottom: 12px;
-  margin-bottom: 12px;
-  border-bottom: 1px solid var(--ga-border-light);
-}
 
 /*
  * The toolbar sits on the right, over the table's right edge, where the row

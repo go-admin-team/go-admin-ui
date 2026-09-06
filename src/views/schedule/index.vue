@@ -7,7 +7,6 @@
             v-model="table.query.jobName"
             :placeholder="$t('schedule.namePlaceholder')"
             clearable
-            style="width: 160px"
           />
         </el-form-item>
         <el-form-item :label="$t('schedule.jobGroup')">
@@ -15,7 +14,6 @@
             v-model="table.query.jobGroup"
             :placeholder="$t('schedule.jobGroup')"
             clearable
-            style="width: 130px"
           >
             <el-option v-for="item in sys_job_group" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
@@ -25,7 +23,6 @@
             v-model="table.query.status"
             :placeholder="$t('schedule.statusPlaceholder')"
             clearable
-            style="width: 130px"
           >
             <el-option v-for="item in sys_job_status" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>

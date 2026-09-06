@@ -7,7 +7,6 @@
             v-model="table.query.title"
             :placeholder="$t('admin.sysApi.titlePlaceholder')"
             clearable
-            style="width: 160px"
           />
         </el-form-item>
         <el-form-item :label="$t('admin.sysApi.path')">
@@ -15,7 +14,6 @@
             v-model="table.query.path"
             :placeholder="$t('admin.sysApi.pathPlaceholder')"
             clearable
-            style="width: 200px"
           />
         </el-form-item>
         <el-form-item label="Method">
@@ -23,7 +21,6 @@
             v-model="table.query.action"
             :placeholder="$t('common.selectPlaceholder')"
             clearable
-            style="width: 120px"
           >
             <el-option v-for="method in METHODS" :key="method" :value="method" :label="method" />
           </el-select>
@@ -33,7 +30,6 @@
             v-model="table.query.type"
             :placeholder="$t('common.selectPlaceholder')"
             clearable
-            style="width: 110px"
           >
             <el-option value="SYS" label="SYS" />
             <el-option value="BUS" label="BUS" />

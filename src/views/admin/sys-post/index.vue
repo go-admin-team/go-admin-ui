@@ -7,7 +7,6 @@
             v-model="table.query.postCode"
             :placeholder="$t('admin.sysPost.postCodePlaceholder')"
             clearable
-            style="width: 160px"
           />
         </el-form-item>
         <el-form-item :label="$t('admin.sysPost.postName')">
@@ -15,7 +14,6 @@
             v-model="table.query.postName"
             :placeholder="$t('admin.sysPost.postNamePlaceholder')"
             clearable
-            style="width: 160px"
           />
         </el-form-item>
         <el-form-item :label="$t('admin.sysPost.status')">
@@ -23,7 +21,6 @@
             v-model="table.query.status"
             :placeholder="$t('admin.sysPost.statusPlaceholder')"
             clearable
-            style="width: 140px"
           >
             <el-option
               v-for="item in sys_normal_disable"

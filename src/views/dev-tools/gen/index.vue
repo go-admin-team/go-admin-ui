@@ -7,7 +7,6 @@
             v-model="table.query.tableName"
             :placeholder="$t('devTools.gen.tableNamePlaceholder')"
             clearable
-            style="width: 170px"
           />
         </el-form-item>
         <el-form-item :label="$t('devTools.gen.tableComment')">
@@ -15,7 +14,6 @@
             v-model="table.query.tableComment"
             :placeholder="$t('devTools.gen.tableCommentPlaceholder')"
             clearable
-            style="width: 170px"
           />
         </el-form-item>
       </template>

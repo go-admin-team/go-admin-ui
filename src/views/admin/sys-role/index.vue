@@ -7,7 +7,6 @@
             v-model="table.query.roleName"
             :placeholder="$t('admin.sysRole.roleNamePlaceholder')"
             clearable
-            style="width: 160px"
           />
         </el-form-item>
         <el-form-item :label="$t('admin.sysRole.roleKey')">
@@ -15,7 +14,6 @@
             v-model="table.query.roleKey"
             :placeholder="$t('admin.sysRole.roleKeyPlaceholder')"
             clearable
-            style="width: 160px"
           />
         </el-form-item>
         <el-form-item :label="$t('admin.sysRole.status')">
@@ -23,7 +21,6 @@
             v-model="table.query.status"
             :placeholder="$t('admin.sysRole.statusPlaceholder')"
             clearable
-            style="width: 140px"
           >
             <el-option
               v-for="item in sys_normal_disable"

@@ -3,7 +3,7 @@
     <ProTable :table="table" selection row-key="dictCode" :actions-width="120">
       <template #search>
         <el-form-item :label="$t('admin.dict.data.dictName')">
-          <el-select v-model="table.query.dictType" style="width: 180px">
+          <el-select v-model="table.query.dictType">
             <el-option
               v-for="item in typeOptions"
               :key="item.id"
@@ -17,7 +17,6 @@
             v-model="table.query.dictLabel"
             :placeholder="$t('admin.dict.data.dictLabelPlaceholder')"
             clearable
-            style="width: 160px"
           />
         </el-form-item>
         <el-form-item :label="$t('admin.dict.data.status')">
@@ -25,7 +24,6 @@
             v-model="table.query.status"
             :placeholder="$t('admin.dict.data.statusPlaceholder')"
             clearable
-            style="width: 130px"
           >
             <el-option
               v-for="item in sys_normal_disable"

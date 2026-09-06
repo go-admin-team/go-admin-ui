@@ -8,7 +8,7 @@
           <el-input v-model="table.query.name" :placeholder="$t('demo.namePlaceholder')" clearable />
         </el-form-item>
         <el-form-item :label="$t('demo.status')">
-          <el-select v-model="table.query.status" :placeholder="$t('demo.statusPlaceholder')" clearable style="width: 120px">
+          <el-select v-model="table.query.status" :placeholder="$t('demo.statusPlaceholder')" clearable>
             <el-option :label="$t('demo.normal')" value="1" />
             <el-option :label="$t('demo.disabled')" value="2" />
           </el-select>

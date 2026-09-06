@@ -1,13 +1,14 @@
 import { test, expect } from '@playwright/test'
 import { authenticate, installApiMocks } from './fixtures'
+import { searchToggle } from './support/protable'
 
 /**
  * How a list page divides itself up.
  *
  * Two groups of controls with different jobs: the search form decides which
  * rows are on screen, and the toolbar acts on the rows that already are. They
- * used to share one flat surface with nothing between them, so which button
- * changed the query and which changed the data was left to the reader.
+ * are two cards with the page showing between them, rather than one surface
+ * with a rule drawn through it.
  *
  * Rendered geometry rather than class names, because a rule that stops applying
  * -- overridden, or dropped in a refactor -- leaves the markup looking right.
@@ -22,34 +23,39 @@ test.describe('list page layout', () => {
     await page.waitForTimeout(600)
   })
 
-  test('a rule separates the query from the data it filters', async({ page }) => {
-    const border = await page.locator('.pro-table__search').evaluate(el => {
-      const style = getComputedStyle(el as HTMLElement)
-      return { width: parseFloat(style.borderBottomWidth), colour: style.borderBottomColor }
-    })
+  test('the query and the data are separate cards', async({ page }) => {
+    const search = await page.locator('.pro-table__search-panel').boundingBox()
+    const data = await page.locator('.pro-table__data-panel').boundingBox()
 
-    expect(border.width, 'the search panel has a bottom rule').toBeGreaterThan(0)
-    // Not transparent: a border set to the page colour is the same as no border.
-    expect(border.colour).not.toBe('rgba(0, 0, 0, 0)')
+    const gap = data!.y - (search!.y + search!.height)
+    expect(gap, `panels are ${gap}px apart`).toBeGreaterThan(4)
+
+    // Both are drawn surfaces, not bare regions of the page: a gap between two
+    // things with no edges of their own is just white space.
+    for (const panel of ['.pro-table__search-panel', '.pro-table__data-panel']) {
+      const border = await page.locator(panel).evaluate(el => {
+        const style = getComputedStyle(el as HTMLElement)
+        return { width: parseFloat(style.borderTopWidth), colour: style.borderTopColor }
+      })
+      expect(border.width, `${panel} has an edge`).toBeGreaterThan(0)
+      expect(border.colour, `${panel}'s edge is not transparent`).not.toBe('rgba(0, 0, 0, 0)')
+    }
   })
 
-  test('the toolbar sits against the same edge as the row actions', async({ page }) => {
+  test('the search buttons sit at the right edge, over the table', async({ page }) => {
     const table = await page.locator('.el-table').boundingBox()
-    const toolbar = await page.locator('.pro-table__toolbar').boundingBox()
-    const lastButton = await page.locator('.pro-table__toolbar .el-button').last().boundingBox()
+    const actions = page.locator('.pro-table__search-actions')
+    // The last button, not the cell holding it: a cell in the right-hand column
+    // ends at the right edge whichever way its contents are packed.
+    const lastButton = await actions.locator('.el-button').last().boundingBox()
 
-    // The toolbar spans the width; what matters is where its content ends.
-    const toolbarEnd = lastButton!.x + lastButton!.width
+    const buttonsEnd = lastButton!.x + lastButton!.width
     const tableEnd = table!.x + table!.width
 
-    expect(Math.abs(toolbarEnd - tableEnd), `toolbar ends at ${toolbarEnd}, table at ${tableEnd}`)
-      .toBeLessThanOrEqual(2)
-
-    // And starts well past the left edge -- otherwise it is still a left-aligned
-    // row that happens to reach the right.
-    const firstButton = await page.locator('.pro-table__toolbar .el-button').first().boundingBox()
-    expect(firstButton!.x, 'the toolbar does not start at the left edge')
-      .toBeGreaterThan(toolbar!.x + toolbar!.width / 2)
+    // Within the card's padding of the same edge the toolbar, the row actions
+    // and the pager all end on.
+    expect(Math.abs(buttonsEnd - tableEnd), `buttons end at ${buttonsEnd}, table at ${tableEnd}`)
+      .toBeLessThanOrEqual(24)
   })
 
   test('the search form stays on the left', async({ page }) => {
@@ -59,5 +65,41 @@ test.describe('list page layout', () => {
     // Filters are read left to right like the labels they carry; only the
     // actions moved.
     expect(firstField!.x - search!.x, 'the first filter starts at the left').toBeLessThan(20)
+  })
+
+  /**
+   * sys-role carries three filters and the panel is three columns wide at this
+   * size, one of which belongs to the buttons -- so the third filter starts out
+   * hidden and the toggle is what brings it back.
+   */
+  test('filters past the first row are collapsed, and the toggle opens them', async({ page }) => {
+    const fields = page.locator('.pro-table__search .el-form-item')
+    await expect(fields).toHaveCount(3)
+    await expect(fields.nth(2), 'the third filter is collapsed away').toBeHidden()
+
+    // One row: the buttons are level with the filters that are showing.
+    const first = await fields.first().boundingBox()
+    const actions = await page.locator('.pro-table__search-actions').boundingBox()
+    expect(Math.abs(actions!.y - first!.y), 'the buttons are on the filter row').toBeLessThan(20)
+
+    await searchToggle(page).click()
+    await expect(fields.nth(2), 'expanding shows it').toBeVisible()
+
+    await searchToggle(page, '收起').click()
+    await expect(fields.nth(2), 'collapsing hides it again').toBeHidden()
+  })
+})
+
+test.describe('a search panel with room for every filter', () => {
+  test('offers no toggle', async({ page, context }) => {
+    await authenticate(context)
+    await installApiMocks(page)
+    await page.setViewportSize({ width: 1280, height: 720 })
+    // sys-menu has two filters, which fit beside the buttons at this width.
+    await page.goto('/#/admin/sys-menu')
+    await page.waitForSelector('.el-table__row')
+
+    await expect(page.locator('.pro-table__search .el-form-item')).toHaveCount(2)
+    await expect(searchToggle(page)).toHaveCount(0)
   })
 })

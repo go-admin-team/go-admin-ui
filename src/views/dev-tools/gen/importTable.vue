@@ -3,6 +3,7 @@
     <ProTable
       ref="proTable"
       :table="table"
+      :panels="false"
       selection
       row-key="tableName"
       :actions-width="0"
@@ -15,7 +16,6 @@
             v-model="table.query.tableName"
             :placeholder="t('devTools.importTable.tableNamePlaceholder')"
             clearable
-            style="width: 170px"
           />
         </el-form-item>
         <el-form-item :label="t('devTools.importTable.tableComment')">
@@ -23,7 +23,6 @@
             v-model="table.query.tableComment"
             :placeholder="t('devTools.importTable.tableCommentPlaceholder')"
             clearable
-            style="width: 170px"
           />
         </el-form-item>
       </template>

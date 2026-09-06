@@ -13,7 +13,6 @@
             v-model="table.query.username"
             :placeholder="$t('admin.sysLoginLog.usernamePlaceholder')"
             clearable
-            style="width: 160px"
           />
         </el-form-item>
         <el-form-item :label="$t('admin.sysLoginLog.status')">
@@ -21,7 +20,6 @@
             v-model="table.query.status"
             :placeholder="$t('admin.sysLoginLog.statusPlaceholder')"
             clearable
-            style="width: 140px"
           >
             <el-option
               v-for="item in sys_common_status"
@@ -36,7 +34,6 @@
             v-model="table.query.ipaddr"
             :placeholder="$t('admin.sysLoginLog.ipaddrPlaceholder')"
             clearable
-            style="width: 160px"
           />
         </el-form-item>
       </template>
