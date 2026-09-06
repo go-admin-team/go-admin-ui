@@ -48,14 +48,52 @@ test.describe('the tab strip', () => {
     expect(tab!.y, 'the tab starts below the navbar').toBeGreaterThanOrEqual(navbar!.y + navbar!.height)
   })
 
-  test('every tab has a visible top border', async({ page }) => {
-    const borders = await page.locator('.el-tabs__item').evaluateAll(nodes =>
-      nodes.map(node => getComputedStyle(node as HTMLElement).borderTopWidth)
-    )
+  /**
+   * Declared and rendered are different things, and this is the check that
+   * knows the difference.
+   *
+   * The rule was applied, getComputedStyle reported `1px solid #d9d9d9` on all
+   * four sides, and the top edge was still not on screen: Element Plus lifts a
+   * card tab a pixel so that neighbours share an edge, .el-tabs__nav-wrap is a
+   * pixel shorter than the tab and clips, and the pixel it cut was that border.
+   * Reading the style could never have caught it -- the style was correct.
+   *
+   * Walking every clipping ancestor rather than naming nav-wrap: the previous
+   * version compared the tab against .el-tabs__header, which does not clip, so
+   * it passed for the whole time the border was missing.
+   */
+  test('nothing clips a tab, so its declared borders are all on screen', async({ page }) => {
+    const problems = await page.locator('.el-tabs__item').evaluateAll(nodes => {
+      const clipped: string[] = []
 
-    expect(borders.length).toBeGreaterThan(0)
-    // Declared and rendered are different things -- this only proves the rule
-    // applies. The geometry checks above are what prove it is on screen.
-    expect(borders.every(width => parseFloat(width) > 0), `border widths: ${borders}`).toBe(true)
+      for (const node of nodes as HTMLElement[]) {
+        const label = node.textContent?.trim() || '(unnamed)'
+        const style = getComputedStyle(node)
+        if (parseFloat(style.borderTopWidth) <= 0) {
+          clipped.push(`${label}: no top border declared`)
+          continue
+        }
+
+        const box = node.getBoundingClientRect()
+        for (let parent = node.parentElement; parent; parent = parent.parentElement) {
+          const overflowY = getComputedStyle(parent).overflowY
+          if (overflowY === 'visible') continue
+
+          const bounds = parent.getBoundingClientRect()
+          const where = `${parent.className || parent.tagName.toLowerCase()} (${overflowY})`
+          // Half a pixel of slack for subpixel layout; a cut border is a whole one.
+          if (box.top < bounds.top - 0.5) {
+            clipped.push(`${label}: top ${box.top} cut by ${where} starting at ${bounds.top}`)
+          }
+          if (box.bottom > bounds.bottom + 0.5) {
+            clipped.push(`${label}: bottom ${box.bottom} cut by ${where} ending at ${bounds.bottom}`)
+          }
+        }
+      }
+
+      return clipped
+    })
+
+    expect(problems, problems.join(' | ')).toEqual([])
   })
 })

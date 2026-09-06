@@ -320,6 +320,21 @@ String.prototype.colorRgb = function() {
     align-items: flex-end;
   }
 
+  // Sized to the tab, for the same reason the header above is: Element Plus
+  // gives this wrapper 31px, one short of the 32px tab it holds, and it clips.
+  //
+  // The pixel it cut was the tab's top border. Every tab therefore rendered as
+  // an open-topped box while the border stayed declared, computed, and reported
+  // as present by anything reading getComputedStyle -- which is what the test
+  // covering this was doing.
+  //
+  // The scroller inside clips as well and needs the same height; fixing only
+  // the wrapper moves the cut one element down.
+  .el-tabs__nav-wrap,
+  .el-tabs__nav-scroll {
+    height: 32px;
+  }
+
   .el-tabs__nav-wrap {
     margin-bottom: 0;
     &::after { display: none; }
@@ -330,6 +345,10 @@ String.prototype.colorRgb = function() {
   }
 
   .el-tabs__item {
+    // Element Plus lifts a card tab by a pixel so that neighbours share one
+    // edge. These tabs are spaced 3px apart and share nothing, so the only
+    // thing the offset did was push the top border out of the wrapper above.
+    margin-top: 0 !important;
     height: 32px;
     line-height: 32px;
     font-size: 12px;
