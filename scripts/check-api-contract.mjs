@@ -104,6 +104,16 @@ for (const [root, dir] of MODEL_DIRS) {
   }
 }
 
+/**
+ * Embedded bases no directory above declares.
+ *
+ * Reported on their own rather than left to surface as missing fields. When
+ * ModelTime could not be read, every model looked as though it had lost
+ * createdAt and the run printed 32 field mismatches -- each one true as stated
+ * and all of them the same single cause, which is a poor way to learn that a
+ * source directory has moved.
+ */
+const unresolved = new Set()
 
 /** Flattens a struct's own and embedded fields into jsonName -> goType. */
 const fieldsOf = (name, seen = new Set()) => {
@@ -111,8 +121,10 @@ const fieldsOf = (name, seen = new Set()) => {
   seen.add(name)
   const out = {}
   for (const [json, type] of structs[name]) {
-    if (json === '@embed') Object.assign(out, fieldsOf(type, seen))
-    else out[json] = type
+    if (json === '@embed') {
+      if (!structs[type]) unresolved.add(type)
+      Object.assign(out, fieldsOf(type, seen))
+    } else out[json] = type
   }
   return out
 }
@@ -334,6 +346,23 @@ for (const block of declaredTypes.matchAll(/export interface (\w+) \{([^}]*)\}/g
 
   note(`src/types/admin.ts ${name}`, 'declared but not on the model',
     declared.filter(f => !(f in fields) && !allowed.has(f) && !ALLOWED.has(f)))
+}
+
+/*
+ * Checked before the mismatches: an unreadable base makes its fields look
+ * missing everywhere at once, so reporting those first would bury the cause
+ * under its symptoms.
+ */
+if (unresolved.size) {
+  const bases = [...unresolved].sort().join(', ')
+  const where = `embedded by the models but declared nowhere this can read: ${bases}`
+  const hint = `go-admin's common/models aliases them into go-admin-core; point GO_ADMIN_CORE_PATH at a checkout of it (looked in ${CORE})`
+  if (required) {
+    console.error(`cannot check the api contract: ${where}\n  ${hint}`)
+    process.exit(1)
+  }
+  console.log(`skipped: ${where}\n  ${hint}`)
+  process.exit(0)
 }
 
 if (problems.length) {
