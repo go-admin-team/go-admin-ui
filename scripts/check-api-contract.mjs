@@ -25,6 +25,18 @@ const UI = join(dirname(fileURLToPath(import.meta.url)), '..')
 const GO = process.env.GO_ADMIN_PATH ?? join(UI, '..', 'go-admin')
 
 /**
+ * go-admin-core, which owns the bases every model embeds.
+ *
+ * common/models used to declare ControlBy, Model and ModelTime itself; since
+ * the contract surface moved down into go-admin-core (its PRD 006) it declares
+ * them as type aliases into that repository instead. An alias is the same type,
+ * so nothing changed on the wire -- but the fields those bases carry (id,
+ * createdAt, updatedAt, createBy, updateBy) are now declared over there, and a
+ * checkout without it can only conclude that every model has lost them.
+ */
+const CORE = process.env.GO_ADMIN_CORE_PATH ?? join(UI, '..', 'go-admin-core')
+
+/**
  * Skipping keeps a UI-only checkout building; --require-models turns the skip
  * into a failure, which is what CI passes. Without it a broken checkout step
  * would leave this job green while it checked nothing at all.
@@ -70,24 +82,28 @@ const parseStructs = source => {
 const goFiles = dir => readdirSync(dir).filter(f => f.endsWith('.go')).map(f => join(dir, f))
 
 const MODEL_DIRS = [
-  'common/models',
-  'app/admin/models',
-  'app/demo/models', // the reference module
-  'app/jobs/models', // scheduled jobs
-  'app/other/models/tools' // the code generator's own tables
+  [GO, 'common/models'],
+  [GO, 'app/admin/models'],
+  [GO, 'app/demo/models'], // the reference module
+  [GO, 'app/jobs/models'], // scheduled jobs
+  [GO, 'app/other/models/tools'], // the code generator's own tables
+  // Last, so a base the Go repository still declares itself is the one used.
+  // This is where the aliased ones are read from once it has stopped.
+  [CORE, 'sdk/contract/models']
 ]
 
 const structs = {}
-for (const dir of MODEL_DIRS) {
-  const path = join(GO, dir)
+for (const [root, dir] of MODEL_DIRS) {
+  const path = join(root, dir)
   if (!existsSync(path)) continue
   for (const file of goFiles(path)) {
     for (const [name, fields] of Object.entries(parseStructs(readFileSync(file, 'utf8')))) {
-      // First directory wins: common/models holds the embedded bases
+      // First directory wins, so the order above is the resolution order
       if (!(name in structs)) structs[name] = fields
     }
   }
 }
+
 
 /** Flattens a struct's own and embedded fields into jsonName -> goType. */
 const fieldsOf = (name, seen = new Set()) => {
