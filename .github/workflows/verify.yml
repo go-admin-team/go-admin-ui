@@ -28,6 +28,25 @@ jobs:
           repository: go-admin-team/go-admin
           path: go-admin
 
+      # The bases every model embeds -- id, createdAt, createBy and the rest --
+      # are declared in go-admin-core now, and common/models only aliases them.
+      # Read at the version go-admin actually depends on rather than the tip of
+      # the default branch: the fields this compares against are the ones the
+      # running server sends, which is the pinned release.
+      - name: resolve the go-admin-core version
+        id: core
+        run: |
+          ref=$(grep -oE 'go-admin-core/v2 v[0-9]+\.[0-9]+\.[0-9]+' go-admin/go.mod | head -1 | awk '{print $2}')
+          test -n "$ref" || { echo "no go-admin-core/v2 requirement in go-admin/go.mod"; exit 1; }
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
+      - name: checkout go-admin-core
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: go-admin-team/go-admin-core
+          ref: ${{ steps.core.outputs.ref }}
+          path: go-admin-core
+
       - name: Install pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
 
@@ -55,6 +74,7 @@ jobs:
         run: pnpm check:api -- --require-models
         env:
           GO_ADMIN_PATH: ${{ github.workspace }}/go-admin
+          GO_ADMIN_CORE_PATH: ${{ github.workspace }}/go-admin-core
 
       # The menu and dictionary packs are keyed by the backend's own seed data,
       # so a typo in a key falls back to Chinese and looks like an untranslated
