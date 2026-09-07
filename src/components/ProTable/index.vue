@@ -245,7 +245,7 @@ import { ArrowDown, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import Pagination from '@/components/Pagination/index.vue'
 import MobileCards from './MobileCards.vue'
 import { readCardColumns } from './columns'
-import { countSearchFields, colsFor, collapseTo } from './search'
+import { searchFieldSpans, colsFor, collapseTo } from './search'
 import { useElementWidth } from '@/composables/useElementWidth'
 import { useNarrowScreen } from '@/composables/useNarrowScreen'
 import type { UseTableReturn } from '@/composables/useTable'
@@ -420,7 +420,7 @@ const collapsed = ref(true)
  * re-run by typing in a filter, which belongs to that field's render effect
  * rather than this one.
  */
-const collapsible = () => collapseTo(countSearchFields(slots.search), cols.value)
+const collapsible = () => collapseTo(searchFieldSpans(slots.search), cols.value)
 
 const filtersOpen = ref(false)
 const fabOpen = ref(false)
@@ -568,7 +568,7 @@ defineExpose({
  * data-visible is how many fields stay on screen, and 0 means the panel is
  * showing all of them. :nth-of-type counts rendered elements, so a field
  * switched off with v-if -- sys-user's department filter on the desktop layout
- * -- does not take up one of the visible slots, and countSearchFields skips it
+ * -- does not take up one of the visible slots, and searchFieldSpans skips it
  * for the same reason.
  *
  * The buttons are not an el-form-item, so they are never the element this hides.

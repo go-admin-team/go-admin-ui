@@ -90,6 +90,42 @@ test.describe('list page layout', () => {
   })
 })
 
+/**
+ * Collapsing is spent in columns, not in filters.
+ *
+ * sys-oper-log leads with a datetime range that needs two of the three columns
+ * a 1280px window gives this panel, and the buttons take the third -- so the
+ * collapsed row holds that filter and nothing else. Counting filters instead
+ * put two of them in a row with space for one and a half, which pushed the
+ * buttons onto a second line: a collapsed panel exactly as tall as the open
+ * one, minus a filter.
+ */
+test.describe('a filter that needs two columns', () => {
+  test('fills the collapsed row on its own', async({ page, context }) => {
+    await authenticate(context)
+    await installApiMocks(page)
+    await page.setViewportSize({ width: 1280, height: 720 })
+    await page.goto('/#/admin/sys-oper-log')
+    await page.waitForSelector('.el-table')
+    await page.waitForTimeout(600)
+
+    const fields = page.locator('.pro-table__search > .el-form-item')
+    await expect(fields).toHaveCount(3)
+    await expect(fields.nth(0), 'the range is declared first, so it survives').toBeVisible()
+    await expect(fields.nth(1), 'nothing else fits beside it').toBeHidden()
+
+    // One row: the buttons sit level with the only filter showing.
+    const range = await fields.nth(0).boundingBox()
+    const actions = await page.locator('.pro-table__search-actions').boundingBox()
+    expect(Math.abs(actions!.y - range!.y), 'the buttons are on the filter row').toBeLessThan(20)
+
+    // And it really is two columns: the buttons occupy one, so the range spans
+    // about twice that plus the gap between them.
+    expect(range!.width, `range ${range!.width} vs one column ${actions!.width}`)
+      .toBeGreaterThan(actions!.width * 1.8)
+  })
+})
+
 test.describe('a search panel with room for every filter', () => {
   test('offers no toggle', async({ page, context }) => {
     await authenticate(context)
