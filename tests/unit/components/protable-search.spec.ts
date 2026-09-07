@@ -2,8 +2,9 @@ import { describe, it, expect } from 'vitest'
 import { h, Comment, Fragment, type VNode } from 'vue'
 import { searchFieldSpans, colsFor, collapseTo } from '@/components/ProTable/search'
 
-/** Stands in for <el-form-item>; only its presence is counted. */
-const field = (label: string) => h({ name: 'ElFormItem' }, { label })
+/** Stands in for <el-form-item>; only its presence and its class are read. */
+const field = (label: string, cls?: unknown) =>
+  h({ name: 'ElFormItem' }, cls === undefined ? { label } : { label, class: cls })
 
 const slotOf = (...nodes: VNode[]) => () => nodes
 
@@ -29,6 +30,29 @@ describe('searchFieldSpans', () => {
       h(Comment),
       field('登录名')
     ))).toEqual([1, 1])
+  })
+
+  it('reports two columns for a field marked is-wide', () => {
+    expect(searchFieldSpans(slotOf(field('名称'), field('操作时间', 'is-wide')))).toEqual([1, 2])
+  })
+
+  /**
+   * Vue hands the class through as the page wrote it, and pages write all
+   * three forms. normalizeClass is what flattens them; without it an array or
+   * an object would read as "not wide" and the field would quietly collapse to
+   * one column -- visible only as a squeezed date picker.
+   */
+  it('reads the class however the page wrote it', () => {
+    expect(searchFieldSpans(slotOf(field('a', 'is-wide')))).toEqual([2])
+    expect(searchFieldSpans(slotOf(field('b', ['pinned', 'is-wide'])))).toEqual([2])
+    expect(searchFieldSpans(slotOf(field('c', { 'is-wide': true, pinned: false })))).toEqual([2])
+    expect(searchFieldSpans(slotOf(field('d', { 'is-wide': false })))).toEqual([1])
+  })
+
+  /** Whole class names, not a substring: `not-is-wide` is a different class. */
+  it('does not match a class that merely contains the name', () => {
+    expect(searchFieldSpans(slotOf(field('e', 'not-is-wide')))).toEqual([1])
+    expect(searchFieldSpans(slotOf(field('f', 'is-wide-ish')))).toEqual([1])
   })
 
   it('looks inside the fragments v-for and <template> produce', () => {

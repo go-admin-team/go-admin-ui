@@ -1,4 +1,4 @@
-import { Comment, Fragment, Static, Text, normalizeClass, type Slot, type VNode } from 'vue'
+import { Comment, Fragment, Static, Text, type Slot, type VNode } from 'vue'
 
 /** Columns a field marked `is-wide` asks for. */
 const WIDE_SPAN = 2
@@ -37,9 +37,13 @@ export function searchFieldSpans(slot: Slot | undefined): number[] {
         walk((node.children ?? []) as VNode[])
         continue
       }
-      // normalizeClass because a page may write the class as a string, an
-      // array or an object, and all three reach here as authored.
-      const classes = normalizeClass(node.props?.class)
+      // A page may write the class as a string, an array or an object, but
+      // createVNode has already flattened all three by the time the slot hands
+      // them over -- so this reads a string, and normalising again would be a
+      // no-op. The tests still cover all three forms: that is the contract
+      // pages write against, whoever ends up honouring it.
+      const classes = String(node.props?.class ?? '')
+      // Whole names, not a substring: `not-is-wide` is a different class.
       spans.push(classes.split(/\s+/).includes('is-wide') ? WIDE_SPAN : 1)
     }
   }
