@@ -41,6 +41,23 @@ async function installPagedUsers(page: Page, total = 25) {
   return calls
 }
 
+/**
+ * Reaches the end of the list, which is how this component loads more.
+ *
+ * Not a click on the button inside the sentinel, even though that button works:
+ * Playwright scrolls a target into view before clicking, that scroll is what
+ * brings the sentinel into view, and the load it triggers re-creates the
+ * sentinel (`v-if="hasMore || loading"`) -- so the button detaches mid-click and
+ * Playwright retries, scrolls, and detaches it again until the test times out.
+ * Once in fifty runs it lost that race; the click never lands.
+ *
+ * Scrolling drives the IntersectionObserver directly, which is the path a
+ * reader takes and the one the component was built around.
+ */
+const scrollToEnd = async(page: Page) => {
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
+}
+
 const openList = async(page: Page) => {
   await page.goto('/#/admin/sys-user')
   await expect(page.locator('.pro-card').first()).toBeVisible({ timeout: 15000 })
@@ -140,6 +157,16 @@ test.describe('the phone layout', () => {
   })
 })
 
+/**
+ * Reaching the end loads more than one page, on purpose.
+ *
+ * The sentinel stays on screen while each page lands, so the observer fires
+ * again -- which is what an infinite list is supposed to do once you are at the
+ * bottom of it. So these assert the property each test is named for (appended
+ * rather than replaced, cards left open, the list started over) and not a page
+ * count: pinning the count reported 25 cards where 20 were expected, which
+ * reads as a defect in the component and is not one.
+ */
 test.describe('loading more by scrolling', () => {
   test.beforeEach(async({ page, context }) => {
     await authenticate(context)
@@ -155,14 +182,18 @@ test.describe('loading more by scrolling', () => {
     await expect(cards).toHaveCount(10)
     await expect(page.locator('.pro-card__title').first()).toHaveText('user1')
 
-    await page.locator('.pro-cards__more button').click()
+    await scrollToEnd(page)
+    await expect.poll(() => cards.count()).toBeGreaterThan(10)
 
-    // 20, not 10: replacing would leave the count unchanged and the first title
-    // reading user11 -- which is exactly what a pager does, and the bug this
-    // guards against.
-    await expect(cards).toHaveCount(20)
+    // Replacing would hold the count at ten and leave the first title reading
+    // user11 -- which is what a pager does, and the bug this guards against.
     await expect(page.locator('.pro-card__title').first()).toHaveText('user1')
-    expect(calls.pages).toEqual([1, 2])
+    // Ascending with no repeats: each page asked for once, in order. A stack
+    // that reset itself would ask for page one again partway through.
+    expect(calls.pages[0]).toBe(1)
+    expect(calls.pages).toContain(2)
+    expect(calls.pages, `pages: ${calls.pages}`).toEqual([...calls.pages].sort((a, b) => a - b))
+    expect(new Set(calls.pages).size, `pages: ${calls.pages}`).toBe(calls.pages.length)
   })
 
   test('a card stays open when the next page arrives', async({ page }) => {
@@ -173,8 +204,8 @@ test.describe('loading more by scrolling', () => {
     await first.locator('.pro-card__toggle').click()
     await expect(first.locator('.pro-card__toggle')).toHaveText('收起')
 
-    await page.locator('.pro-cards__more button').click()
-    await expect(page.locator('.pro-card')).toHaveCount(20)
+    await scrollToEnd(page)
+    await expect.poll(() => page.locator('.pro-card').count()).toBeGreaterThan(10)
 
     // The reset watches the row count rather than the array: appending leaves
     // the rows already on screen unchanged, and closing them would punish
@@ -186,7 +217,7 @@ test.describe('loading more by scrolling', () => {
     await installPagedUsers(page, 12)
     await openList(page)
 
-    await page.locator('.pro-cards__more button').click()
+    await scrollToEnd(page)
     await expect(page.locator('.pro-card')).toHaveCount(12)
 
     // The sentinel has to disappear, or it keeps asking for a page that is not
@@ -196,19 +227,30 @@ test.describe('loading more by scrolling', () => {
   })
 
   test('a new search starts the list over', async({ page }) => {
-    await installPagedUsers(page, 25)
+    const calls = await installPagedUsers(page, 25)
     await openList(page)
-    await page.locator('.pro-cards__more button').click()
-    await expect(page.locator('.pro-card')).toHaveCount(20)
+    await scrollToEnd(page)
+    await expect.poll(() => page.locator('.pro-card').count()).toBeGreaterThan(10)
 
+    const beforeSearch = calls.pages.length
     await page.locator('.pro-table__filter-bar button').click()
     const sheet = page.locator('.el-drawer.pro-table__sheet')
     await sheet.locator('input[placeholder="请输入用户名称"]').fill('user')
     await sheet.getByRole('button', { name: '查看结果' }).click()
 
-    // Page one is also the signal that the stack is stale; without it the new
-    // results would be appended below the old ones.
+    await expect.poll(() => calls.pages.length).toBeGreaterThan(beforeSearch)
+    expect(calls.pages[beforeSearch], `pages: ${calls.pages}`).toBe(1)
+
+    // Back to the top before counting: at the end of the list the sentinel is
+    // on screen and keeps loading, and this test is asking whether the list
+    // started over, not how much of it can be loaded. Away from the sentinel
+    // the count settles and can be pinned exactly -- which is the assertion
+    // that fails if the stack appends the new results below the old ones.
+    // Requesting page one is not enough on its own: the query resets whether
+    // or not the stack does, so a request-level check passes either way.
+    await page.evaluate(() => window.scrollTo(0, 0))
     await expect(page.locator('.pro-card')).toHaveCount(10)
+    await expect(page.locator('.pro-card__title').first()).toHaveText('user1')
   })
 })
 
