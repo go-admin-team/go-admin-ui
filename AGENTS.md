@@ -439,11 +439,18 @@ e2e 的浏览器语言在 `playwright.config.ts` 里钉死为 `zh-CN`。别去�
 
 ## 提交规范
 
-格式 `type+emoji: 描述`：
+格式 `type(scope): 描述`：
 
-`feat✨` `fix🐛` `style💄` `docs📝` `perf👌` `test✅` `refactor🎨` `chore🔧`
+`feat` `fix` `docs` `style` `refactor` `perf` `test` `build` `ci` `chore`
+
+scope 写改动落在哪一块——组件名、模块名或目录名，例如
+`feat(protable)`、`fix(apps)`、`test(tags-view)`、`fix(ci)`。
 
 一个提交只做一件事。改动跨越多个语义时拆分提交，不要混在一起。
+
+**不要照着 `git log` 反推格式。** 2026-09-01 之前用的是 `type+emoji: 描述`
+（`feat✨` `fix🐛` `style💄`…），历史里还留着一批，照抄会写出已经废弃的格式。
+同理，那批旧提交里带的其他尾注也不是现在的惯例。
 
 ## 红线
 
