@@ -2,7 +2,9 @@ export default {
   proTable: {
     filters: 'Filters',
     showResults: 'Show Results',
-    pageActions: 'Page actions'
+    pageActions: 'Page actions',
+    expand: 'Expand',
+    collapse: 'Collapse'
   },
   cards: {
     collapse: 'Collapse',

@@ -1,6 +1,19 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 import { authenticate, installApiMocks } from './fixtures'
 import { captureBodies } from './support/crud'
+import { searchToggle } from './support/protable'
+
+/**
+ * Opens the filters that the search panel keeps to one row.
+ *
+ * At the suite's 1280px this page gets three columns, one of which belongs to
+ * the buttons, so the third filter -- the date range -- starts out behind the
+ * toggle. A reader reaching for it clicks the same button.
+ *
+ * Unconditional: if the toggle ever stops being there, the date range is on
+ * screen for a reason worth failing over rather than skipping past.
+ */
+const expandFilters = (page: Page) => searchToggle(page).click()
 
 /**
  * The two audit pages. They read and delete and nothing writes them, so neither
@@ -147,6 +160,7 @@ test.describe('sys-oper-log', () => {
     const sent = calls.operLog.listQueries.at(-1) ?? ''
     expect(sent).not.toContain('beginTime=2026')
 
+    await expandFilters(page)
     await page.locator('.pro-table__search input[placeholder="开始日期"]').fill('2026-08-01 00:00:00')
     await page.keyboard.press('Enter')
     await page.locator('.pro-table__search input[placeholder="结束日期"]').fill('2026-08-31 23:59:59')
@@ -165,6 +179,7 @@ test.describe('sys-oper-log', () => {
     await page.goto('/#/admin/sys-oper-log')
     await page.waitForSelector('.el-table')
 
+    await expandFilters(page)
     // A daterange only commits once both ends are filled
     await page.locator('.pro-table__search input[placeholder="开始日期"]').fill('2026-08-01 00:00:00')
     await page.keyboard.press('Enter')

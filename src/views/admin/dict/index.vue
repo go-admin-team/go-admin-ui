@@ -7,7 +7,6 @@
             v-model="table.query.dictName"
             :placeholder="$t('admin.dict.type.dictNamePlaceholder')"
             clearable
-            style="width: 160px"
           />
         </el-form-item>
         <el-form-item :label="$t('admin.dict.type.dictType')">
@@ -15,7 +14,6 @@
             v-model="table.query.dictType"
             :placeholder="$t('admin.dict.type.dictTypePlaceholder')"
             clearable
-            style="width: 160px"
           />
         </el-form-item>
         <el-form-item :label="$t('admin.dict.type.status')">
@@ -23,7 +21,6 @@
             v-model="table.query.status"
             :placeholder="$t('admin.dict.type.statusPlaceholder')"
             clearable
-            style="width: 130px"
           >
             <el-option
               v-for="item in sys_normal_disable"

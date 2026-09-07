@@ -1,5 +1,5 @@
 <template>
-  <PageContainer>
+  <PageContainer card>
     <div class="sys-config-set">
 
       <div class="config-wrapper">

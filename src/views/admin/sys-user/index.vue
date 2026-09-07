@@ -10,24 +10,31 @@
           there; the same filter is offered inside the search panel instead, so
           the phone has one place to filter from rather than two.
         -->
-        <el-input
-          v-model="deptName"
-          :placeholder="$t('admin.sysUser.deptNamePlaceholder')"
-          clearable
-          class="dept-filter"
-        />
-        <el-tree
-          ref="treeRef"
-          class="dept-tree"
-          :data="deptOptions"
-          :props="{ label: 'label', children: 'children' }"
-          :filter-node-method="filterDept"
-          node-key="id"
-          highlight-current
-          default-expand-all
-          :expand-on-click-node="false"
-          @node-click="handleDeptClick"
-        />
+        <!--
+          Its own card. The tree used to sit on the one PageContainer drew round
+          the whole page; now that the list brings its own panels, a tree left
+          bare would be the only thing on the page standing on the background.
+        -->
+        <el-card shadow="never" class="dept-card">
+          <el-input
+            v-model="deptName"
+            :placeholder="$t('admin.sysUser.deptNamePlaceholder')"
+            clearable
+            class="dept-filter"
+          />
+          <el-tree
+            ref="treeRef"
+            class="dept-tree"
+            :data="deptOptions"
+            :props="{ label: 'label', children: 'children' }"
+            :filter-node-method="filterDept"
+            node-key="id"
+            highlight-current
+            default-expand-all
+            :expand-on-click-node="false"
+            @node-click="handleDeptClick"
+          />
+        </el-card>
       </el-col>
 
       <el-col :span="20" :xs="24">
@@ -42,7 +49,6 @@
                 check-strictly
                 clearable
                 :placeholder="$t('admin.sysUser.deptPlaceholder')"
-                style="width: 160px"
                 @update:model-value="handleDeptFilter"
               />
             </el-form-item>
@@ -51,7 +57,6 @@
                 v-model="table.query.username"
                 :placeholder="$t('admin.sysUser.usernamePlaceholder')"
                 clearable
-                style="width: 160px"
               />
             </el-form-item>
             <el-form-item :label="$t('admin.sysUser.phone')">
@@ -59,7 +64,6 @@
                 v-model="table.query.phone"
                 :placeholder="$t('admin.sysUser.phonePlaceholder')"
                 clearable
-                style="width: 160px"
               />
             </el-form-item>
             <el-form-item :label="$t('admin.sysUser.status')">
@@ -67,7 +71,6 @@
                 v-model="table.query.status"
                 :placeholder="$t('admin.sysUser.statusPlaceholder')"
                 clearable
-                style="width: 160px"
               >
                 <el-option
                   v-for="item in sys_normal_disable"
@@ -611,6 +614,10 @@ const handleStatusChange = async(row: SysUser) => {
 <style lang="scss" scoped>
 // The toggle exists only on the narrow layout; on a desktop the tree is a
 // sidebar and needs no lid.
+
+.dept-card {
+  height: 100%;
+}
 
 .dept-filter {
   margin-bottom: 12px;

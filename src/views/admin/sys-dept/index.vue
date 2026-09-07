@@ -18,7 +18,6 @@
             v-model="table.query.deptName"
             :placeholder="$t('admin.sysDept.deptNamePlaceholder')"
             clearable
-            style="width: 180px"
           />
         </el-form-item>
         <el-form-item :label="$t('admin.sysDept.status')">
@@ -26,7 +25,6 @@
             v-model="table.query.status"
             :placeholder="$t('admin.sysDept.statusPlaceholder')"
             clearable
-            style="width: 140px"
           >
             <el-option
               v-for="item in sys_normal_disable"

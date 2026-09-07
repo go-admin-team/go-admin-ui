@@ -13,7 +13,10 @@ export default {
     filters: '筛选',
     showResults: '查看结果',
     /** Label of the floating button that opens a page's toolbar on a phone. */
-    pageActions: '页面操作'
+    pageActions: '页面操作',
+    /** Toggle on the search panel, shown only when a filter is hidden by it. */
+    expand: '展开',
+    collapse: '收起'
   },
   cards: {
     collapse: '收起',
