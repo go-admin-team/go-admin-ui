@@ -61,8 +61,14 @@ test.describe('the tab strip', () => {
    * Walking every clipping ancestor rather than naming nav-wrap: the previous
    * version compared the tab against .el-tabs__header, which does not clip, so
    * it passed for the whole time the border was missing.
+   *
+   * Vertical only, and deliberately. The strip is a fixed 40px, so a tab cut
+   * off at the top or bottom is always a defect. Sideways it is the opposite:
+   * the strip scrolls, and clipping the tab that runs past its right-hand edge
+   * is what a scrolling row is supposed to do -- checking left and right here
+   * would fail on any window narrow enough to need it.
    */
-  test('nothing clips a tab, so its declared borders are all on screen', async({ page }) => {
+  test('a tab keeps its top and bottom borders on screen, not just declared', async({ page }) => {
     const problems = await page.locator('.el-tabs__item').evaluateAll(nodes => {
       const clipped: string[] = []
 
