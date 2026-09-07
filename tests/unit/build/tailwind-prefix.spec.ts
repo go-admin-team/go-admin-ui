@@ -22,13 +22,16 @@ import { dirname, resolve } from 'node:path'
  * Compiled here rather than asserted as text, because what matters is what
  * Tailwind emits, not how the entry point is spelled.
  */
+// import.meta.dirname, matching tests/unit/scripts/sync-apps.spec.js: vitest
+// resolves its own aliases that way and does not promise this module's
+// import.meta.url is a real file:// URL.
 const compileWith = async(candidates: string[]) => {
-  const entry = resolve(__dirname, '../../../src/styles/tailwind.css')
+  const entry = resolve(import.meta.dirname, '../../../src/styles/tailwind.css')
   const compiler = await compile(readFileSync(entry, 'utf8'), {
     base: dirname(entry),
     loadStylesheet: async(id: string, base: string) => {
       const path = id.startsWith('tailwindcss')
-        ? resolve(__dirname, '../../../node_modules', id)
+        ? resolve(import.meta.dirname, '../../../node_modules', id)
         : resolve(base, id)
       return { path, base: dirname(path), content: readFileSync(path, 'utf8') }
     }
@@ -36,10 +39,28 @@ const compileWith = async(candidates: string[]) => {
   return compiler.build(candidates)
 }
 
-/** Rules inside `@layer utilities { ... }`, which is where generated ones land. */
+/**
+ * What is inside `@layer utilities { ... }`, which is where generated rules
+ * land. Empty string when the layer holds nothing or is not emitted at all --
+ * Tailwind writes a bare `@layer utilities;` in that case, and the two should
+ * read the same to the assertion below.
+ *
+ * Brace-matched rather than sliced to the end of the file: a slice reports
+ * every later layer as though it were a utility, which turns one unexpected
+ * rule into an unreadable failure message.
+ */
 const utilityRules = (css: string) => {
   const start = css.indexOf('@layer utilities {')
-  return start < 0 ? '' : css.slice(start)
+  if (start < 0) return ''
+
+  let depth = 0
+  for (let i = css.indexOf('{', start); i < css.length; i++) {
+    if (css[i] === '{') depth++
+    else if (css[i] === '}' && --depth === 0) {
+      return css.slice(css.indexOf('{', start) + 1, i).trim()
+    }
+  }
+  return css.slice(start).trim()
 }
 
 describe('tailwind utilities are namespaced', () => {
