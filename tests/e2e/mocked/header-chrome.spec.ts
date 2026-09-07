@@ -2,6 +2,20 @@ import { test, expect } from '@playwright/test'
 import { authenticate, installApiMocks } from './fixtures'
 
 /**
+ * A colour the browser will not paint, however it chose to serialise it.
+ *
+ * Chromium computes `solid transparent` to `rgba(0, 0, 0, 0)`, so comparing
+ * against that one string does work here -- but the string is a serialisation
+ * detail and the question being asked is about alpha. Reading the alpha says
+ * that, and keeps saying it if the serialisation ever differs.
+ */
+const invisible = (colour: string) => {
+  if (colour === 'transparent') return true
+  const parts = colour.match(/[\d.]+/g)
+  return parts?.length === 4 && Number(parts[3]) === 0
+}
+
+/**
  * The page header, which is two elements in two files.
  *
  * The navbar covers the main column and the sidebar's logo block covers the
@@ -34,7 +48,7 @@ test.describe('the page header', () => {
     // The rail may draw no rule at all (the dark rail sets it transparent, and
     // the colour change between the two surfaces is the divider there). What it
     // must not be is a *different* visible colour from the navbar's.
-    if (seam.logo.colour !== 'rgba(0, 0, 0, 0)') {
+    if (!invisible(seam.logo.colour)) {
       expect(seam.logo.colour, 'both halves use the same rule colour').toBe(seam.navbar.colour)
     }
   })
