@@ -227,10 +227,21 @@ test.describe('loading more by scrolling', () => {
   })
 
   test('a new search starts the list over', async({ page }) => {
-    const calls = await installPagedUsers(page, 25)
+    // Two pages, so one scroll reaches the end of the list: scrollTo goes to
+    // the bottom as it stands, and a page landing makes the document taller
+    // than that, which leaves the sentinel below the fold again. Twenty rows
+    // is the size that makes "the list has run out" a state this test can wait
+    // for rather than approach.
+    const calls = await installPagedUsers(page, 20)
     await openList(page)
     await scrollToEnd(page)
-    await expect.poll(() => page.locator('.pro-card').count()).toBeGreaterThan(10)
+
+    // Snapshot the call log only once nothing else can add to it. Taken while a
+    // page is still in flight, that page lands after the snapshot and takes the
+    // slot the search's own request is checked in -- failing the assertion
+    // below for a reason that has nothing to do with searching.
+    await expect(page.locator('.pro-cards__more')).toHaveCount(0)
+    await expect(page.locator('.pro-card')).toHaveCount(20)
 
     const beforeSearch = calls.pages.length
     await page.locator('.pro-table__filter-bar button').click()
