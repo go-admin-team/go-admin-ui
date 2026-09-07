@@ -25,6 +25,22 @@ const UI = join(dirname(fileURLToPath(import.meta.url)), '..')
 const GO = process.env.GO_ADMIN_PATH ?? join(UI, '..', 'go-admin')
 
 /**
+ * go-admin-core, which owns the bases every model embeds.
+ *
+ * common/models used to declare ControlBy, Model and ModelTime itself; since
+ * the contract surface moved down into go-admin-core (its PRD 006) it declares
+ * them as type aliases into that repository instead. An alias is the same type,
+ * so nothing changed on the wire -- but the fields those bases carry (id,
+ * createdAt, updatedAt, createBy, updateBy) are now declared over there, and a
+ * checkout without it can only conclude that every model has lost them.
+ */
+const CORE = process.env.GO_ADMIN_CORE_PATH ?? join(UI, '..', 'go-admin-core')
+
+/** Where in that repository the bases live -- named once, so the diagnostic
+ *  below names the directory actually read rather than the repository root. */
+const CORE_MODELS = 'sdk/contract/models'
+
+/**
  * Skipping keeps a UI-only checkout building; --require-models turns the skip
  * into a failure, which is what CI passes. Without it a broken checkout step
  * would leave this job green while it checked nothing at all.
@@ -70,24 +86,38 @@ const parseStructs = source => {
 const goFiles = dir => readdirSync(dir).filter(f => f.endsWith('.go')).map(f => join(dir, f))
 
 const MODEL_DIRS = [
-  'common/models',
-  'app/admin/models',
-  'app/demo/models', // the reference module
-  'app/jobs/models', // scheduled jobs
-  'app/other/models/tools' // the code generator's own tables
+  [GO, 'common/models'],
+  [GO, 'app/admin/models'],
+  [GO, 'app/demo/models'], // the reference module
+  [GO, 'app/jobs/models'], // scheduled jobs
+  [GO, 'app/other/models/tools'], // the code generator's own tables
+  // Last, so a base the Go repository still declares itself is the one used.
+  // This is where the aliased ones are read from once it has stopped.
+  [CORE, CORE_MODELS]
 ]
 
 const structs = {}
-for (const dir of MODEL_DIRS) {
-  const path = join(GO, dir)
+for (const [root, dir] of MODEL_DIRS) {
+  const path = join(root, dir)
   if (!existsSync(path)) continue
   for (const file of goFiles(path)) {
     for (const [name, fields] of Object.entries(parseStructs(readFileSync(file, 'utf8')))) {
-      // First directory wins: common/models holds the embedded bases
+      // First directory wins, so the order above is the resolution order
       if (!(name in structs)) structs[name] = fields
     }
   }
 }
+
+/**
+ * Embedded bases no directory above declares.
+ *
+ * Reported on their own rather than left to surface as missing fields. When
+ * ModelTime could not be read, every model looked as though it had lost
+ * createdAt and the run printed 32 field mismatches -- each one true as stated
+ * and all of them the same single cause, which is a poor way to learn that a
+ * source directory has moved.
+ */
+const unresolved = new Set()
 
 /** Flattens a struct's own and embedded fields into jsonName -> goType. */
 const fieldsOf = (name, seen = new Set()) => {
@@ -95,8 +125,10 @@ const fieldsOf = (name, seen = new Set()) => {
   seen.add(name)
   const out = {}
   for (const [json, type] of structs[name]) {
-    if (json === '@embed') Object.assign(out, fieldsOf(type, seen))
-    else out[json] = type
+    if (json === '@embed') {
+      if (!structs[type]) unresolved.add(type)
+      Object.assign(out, fieldsOf(type, seen))
+    } else out[json] = type
   }
   return out
 }
@@ -318,6 +350,23 @@ for (const block of declaredTypes.matchAll(/export interface (\w+) \{([^}]*)\}/g
 
   note(`src/types/admin.ts ${name}`, 'declared but not on the model',
     declared.filter(f => !(f in fields) && !allowed.has(f) && !ALLOWED.has(f)))
+}
+
+/*
+ * Checked before the mismatches: an unreadable base makes its fields look
+ * missing everywhere at once, so reporting those first would bury the cause
+ * under its symptoms.
+ */
+if (unresolved.size) {
+  const bases = [...unresolved].sort().join(', ')
+  const where = `${bases} are embedded by the models but declared in no source this reads`
+  const hint = `go-admin's common/models aliases them into go-admin-core; point GO_ADMIN_CORE_PATH at a checkout of it (looked for ${join(CORE, CORE_MODELS)})`
+  if (required) {
+    console.error(`cannot check the api contract: ${where}\n  ${hint}`)
+    process.exit(1)
+  }
+  console.log(`skipped: ${where}\n  ${hint}`)
+  process.exit(0)
 }
 
 if (problems.length) {
