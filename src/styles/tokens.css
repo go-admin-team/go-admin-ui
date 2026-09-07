@@ -87,6 +87,18 @@
   --ga-sidebar-light-hover: rgba(0, 0, 0, 0.04);
   --ga-sidebar-light-title: rgba(0, 0, 0, 0.88);
 
+  /* ── Metrics ───────────────────────────────────────────────────
+   * The page header runs across both columns: the navbar on the right and the
+   * sidebar's logo block on the left. They are two elements in two files, and
+   * the seam under them only reads as one line if they are the same height --
+   * which they were not (64px against 50px, so the two rules sat 14px apart).
+   * One number, referenced by both, makes that structural rather than a
+   * coincidence anyone can undo by editing one file.
+   *
+   * The sidebar's scroll area subtracts it too, so the menu still starts right
+   * below the logo. */
+  --ga-header-h: 50px;
+
   /* ── Shape ─────────────────────────────────────────────────────── */
   --ga-radius-sm: 4px;
   --ga-radius:    6px;

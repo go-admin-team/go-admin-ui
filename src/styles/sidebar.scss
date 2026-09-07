@@ -43,7 +43,7 @@
 
     &.has-logo {
       .el-scrollbar {
-        height: calc(100% - 64px);
+        height: calc(100% - var(--ga-header-h));
       }
     }
 
