@@ -1,5 +1,14 @@
 <template>
-  <div class="sidebar-logo-container" :class="{'collapse':collapse}">
+  <!--
+    is-collapsed, not collapse: `collapse` is a Tailwind utility name, and v4
+    generates utilities on demand from whatever words it finds in the source.
+    Writing the class here is what made it emit `.collapse{visibility:collapse}`
+    in the utilities layer -- and since nothing in this file sets visibility,
+    that rule had no competitor and hid the whole logo the moment the rail
+    collapsed. Element and image were still laid out, which is why it read as an
+    empty box rather than a missing element.
+  -->
+  <div class="sidebar-logo-container" :class="{'is-collapsed':collapse}">
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
         <img v-if="showLogo" :src="appInfo.sys_app_logo" class="sidebar-logo" @error="showLogo = false">
@@ -64,8 +73,10 @@ export default {
 .sidebar-logo-container {
   position: relative;
   width: 100%;
-  height: 64px;
-  line-height: 64px;
+  // Shared with the navbar, so the rule under this block and the one under it
+  // land on the same line -- see --ga-header-h.
+  height: var(--ga-header-h);
+  line-height: var(--ga-header-h);
   // Part of the rail, not a plaque laid on top of it. This was a brand-colour
   // gradient, which put the most saturated block in the interface against the
   // darkest one and read as a patch rather than a header -- and on a light rail
@@ -120,7 +131,7 @@ export default {
     }
   }
 
-  &.collapse {
+  &.is-collapsed {
     .sidebar-logo {
       margin-right: 0;
     }

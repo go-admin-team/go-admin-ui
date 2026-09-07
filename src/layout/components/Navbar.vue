@@ -101,23 +101,20 @@ export default {
 
 <style lang="scss" scoped>
 .navbar {
-  height: 50px;
+  height: var(--ga-header-h);
   overflow: hidden;
   position: relative;
   background: var(--ga-bg-container);
   border-bottom: 1px solid var(--ga-border-light);
   box-shadow: var(--ga-shadow-sm);
 
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--ga-brand) 0%, var(--el-color-primary-light-3) 100%);
-    opacity: 0.7;
-  }
+  // No accent line under the navbar. It was 2px of the most saturated colour in
+  // the interface, drawn across the main column only -- so once the logo block
+  // and this one were the same height, the seam under the header read as one
+  // grey line on the left and a blue bar on the right. A page header divides;
+  // the 1px border does that, and the brand colour is better spent on things
+  // that can be clicked. It also sat 2px above the tab strip's own top border,
+  // which is close enough that a missing border there read as this covering it.
 
   .hamburger-container {
     line-height: 46px;
