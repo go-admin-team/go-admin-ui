@@ -2,7 +2,7 @@ import { createI18n } from 'vue-i18n'
 import { shallowRef } from 'vue'
 import elementZhCn from 'element-plus/es/locale/lang/zh-cn'
 import zhCN from './zh-CN'
-import { DEFAULT_LOCALE, initialLocale, rememberLocale, type Locale } from './locales'
+import { DEFAULT_LOCALE, fixedLocale, initialLocale, rememberLocale, type Locale } from './locales'
 
 /**
  * The i18n instance, and the one function that changes language.
@@ -67,7 +67,13 @@ export const setLocale = async(locale: Locale): Promise<void> => {
   elementLocale.value = await elementLoaders[locale]()
 
   i18n.global.locale.value = locale
-  rememberLocale(locale)
+  /*
+   * Only a choice the visitor made is worth remembering. A pinned build offers
+   * no choice, and storing its language would outlive the pin: unset
+   * VUE_APP_LOCALE later and everyone who ever loaded the site stays in a
+   * language they never picked, with the switcher back but already answered.
+   */
+  if (!fixedLocale()) rememberLocale(locale)
   // Screen readers pick pronunciation from this, and CSS :lang() selectors key
   // off it. Nothing in the app reads it back.
   document.documentElement.lang = locale
