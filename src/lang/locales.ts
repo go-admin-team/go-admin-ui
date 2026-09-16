@@ -25,6 +25,26 @@ export const isLocale = (value: unknown): value is Locale =>
   LOCALES.some(locale => locale.value === value)
 
 /**
+ * The language this deployment was built for, when it was built for one.
+ *
+ * `VUE_APP_LOCALE` is for a deployment that is not multilingual: one intranet,
+ * one language, and a switcher whose only effect is to put the interface into a
+ * language nobody there reads. Setting it makes that language the only one and
+ * takes the switcher away; leaving it empty -- how every .env here ships --
+ * means the visitor decides, which is the behaviour this had before.
+ *
+ * Read through the same `isLocale` guard as everything else, so a value that is
+ * not a language we ship cannot reach the rest of the module. It should never
+ * get that far: vite.config.mjs fails the build on one, which is where a typo
+ * has to surface. Falling back quietly here would leave an operator looking at
+ * a deployment that followed the browser anyway.
+ */
+export const fixedLocale = (): Locale | undefined => {
+  const configured = process.env.VUE_APP_LOCALE
+  return isLocale(configured) ? configured : undefined
+}
+
+/**
  * The closest supported language to a browser tag.
  *
  * navigator.language is a BCP 47 tag, and the region half varies more than the
@@ -56,13 +76,23 @@ export const rememberLocale = (locale: Locale): void => {
 }
 
 /**
- * The language to start in: an explicit choice, else the browser's, else zh-CN.
+ * The language to start in: the one this build is fixed to, else an explicit
+ * choice, else the browser's, else zh-CN.
+ *
+ * A fixed language outranks a stored choice on purpose. The deployment that
+ * needs this is usually one that has been running for a while, so some of its
+ * users have already been through the switcher; leaving those visitors in the
+ * language they picked would make "this deployment is Chinese" true of everyone
+ * except the people who noticed the switcher first.
  *
  * navigator.languages is checked before navigator.language because the first
  * entry of the list is not always the same as the singular property when the
  * user has ordered several languages.
  */
 export const initialLocale = (): Locale => {
+  const fixed = fixedLocale()
+  if (fixed) return fixed
+
   const stored = storedLocale()
   if (stored) return stored
 

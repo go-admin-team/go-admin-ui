@@ -98,6 +98,15 @@ export default defineConfig({
      * and knows nothing else is on 9527.
      */
     reuseExistingServer: process.env.PW_REUSE_SERVER === '1',
+    /*
+     * Cleared, not inherited, for the same reason `locale` above is pinned.
+     * VUE_APP_LOCALE fixes the whole build to one language and removes the
+     * switcher, so a shell that still has it exported from a build -- or a CI
+     * job that sets it for one -- would run the suite against an interface
+     * i18n.spec.ts is not describing, and fail a couple of dozen tests with
+     * nothing on screen to explain why.
+     */
+    env: { VUE_APP_LOCALE: '' },
     timeout: 120_000
   },
 
