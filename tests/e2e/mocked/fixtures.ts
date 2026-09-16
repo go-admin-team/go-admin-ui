@@ -902,7 +902,7 @@ async function installSessionMocks(page: Page, counters: { getinfo: number, menu
 }
 
 export async function installApiMocks(page: Page) {
-  const extra = { getinfo: 0, menurole: 0, passwordReset: 0, roleDataScope: 0, operLogClean: 0, jobStarts: 0, jobStops: 0, tableImports: 0, tableImportBody: '', tableDeletes: 0, tableDeleteUrl: '', genTableList: 0, generated: [] as string[], setConfigSaves: 0, setConfigBody: '' }
+  const extra = { getinfo: 0, menurole: 0, passwordReset: 0, roleDataScope: 0, operLogClean: 0, jobStarts: 0, jobStops: 0, tableImports: 0, tableImportUrl: '', tableDeletes: 0, tableDeleteUrl: '', genTableList: 0, generated: [] as string[], setConfigSaves: 0, setConfigBody: '' }
 
   /** Milliseconds to hold a write open, so a test can submit again mid-flight. */
   const delays = { userWrite: 0, passwordReset: 0 }
@@ -955,10 +955,12 @@ export async function installApiMocks(page: Page) {
     }))
   })
 
-  await page.route('**/api/v1/sys/tables/info', async route => {
+  // `info*`, not `info`: the import sends its table list as a query parameter,
+  // and a pattern without the wildcard stops matching the moment one is there.
+  await page.route('**/api/v1/sys/tables/info*', async route => {
     if (route.request().method() === 'POST') {
       extra.tableImports++
-      extra.tableImportBody = route.request().postData() ?? ''
+      extra.tableImportUrl = route.request().url()
       await route.fulfill(json({ code: 200, msg: '导入成功', data: null }))
       return
     }
