@@ -108,7 +108,7 @@ const submit = async() => {
   importing.value = true
   try {
     const tables = table.selection.map(row => String(row.tableName)).join(',')
-    await importTable({ tables })
+    await importTable(tables)
     msgSuccess(t('devTools.importTable.imported'))
     visible.value = false
     emit('imported')

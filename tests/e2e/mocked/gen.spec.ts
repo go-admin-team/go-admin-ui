@@ -156,7 +156,7 @@ test.describe('dev-tools import', () => {
     await dialog.getByRole('button', { name: '确 定' }).click()
 
     await expect.poll(() => calls.extra.tableImports).toBe(1)
-    expect(JSON.parse(calls.extra.tableImportBody || '{}').tables).toBe('sys_order')
+    expect(new URL(calls.extra.tableImportUrl).searchParams.get('tables')).toBe('sys_order')
     await expect.poll(() => calls.extra.genTableList).toBeGreaterThan(before)
   })
 
