@@ -16,6 +16,10 @@ export default {
   goType: 'Go Type',
   goField: 'Go Field',
   jsonField: 'JSON Field',
+  colWidth: 'Column Width',
+  colWidthPlaceholder: 'Leave blank to use the inferred width',
+  defaultValue: 'Default Value',
+  defaultValuePlaceholder: 'Leave blank for no default value',
 
   isInsert: 'Form',
   isInsertTip: 'Whether the column appears in the add/edit form; ticked means it does',

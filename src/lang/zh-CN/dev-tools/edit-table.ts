@@ -24,6 +24,10 @@ export default {
   goType: 'go类型',
   goField: 'go属性',
   jsonField: 'json属性',
+  colWidth: '列宽',
+  colWidthPlaceholder: '留空使用推断宽度',
+  defaultValue: '默认值',
+  defaultValuePlaceholder: '留空则表单默认值为空',
 
   // 「表单」rather than 「编辑」, which is what this column said until now.
   // The checkbox is bound to is_insert, and is_insert decides whether the column
