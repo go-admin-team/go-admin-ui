@@ -48,6 +48,8 @@ export default {
     input: '文本框',
     select: '下拉框',
     radio: '单选框',
+    checkbox: '复选框',
+    datetime: '日期控件',
     textarea: '文本域'
   },
 

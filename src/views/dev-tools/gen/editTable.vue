@@ -136,11 +136,9 @@
                 <el-option :label="$t('devTools.editTable.htmlTypes.input')" value="input" />
                 <el-option :label="$t('devTools.editTable.htmlTypes.select')" value="select" />
                 <el-option :label="$t('devTools.editTable.htmlTypes.radio')" value="radio" />
-                <!-- <el-option label="文件选择" value="file" /> -->
-                <!-- <el-option label="复选框" value="checkbox" />
-                <el-option label="日期控件" value="datetime" />-->
+                <el-option :label="$t('devTools.editTable.htmlTypes.checkbox')" value="checkbox" />
+                <el-option :label="$t('devTools.editTable.htmlTypes.datetime')" value="datetime" />
                 <el-option :label="$t('devTools.editTable.htmlTypes.textarea')" value="textarea" />
-
               </el-select>
             </template>
           </el-table-column>
