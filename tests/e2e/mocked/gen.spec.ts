@@ -294,7 +294,10 @@ test.describe('dev-tools editTable', () => {
     await page.goto('/#/dev-tools/editTable?tableId=1')
     await page.waitForSelector('.el-table')
 
-    const cell = page.locator('.el-table__body .el-table__row').first().locator('td').nth(15)
+    // Column 17: PRD 010 F6 inserted colWidth/defaultValue right after
+    // jsonField (index 6), shifting every later column, this one included,
+    // two places to the right.
+    const cell = page.locator('.el-table__body .el-table__row').first().locator('td').nth(17)
     await expect(cell.locator('.el-select__placeholder')).toHaveText('请选择')
     await cell.locator('.el-select').click()
 
@@ -496,8 +499,10 @@ test.describe('dev-tools editTable in English', () => {
     // is also what keeps the Chinese interface byte-for-byte unchanged.
     await switchTo(page, 'English')
 
-    // Column 13 is 字典类型; 15 is the relation key the test above uses
-    const cell = page.locator('.el-table__body .el-table__row').first().locator('td').nth(13)
+    // Column 15 is 字典类型; 17 is the relation key the test above uses --
+    // both shifted two places right by PRD 010 F6's colWidth/defaultValue
+    // columns, inserted right after jsonField (index 6).
+    const cell = page.locator('.el-table__body .el-table__row').first().locator('td').nth(15)
     await cell.locator('.el-select').click()
 
     const dropdown = page.locator('.el-select-dropdown:visible')
