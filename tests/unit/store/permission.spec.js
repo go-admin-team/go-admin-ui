@@ -26,7 +26,7 @@ vi.mock('@/api/admin/sys-role', () => ({
   getRoutes: (...args) => getRoutes(...args)
 }))
 
-const { usePermissionStore, generaMenu, loadView } =
+const { usePermissionStore, generaMenu, flattenRoutes, loadView } =
   await import('@/stores/permission')
 
 // Matches the shape returned by the backend menu endpoint
@@ -128,6 +128,71 @@ describe('stores/permission', () => {
       generaMenu(routes, [menuItem()])
 
       expect(routes[0].redirect).toBeUndefined()
+    })
+  })
+
+  describe('flattenRoutes', () => {
+    it('registers leaves at the top level and drops directory levels', () => {
+      const routes = []
+      flattenRoutes(routes, [
+        menuItem({
+          path: '/parent',
+          component: 'Layout',
+          children: [
+            menuItem({ path: '/parent/a' }),
+            menuItem({ path: '/parent/b' })
+          ]
+        })
+      ])
+
+      expect(routes.map(r => r.path)).toEqual(['/parent/a', '/parent/b'])
+    })
+
+    /**
+     * Every leaf is wrapped in its own Layout record with an empty-path
+     * child, so matched is always exactly [Layout, leaf]. The Layout object
+     * is shared and App.vue's router-view carries no key, which is what
+     * keeps the shell from being rebuilt on every navigation.
+     */
+    it('wraps each leaf in a Layout record with an empty-path child', () => {
+      const routes = []
+      flattenRoutes(routes, [menuItem({ path: '/demo' })])
+
+      expect(routes[0].component).toBe(LayoutStub)
+      expect(routes[0].children[0].path).toBe('')
+      expect(routes[0].children[0].name).toBe('DemoProduct')
+      expect(typeof routes[0].children[0].component).toBe('function')
+    })
+
+    /**
+     * THE container case. A directory whose component points at a page
+     * (/log/index in the seed menu) used to become a matched level between
+     * the layout and the leaf; passing through it wedged the content area
+     * until reload. It must contribute no route record of its own -- only
+     * its leaves reach the table.
+     */
+    it('drops a container directory (component pointing at a page) too', () => {
+      const routes = []
+      flattenRoutes(routes, [
+        menuItem({
+          path: '/log',
+          component: '/log/index',
+          children: [menuItem({ path: '/admin/sys-oper-log' })]
+        })
+      ])
+
+      expect(routes.map(r => r.path)).toEqual(['/admin/sys-oper-log'])
+      // No third matched level: the wrapper is Layout, never the container page
+      expect(routes[0].component).toBe(LayoutStub)
+      expect(typeof routes[0].children[0].component).toBe('function')
+    })
+
+    it('keeps a hidden leaf registered -- hidden hides it in the sidebar, not the router', () => {
+      const routes = []
+      flattenRoutes(routes, [menuItem({ path: '/hidden-leaf', visible: '1' })])
+
+      expect(routes).toHaveLength(1)
+      expect(routes[0].hidden).toBe(true)
     })
   })
 
@@ -325,6 +390,35 @@ describe('stores/permission', () => {
       const dynamicRoutes = await store.generateRoutes()
 
       expect(dynamicRoutes.at(-1)).toMatchObject({ path: '/:pathMatch(.*)*', redirect: '/' })
+    })
+
+    /**
+     * A nested menu must reach the router flat: the leaf at the top level,
+     * no container record above it. This is the regression guard for the
+     * content-area freeze -- a container record here is the deadlock coming
+     * back.
+     */
+    it('flattens a nested directory into top-level leaves', async() => {
+      getRoutes.mockResolvedValue({
+        code: 200,
+        data: [
+          menuItem({
+            path: '/log',
+            component: '/log/index',
+            children: [menuItem({ path: '/admin/sys-oper-log' })]
+          })
+        ]
+      })
+
+      const dynamicRoutes = await store.generateRoutes()
+
+      expect(dynamicRoutes.map(r => r.path)).toEqual([
+        '/admin/sys-oper-log',
+        '/:pathMatch(.*)*'
+      ])
+      // The sidebar keeps the directory for grouping
+      expect(store.sidebarRouters[1].path).toBe('/log')
+      expect(store.sidebarRouters[1].children).toHaveLength(1)
     })
 
     it('keeps the catch-all out of the sidebar route table', async() => {

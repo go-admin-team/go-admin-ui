@@ -123,23 +123,32 @@ export const loadView = (view: string, name?: string) => {
   })
 }
 
-/** Turns the backend menu tree into Vue Router records, in place. */
+/** A single menu record's own route fields, shared by the two tables below. */
+const makeRoute = (item: BackendMenu): AppRoute => ({
+  path: item.path,
+  component: item.component === 'Layout' ? Layout : loadView(item.component, item.menuName),
+  // The flag is inverted and compared loosely: the backend sends strings,
+  // and anything other than '0' means hidden.
+  // eslint-disable-next-line eqeqeq
+  hidden: item.visible != '0',
+  name: item.menuName,
+  meta: {
+    title: item.title,
+    icon: item.icon,
+    noCache: item.noCache
+  }
+})
+
+/**
+ * The sidebar's menu tree, in place. Directories stay in as grouping nodes
+ * with a redirect to their first visible child; the sidebar is the only
+ * consumer of this shape.
+ */
 export function generaMenu(routes: AppRoute[], data: BackendMenu[]) {
   data.forEach(item => {
     const menu = {
-      path: item.path,
-      component: item.component === 'Layout' ? Layout : loadView(item.component, item.menuName),
-      // The flag is inverted and compared loosely: the backend sends strings,
-      // and anything other than '0' means hidden.
-      // eslint-disable-next-line eqeqeq
-      hidden: item.visible != '0',
-      children: [] as AppRoute[],
-      name: item.menuName,
-      meta: {
-        title: item.title,
-        icon: item.icon,
-        noCache: item.noCache
-      }
+      ...makeRoute(item),
+      children: [] as AppRoute[]
     } as AppRoute
 
     if (item.children) {
@@ -155,6 +164,53 @@ export function generaMenu(routes: AppRoute[], data: BackendMenu[]) {
     }
 
     routes.push(menu)
+  })
+}
+
+/**
+ * The route table, flattened: a directory exists only for the sidebar's
+ * grouping and produces no route record here. Every leaf is registered at
+ * the top level wrapped in its own Layout record, so a page's matched
+ * records are always exactly two -- the layout and the leaf.
+ *
+ * A directory whose component points at a container page (the seed menu's
+ * log directory /log -> /log/index, and the dict directory /admin/dict)
+ * otherwise adds a
+ * third matched level between the layout and the leaf. Passing through that
+ * container route wedged the content area: the url, the sidebar and the
+ * breadcrumb kept moving while the <router-view> under AppMain never
+ * rendered again, on any page, until reload. With no container level in the
+ * route table there is nothing to wedge on.
+ *
+ * Each leaf gets a Layout record of its own rather than sharing one big
+ * /admin record: route records are keyed by path, and only a per-leaf record
+ * keeps every page reachable without its directory existing as a route. The
+ * Layout component object is the same for all of them, and App.vue's bare
+ * <router-view> carries no key, so Vue reuses one Layout instance across
+ * navigations -- the shell is not rebuilt on every page switch.
+ */
+export function flattenRoutes(routes: AppRoute[], data: BackendMenu[]) {
+  data.forEach(item => {
+    if (item.children && item.children.length > 0) {
+      flattenRoutes(routes, item.children)
+      return
+    }
+    routes.push({
+      path: item.path,
+      component: Layout,
+      // The flag is inverted and compared loosely: the backend sends strings,
+      // and anything other than '0' means hidden.
+      // eslint-disable-next-line eqeqeq
+      hidden: item.visible != '0',
+      children: [
+        {
+          ...makeRoute(item),
+          // Same path as the parent record: matched stays at two levels and
+          // the leaf keeps the full URL.
+          path: ''
+        }
+      ]
+    } as AppRoute)
   })
 }
 
@@ -205,21 +261,18 @@ export const usePermissionStore = defineStore('permission', {
 
       const menuData = (response.data || []) as BackendMenu[]
 
-      // Walked once. The menu was previously built twice over the same data --
-      // doubling the work and producing a second loadView closure per page --
-      // only so the sidebar copy could omit the catch-all. Appending it to a
-      // separate array achieves that without the second walk.
+      // Walked once, into two deliberately different shapes. The sidebar keeps
+      // the directories as grouping nodes; the route table flattens them away
+      // (see flattenRoutes for why the route table must not carry a container
+      // level). The two no longer share route objects, and each table's
+      // consumers read only their own shape: Sidebar/TopNav/Settings read the
+      // tree, the router reads the flat list.
       const sidebarRoutes: AppRoute[] = []
       generaMenu(sidebarRoutes, menuData)
 
-      // Shares route objects with sidebarRoutes rather than copying them, so
-      // nothing here may mutate a route in place -- every consumer (Sidebar,
-      // TopNav, Settings) only reads. Building the tree twice used to make that
-      // safe by accident; now it is a rule.
-      const dynamicRoutes: AppRoute[] = [
-        ...sidebarRoutes,
-        { path: '/:pathMatch(.*)*', redirect: '/', hidden: true } as AppRoute
-      ]
+      const dynamicRoutes: AppRoute[] = []
+      flattenRoutes(dynamicRoutes, menuData)
+      dynamicRoutes.push({ path: '/:pathMatch(.*)*', redirect: '/', hidden: true } as AppRoute)
       this.setRoutes(dynamicRoutes)
       this.setSidebarRouters((constantRoutes as AppRoute[]).concat(sidebarRoutes))
       // constantRoutes.concat, matching the Vuex SET_DEFAULT_ROUTES mutation.
