@@ -16,6 +16,10 @@ export default {
   goType: 'Go Type',
   goField: 'Go Field',
   jsonField: 'JSON Field',
+  colWidth: 'Column Width',
+  colWidthPlaceholder: 'Leave blank to use the inferred width',
+  defaultValue: 'Default Value',
+  defaultValuePlaceholder: 'Leave blank for no default value',
 
   isInsert: 'Form',
   isInsertTip: 'Whether the column appears in the add/edit form; ticked means it does',
@@ -27,12 +31,17 @@ export default {
   isRequired: 'Required',
 
   htmlType: 'Display Type',
-  // The stored values are input / select / radio / textarea, so the labels are
-  // the control names a developer reads in the generated template
+  // The stored values are input / select / radio / checkbox / datetime /
+  // textarea, so the labels are the control names a developer reads in the
+  // generated template. `file` is a seventh stored value the importer never
+  // assigns automatically and the generator does not render yet -- left out of
+  // this list on purpose (PRD 010 F7).
   htmlTypes: {
     input: 'Input',
     select: 'Select',
     radio: 'Radio',
+    checkbox: 'Checkbox',
+    datetime: 'Date',
     textarea: 'Textarea'
   },
 

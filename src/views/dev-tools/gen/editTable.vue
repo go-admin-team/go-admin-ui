@@ -50,6 +50,26 @@
               <el-input v-model="scope.row.jsonField" />
             </template>
           </el-table-column>
+          <el-table-column :label="$t('devTools.editTable.colWidth')" width="150">
+            <template #default="scope">
+              <el-input-number
+                :model-value="colWidthModel(scope.row)"
+                :min="40"
+                :max="800"
+                :placeholder="$t('devTools.editTable.colWidthPlaceholder')"
+                controls-position="right"
+                @update:model-value="(value: number | undefined) => setColWidth(scope.row, value)"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column :label="$t('devTools.editTable.defaultValue')" width="150">
+            <template #default="scope">
+              <el-input
+                v-model="scope.row.defaultValue"
+                :placeholder="$t('devTools.editTable.defaultValuePlaceholder')"
+              />
+            </template>
+          </el-table-column>
 
           <el-table-column :label="$t('devTools.editTable.isInsert')" width="80" align="center">
             <template #header>
@@ -116,11 +136,9 @@
                 <el-option :label="$t('devTools.editTable.htmlTypes.input')" value="input" />
                 <el-option :label="$t('devTools.editTable.htmlTypes.select')" value="select" />
                 <el-option :label="$t('devTools.editTable.htmlTypes.radio')" value="radio" />
-                <!-- <el-option label="文件选择" value="file" /> -->
-                <!-- <el-option label="复选框" value="checkbox" />
-                <el-option label="日期控件" value="datetime" />-->
+                <el-option :label="$t('devTools.editTable.htmlTypes.checkbox')" value="checkbox" />
+                <el-option :label="$t('devTools.editTable.htmlTypes.datetime')" value="datetime" />
                 <el-option :label="$t('devTools.editTable.htmlTypes.textarea')" value="textarea" />
-
               </el-select>
             </template>
           </el-table-column>
@@ -283,6 +301,23 @@ const dictTypeName = (dict: SysDictType) => translateDictTypeName(dict.dictType,
 const attachForeignColumns = (row: GenTable) => {
   const target = tableTree.value.find(item => item.tableName === row.fkTableName)
   row.fkCol = target?.columns ?? []
+}
+
+/**
+ * colWidth uses 0 as its "not set" sentinel (PRD 010 R2/G12): the generator
+ * falls back to inferring a width from columnType when the column has never
+ * been configured. el-input-number only shows its placeholder for
+ * undefined/null though, so binding straight to scope.row.colWidth would
+ * render a literal, permanent 0 instead of the "leave blank" hint -- these two
+ * are the display-layer conversion. The sentinel itself is untouched in
+ * `columns`, which is what submit() sends back.
+ */
+const colWidthModel = (row: GenTable): number | undefined => {
+  const value = row.colWidth
+  return typeof value === 'number' && value > 0 ? value : undefined
+}
+const setColWidth = (row: GenTable, value: number | undefined) => {
+  row.colWidth = value ?? 0
 }
 
 const load = async() => {
