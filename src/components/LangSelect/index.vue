@@ -1,5 +1,5 @@
 <template>
-  <el-dropdown trigger="click" @command="choose">
+  <el-dropdown v-if="!fixed" trigger="click" @command="choose">
     <div class="lang-select" :title="$t('layout.language')">
       <i class="ri-translate-2" />
     </div>
@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { LOCALES, setLocale, type Locale } from '@/lang'
+import { LOCALES, fixedLocale, setLocale, type Locale } from '@/lang'
 import { msgError } from '@/utils/message'
 
 /**
@@ -34,8 +34,18 @@ import { msgError } from '@/utils/message'
  * reshuffle as you switch, and each entry is written in its own language --
  * "English", not "英语" -- because the person reading it may not read the
  * current one.
+ *
+ * A build fixed to one language has no switcher at all. Rendering a dropdown
+ * whose every entry is either the current language or one this deployment will
+ * not honour is worse than rendering nothing: it offers a choice and then
+ * ignores it. The whole component drops out rather than the menu inside it, so
+ * neither host is left holding an empty slot: the navbar's flex row closes up,
+ * and nothing is positioned into the login page's corner.
  */
 const { locale, t } = useI18n()
+
+/** Build-time, so this never changes while the page is open. */
+const fixed = fixedLocale()
 
 /**
  * Switching can fail: the pack for another language is a separate chunk, and

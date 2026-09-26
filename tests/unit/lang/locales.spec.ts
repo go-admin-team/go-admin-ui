@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { readdirSync } from 'node:fs'
+import { resolve } from 'node:path'
 import {
   LOCALES, DEFAULT_LOCALE, STORAGE_KEY,
-  isLocale, matchLocale, storedLocale, rememberLocale, initialLocale
+  isLocale, matchLocale, storedLocale, rememberLocale, initialLocale, fixedLocale
 } from '@/lang/locales'
 
 /**
@@ -73,8 +75,17 @@ describe('initialLocale', () => {
     vi.stubGlobal('navigator', { languages, language: languages[0] })
   }
 
-  beforeEach(() => localStorage.clear())
-  afterEach(() => vi.unstubAllGlobals())
+  beforeEach(() => {
+    localStorage.clear()
+    // These cases are about the visitor, so the deployment must not be pinned.
+    // Left to the real environment, a shell with VUE_APP_LOCALE exported would
+    // make every one of them pass for the wrong reason.
+    vi.stubEnv('VUE_APP_LOCALE', '')
+  })
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.unstubAllEnvs()
+  })
 
   it('prefers what the visitor chose over what the browser says', () => {
     localStorage.setItem(STORAGE_KEY, 'zh-CN')
@@ -97,5 +108,87 @@ describe('initialLocale', () => {
   it('falls back to zh-CN when nothing matches', () => {
     stub(['ja-JP'])
     expect(initialLocale()).toBe(DEFAULT_LOCALE)
+  })
+})
+
+/**
+ * A deployment that ships in one language.
+ *
+ * The whole point is that the visitor cannot end up somewhere else, so what
+ * matters is the order: this has to beat both the stored choice and the
+ * browser. The deployments that want it have usually been running long enough
+ * that someone has already used the switcher.
+ */
+describe('fixedLocale', () => {
+  afterEach(() => vi.unstubAllEnvs())
+
+  it('is nothing when the build was not pinned', () => {
+    vi.stubEnv('VUE_APP_LOCALE', '')
+    expect(fixedLocale()).toBeUndefined()
+  })
+
+  it('is the language the build was pinned to', () => {
+    vi.stubEnv('VUE_APP_LOCALE', 'en-US')
+    expect(fixedLocale()).toBe('en-US')
+  })
+
+  it('ignores a value that is not a language we ship', () => {
+    // vite.config.mjs fails the build on this, so it should never arrive. The
+    // guard is here so that a value which somehow does cannot be handed to
+    // setLocale, which would ask for a chunk that does not exist.
+    vi.stubEnv('VUE_APP_LOCALE', 'zh_CN')
+    expect(fixedLocale()).toBeUndefined()
+  })
+})
+
+describe('initialLocale on a pinned build', () => {
+  const stub = (languages: string[]) => {
+    vi.stubGlobal('navigator', { languages, language: languages[0] })
+  }
+
+  beforeEach(() => localStorage.clear())
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.unstubAllEnvs()
+  })
+
+  it('outranks a choice the visitor made earlier', () => {
+    // The upgrade case: this deployment ran without the switcher, then with it,
+    // and now wants one language again. Someone who switched to English in
+    // between still has 'en-US' in localStorage.
+    localStorage.setItem(STORAGE_KEY, 'en-US')
+    vi.stubEnv('VUE_APP_LOCALE', 'zh-CN')
+    expect(initialLocale()).toBe('zh-CN')
+  })
+
+  it('outranks the browser', () => {
+    stub(['en-GB'])
+    vi.stubEnv('VUE_APP_LOCALE', 'zh-CN')
+    expect(initialLocale()).toBe('zh-CN')
+  })
+
+  it('can pin a language that is not the default', () => {
+    stub(['zh-CN'])
+    vi.stubEnv('VUE_APP_LOCALE', 'en-US')
+    expect(initialLocale()).toBe('en-US')
+  })
+})
+
+/**
+ * vite.config.mjs decides whether VUE_APP_LOCALE is a language this build ships
+ * by looking for a directory under src/lang, because a config file cannot
+ * import this module. That is only a sound test if the two agree, and the way
+ * they stop agreeing is the ordinary one: a language is added as a directory
+ * and the LOCALES line is forgotten, or the other way round. Either half alone
+ * fails quietly -- a build that accepts a language the app will not honour, or
+ * a language the app offers and the build rejects.
+ */
+describe('LOCALES and the packs on disk', () => {
+  it('name the same languages', () => {
+    const packs = readdirSync(resolve(import.meta.dirname, '../../../src/lang'), { withFileTypes: true })
+      .filter(entry => entry.isDirectory())
+      .map(entry => entry.name)
+
+    expect(packs.sort()).toEqual(LOCALES.map(locale => locale.value).sort())
   })
 })

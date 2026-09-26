@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { svgSprite } from './build/svg-sprite.mjs'
 import { compression } from 'vite-plugin-compression2'
 import path from 'path'
+import { readdirSync } from 'node:fs'
 
 const resolve = dir => path.resolve(import.meta.dirname, dir)
 
@@ -56,6 +57,43 @@ const googleAnalytics = measurementId => ({
   }
 })
 
+/** The languages src/lang ships a pack for. Directories only; the rest is code. */
+const shippedLocales = () => readdirSync(resolve('src/lang'), { withFileTypes: true })
+  .filter(entry => entry.isDirectory())
+  .map(entry => entry.name)
+
+/**
+ * Resolves VUE_APP_LOCALE, and refuses to build on a value that is not a
+ * language we ship.
+ *
+ * Empty is the shipped value and means the visitor decides -- a stored choice,
+ * else the browser, else zh-CN. Setting it fixes the whole deployment to one
+ * language and removes the switcher, which is what an intranet running in a
+ * single language wants after this project grew a second one.
+ *
+ * The throw is the point. A typo -- `zh_CN`, `zh`, `cn` -- is otherwise a
+ * deployment that quietly keeps following the browser: nothing is missing from
+ * the interface, no request fails, and the one person who would notice is the
+ * operator who thought they had pinned it. Failing here puts the mistake in
+ * front of whoever made it, while they are still looking at the build.
+ *
+ * tests/unit/lang/locales.spec.ts holds the directory listing and LOCALES to
+ * each other, so a pack that exists is also a language the app will accept.
+ */
+const fixedLocale = configured => {
+  const locale = (configured ?? '').trim()
+  if (!locale) return ''
+
+  const shipped = shippedLocales()
+  if (!shipped.includes(locale)) {
+    throw new Error(
+      `VUE_APP_LOCALE is set to "${locale}", which is not a language this build ships. ` +
+      `Use one of: ${shipped.join(', ')}. Leave it empty to follow the visitor's browser.`
+    )
+  }
+  return locale
+}
+
 export default defineConfig(({ mode }) => {
   // 同时加载 VITE_ 与 VUE_APP_ 前缀，保持与 Vue CLI 时期的 .env 文件兼容
   const env = loadEnv(mode, process.cwd(), ['VITE_', 'VUE_APP_', 'NODE_'])
@@ -103,6 +141,9 @@ export default defineConfig(({ mode }) => {
       // The login footer renders this only when it is set. Left empty in every
       // .env here: a filing number belongs to whoever operates the deployment.
       'process.env.VUE_APP_ICP': JSON.stringify(env.VUE_APP_ICP || ''),
+      // Empty in every .env here: a deployment that wants one language sets it,
+      // and everyone else lets the visitor decide. See fixedLocale above.
+      'process.env.VUE_APP_LOCALE': JSON.stringify(fixedLocale(env.VUE_APP_LOCALE)),
       'process.env.NODE_ENV': JSON.stringify(mode === 'development' ? 'development' : 'production')
     },
 
