@@ -94,12 +94,24 @@ export function updateGenTable(data: GenTable) {
   })
 }
 
-/** Registers database tables with the generator. */
-export function importTable(data: { tables: string; [key: string]: unknown }) {
+/**
+ * Registers database tables with the generator.
+ *
+ * The one write in this file that sends its argument as a query parameter
+ * rather than a JSON body, and it stays that way on purpose. The endpoint has
+ * always read the list from the query; v3.2.0 moved it into the body, where
+ * older servers cannot see it, and every import failed. go-admin has since
+ * added a body fallback, so a current server accepts either -- but go-admin is
+ * cloned and self-hosted, the two repositories upgrade on their own schedules,
+ * and the query is the only form every server understands. Sending it there
+ * costs nothing and is what makes a released front end work against the server
+ * a deployment already runs.
+ */
+export function importTable(tables: string) {
   return request<ApiResponse<null>>({
     url: '/api/v1/sys/tables/info',
     method: 'post',
-    data
+    params: { tables }
   })
 }
 

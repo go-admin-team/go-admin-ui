@@ -44,8 +44,9 @@ export interface UseFormOptions<TModel extends object, TId = unknown> {
   rules?: MaybeRef<FormRules>
 
   /**
-   * Primary-key field. Its presence on the model decides whether submitting
-   * creates or updates.
+   * Primary-key field. `openEdit` reads it off a row to fetch the record, and a
+   * form opened neither by `openCreate` nor by `openEdit` is taken to be
+   * editing when the model carries it.
    */
   idKey?: keyof TModel & string
 
@@ -125,7 +126,11 @@ export interface UseFormReturn<TModel extends object, TId = unknown> {
   visible: boolean
   /** Title for the current mode. */
   title: string
-  /** True when the model carries a primary key. */
+  /**
+   * True when the form was opened with `openEdit`, false when with
+   * `openCreate`. A form opened neither way falls back to whether the model
+   * carries a primary key.
+   */
   isEdit: boolean
   /** Open for creation, optionally seeding fields. */
   openCreate: (patch?: Partial<TModel>) => void
@@ -180,7 +185,14 @@ export function useForm<TModel extends object, TId = unknown>(
   const loading = ref(false)
   const visible = ref(false)
 
+  // Which of openCreate/openEdit opened the form. A primary key the database
+  // does not assign - a string code, say - is typed into the create form by
+  // the user, and inferring the mode from the key's presence turned that
+  // create into an update the moment the first character went in.
+  const openedAs = ref<'create' | 'edit' | null>(null)
+
   const isEdit = computed(() => {
+    if (openedAs.value) return openedAs.value === 'edit'
     if (!idKey) return false
     const id = model.value[idKey]
     return id !== undefined && id !== null && id !== ''
@@ -198,6 +210,7 @@ export function useForm<TModel extends object, TId = unknown>(
 
   const reset = () => {
     model.value = defaultModel()
+    openedAs.value = null
     // clearValidate, not resetFields: resetFields restores the values el-form
     // captured when it mounted, which for a reused dialog is whatever the
     // previously edited record happened to contain.
@@ -206,6 +219,7 @@ export function useForm<TModel extends object, TId = unknown>(
 
   const openCreate = (patch?: Partial<TModel>) => {
     reset()
+    openedAs.value = 'create'
     if (patch) Object.assign(model.value as object, patch)
     visible.value = true
   }
@@ -219,6 +233,7 @@ export function useForm<TModel extends object, TId = unknown>(
 
   const openEdit = async(idOrRow: TId | TModel) => {
     reset()
+    openedAs.value = 'edit'
     if (!api.get) {
       // No detail endpoint: the row itself is the record.
       Object.assign(model.value as object, idOrRow as object)

@@ -11,6 +11,7 @@ import login from './login'
 import dashboard from './dashboard'
 import admin from './admin'
 import composables from './composables'
+import gen from './gen'
 
 /**
  * Chinese, the default and the fallback.
@@ -20,5 +21,8 @@ import composables from './composables'
  * would be a second source of truth for the same strings, and the two would
  * drift the first time someone renamed a menu. Chinese always falls through to
  * the database value; see lang/backend.ts.
+ *
+ * `gen` is not one file but a whole directory the code generator writes into
+ * at runtime -- see gen/index.ts.
  */
-export default { common, schedule, devTools, demo, sysTools, profile, layout, route, components, login, dashboard, admin, composables }
+export default { common, schedule, devTools, demo, sysTools, profile, layout, route, components, login, dashboard, admin, composables, gen }

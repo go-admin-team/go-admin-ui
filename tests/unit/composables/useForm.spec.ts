@@ -268,6 +268,36 @@ describe('useForm', () => {
       expect(msgSuccess).toHaveBeenCalledWith('修改成功')
     })
 
+    // A key the database does not assign is typed in on create. While the mode
+    // was read off the key, the first character flipped the form to editing
+    // and the submit went to update, for a record that did not exist yet.
+    it('creates when the user types the key into a create form', async() => {
+      interface Code {
+        code?: string
+        name?: string
+      }
+      const add = vi.fn().mockResolvedValue(undefined)
+      const update = vi.fn().mockResolvedValue(undefined)
+      const form = useForm<Code, string>({
+        defaultModel: () => ({ code: '', name: '' }),
+        idKey: 'code',
+        api: { add, update }
+      })
+
+      form.openCreate()
+      form.model.code = 'c-1'
+      form.model.name = 'alpha'
+
+      expect(form.isEdit).toBe(false)
+      expect(form.title).toBe('新增')
+      const ok = await form.submit()
+
+      expect(ok).toBe(true)
+      expect(add).toHaveBeenCalledTimes(1)
+      expect(update).not.toHaveBeenCalled()
+      expect(msgSuccess).toHaveBeenCalledWith('新增成功')
+    })
+
     // The defect this covers: mixins/crud.js had no in-flight check, so a
     // double-clicked confirm button sent two POSTs and created two records.
     it('refuses a second submit while the first is in flight', async() => {
@@ -513,6 +543,45 @@ describe('useForm', () => {
       expect(stub.clearValidate).toHaveBeenCalled()
       expect(stub.resetFields).not.toHaveBeenCalled()
     })
+  })
+
+  describe('a form opened neither way', () => {
+    it('is editing when the model carries a key', () => {
+      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId' })
+
+      form.model = { userId: 5 }
+
+      expect(form.isEdit).toBe(true)
+    })
+
+    it('includes one that was opened and then reset', () => {
+      const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId' })
+
+      form.openCreate()
+      form.reset()
+      form.model = { userId: 5 }
+
+      expect(form.isEdit).toBe(true)
+    })
+  })
+
+  // The mode is known before the record arrives, so the title does not read
+  // 新增 while an edit is loading.
+  it('is editing while openEdit is still loading the record', async() => {
+    const pending = deferred<ApiResponse<User>>()
+    const form = useForm<User, number>({
+      defaultModel: defaultUser,
+      idKey: 'userId',
+      api: { get: () => pending.promise }
+    })
+
+    const opening = form.openEdit(5)
+
+    expect(form.loading).toBe(true)
+    expect(form.isEdit).toBe(true)
+    expect(form.title).toBe('修改')
+    pending.resolve({ code: 200, msg: '', data: { userId: 5 }} as ApiResponse<User>)
+    await opening
   })
 
   it('treats an empty-string key as not-yet-created', () => {
