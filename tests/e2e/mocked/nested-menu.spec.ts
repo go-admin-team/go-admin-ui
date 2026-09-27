@@ -130,6 +130,64 @@ test.describe('a menu nested two levels deep', () => {
     expect(calls.operLog.list).toBe(1)
   })
 
+  /**
+   * The direction #307 missed: leaving a nested leaf for a page outside its
+   * container. The url and the sidebar moved on while the content area stayed
+   * on the log page, and stayed there on every navigation after it until a
+   * reload. Found and first diagnosed in #309.
+   *
+   * The page is checked to be gone, not only the new one to be present: the
+   * failure left the old page's DOM behind after its components had unmounted,
+   * and a check for the new headers alone would pass with both on screen.
+   */
+  test('leaving a nested leaf for a page outside the container swaps the page', async({ page }) => {
+    await installApiMocks(page)
+    await serveNestedMenu(page)
+
+    await page.goto('/#/admin/sys-oper-log')
+    await expect(columnHeaders(page)).toContainText(['操作人员'])
+
+    await page.goto('/#/admin/sys-user')
+    await expect(columnHeaders(page)).toContainText(['登录名'])
+    await expect(page.locator('.app-main .el-table')).toHaveCount(1)
+    await expect(columnHeaders(page)).not.toContainText(['操作人员'])
+
+    // And it keeps working: back in, and out again.
+    await page.goto('/#/admin/sys-login-log')
+    await expect(columnHeaders(page)).toContainText(['ip 地址'])
+    await page.goto('/#/admin/sys-user')
+    await expect(columnHeaders(page)).toContainText(['登录名'])
+    await expect(page.locator('.app-main .el-table')).toHaveCount(1)
+  })
+
+  /** The same exit through the sidebar, the way #309 reported it. */
+  test('clicking out of a nested leaf in the sidebar swaps the page', async({ page }) => {
+    await installApiMocks(page)
+    await serveNestedMenu(page)
+
+    await page.goto('/#/admin/sys-oper-log')
+    await expect(columnHeaders(page)).toContainText(['操作人员'])
+
+    await page.locator('.sidebar-container').getByText('用户管理', { exact: true }).click()
+    await expect(page).toHaveURL(/#\/admin\/sys-user/)
+    await expect(columnHeaders(page)).toContainText(['登录名'])
+    await expect(page.locator('.app-main .el-table')).toHaveCount(1)
+  })
+
+  /**
+   * A nested leaf's breadcrumb names both directories above it. Flattening the
+   * route table to avoid the container level (the approach in #309) drops
+   * them, since the breadcrumb reads route.matched.
+   */
+  test('the breadcrumb on a nested leaf names both directories', async({ page }) => {
+    await installApiMocks(page)
+    await serveNestedMenu(page)
+
+    await page.goto('/#/admin/sys-oper-log')
+    await expect(columnHeaders(page)).toContainText(['操作人员'])
+    await expect(page.locator('.app-breadcrumb .el-breadcrumb__item')).toContainText(['系统管理', '日志管理', '操作日志'])
+  })
+
   /** Entering the section from outside it was never broken; it is here so a fix that trades one for the other is caught. */
   test('reaching a nested leaf from a page outside the container', async({ page }) => {
     const { calls } = await installApiMocks(page)
