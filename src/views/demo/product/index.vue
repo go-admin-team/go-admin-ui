@@ -69,7 +69,7 @@
         v-loading="form.loading"
         :model="form.model"
         :rules="form.rules"
-        label-width="80px"
+        label-width="auto"
       >
         <el-form-item :label="$t('demo.name')" prop="name">
           <el-input v-model="form.model.name" :placeholder="$t('demo.namePlaceholder')" />

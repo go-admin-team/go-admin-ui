@@ -136,7 +136,7 @@
         v-loading="form.loading"
         :model="form.model"
         :rules="form.rules"
-        label-width="100px"
+        label-width="auto"
       >
         <el-row :gutter="16">
           <el-col :span="24">

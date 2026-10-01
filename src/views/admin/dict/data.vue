@@ -90,7 +90,7 @@
     </ProTable>
 
     <el-dialog v-model="form.visible" :title="form.title" width="500px" :close-on-click-modal="false">
-      <el-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" label-width="90px">
+      <el-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" label-width="auto">
         <el-form-item :label="$t('admin.dict.data.dictType')">
           <el-input v-model="form.model.dictType" disabled />
         </el-form-item>

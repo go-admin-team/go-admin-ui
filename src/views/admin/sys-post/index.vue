@@ -102,7 +102,7 @@
         v-loading="form.loading"
         :model="form.model"
         :rules="form.rules"
-        label-width="88px"
+        label-width="auto"
       >
         <el-form-item :label="$t('admin.sysPost.postName')" prop="postName">
           <el-input v-model="form.model.postName" :placeholder="$t('admin.sysPost.postNamePlaceholder')" />

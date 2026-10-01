@@ -126,7 +126,7 @@
     </ProTable>
 
     <el-dialog v-model="form.visible" :title="form.title" width="700px" :close-on-click-modal="false">
-      <el-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" label-width="120px">
+      <el-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" label-width="auto">
         <el-row :gutter="16">
           <el-col :span="12">
             <el-form-item :label="$t('schedule.name')" prop="jobName">

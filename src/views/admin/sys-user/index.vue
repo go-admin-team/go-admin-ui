@@ -128,7 +128,7 @@
             show-overflow-tooltip
           />
           <el-table-column :label="$t('admin.sysUser.phoneColumn')" prop="phone" min-width="110" />
-          <el-table-column :label="$t('admin.sysUser.status')" prop="status" width="82" sortable="custom">
+          <el-table-column :label="$t('admin.sysUser.status')" prop="status" width="96" sortable="custom">
             <template #default="{ row }">
               <el-switch
                 v-model="row.status"
@@ -185,7 +185,7 @@
         v-loading="userForm.loading"
         :model="userForm.model"
         :rules="userForm.rules"
-        label-width="88px"
+        label-width="auto"
       >
         <el-row :gutter="16">
           <el-col :span="12">
@@ -341,7 +341,7 @@
         :ref="passwordForm.bindFormRef"
         :model="passwordForm.model"
         :rules="passwordForm.rules"
-        label-width="88px"
+        label-width="auto"
       >
         <el-form-item :label="$t('admin.sysUser.user')">
           <span>{{ passwordForm.model.username }}</span>
