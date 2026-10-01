@@ -1,9 +1,9 @@
 export default {
   type: {
     dictName: 'Dictionary Name',
-    dictNamePlaceholder: 'Please enter dictionary name',
+    dictNamePlaceholder: 'Enter dictionary name',
     dictType: 'Dictionary Type',
-    dictTypePlaceholder: 'Please enter dictionary type',
+    dictTypePlaceholder: 'Enter dictionary type',
     status: 'Status',
     statusPlaceholder: 'Dictionary status',
     dictId: 'ID',
@@ -11,7 +11,7 @@ export default {
 
     addTitle: 'Add Dictionary Type',
     editTitle: 'Edit Dictionary Type',
-    remarkPlaceholder: 'Please enter content',
+    remarkPlaceholder: 'Enter content',
 
     // Pluralised, which the Chinese does not need. The page passes the count as
     // the plural choice as well as a named value.
@@ -35,7 +35,7 @@ export default {
   data: {
     dictName: 'Dictionary Name',
     dictLabel: 'Dictionary Label',
-    dictLabelPlaceholder: 'Please enter dictionary label',
+    dictLabelPlaceholder: 'Enter dictionary label',
     status: 'Status',
     statusPlaceholder: 'Data status',
     dictCode: 'ID',
@@ -47,11 +47,11 @@ export default {
     editTitle: 'Edit Dictionary Data',
     dictType: 'Dictionary Type',
     label: 'Data Label',
-    labelPlaceholder: 'Please enter data label',
+    labelPlaceholder: 'Enter data label',
     value: 'Data Value',
-    valuePlaceholder: 'Please enter data value',
+    valuePlaceholder: 'Enter data value',
     displaySort: 'Display Order',
-    remarkPlaceholder: 'Please enter content',
+    remarkPlaceholder: 'Enter content',
 
     // 'entry' rather than a plural of 'Dictionary Data', which has none: the
     // sentence counts rows, and English has to name what a row is.

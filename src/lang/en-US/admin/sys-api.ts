@@ -1,8 +1,8 @@
 export default {
   title: 'Title',
-  titlePlaceholder: 'Please enter title',
+  titlePlaceholder: 'Enter title',
   path: 'Path',
-  pathPlaceholder: 'Please enter path',
+  pathPlaceholder: 'Enter path',
   type: 'Type',
 
   // 'API' per the glossary, which keeps 'Interface' out of a product where it
@@ -16,8 +16,8 @@ export default {
   peekTitle: 'Title: {value}',
 
   editTitle: 'Edit API',
-  typePlaceholder: 'Please select a type',
-  actionPlaceholder: 'Please select a method',
+  typePlaceholder: 'Select type',
+  actionPlaceholder: 'Select method',
 
   rules: {
     handle: 'Handle is required',

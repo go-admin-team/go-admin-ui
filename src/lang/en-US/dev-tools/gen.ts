@@ -1,8 +1,8 @@
 export default {
   tableName: 'Table Name',
-  tableNamePlaceholder: 'Please enter table name',
+  tableNamePlaceholder: 'Enter table name',
   tableComment: 'Menu Name',
-  tableCommentPlaceholder: 'Please enter menu name',
+  tableCommentPlaceholder: 'Enter menu name',
 
   import: 'Import',
 

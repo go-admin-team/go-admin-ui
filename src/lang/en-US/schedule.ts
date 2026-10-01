@@ -1,6 +1,6 @@
 export default {
   name: 'Name',
-  namePlaceholder: 'Please enter name',
+  namePlaceholder: 'Enter name',
   jobGroup: 'Task Group',
   status: 'Status',
   statusPlaceholder: 'Task status',

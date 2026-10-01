@@ -32,11 +32,11 @@ export default {
 
   password: {
     old: 'Current Password',
-    oldPlaceholder: 'Please enter your current password',
+    oldPlaceholder: 'Enter your current password',
     new: 'New Password',
-    newPlaceholder: 'Please enter a new password',
+    newPlaceholder: 'Enter new password',
     confirm: 'Confirm Password',
-    confirmPlaceholder: 'Please confirm the new password',
+    confirmPlaceholder: 'Confirm new password',
     rules: {
       oldRequired: 'Current password is required',
       newRequired: 'New password is required',

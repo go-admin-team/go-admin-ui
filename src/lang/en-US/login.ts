@@ -3,11 +3,11 @@ export default {
   // The field is 账号 in Chinese but binds to `username`, and Username is what
   // a browser password manager expects to see next to it.
   username: 'Username',
-  usernamePlaceholder: 'Please enter username',
+  usernamePlaceholder: 'Enter username',
   password: 'Password',
-  passwordPlaceholder: 'Please enter password',
+  passwordPlaceholder: 'Enter password',
   captcha: 'Captcha',
-  captchaPlaceholder: 'Please enter captcha',
+  captchaPlaceholder: 'Enter captcha',
   captchaRefresh: 'Click to refresh the captcha',
   submit: 'Login',
   submitting: 'Logging in',
