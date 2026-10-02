@@ -1,6 +1,6 @@
 export default {
   operUrl: 'Request URL',
-  operUrlPlaceholder: 'Please enter request URL',
+  operUrlPlaceholder: 'Enter request URL',
   status: 'Status',
   statusPlaceholder: 'Operation status',
   // 操作时间 and 操作日期 are two spellings of one thing -- the picker labels

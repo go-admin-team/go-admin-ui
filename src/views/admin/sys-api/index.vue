@@ -91,7 +91,7 @@
       the page is scanned route by route. Kept from the version this replaces.
     -->
     <el-drawer v-model="form.visible" :title="form.title" direction="rtl" size="420px">
-      <el-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" label-width="80px">
+      <el-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" label-width="auto">
         <el-form-item label="Handle" prop="handle">
           <el-input v-model="form.model.handle" placeholder="handle" />
         </el-form-item>

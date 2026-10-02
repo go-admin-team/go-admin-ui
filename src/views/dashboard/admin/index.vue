@@ -32,7 +32,7 @@
           <div>
             <mini-area />
           </div>
-          <template #footer>{{ $t('dashboard.visits.daily') }}<span> {{ '1234' }}</span></template>
+          <template #footer>{{ $t('dashboard.visits.daily') }}<span>{{ '1234' }}</span></template>
         </chart-card>
       </el-col>
 
@@ -47,7 +47,7 @@
           <div>
             <mini-bar />
           </div>
-          <template #footer>{{ $t('dashboard.payments.conversion') }} <span>60%</span></template>
+          <template #footer>{{ $t('dashboard.payments.conversion') }}<span>60%</span></template>
         </chart-card>
       </el-col>
 
@@ -63,7 +63,7 @@
             <mini-progress :target="80" :percentage="78" height="8px" />
           </div>
           <template #footer>
-            <trend flag="top" style="margin-right: 16px;" rate="12">
+            <trend flag="top" style="margin-right: 8px;" rate="12">
               <template #term><span>{{ $t('dashboard.campaign.weekComparison') }}</span></template>
             </trend>
             <trend flag="bottom" rate="80">

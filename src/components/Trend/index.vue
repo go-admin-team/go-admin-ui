@@ -31,6 +31,10 @@ export default {
   display: inline-block;
   font-size: 14px;
   line-height: 22px;
+  vertical-align: top;
+  // The label comes from a slot and the figure follows it directly. Chinese
+  // reads fine like that; English ran them together ("Weekly Change12%").
+  > :nth-child(2) { margin-left: 4px; }
   .trend-icon {
     font-size: 12px;
   }
@@ -41,6 +45,11 @@ export default {
   position: relative;
   top: 1px;
   width: 15px;
+  // Pinned to the line height: left to size itself, the inline-block came out one
+  // pixel taller than the text beside it and made the fourth card taller than
+  // the other three.
+  height: 22px;
+  vertical-align: top;
   display: inline-block;
   i {
     font-size: 12px;

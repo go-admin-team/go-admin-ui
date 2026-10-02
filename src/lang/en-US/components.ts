@@ -14,7 +14,7 @@ export default {
     noMore: 'No more items'
   },
   iconSelect: {
-    placeholder: 'Please enter icon name'
+    placeholder: 'Enter icon name'
   },
   rightPanel: {
     // Kept distinct from layout.settings.title ('页面设置' / 'Page Settings'):

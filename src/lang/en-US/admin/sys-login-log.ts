@@ -1,10 +1,10 @@
 export default {
   username: 'Username',
-  usernamePlaceholder: 'Please enter username',
+  usernamePlaceholder: 'Enter username',
   status: 'Status',
   statusPlaceholder: 'Login status',
   ipaddr: 'IP Address',
-  ipaddrPlaceholder: 'Please enter IP address',
+  ipaddrPlaceholder: 'Enter IP address',
 
   msg: 'Type',
   // No trailing space after the colon: the Chinese full-width colon carries its

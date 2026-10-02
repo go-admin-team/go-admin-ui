@@ -64,7 +64,7 @@
         show-overflow-tooltip
       />
       <el-table-column :label="$t('admin.sysRole.sort')" prop="roleSort" min-width="80" sortable="custom" />
-      <el-table-column :label="$t('admin.sysRole.status')" prop="status" width="82" sortable="custom">
+      <el-table-column :label="$t('admin.sysRole.status')" prop="status" width="96" sortable="custom">
         <template #default="{ row }">
           <el-switch
             v-model="row.status"
@@ -104,7 +104,7 @@
         v-loading="roleForm.loading"
         :model="roleForm.model"
         :rules="roleForm.rules"
-        label-width="88px"
+        label-width="auto"
       >
         <el-form-item :label="$t('admin.sysRole.roleName')" prop="roleName">
           <el-input
@@ -173,7 +173,7 @@
         :ref="scopeForm.bindFormRef"
         v-loading="scopeForm.loading"
         :model="scopeForm.model"
-        label-width="88px"
+        label-width="auto"
       >
         <el-form-item :label="$t('admin.sysRole.roleName')">
           <el-input :model-value="scopeForm.model.roleName" disabled />

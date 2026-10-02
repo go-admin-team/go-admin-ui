@@ -1,10 +1,10 @@
 export default {
   roleName: 'Role Name',
-  roleNamePlaceholder: 'Please enter role name',
+  roleNamePlaceholder: 'Enter role name',
   // Not 'Permission Key', which is sys-menu's 权限标识: this one identifies the
   // role itself, and the two appear in the same product.
   roleKey: 'Role Key',
-  roleKeyPlaceholder: 'Please enter role key',
+  roleKeyPlaceholder: 'Enter role key',
   status: 'Status',
   statusPlaceholder: 'Role status',
 
@@ -17,7 +17,7 @@ export default {
   roleSort: 'Display Order',
   menuPermission: 'Menu Permissions',
   remark: 'Remark',
-  remarkPlaceholder: 'Please enter content',
+  remarkPlaceholder: 'Enter content',
   treeLoading: 'Loading, please wait',
   adminNeedsNoMenus: 'The super administrator already holds every permission',
 

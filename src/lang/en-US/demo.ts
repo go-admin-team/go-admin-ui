@@ -1,15 +1,15 @@
 export default {
   name: 'Name',
-  namePlaceholder: 'Please enter a name',
+  namePlaceholder: 'Enter name',
   code: 'Code',
-  codePlaceholder: 'Please enter a code',
+  codePlaceholder: 'Enter code',
   price: 'Price',
   status: 'Status',
-  statusPlaceholder: 'Please select a status',
+  statusPlaceholder: 'Select status',
   normal: 'Normal',
   disabled: 'Disabled',
   remark: 'Remark',
-  remarkPlaceholder: 'Please enter a description',
+  remarkPlaceholder: 'Enter description',
   rules: {
     name: 'Name is required',
     code: 'Code is required'

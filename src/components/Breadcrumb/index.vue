@@ -49,12 +49,11 @@ export default {
 
       this.levelList = matched.filter(item => item.meta && item.meta.title && item.meta.breadcrumb !== false)
     },
+    // The dashboard route is named 'Dashboard' (see router/index.js). This used
+    // to compare the name with the Chinese title, which never matched, so the
+    // dashboard got a second "Home" crumb in front of itself.
     isDashboard(route) {
-      const name = route && route.name
-      if (!name) {
-        return false
-      }
-      return name.trim() === '首页'
+      return !!route && (route.name === 'Dashboard' || route.path === '/dashboard')
     },
     pathCompile(path) {
       // To solve this problem https://github.com/PanJiaChen/vue-element-admin/issues/561

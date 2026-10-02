@@ -2,18 +2,18 @@ export default {
   // 数据表名称 here and 表名称 on the list page name the same thing
   tableName: 'Table Name',
   tableNameTip: 'The database table name, used by gorm for table(). ⚠️It must be snake_case.',
-  tableNamePlaceholder: 'Please enter table name',
+  tableNamePlaceholder: 'Enter table name',
 
   tableComment: 'Menu Name',
   tableCommentTip: 'The database table name that was synced; used as the menu name when the configuration data is generated',
-  tableCommentPlaceholder: 'Please enter menu name',
+  tableCommentPlaceholder: 'Enter menu name',
 
   className: 'Struct Model Name',
   classNameTip: 'The struct model name, used for the struct definition in the generated code',
   classNamePlaceholder: 'Please enter',
 
   functionAuthor: 'Author Name',
-  functionAuthorPlaceholder: 'Please enter author name',
+  functionAuthorPlaceholder: 'Enter author name',
 
   remark: 'Remark',
 

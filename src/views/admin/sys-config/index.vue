@@ -119,7 +119,7 @@
         v-loading="form.loading"
         :model="form.model"
         :rules="form.rules"
-        label-width="88px"
+        label-width="auto"
       >
         <!-- Name and key identify the setting that code looks up, so they are
              fixed once created -->

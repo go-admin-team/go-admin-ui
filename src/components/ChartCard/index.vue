@@ -119,6 +119,12 @@ export default {
     margin: 0;
     color: var(--ga-text-2);
     font-size: 14px;
+    line-height: 22px;
+
+    // The figure follows its label with no space of its own, which English
+    // needs and Chinese does not mind. A margin rather than a space in each
+    // string, so the three footers cannot drift apart again.
+    > :deep(span) { margin-left: 4px; }
   }
 }
 
