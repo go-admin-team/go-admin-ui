@@ -71,7 +71,8 @@
     // A row is a flex container. The icon used to shrink with everything else,
     // so a title too long for the rail squashed it to nothing before the text
     // was touched ("Department Management" lost its icon in English).
-    .el-menu-item .svg-icon {
+    .el-menu-item .svg-icon,
+    .el-sub-menu__title .svg-icon {
       flex-shrink: 0;
     }
 
@@ -80,6 +81,15 @@
     // With its own element it can shrink and truncate, and the full title is on
     // hover.
     .el-menu-item .menu-title {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    // A parent row's title is a direct <span> child of the title, which the
+    // collapsed rail depends on (see .el-menu--collapse below), so it is styled
+    // in place instead of being wrapped.
+    .el-sub-menu__title > span {
       min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;

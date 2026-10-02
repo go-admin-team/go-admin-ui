@@ -34,7 +34,7 @@
              span 必须是直接子元素，中间不能再包一层容器 -->
         <template v-if="item.meta">
           <svg-icon v-if="item.meta.icon" :icon-class="item.meta.icon" />
-          <span>{{ routeTitle(item) }}</span>
+          <span :title="routeTitle(item)">{{ routeTitle(item) }}</span>
         </template>
       </template>
       <sidebar-item
