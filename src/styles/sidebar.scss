@@ -68,6 +68,30 @@
       margin-right: 16px;
     }
 
+    // A row is a flex container. The icon used to shrink with everything else,
+    // so a title too long for the rail squashed it to nothing before the text
+    // was touched ("Department Management" lost its icon in English).
+    .el-menu-item .svg-icon {
+      flex-shrink: 0;
+    }
+
+    // The ellipsis declared on .el-menu-item below never applied: the title was
+    // bare text, an anonymous flex item, and text-overflow does not reach those.
+    // With its own element it can shrink and truncate, and the full title is on
+    // hover.
+    .el-menu-item .menu-title {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    // Nothing sits to the right of a menu row, so the 20px of right padding only
+    // takes room from the title. 8px back keeps "Menu Management" from being
+    // cut one pixel short.
+    .el-menu-item {
+      padding-right: 12px !important;
+    }
+
     .el-menu {
       border: none;
       height: 100%;
