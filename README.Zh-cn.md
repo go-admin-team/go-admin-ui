@@ -238,7 +238,7 @@ pnpm install --registry=https://registry.npmmirror.com
 pnpm dev
 ```
 
-开发服务直接请求 `http://localhost:8000` 上的后端，这是 go-admin 默认监听的地址，所以请先启动后端。后端在其他地址时，修改 `.env.development` 里的 `VUE_APP_BASE_API`。默认账号 `admin` / `123456`。
+开发时由浏览器里的应用直接请求 `http://localhost:8000` 上的后端（没有代理），这是 go-admin 默认监听的地址，所以请先启动后端。后端在其他地址时，修改 `.env.development` 里的 `VUE_APP_BASE_API`。默认账号 `admin` / `123456`。
 
 ## 🎬 在线体验
 > admin  /  123456
