@@ -226,6 +226,8 @@ pnpm install
 pnpm dev
 ```
 
+The dev server calls the backend at `http://localhost:8000`, which is what go-admin listens on by default, so start the backend first. If it runs on another address, change `VUE_APP_BASE_API` in `.env.development`. Sign in with `admin` / `123456`.
+
 ## 🎬 Online Demo
 > admin  /  123456
 
