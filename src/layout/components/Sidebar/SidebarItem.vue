@@ -15,12 +15,12 @@
       >
         <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
           <svg-icon v-if="menuIcon(onlyOneChild)" :icon-class="menuIcon(onlyOneChild)" />
-          <template #title>{{ routeTitle(onlyOneChild) }}</template>
+          <template #title><span class="menu-title" :title="routeTitle(onlyOneChild)">{{ routeTitle(onlyOneChild) }}</span></template>
         </el-menu-item>
       </a>
       <el-menu-item v-else-if="onlyOneChild.meta" :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
         <svg-icon v-if="menuIcon(onlyOneChild)" :icon-class="menuIcon(onlyOneChild)" />
-        <template #title>{{ routeTitle(onlyOneChild) }}</template>
+        <template #title><span class="menu-title" :title="routeTitle(onlyOneChild)">{{ routeTitle(onlyOneChild) }}</span></template>
       </el-menu-item>
     </template>
 
@@ -34,7 +34,7 @@
              span 必须是直接子元素，中间不能再包一层容器 -->
         <template v-if="item.meta">
           <svg-icon v-if="item.meta.icon" :icon-class="item.meta.icon" />
-          <span>{{ routeTitle(item) }}</span>
+          <span :title="routeTitle(item)">{{ routeTitle(item) }}</span>
         </template>
       </template>
       <sidebar-item
