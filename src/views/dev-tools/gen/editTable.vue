@@ -335,14 +335,9 @@ const load = async() => {
     // above, and the other half of the same fault.
     tableTree.value = tree.data ?? []
     columns.value = detail.data?.list ?? []
-    // The three flags arrive as booleans and the radio groups work in strings
-    const loaded = (detail.data?.info ?? {}) as GenTable
-    info.value = {
-      ...loaded,
-      isDataScope: String(loaded.isDataScope ?? ''),
-      isActions: String(loaded.isActions ?? ''),
-      isAuth: String(loaded.isAuth ?? '')
-    }
+    // isDataScope / isActions / isAuth are ints on the backend (1 = yes, 2 = no)
+    // and no control edits them, so they round-trip untouched
+    info.value = (detail.data?.info ?? {}) as GenTable
     columns.value.forEach(attachForeignColumns)
     dictOptions.value = (dicts.data ?? []) as unknown as SysDictType[]
   } catch {
@@ -374,11 +369,7 @@ const submit = async() => {
         treeCode: info.value.treeCode,
         treeName: info.value.treeName,
         treeParentCode: info.value.treeParentCode
-      },
-      // Back to booleans for the wire
-      isDataScope: info.value.isDataScope === 'true',
-      isActions: info.value.isActions === 'true',
-      isAuth: info.value.isAuth === 'true'
+      }
     }
     await updateGenTable(payload)
     msgSuccess(t('devTools.editTable.saveSuccess'))

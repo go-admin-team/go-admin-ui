@@ -987,9 +987,9 @@ export async function installApiMocks(page: Page) {
           businessName: 'sysDemo',
           functionName: '演示',
           tplCategory: 'crud',
-          isDataScope: false,
-          isActions: true,
-          isAuth: true
+          isDataScope: 1,
+          isActions: 2,
+          isAuth: 1
         },
         list: genColumnRows
       }
