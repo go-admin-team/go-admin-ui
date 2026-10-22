@@ -275,8 +275,10 @@ test.describe('dev-tools editTable', () => {
     const sent = JSON.parse(bodies[0] || '{}')
     expect(sent.tableComment).toBe('演示菜单')
     expect(sent.columns).toHaveLength(2)
-    // Strings in the radio groups, booleans on the wire
-    expect(typeof sent.isAuth).toBe('boolean')
+    // Backend models these as int (1 = yes, 2 = no): a boolean fails to unmarshal
+    expect(sent.isDataScope).toBe(1)
+    expect(sent.isActions).toBe(2)
+    expect(sent.isAuth).toBe(1)
   })
 
   test('a column with no relation table offers no key to pick', async({ page }) => {
