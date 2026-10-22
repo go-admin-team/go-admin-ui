@@ -376,9 +376,9 @@ const submit = async() => {
         treeParentCode: info.value.treeParentCode
       },
       // Back to booleans for the wire
-      isDataScope: info.value.isDataScope === 'true',
-      isActions: info.value.isActions === 'true',
-      isAuth: info.value.isAuth === 'true'
+      isDataScope: info.value.isDataScope === 'true' ? 1 : 0,
+      isActions: info.value.isActions === 'true' ? 1 : 0,
+      isAuth: info.value.isAuth === 'true'? 1 : 0,
     }
     await updateGenTable(payload)
     msgSuccess(t('devTools.editTable.saveSuccess'))
